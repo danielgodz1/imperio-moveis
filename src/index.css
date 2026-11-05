@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-serif-atelier {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .font-sans-atelier {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Atelier Custom Smooth Transitions and Wood Grain Aesthetics */
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background-color: #fef8f4;
+  color: #1d1b19;
+}
+
+h1, h2, h3, .font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Ambient Woodcraft Shadows */
+.shadow-wood-sm {
+  box-shadow: 0 2px 8px rgba(36, 34, 32, 0.04), 0 1px 2px rgba(36, 34, 32, 0.02);
+}
+.shadow-wood-md {
+  box-shadow: 0 12px 24px -4px rgba(36, 34, 32, 0.08), 0 4px 8px -2px rgba(36, 34, 32, 0.03);
+}
+.shadow-wood-lg {
+  box-shadow: 0 20px 32px -8px rgba(36, 34, 32, 0.12), 0 8px 16px -4px rgba(36, 34, 32, 0.04);
+}
+
+/* Custom subtle linen texture backdrop overlay */
+.bg-linen-pattern {
+  background-color: #fef8f4;
+  background-image: radial-gradient(#d3c4b9 0.5px, transparent 0.5px), radial-gradient(#d3c4b9 0.5px, #fef8f4 0.5px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  background-opacity: 0.15;
+}
+
+/* Custom scrollbars: hidden on mobile (< 768px) to remove the golden lateral scrollbar */
+@media (max-width: 767px) {
+  ::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+  }
+  html, body, * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #15100c;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #c9a04e;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d8af5c;
+  }
+}
