@@ -5,16 +5,23 @@ export type ModuloId =
   | 'cabeceira-ripada-led'
   | 'painel-tv-ripado'
   | 'criado-mudo'
+  | 'penteadeira-camarim'
+  | 'bancada-estudo-quarto'
   | 'bancada-l'
   | 'ilha'
   | 'armarios-altos'
   | 'torre-forno'
+  | 'cristaleira-led'
+  | 'forro-ripado-teto'
   | 'nichos-led'
   | 'ilha-closet'
   | 'prateleiras-closet'
+  | 'sapateira-espelhada'
   | 'bancada-trabalho'
   | 'estante-ripada'
-  | 'gaveteiro';
+  | 'gaveteiro'
+  | 'armario-aereo-office'
+  | 'sofa-recepcao';
 
 export type ParedeCardeal = 'N' | 'S' | 'L' | 'O' | 'centro';
 
@@ -124,7 +131,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
   'criado-mudo': {
     id: 'criado-mudo',
-    rotulo: 'Mesas de cabeceira suspensas',
+    rotulo: 'Mesas de cabeceira + pendentes',
     ambientes: ['quarto'],
     regraEncaixe: {
       parede: 'N',
@@ -160,9 +167,47 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       posicao: [W / 2 - 0.06, 0, 0.15],
     }),
   },
+  'penteadeira-camarim': {
+    id: 'penteadeira-camarim',
+    rotulo: 'Penteadeira camarim com espelho LED',
+    ambientes: ['quarto', 'closet'],
+    regraEncaixe: {
+      parede: 'N',
+      larguraMin: 0.8,
+      larguraMax: 1.4,
+      larguraPadrao: 0.95,
+      alturaPadrao: 1.65,
+      profundidadePadrao: 0.45,
+    },
+    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => ({
+      largura: 0.92,
+      altura: 0.78,
+      profundidade: 0.44,
+      posicao: [W / 2 - 0.56, 0.76, -D / 2 + 0.25],
+    }),
+  },
+  'bancada-estudo-quarto': {
+    id: 'bancada-estudo-quarto',
+    rotulo: 'Bancada de estudo suspensa + nicho',
+    ambientes: ['quarto'],
+    regraEncaixe: {
+      parede: 'O',
+      larguraMin: 0.9,
+      larguraMax: 1.5,
+      larguraPadrao: 1.1,
+      alturaPadrao: 0.76,
+      profundidadePadrao: 0.5,
+    },
+    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => ({
+      largura: 1.05,
+      altura: 0.76,
+      profundidade: 0.48,
+      posicao: [-W / 2 + 0.26, 0.75, D / 2 - 0.68],
+    }),
+  },
   'bancada-l': {
     id: 'bancada-l',
-    rotulo: 'Bancada em L com cuba e granito',
+    rotulo: 'Bancada em L com cuba gourmet',
     ambientes: ['cozinha'],
     regraEncaixe: {
       parede: 'N',
@@ -181,7 +226,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
   ilha: {
     id: 'ilha',
-    rotulo: 'Ilha central ripada com cooktop',
+    rotulo: 'Ilha central ripada + cooktop e banquetas',
     ambientes: ['cozinha'],
     regraEncaixe: {
       parede: 'centro',
@@ -236,6 +281,44 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       posicao: [W / 2 - 0.42, (H - 0.06) / 2, -D / 2 + 0.32],
     }),
   },
+  'cristaleira-led': {
+    id: 'cristaleira-led',
+    rotulo: 'Adega e cristaleira iluminada em LED',
+    ambientes: ['cozinha'],
+    regraEncaixe: {
+      parede: 'O',
+      larguraMin: 0.7,
+      larguraMax: 1.2,
+      larguraPadrao: 0.85,
+      alturaPadrao: 2.45,
+      profundidadePadrao: 0.45,
+    },
+    gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
+      largura: 0.85,
+      altura: H - 0.08,
+      profundidade: 0.45,
+      posicao: [-W / 2 + 0.24, (H - 0.08) / 2, D / 2 - 0.58],
+    }),
+  },
+  'forro-ripado-teto': {
+    id: 'forro-ripado-teto',
+    rotulo: 'Pórtico e forro ripado no teto com LED',
+    ambientes: ['cozinha'],
+    regraEncaixe: {
+      parede: 'centro',
+      larguraMin: 1.8,
+      larguraMax: 3.6,
+      larguraPadrao: 2.2,
+      alturaPadrao: 0.08,
+      profundidadePadrao: 1.4,
+    },
+    gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
+      largura: Math.min(2.3, W - 0.8),
+      altura: 0.07,
+      profundidade: Math.min(1.5, D * 0.45),
+      posicao: [0.05, H - 0.05, D * 0.06],
+    }),
+  },
   'nichos-led': {
     id: 'nichos-led',
     rotulo: 'Coluna de nichos iluminados em LED',
@@ -257,7 +340,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
   'ilha-closet': {
     id: 'ilha-closet',
-    rotulo: 'Ilha central de closet para joias',
+    rotulo: 'Ilha central vitrine para joias',
     ambientes: ['closet'],
     regraEncaixe: {
       parede: 'centro',
@@ -276,7 +359,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
   'prateleiras-closet': {
     id: 'prateleiras-closet',
-    rotulo: 'Módulo de sapateira e cabideiros (Norte)',
+    rotulo: 'Colmeia de cabideiros e bolsas (Norte)',
     ambientes: ['closet'],
     regraEncaixe: {
       parede: 'N',
@@ -293,9 +376,28 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       posicao: [-0.2, (H - 0.08) / 2, -D / 2 + 0.27],
     }),
   },
+  'sapateira-espelhada': {
+    id: 'sapateira-espelhada',
+    rotulo: 'Sapateira vertical + espelho corpo inteiro',
+    ambientes: ['closet'],
+    regraEncaixe: {
+      parede: 'L',
+      larguraMin: 0.9,
+      larguraMax: 1.8,
+      larguraPadrao: 1.25,
+      alturaPadrao: 2.35,
+      profundidadePadrao: 0.38,
+    },
+    gerarGeometria: ({ largura_m: W, pe_direito_m: H }) => ({
+      largura: 1.25,
+      altura: H - 0.14,
+      profundidade: 0.36,
+      posicao: [W / 2 - 0.2, (H - 0.14) / 2, 0.22],
+    }),
+  },
   'bancada-trabalho': {
     id: 'bancada-trabalho',
-    rotulo: 'Bancada dupla de home office em L',
+    rotulo: 'Bancada dupla executiva + monitor',
     ambientes: ['home-office'],
     regraEncaixe: {
       parede: 'N',
@@ -314,7 +416,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
   'estante-ripada': {
     id: 'estante-ripada',
-    rotulo: 'Estante aérea e painel ripado',
+    rotulo: 'Estante biblioteca e painel ripado',
     ambientes: ['home-office'],
     regraEncaixe: {
       parede: 'O',
@@ -333,7 +435,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
   gaveteiro: {
     id: 'gaveteiro',
-    rotulo: 'Gaveteiro de apoio sob bancada',
+    rotulo: 'Gaveteiro volante sob bancada',
     ambientes: ['home-office'],
     regraEncaixe: {
       parede: 'N',
@@ -350,6 +452,44 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       posicao: [-0.95, 0.36, -D / 2 + 0.3],
     }),
   },
+  'armario-aereo-office': {
+    id: 'armario-aereo-office',
+    rotulo: 'Armário aéreo basculante com fita LED',
+    ambientes: ['home-office'],
+    regraEncaixe: {
+      parede: 'N',
+      larguraMin: 1.4,
+      larguraMax: 3.2,
+      larguraPadrao: 2.1,
+      alturaPadrao: 0.65,
+      profundidadePadrao: 0.36,
+    },
+    gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
+      largura: Math.min(2.1, W - 0.8),
+      altura: 0.62,
+      profundidade: 0.36,
+      posicao: [-0.2, H - 0.52, -D / 2 + 0.2],
+    }),
+  },
+  'sofa-recepcao': {
+    id: 'sofa-recepcao',
+    rotulo: 'Sofá de leitura e recepção lateral',
+    ambientes: ['home-office'],
+    regraEncaixe: {
+      parede: 'L',
+      larguraMin: 1.2,
+      larguraMax: 2.0,
+      larguraPadrao: 1.45,
+      alturaPadrao: 0.78,
+      profundidadePadrao: 0.72,
+    },
+    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => ({
+      largura: 1.4,
+      altura: 0.76,
+      profundidade: 0.7,
+      posicao: [W / 2 - 0.42, 0, D * 0.16],
+    }),
+  },
 };
 
 export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
@@ -357,12 +497,12 @@ export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
     id: 'quarto',
     rotulo: 'Quarto',
     descricaoReferencia:
-      'Cabeceira ripada com fita de LED, mesas de cabeceira, guarda-roupa de parede inteira e painel de TV.',
+      'Suíte planejada com sanca iluminada, cabeceira ripada em LED, guarda-roupa até o teto, penteadeira camarim e painel de TV.',
     fotoReferencia: 'dormitorio-led-1',
     fotosInspiracao: ['dormitorio-led-1', 'quarto-bebe-nichos'],
     dimensoesPadrao: {
-      largura_m: 3.6,
-      profundidade_m: 3.4,
+      largura_m: 3.8,
+      profundidade_m: 3.5,
       pe_direito_m: 2.7,
     },
     limites: {
@@ -379,17 +519,24 @@ export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
       'criado-mudo',
       'guarda-roupa',
       'painel-tv-ripado',
+      'penteadeira-camarim',
+      'bancada-estudo-quarto',
     ],
-    modulosIniciais: ['cabeceira-ripada-led', 'criado-mudo', 'guarda-roupa'],
+    modulosIniciais: [
+      'cabeceira-ripada-led',
+      'criado-mudo',
+      'guarda-roupa',
+      'painel-tv-ripado',
+    ],
     piso: 'madeira-clara',
     paredeDestaque: 'N',
-    posicaoCamera: [4.1, 3.1, 4.7],
+    posicaoCamera: [4.2, 3.1, 4.8],
   },
   cozinha: {
     id: 'cozinha',
     rotulo: 'Cozinha',
     descricaoReferencia:
-      'Cozinha clara com bancada em L, ilha central em ripado e granito escuro, armários até o teto e torre quente.',
+      'Cozinha gourmet com bancada em L, ilha ripada com banquetas, armários até o teto, torre quente, adega iluminada e forro ripado.',
     fotoReferencia: 'cozinha-ilha-ripado',
     fotosInspiracao: ['cozinha-ilha-ripado', 'cozinha-forro-ripado', 'cozinha-ilha-verde'],
     dimensoesPadrao: {
@@ -405,8 +552,21 @@ export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
     aberturasPadrao: [
       { tipo: 'janela', parede: 'O', largura_m: 1.4, posicaoOffset_m: -0.3 },
     ],
-    modulosPermitidos: ['bancada-l', 'ilha', 'armarios-altos', 'torre-forno'],
-    modulosIniciais: ['bancada-l', 'ilha', 'armarios-altos', 'torre-forno'],
+    modulosPermitidos: [
+      'bancada-l',
+      'ilha',
+      'armarios-altos',
+      'torre-forno',
+      'cristaleira-led',
+      'forro-ripado-teto',
+    ],
+    modulosIniciais: [
+      'bancada-l',
+      'ilha',
+      'armarios-altos',
+      'torre-forno',
+      'forro-ripado-teto',
+    ],
     piso: 'porcelanato-claro',
     paredeDestaque: 'N',
     posicaoCamera: [4.5, 3.3, 5.0],
@@ -415,12 +575,12 @@ export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
     id: 'closet',
     rotulo: 'Closet',
     descricaoReferencia:
-      'Guarda-roupa do piso ao teto, coluna de nichos iluminados por LED, prateleiras abertas e ilha central.',
+      'Closet arquitetônico com armários piso-teto, colmeia iluminada, ilha vitrine, penteadeira camarim e sapateira espelhada.',
     fotoReferencia: 'quarto-bebe-nichos',
     fotosInspiracao: ['quarto-bebe-nichos', 'dormitorio-led-1'],
     dimensoesPadrao: {
-      largura_m: 3.2,
-      profundidade_m: 3.0,
+      largura_m: 3.4,
+      profundidade_m: 3.2,
       pe_direito_m: 2.7,
     },
     limites: {
@@ -436,22 +596,30 @@ export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
       'prateleiras-closet',
       'nichos-led',
       'ilha-closet',
+      'penteadeira-camarim',
+      'sapateira-espelhada',
     ],
-    modulosIniciais: ['guarda-roupa', 'prateleiras-closet', 'nichos-led', 'ilha-closet'],
+    modulosIniciais: [
+      'guarda-roupa',
+      'prateleiras-closet',
+      'nichos-led',
+      'ilha-closet',
+      'sapateira-espelhada',
+    ],
     piso: 'madeira-clara',
     paredeDestaque: 'O',
-    posicaoCamera: [3.8, 3.0, 4.3],
+    posicaoCamera: [3.9, 3.0, 4.4],
   },
   'home-office': {
     id: 'home-office',
     rotulo: 'Home Office',
     descricaoReferencia:
-      'Bancada de trabalho sob medida, estante ripada vertical, gaveteiro de apoio e nichos iluminados.',
+      'Escritório planejado com bancada dupla executiva, estante ripada, armário aéreo em LED, gaveteiro e sofá de apoio.',
     fotoReferencia: 'dormitorio-led-2',
     fotosInspiracao: ['dormitorio-led-2', 'comercial-expositor'],
     dimensoesPadrao: {
-      largura_m: 3.2,
-      profundidade_m: 2.8,
+      largura_m: 3.4,
+      profundidade_m: 3.0,
       pe_direito_m: 2.7,
     },
     limites: {
@@ -467,11 +635,18 @@ export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
       'estante-ripada',
       'gaveteiro',
       'nichos-led',
+      'armario-aereo-office',
+      'sofa-recepcao',
     ],
-    modulosIniciais: ['bancada-trabalho', 'estante-ripada', 'gaveteiro', 'nichos-led'],
+    modulosIniciais: [
+      'bancada-trabalho',
+      'estante-ripada',
+      'gaveteiro',
+      'nichos-led',
+      'armario-aereo-office',
+    ],
     piso: 'madeira-clara',
     paredeDestaque: 'N',
-    posicaoCamera: [3.7, 2.9, 4.2],
+    posicaoCamera: [3.8, 3.0, 4.3],
   },
 };
-

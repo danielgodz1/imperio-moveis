@@ -13,16 +13,23 @@ export const ModuloIdEnum = z.enum([
   'cabeceira-ripada-led',
   'painel-tv-ripado',
   'criado-mudo',
+  'penteadeira-camarim',
+  'bancada-estudo-quarto',
   'bancada-l',
   'ilha',
   'armarios-altos',
   'torre-forno',
+  'cristaleira-led',
+  'forro-ripado-teto',
   'nichos-led',
   'ilha-closet',
   'prateleiras-closet',
+  'sapateira-espelhada',
   'bancada-trabalho',
   'estante-ripada',
   'gaveteiro',
+  'armario-aereo-office',
+  'sofa-recepcao',
 ]);
 
 export const AmbienteEnum = z.enum(['quarto', 'cozinha', 'closet', 'home-office']);
@@ -38,7 +45,7 @@ export const ModuloInstanciaSchema = z.object({
   id: ModuloIdEnum,
   parede: z.enum(['N', 'S', 'L', 'O', 'centro']),
   largura_m: z.number().min(0.4).max(5.5),
-  altura_m: z.number().min(0.25).max(3.5),
+  altura_m: z.number().min(0.05).max(3.5),
   acabamento: z.string(),
 });
 

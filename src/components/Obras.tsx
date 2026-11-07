@@ -23,6 +23,7 @@ export const Obras: React.FC = () => {
   const secaoRef = useRef<HTMLElement>(null);
   const trilhaScrollRef = useRef<HTMLDivElement>(null);
   const anotacoesSvgRef = useRef<SVGSVGElement>(null);
+  const listaBotoesMobileRef = useRef<HTMLDivElement>(null);
   const botaoFecharLightboxRef = useRef<HTMLButtonElement>(null);
   const travaCliqueManualAteRef = useRef<number>(0);
 
@@ -44,6 +45,18 @@ export const Obras: React.FC = () => {
     setIndiceAtivo(idx);
   };
 
+  // Mantém o botão ativo visível na faixa horizontal mobile sem deslocar a página
+  useEffect(() => {
+    const container = listaBotoesMobileRef.current;
+    if (!container) return;
+    const botaoAtivo = container.querySelector<HTMLElement>(`[data-obra-idx="${indiceAtivo}"]`);
+    if (!botaoAtivo) return;
+
+    const scrollLeft =
+      botaoAtivo.offsetLeft - container.clientWidth / 2 + botaoAtivo.clientWidth / 2;
+    container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
+  }, [indiceAtivo]);
+
   // Avança automaticamente entre os projetos conforme o usuário rola a página (rápido e fluido)
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -54,7 +67,7 @@ export const Obras: React.FC = () => {
 
     const st = ScrollTrigger.create({
       trigger: trilhaEl,
-      start: 'top top+=90',
+      start: 'top top+=72',
       end: 'bottom bottom',
       invalidateOnRefresh: true,
       onUpdate: (self) => {
@@ -133,8 +146,8 @@ export const Obras: React.FC = () => {
     return () => window.removeEventListener('keydown', aoTeclar);
   }, [obraAmpliada]);
 
-  // Altura rápida de scroll (~34vh por projeto) para trocar de projeto com fluidez enquanto rola
-  const alturaTrilhaVh = Math.max(130, obrasFiltradas.length * 34);
+  // Altura rápida de scroll (~30vh por projeto) para trocar de projeto com fluidez enquanto rola
+  const alturaTrilhaVh = Math.max(125, obrasFiltradas.length * 30);
   const progressoPercentual =
     obrasFiltradas.length > 1
       ? ((indiceAtivo + 1) / obrasFiltradas.length) * 100
@@ -151,42 +164,46 @@ export const Obras: React.FC = () => {
         className="relative w-full"
         style={{ minHeight: `${alturaTrilhaVh}vh` }}
       >
-        <div className="sticky top-20 lg:top-24 py-24 sm:py-32">
-          <div className="max-w-[1280px] mx-auto px-16 sm:px-32 flex flex-col gap-24 lg:gap-32">
-            {/* Cabeçalho da seção e navegação por links de texto */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-end">
-              <div className="lg:col-span-6 flex flex-col items-start gap-8">
-                <h2 className="tipo-h1 text-grafite">As obras</h2>
-                <p className="tipo-cota sm:tipo-corpo text-grafite-suave">
-                  Role para navegar pelos projetos ou clique na foto para ampliar em tela cheia.
-                </p>
+        <div className="sticky top-[68px] lg:top-[84px] py-12 sm:py-20 lg:py-24">
+          <div className="max-w-[1280px] mx-auto px-16 sm:px-32 flex flex-col gap-12 sm:gap-16 lg:gap-24">
+            {/* Cabeçalho compacto da seção e filtros por ambiente */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 sm:gap-16">
+              <div className="flex flex-col items-start gap-2 sm:gap-4">
+                <div className="flex items-center gap-12">
+                  <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-grafite-suave">
+                    Portfólio Real — Jaú/SP
+                  </span>
+                  <span className="text-[11px] font-semibold text-preto bg-papel-2 px-8 py-2 rounded-curto border border-grafite/15">
+                    {String(indiceAtivo + 1).padStart(2, '0')} /{' '}
+                    {String(obrasFiltradas.length).padStart(2, '0')}
+                  </span>
+                </div>
+                <h2 className="tipo-h2 sm:tipo-h1 text-grafite leading-tight">As obras</h2>
               </div>
 
-              <div className="lg:col-span-6 flex flex-wrap items-center gap-16 sm:gap-24 lg:justify-end">
-                <nav
-                  aria-label="Filtrar obras por ambiente"
-                  className="flex flex-wrap items-center gap-16 sm:gap-24"
-                >
-                  {CATEGORIAS.map((cat) => {
-                    const ativo = categoriaAtiva === cat.valor;
-                    return (
-                      <button
-                        key={cat.valor}
-                        type="button"
-                        onClick={() => trocarCategoria(cat.valor)}
-                        aria-current={ativo ? 'true' : undefined}
-                        className={`tipo-h3 cursor-pointer transition-colors ${
-                          ativo
-                            ? 'text-preto link-traco font-bold'
-                            : 'text-grafite-suave hover:text-grafite'
-                        }`}
-                      >
-                        {cat.rotulo}
-                      </button>
-                    );
-                  })}
-                </nav>
-              </div>
+              <nav
+                aria-label="Filtrar obras por ambiente"
+                className="flex flex-wrap items-center gap-12 sm:gap-20"
+              >
+                {CATEGORIAS.map((cat) => {
+                  const ativo = categoriaAtiva === cat.valor;
+                  return (
+                    <button
+                      key={cat.valor}
+                      type="button"
+                      onClick={() => trocarCategoria(cat.valor)}
+                      aria-current={ativo ? 'true' : undefined}
+                      className={`text-sm sm:text-base cursor-pointer transition-colors ${
+                        ativo
+                          ? 'text-preto link-traco font-bold'
+                          : 'text-grafite-suave hover:text-grafite'
+                      }`}
+                    >
+                      {cat.rotulo}
+                    </button>
+                  );
+                })}
+              </nav>
             </div>
 
             {/* Barra de progresso rápida dos projetos */}
@@ -197,117 +214,10 @@ export const Obras: React.FC = () => {
               />
             </div>
 
-            {/* Grade assimétrica 12 colunas: 5 colunas de dados + 7 colunas da foto 4K anotada */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 lg:gap-32 items-start">
-              {/* Coluna Esquerda (5 colunas): Índice das obras + Notas na foto */}
-              <div className="lg:col-span-5 flex flex-col gap-20 lg:gap-24">
-                <div className="flex flex-col gap-6 pt-4">
-                  <span className="tipo-cota text-grafite-suave font-semibold">
-                    Obra {String(indiceAtivo + 1).padStart(2, '0')} de{' '}
-                    {String(obrasFiltradas.length).padStart(2, '0')}
-                  </span>
-                  <h3 className="tipo-h2 text-grafite">{obraAtual.titulo}</h3>
-                  <p className="tipo-cota text-grafite-suave pt-2">
-                    {obraAtual.cota}
-                  </p>
-                </div>
-
-                {/* Lista das anotações técnicas visíveis na foto */}
-                <div className="hidden sm:flex flex-col gap-8">
-                  <span className="tipo-cota text-grafite font-semibold">
-                    Notas na foto:
-                  </span>
-                  <ul className="flex flex-col gap-6 border-l-[1.5px] border-grafite pl-16">
-                    {obraAtual.anotacoes.map((anot, i) => (
-                      <li key={i} className="tipo-cota text-grafite-suave">
-                        {anot.texto}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Navegação direta por botões numerados + lista */}
-                <div className="flex flex-col gap-12 pt-8 border-t border-grafite/20">
-                  <div className="flex flex-wrap items-center gap-6">
-                    {obrasFiltradas.map((item, idx) => {
-                      const selecionado = idx === indiceAtivo;
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => selecionarProjetoManual(idx)}
-                          title={item.titulo}
-                          className={`px-10 py-6 rounded-curto border tipo-cota cursor-pointer transition-colors ${
-                            selecionado
-                              ? 'bg-preto text-papel border-preto font-bold'
-                              : 'bg-papel-2 text-grafite border-grafite/25 hover:border-grafite'
-                          }`}
-                        >
-                          {String(idx + 1).padStart(2, '0')}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="hidden lg:flex flex-col items-start gap-6 max-h-[180px] overflow-y-auto pr-4">
-                    {obrasFiltradas.map((item, idx) => {
-                      const selecionado = idx === indiceAtivo;
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => selecionarProjetoManual(idx)}
-                          className={`text-left tipo-cota cursor-pointer transition-colors ${
-                            selecionado
-                              ? 'text-preto link-traco font-semibold'
-                              : 'text-grafite-suave hover:text-grafite'
-                          }`}
-                        >
-                          {String(idx + 1).padStart(2, '0')}. {item.titulo}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="flex items-center gap-24 pt-4">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        selecionarProjetoManual(
-                          indiceAtivo === 0
-                            ? obrasFiltradas.length - 1
-                            : indiceAtivo - 1
-                        )
-                      }
-                      className="tipo-cota text-grafite link-traco cursor-pointer"
-                    >
-                      ← Anterior
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        selecionarProjetoManual(
-                          (indiceAtivo + 1) % obrasFiltradas.length
-                        )
-                      }
-                      className="tipo-cota text-grafite link-traco cursor-pointer"
-                    >
-                      Próxima →
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setObraAmpliada(obraAtual)}
-                      className="inline-flex items-center gap-4 tipo-cota text-preto link-traco font-semibold cursor-pointer ml-auto"
-                    >
-                      <ZoomIn className="w-3.5 h-3.5" />
-                      <span>Ampliar foto</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Coluna Direita (7 colunas): Foto grande 4K + Anotações desenhadas a lápis */}
-              <div className="lg:col-span-7 relative w-full bg-papel-2">
+            {/* Grade 12 colunas: no celular a FOTO vem PRIMEIRO (order-1) para nunca esconder a imagem ao rolar */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-32 items-start">
+              {/* Coluna da Foto 4K + Anotações (order-1 no mobile, order-2 no desktop) */}
+              <div className="order-1 lg:order-2 lg:col-span-7 relative w-full bg-papel-2 border border-grafite/15 overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setObraAmpliada(obraAtual)}
@@ -319,7 +229,7 @@ export const Obras: React.FC = () => {
                     alt={obraAtual.alt}
                     proporcao={obraAtual.proporcao}
                     sizes="(min-width: 1024px) 58vw, 100vw"
-                    className="w-full h-[50vh] sm:h-[62vh] lg:h-[68vh]"
+                    className="w-full h-[38vh] sm:h-[50vh] lg:h-[64vh]"
                     imgClassName="w-full h-full object-cover"
                   />
 
@@ -367,13 +277,138 @@ export const Obras: React.FC = () => {
                           top: `${anot.ey}%`,
                           transform: 'translate(-50%, -50%)',
                         }}
-                        className="texto-chamada absolute bg-preto text-papel tipo-cota px-8 py-4 rounded-curto border border-papel/30 whitespace-nowrap"
+                        className="texto-chamada absolute bg-preto/90 text-papel text-[11px] sm:text-xs px-8 py-3 rounded-curto border border-dourado/40 whitespace-nowrap shadow-sm"
                       >
                         {anot.texto}
                       </span>
                     ))}
                   </div>
+
+                  {/* Etiqueta de ampliar no canto inferior direito da foto */}
+                  <span className="absolute bottom-8 right-8 bg-preto/80 text-papel text-[11px] px-8 py-4 rounded-curto border border-papel/20 inline-flex items-center gap-4">
+                    <ZoomIn className="w-3.5 h-3.5 text-dourado" />
+                    <span>Ampliar 4K</span>
+                  </span>
                 </button>
+              </div>
+
+              {/* Coluna de Detalhes + Botões com Título da Obra (order-2 no mobile, order-1 no desktop) */}
+              <div className="order-2 lg:order-1 lg:col-span-5 flex flex-col gap-12 sm:gap-16 lg:gap-20">
+                <div className="flex flex-col gap-4">
+                  <span className="text-xs uppercase tracking-[0.14em] text-grafite-suave font-semibold">
+                    Obra {String(indiceAtivo + 1).padStart(2, '0')} de{' '}
+                    {String(obrasFiltradas.length).padStart(2, '0')}
+                  </span>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-grafite leading-snug">
+                    {obraAtual.titulo}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-grafite-suave">
+                    {obraAtual.cota}
+                  </p>
+                </div>
+
+                {/* Lista das anotações técnicas visíveis na foto (desktop/tablet) */}
+                <div className="hidden sm:flex flex-col gap-6">
+                  <span className="text-xs uppercase tracking-[0.12em] text-grafite font-semibold">
+                    Notas técnicas na foto:
+                  </span>
+                  <ul className="flex flex-wrap lg:flex-col gap-6 border-l-[1.5px] border-grafite pl-12">
+                    {obraAtual.anotacoes.map((anot, i) => (
+                      <li key={i} className="text-xs sm:text-sm text-grafite-suave">
+                        • {anot.texto}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Seletores compactos com Número + Título da obra (Mobile: faixa horizontal; Desktop: lista vertical) */}
+                <div className="flex flex-col gap-8 pt-6 border-t border-grafite/20">
+                  <span className="text-[11px] uppercase tracking-[0.14em] text-grafite-suave font-semibold">
+                    Selecionar obra ({obrasFiltradas.length}):
+                  </span>
+
+                  {/* Mobile & Tablet: botões compactos com número + título em faixa horizontal rolável */}
+                  <div
+                    ref={listaBotoesMobileRef}
+                    className="flex lg:hidden items-center gap-6 overflow-x-auto pb-4 no-scrollbar"
+                  >
+                    {obrasFiltradas.map((item, idx) => {
+                      const selecionado = idx === indiceAtivo;
+                      return (
+                        <button
+                          key={item.id}
+                          data-obra-idx={idx}
+                          type="button"
+                          onClick={() => selecionarProjetoManual(idx)}
+                          className={`shrink-0 px-10 py-6 rounded-curto border text-xs cursor-pointer transition-colors whitespace-nowrap ${
+                            selecionado
+                              ? 'bg-preto text-papel border-preto font-semibold'
+                              : 'bg-papel-2 text-grafite border-grafite/25 hover:border-grafite'
+                          }`}
+                        >
+                          {String(idx + 1).padStart(2, '0')}. {item.titulo}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Desktop: lista limpa de botões compactos com número + título completo */}
+                  <div className="hidden lg:flex flex-col items-start gap-6 max-h-[250px] overflow-y-auto pr-4">
+                    {obrasFiltradas.map((item, idx) => {
+                      const selecionado = idx === indiceAtivo;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => selecionarProjetoManual(idx)}
+                          className={`text-left text-xs xl:text-sm py-2 cursor-pointer transition-colors leading-snug ${
+                            selecionado
+                              ? 'text-preto link-traco font-bold'
+                              : 'text-grafite-suave hover:text-grafite'
+                          }`}
+                        >
+                          {String(idx + 1).padStart(2, '0')}. {item.titulo}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Controles rápidos Anterior / Próxima / Ampliar */}
+                  <div className="flex items-center gap-16 pt-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        selecionarProjetoManual(
+                          indiceAtivo === 0
+                            ? obrasFiltradas.length - 1
+                            : indiceAtivo - 1
+                        )
+                      }
+                      className="text-xs sm:text-sm text-grafite link-traco cursor-pointer font-medium"
+                    >
+                      ← Anterior
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        selecionarProjetoManual(
+                          (indiceAtivo + 1) % obrasFiltradas.length
+                        )
+                      }
+                      className="text-xs sm:text-sm text-grafite link-traco cursor-pointer font-medium"
+                    >
+                      Próxima →
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setObraAmpliada(obraAtual)}
+                      className="inline-flex items-center gap-4 text-xs sm:text-sm text-preto link-traco font-semibold cursor-pointer ml-auto"
+                    >
+                      <ZoomIn className="w-3.5 h-3.5" />
+                      <span>Ampliar foto</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
