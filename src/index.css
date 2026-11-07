@@ -178,3 +178,22 @@
 .halo-luz {
   box-shadow: 0 0 48px var(--luz-brilho);
 }
+
+.font-serif-atelier {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Tela limpa no celular: oculta a barra lateral de rolagem em telas móveis */
+@media (max-width: 1023px) {
+  html,
+  body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}

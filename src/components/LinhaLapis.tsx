@@ -126,18 +126,10 @@ export const LinhaLapis: React.FC = () => {
       ref={containerRef}
       data-modo="noite"
       aria-hidden="true"
-      className="pointer-events-none fixed z-40 group"
+      className="hidden lg:block pointer-events-none fixed z-40 group"
     >
-      {/* Mobile: linha horizontal de 2px no topo (sempre neutra, nunca dourada) */}
-      <div className="md:hidden fixed top-0 left-0 w-full h-[2px] bg-papel-2/30 z-50">
-        <div
-          ref={barraMobileRef}
-          className="w-full h-full origin-left scale-x-0 bg-grafite group-data-[modo=noite]:bg-papel transition-colors duration-300"
-        />
-      </div>
-
       {/* Desktop: linha de lápis vertical na margem esquerda */}
-      <div className="hidden md:block fixed top-0 left-3 h-screen w-3 z-40">
+      <div className="fixed top-0 left-3 h-screen w-3 z-40">
         <svg
           viewBox="0 0 12 1000"
           preserveAspectRatio="none"

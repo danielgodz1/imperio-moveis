@@ -50,3 +50,4 @@ export const ACABAMENTOS_3D: Acabamento3D[] = [
     confirmado: false,
   },
 ];
+

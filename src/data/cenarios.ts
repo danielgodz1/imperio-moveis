@@ -474,3 +474,4 @@ export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
     posicaoCamera: [3.7, 2.9, 4.2],
   },
 };
+

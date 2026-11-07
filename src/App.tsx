@@ -125,9 +125,8 @@ export default function App() {
           />
         ) : (
           <>
-            {/* Momento 1: Hero "Do risco à obra" + Faixa única de serviços */}
-            <Hero />
-            <FaixaServicos />
+            {/* Momento 1: Hero imersivo com imagem flutuante, planta técnica e faixas */}
+            <Hero onNavigateContact={() => handleNavigateRoute('/contato')} />
 
             {/* Frase de impacto entre o Hero e a seção Os donos */}
             <FraseImpacto />
@@ -135,7 +134,7 @@ export default function App() {
             {/* Momento 2: Os donos (Wellington, Tatiane, Juntos + Linha do tempo) */}
             <Donos />
 
-            {/* Momento 3: As obras (Projetos reais anotados com traço de lápis + Lightbox) */}
+            {/* Momento 3: As obras (Projetos reais anotados com traço de lápis + Scroll rápido + Lightbox) */}
             <Obras />
 
             {/* Momento 4: Do risco à obra em 4 etapas (com foto da instalação por guindaste) */}
@@ -151,7 +150,7 @@ export default function App() {
 
             {/* Momento 6: Fechamento (Orçamento WhatsApp, Onde estamos, Perguntas curtas) */}
             <Fechamento
-              onNavigateContact={() => handleOpenBriefing()}
+              onNavigateContact={() => handleNavigateRoute('/contato')}
               onOpenVisitBooking={() => setIsVisitModalOpen(true)}
             />
           </>

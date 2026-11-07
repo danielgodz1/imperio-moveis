@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Phone, ChevronDown } from 'lucide-react';
+import { Menu, X, Phone, ChevronDown, MessageSquare } from 'lucide-react';
 import { EMPRESA } from '../data/empresa';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 import { scrollToTarget } from '../hooks/useScrollytelling';
 
 export interface HeaderProps {
@@ -14,17 +15,25 @@ const SECOES_OBSERVADAS = ['hero', 'donos', 'obras', 'quarto-3d', 'avaliacoes'] 
 
 export const Header: React.FC<HeaderProps> = ({
   onNavigatePath,
-  onOpenBriefing,
   currentPath,
   headerRef,
 }) => {
   const [menuAberto, setMenuAberto] = useState(false);
   const [dropdownAmbientes, setDropdownAmbientes] = useState(false);
   const [secaoAtiva, setSecaoAtiva] = useState<string>('hero');
-  const [logoErro, setLogoErro] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const naHome = currentPath === '/';
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // IntersectionObserver para destacar o link ativo conforme a seção visível
   useEffect(() => {
@@ -81,10 +90,10 @@ export const Header: React.FC<HeaderProps> = ({
     if (!naHome) {
       onNavigatePath('/');
       setTimeout(() => {
-        scrollToTarget(`#${id}`, -72);
+        scrollToTarget(`#${id}`, -80);
       }, 150);
     } else {
-      scrollToTarget(`#${id}`, -72);
+      scrollToTarget(`#${id}`, -80);
     }
   };
 
@@ -95,20 +104,26 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const linkClasse = (ativo: boolean) =>
-    `tipo-cota cursor-pointer transition-colors ${
+    `text-xs font-semibold uppercase tracking-[0.08em] py-1 cursor-pointer transition-colors ${
       ativo
-        ? 'text-dourado link-traco font-semibold'
-        : 'text-papel/85 hover:text-dourado'
+        ? 'text-[#c9a04e] font-bold border-b-2 border-[#c9a04e]'
+        : 'text-[#f2e8d8]/90 hover:text-[#c9a04e]'
     }`;
+
+  const isTransparent = naHome && !isScrolled && !menuAberto;
 
   return (
     <header
       ref={headerRef}
       data-tema="noite"
-      className="fixed top-0 left-0 w-full z-50 bg-preto text-papel border-b border-papel/15 transition-transform duration-300 will-change-transform"
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 will-change-transform ${
+        isTransparent
+          ? 'bg-transparent border-b border-transparent py-1'
+          : 'bg-[#15100c]/95 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.35)] border-b border-[#c9a04e]/20 py-0'
+      }`}
     >
-      <div className="max-w-[1280px] mx-auto px-16 sm:px-32 h-64 flex items-center justify-between gap-16">
-        {/* Logo à esquerda: public/logo-imperio.png com fallback tipográfico */}
+      <div className="h-20 max-w-[1340px] mx-auto px-4 sm:px-8 flex items-center justify-between gap-3 sm:gap-6">
+        {/* Marca & Logo Oficial à esquerda */}
         <a
           href="/"
           onClick={(e) => {
@@ -120,31 +135,27 @@ export const Header: React.FC<HeaderProps> = ({
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className="flex items-center gap-12 text-papel shrink-0"
+          className="flex items-center gap-3 shrink-0 group cursor-pointer"
         >
-          {!logoErro ? (
-            <img
-              src="/logo-imperio.png"
-              alt={EMPRESA.nome}
-              onError={() => setLogoErro(true)}
-              className="h-11 w-auto object-contain block"
-            />
-          ) : (
-            <div className="flex flex-col">
-              <span className="tipo-logo text-2xl text-papel leading-none">
-                {EMPRESA.nomeCurto}
-              </span>
-              <span className="tipo-cota text-[11px] text-dourado leading-tight">
-                {EMPRESA.subtitulo}
-              </span>
-            </div>
-          )}
+          <img
+            src="/logo-quadrado.jpg"
+            alt={EMPRESA.nome}
+            className="h-10 w-10 sm:h-11 sm:w-11 object-cover rounded-lg shadow-sm border border-[#c9a04e]/40 bg-[#1b1b1b] group-hover:scale-105 transition-transform"
+          />
+          <div className="flex flex-col">
+            <span className="font-serif-atelier text-xl sm:text-2xl font-bold tracking-tight text-[#f2e8d8] leading-none">
+              {EMPRESA.nomeCurto}
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.25em] uppercase text-[#c9a04e] leading-tight mt-1">
+              {EMPRESA.subtitulo}
+            </span>
+          </div>
         </a>
 
         {/* Navegação Desktop */}
         <nav
           aria-label="Navegação principal"
-          className="hidden lg:flex items-center gap-24"
+          className="hidden lg:flex items-center gap-7"
         >
           <button
             type="button"
@@ -158,29 +169,33 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Menu suspenso Ambientes */}
-          <div ref={dropdownRef} className="relative">
+          <div
+            ref={dropdownRef}
+            className="relative py-2"
+            onMouseEnter={() => setDropdownAmbientes(true)}
+            onMouseLeave={() => setDropdownAmbientes(false)}
+          >
             <button
               type="button"
               onClick={() => setDropdownAmbientes((prev) => !prev)}
               aria-expanded={dropdownAmbientes}
               aria-haspopup="true"
-              className={`inline-flex items-center gap-4 ${linkClasse(
+              className={`inline-flex items-center gap-1 ${linkClasse(
                 currentPath.includes('-jau') || secaoAtiva === 'quarto-3d'
               )}`}
             >
               <span>Ambientes</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 transition-transform ${
-                  dropdownAmbientes ? 'rotate-180 text-dourado' : ''
+                className={`w-3.5 h-3.5 text-[#c9a04e] transition-transform ${
+                  dropdownAmbientes ? 'rotate-180' : ''
                 }`}
-                strokeWidth={1.5}
               />
             </button>
 
             {dropdownAmbientes && (
               <div
                 role="menu"
-                className="absolute left-0 top-full mt-12 w-56 bg-preto border border-papel/20 py-8 flex flex-col z-50"
+                className="absolute left-0 top-full flex flex-col w-60 p-2 rounded-xl bg-[#1d1612] shadow-[0_16px_36px_rgba(0,0,0,0.5)] border border-[#c9a04e]/30 z-50"
               >
                 <a
                   href="/cozinhas-planejadas-jau"
@@ -189,9 +204,9 @@ export const Header: React.FC<HeaderProps> = ({
                     e.preventDefault();
                     irParaRota('/cozinhas-planejadas-jau');
                   }}
-                  className="px-16 py-8 text-left tipo-cota text-papel/85 hover:text-dourado hover:bg-papel/5"
+                  className="px-4 py-2.5 rounded-lg text-left text-xs font-semibold uppercase tracking-wider text-[#f2e8d8]/90 hover:text-[#c9a04e] hover:bg-[#c9a04e]/10 transition-colors"
                 >
-                  Cozinhas
+                  Cozinhas Planejadas
                 </a>
                 <a
                   href="/quartos-planejados-jau"
@@ -200,9 +215,9 @@ export const Header: React.FC<HeaderProps> = ({
                     e.preventDefault();
                     irParaRota('/quartos-planejados-jau');
                   }}
-                  className="px-16 py-8 text-left tipo-cota text-papel/85 hover:text-dourado hover:bg-papel/5"
+                  className="px-4 py-2.5 rounded-lg text-left text-xs font-semibold uppercase tracking-wider text-[#f2e8d8]/90 hover:text-[#c9a04e] hover:bg-[#c9a04e]/10 transition-colors"
                 >
-                  Quartos
+                  Quartos &amp; Suítes
                 </a>
                 <a
                   href="/closets-sob-medida-jau"
@@ -211,9 +226,9 @@ export const Header: React.FC<HeaderProps> = ({
                     e.preventDefault();
                     irParaRota('/closets-sob-medida-jau');
                   }}
-                  className="px-16 py-8 text-left tipo-cota text-papel/85 hover:text-dourado hover:bg-papel/5"
+                  className="px-4 py-2.5 rounded-lg text-left text-xs font-semibold uppercase tracking-wider text-[#f2e8d8]/90 hover:text-[#c9a04e] hover:bg-[#c9a04e]/10 transition-colors"
                 >
-                  Closets
+                  Closets Sob Medida
                 </a>
                 <a
                   href="/home-office-planejado-jau"
@@ -222,15 +237,15 @@ export const Header: React.FC<HeaderProps> = ({
                     e.preventDefault();
                     irParaRota('/home-office-planejado-jau');
                   }}
-                  className="px-16 py-8 text-left tipo-cota text-papel/85 hover:text-dourado hover:bg-papel/5"
+                  className="px-4 py-2.5 rounded-lg text-left text-xs font-semibold uppercase tracking-wider text-[#f2e8d8]/90 hover:text-[#c9a04e] hover:bg-[#c9a04e]/10 transition-colors"
                 >
-                  Home Office
+                  Home Office Executivo
                 </a>
                 <button
                   type="button"
                   role="menuitem"
                   onClick={() => irParaSecao('quarto-3d')}
-                  className="px-16 py-8 text-left tipo-cota text-dourado hover:bg-papel/5 border-t border-papel/15 mt-4 pt-8 cursor-pointer"
+                  className="px-4 py-2.5 rounded-lg text-left text-xs font-bold uppercase tracking-wider text-[#c9a04e] hover:bg-[#c9a04e]/10 border-t border-[#c9a04e]/20 mt-1 pt-2.5 cursor-pointer"
                 >
                   Projete em 3D
                 </button>
@@ -274,22 +289,23 @@ export const Header: React.FC<HeaderProps> = ({
           </a>
         </nav>
 
-        {/* Telefone com ícone + Botão "Pedir orçamento" em dourado */}
-        <div className="flex items-center gap-16">
+        {/* Telefone + Botão "PEDIR ORÇAMENTO ↗" sempre visível (inclusive mobile) + Botão Hamburger */}
+        <div className="flex items-center gap-2.5 sm:gap-4">
           <a
-            href={`tel:${EMPRESA.whatsapp}`}
-            className="hidden xl:inline-flex items-center gap-8 tipo-cota text-papel/85 hover:text-dourado transition-colors"
+            href={`tel:+${EMPRESA.whatsapp}`}
+            className="hidden xl:flex items-center gap-1.5 text-xs text-[#f2e8d8]/80 hover:text-[#c9a04e] font-semibold transition-colors"
           >
-            <Phone className="w-4 h-4 text-dourado" strokeWidth={1.5} />
+            <Phone className="w-3.5 h-3.5 text-[#c9a04e]" />
             <span>{EMPRESA.telefone}</span>
           </a>
 
           <button
             type="button"
-            onClick={() => onOpenBriefing()}
-            className="hidden sm:inline-flex items-center justify-center px-16 h-[40px] rounded-curto bg-dourado text-preto hover:bg-papel hover:text-preto transition-colors duration-200 tipo-cota font-semibold cursor-pointer"
+            onClick={() => irParaRota('/contato')}
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-2.5 rounded-lg bg-[#c9a04e] hover:bg-[#d8af5c] text-[#15100c] transition-all duration-200 shadow-[0_4px_16px_rgba(201,160,78,0.25)] font-bold text-[11px] sm:text-xs uppercase tracking-wider cursor-pointer shrink-0"
           >
-            Pedir orçamento
+            <span>Pedir Orçamento</span>
+            <span className="text-sm leading-none">↗</span>
           </button>
 
           <button
@@ -297,12 +313,12 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setMenuAberto((prev) => !prev)}
             aria-expanded={menuAberto}
             aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'}
-            className="lg:hidden p-8 text-papel cursor-pointer"
+            className="lg:hidden p-2 rounded-lg bg-[#251d18] text-[#f2e8d8] border border-[#c9a04e]/30 cursor-pointer shrink-0"
           >
             {menuAberto ? (
-              <X className="w-6 h-6" strokeWidth={1.5} />
+              <X className="w-6 h-6 text-[#c9a04e]" />
             ) : (
-              <Menu className="w-6 h-6" strokeWidth={1.5} />
+              <Menu className="w-6 h-6 text-[#f2e8d8]" />
             )}
           </button>
         </div>
@@ -310,104 +326,105 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Menu Móvel Acessível */}
       {menuAberto && (
-        <div className="lg:hidden bg-preto border-t border-papel/15 px-16 py-24 flex flex-col gap-12 max-h-[85vh] overflow-y-auto">
-          <button
-            type="button"
-            onClick={() => irParaRota('/')}
-            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
-          >
-            Home
-          </button>
-
-          <div className="py-8 border-b border-papel/10 flex flex-col gap-8">
-            <span className="tipo-cota text-dourado">Ambientes</span>
-            <div className="grid grid-cols-2 gap-8 pl-8">
-              <button
-                type="button"
-                onClick={() => irParaRota('/cozinhas-planejadas-jau')}
-                className="text-left py-4 tipo-cota text-papel/85 hover:text-dourado cursor-pointer"
-              >
-                Cozinhas
-              </button>
-              <button
-                type="button"
-                onClick={() => irParaRota('/quartos-planejados-jau')}
-                className="text-left py-4 tipo-cota text-papel/85 hover:text-dourado cursor-pointer"
-              >
-                Quartos
-              </button>
-              <button
-                type="button"
-                onClick={() => irParaRota('/closets-sob-medida-jau')}
-                className="text-left py-4 tipo-cota text-papel/85 hover:text-dourado cursor-pointer"
-              >
-                Closets
-              </button>
-              <button
-                type="button"
-                onClick={() => irParaRota('/home-office-planejado-jau')}
-                className="text-left py-4 tipo-cota text-papel/85 hover:text-dourado cursor-pointer"
-              >
-                Home Office
-              </button>
-              <button
-                type="button"
-                onClick={() => irParaSecao('quarto-3d')}
-                className="text-left py-4 tipo-cota text-dourado font-semibold col-span-2 cursor-pointer"
-              >
-                Projete em 3D
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => irParaSecao('obras')}
-            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
-          >
-            Projetos
-          </button>
-          <button
-            type="button"
-            onClick={() => irParaSecao('donos')}
-            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
-          >
-            Sobre Nós
-          </button>
-          <button
-            type="button"
-            onClick={() => irParaSecao('avaliacoes')}
-            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
-          >
-            Avaliações
-          </button>
-          <button
-            type="button"
-            onClick={() => irParaRota('/contato')}
-            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
-          >
-            Contato
-          </button>
-
-          <div className="pt-8 flex flex-col gap-12">
-            <a
-              href={`tel:${EMPRESA.whatsapp}`}
-              className="inline-flex items-center gap-8 tipo-cota text-papel/85"
+        <div className="lg:hidden bg-[#15100c] border-b border-[#c9a04e]/30 px-6 py-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
+          <div className="flex flex-col space-y-3 font-semibold uppercase tracking-wider text-xs text-[#f2e8d8]">
+            <button
+              type="button"
+              onClick={() => irParaRota('/')}
+              className="text-left py-2 border-b border-[#251d18] hover:text-[#c9a04e] cursor-pointer"
             >
-              <Phone className="w-4 h-4 text-dourado" strokeWidth={1.5} />
-              <span>{EMPRESA.telefone}</span>
-            </a>
+              Home
+            </button>
+
+            <div className="py-2 border-b border-[#251d18] flex flex-col gap-2">
+              <span className="text-[#c9a04e] font-bold">Ambientes Planejados</span>
+              <div className="grid grid-cols-2 gap-2 pl-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => irParaRota('/cozinhas-planejadas-jau')}
+                  className="text-left py-1.5 text-[11px] text-[#f2e8d8]/85 hover:text-[#c9a04e] cursor-pointer"
+                >
+                  Cozinhas
+                </button>
+                <button
+                  type="button"
+                  onClick={() => irParaRota('/quartos-planejados-jau')}
+                  className="text-left py-1.5 text-[11px] text-[#f2e8d8]/85 hover:text-[#c9a04e] cursor-pointer"
+                >
+                  Quartos
+                </button>
+                <button
+                  type="button"
+                  onClick={() => irParaRota('/closets-sob-medida-jau')}
+                  className="text-left py-1.5 text-[11px] text-[#f2e8d8]/85 hover:text-[#c9a04e] cursor-pointer"
+                >
+                  Closets
+                </button>
+                <button
+                  type="button"
+                  onClick={() => irParaRota('/home-office-planejado-jau')}
+                  className="text-left py-1.5 text-[11px] text-[#f2e8d8]/85 hover:text-[#c9a04e] cursor-pointer"
+                >
+                  Home Office
+                </button>
+                <button
+                  type="button"
+                  onClick={() => irParaSecao('quarto-3d')}
+                  className="text-left py-1.5 text-[11px] text-[#c9a04e] font-bold col-span-2 cursor-pointer"
+                >
+                  Projete em 3D →
+                </button>
+              </div>
+            </div>
 
             <button
               type="button"
-              onClick={() => {
-                setMenuAberto(false);
-                onOpenBriefing();
-              }}
-              className="w-full h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel hover:text-preto transition-colors flex items-center justify-center tipo-cota font-semibold cursor-pointer"
+              onClick={() => irParaSecao('obras')}
+              className="text-left py-2 border-b border-[#251d18] hover:text-[#c9a04e] cursor-pointer"
             >
-              Pedir orçamento
+              Projetos &amp; Portfólio
             </button>
+            <button
+              type="button"
+              onClick={() => irParaSecao('donos')}
+              className="text-left py-2 border-b border-[#251d18] hover:text-[#c9a04e] cursor-pointer"
+            >
+              Sobre Nós
+            </button>
+            <button
+              type="button"
+              onClick={() => irParaSecao('avaliacoes')}
+              className="text-left py-2 border-b border-[#251d18] hover:text-[#c9a04e] cursor-pointer"
+            >
+              Avaliações Google
+            </button>
+            <button
+              type="button"
+              onClick={() => irParaRota('/contato')}
+              className="text-left py-2 font-bold text-[#c9a04e] cursor-pointer"
+            >
+              Contato &amp; Orçamento
+            </button>
+          </div>
+
+          <div className="pt-2 flex flex-col gap-2.5">
+            <button
+              type="button"
+              onClick={() => irParaRota('/contato')}
+              className="w-full bg-[#c9a04e] text-[#15100c] text-xs uppercase tracking-wider py-3 rounded-lg font-bold text-center cursor-pointer"
+            >
+              Pedir Orçamento ↗
+            </button>
+            <a
+              href={getWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick('menu_mobile')}
+              className="w-full bg-[#251d18] text-[#f2e8d8] hover:text-[#c9a04e] border border-[#c9a04e]/40 text-xs uppercase tracking-wider py-3 rounded-lg font-semibold text-center flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <MessageSquare className="w-4 h-4 text-[#c9a04e]" />
+              WhatsApp Direto Jaú
+            </a>
           </div>
         </div>
       )}

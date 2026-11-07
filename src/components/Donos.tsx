@@ -82,7 +82,7 @@ const MARCOS_LINHA_TEMPO = [
   },
   {
     titulo: 'Fundou a Império',
-    detalhe: 'Mais de 15 anos de evolução prática e projetos próprios desde 2015. [CONFIRMAR]',
+    detalhe: 'Mais de 15 anos de evolução prática e projetos próprios desde 2015.',
   },
   {
     titulo: 'Projetos da casa inteira com a Tatiane',
@@ -149,8 +149,8 @@ export const Donos: React.FC = () => {
 
         ScrollTrigger.create({
           trigger: artigo,
-          start: 'top 55%',
-          end: 'bottom 55%',
+          start: 'top 62%',
+          end: 'bottom 45%',
           invalidateOnRefresh: true,
           onToggle: (self) => {
             if (self.isActive) {
@@ -176,7 +176,7 @@ export const Donos: React.FC = () => {
 
   const classeOpacidadePasso = (passo: 1 | 2 | 3) => {
     if (reducedMotion) return 'opacity-100';
-    return passoAtivo === passo ? 'opacity-100' : 'opacity-35';
+    return passoAtivo === passo ? 'opacity-100' : 'opacity-45 lg:opacity-35';
   };
 
   return (
@@ -185,50 +185,57 @@ export const Donos: React.FC = () => {
       id="donos"
       data-tema="noite"
       aria-label="Quem faz a Império: Wellington e Tatiane Cabral"
-      className="w-full bg-preto text-papel py-96 md:py-144 border-b border-papel/15"
+      className="w-full bg-preto text-papel py-64 md:py-144 border-b border-papel/15"
     >
-      <div className="max-w-[1280px] mx-auto px-16 sm:px-32 flex flex-col gap-64">
+      <div className="max-w-[1280px] mx-auto px-16 sm:px-32 flex flex-col gap-48 lg:gap-64">
         {/* Frase de abertura da seção */}
         <header className="max-w-3xl flex flex-col items-start gap-16">
           <span className="tipo-cota text-dourado">Quem assina cada projeto</span>
           <h2 className="tipo-h1 text-papel">Do chão da oficina à casa inteira.</h2>
         </header>
 
-        {/* Foto sticky no topo apenas no celular (< 1024px, altura 55vh) */}
-        <div className="lg:hidden sticky top-64 z-10 h-[55vh] bg-preto py-8">
-          <RetratoHolofote
-            srcBase="/obras/fundadores"
-            alt="Wellington e Tatiane Cabral, fundadores da Império Móveis Planejados"
-            camadaColoridaRef={mascaraMobileRef}
-            onImgLoad={handleImageLoad}
-            className="w-full h-full"
-          />
-        </div>
+        {/*
+          Container exclusivo dos 3 passos + foto sticky.
+          Como a foto sticky no celular está DENTRO deste bloco, assim que o 3º passo termina,
+          a foto para de ficar presa e a seção "Trajetória da Império" abaixo NUNCA passa por trás nem por cima da foto!
+        */}
+        <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-24 lg:gap-48 items-start">
+          {/* Foto sticky no topo apenas no celular (< 1024px): contida apenas durante os 3 passos */}
+          <div className="lg:hidden sticky top-20 z-10 h-[38vh] sm:h-[44vh] bg-preto rounded-xl overflow-hidden border border-papel/15 shadow-[0_12px_32px_rgba(0,0,0,0.85)]">
+            <RetratoHolofote
+              srcBase="/obras/fundadores"
+              alt="Wellington e Tatiane Cabral, fundadores da Império Móveis Planejados"
+              camadaColoridaRef={mascaraMobileRef}
+              onImgLoad={handleImageLoad}
+              className="w-full h-full"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-preto to-transparent pointer-events-none"
+            />
+          </div>
 
-        {/* Grid de duas colunas no desktop (texto 1.1fr, foto 0.9fr) */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-48 items-start">
-          {/* Coluna do texto: 3 blocos <article data-passo> em fluxo normal */}
-          <div className="relative z-20 flex flex-col">
+          {/* Coluna do texto: 3 blocos <article data-passo> com fundo sólido no celular para leitura perfeita */}
+          <div className="relative z-20 flex flex-col gap-24 lg:gap-0 pt-8 lg:pt-0">
             {/* Passo 1: Wellington Cabral */}
             <article
               ref={(el) => {
                 artigosRef.current[0] = el;
               }}
               data-passo="1"
-              className={`min-h-[75vh] lg:min-h-screen flex flex-col justify-center items-start gap-24 py-48 transition-opacity duration-500 ${classeOpacidadePasso(
+              className={`min-h-[42vh] lg:min-h-screen flex flex-col justify-center items-start gap-16 lg:gap-24 p-24 lg:p-0 lg:py-48 rounded-xl lg:rounded-none bg-[#14110f]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none border border-papel/15 lg:border-0 shadow-[0_-8px_32px_rgba(0,0,0,0.8)] lg:shadow-none transition-opacity duration-500 ${classeOpacidadePasso(
                 1
               )}`}
             >
               <span className="tipo-cota text-dourado">
-                Fundador e gerente de negócios
+                01 / 03 — Fundador e gerente de negócios
               </span>
               <h3 className="tipo-h2 text-papel">Wellington Cabral</h3>
               <blockquote className="tipo-voz text-papel">
                 “Comecei como auxiliar numa marcenaria pequena aqui em Jaú. Mas nunca quis só seguir o padrão: quis fazer diferente. Fui aprendendo, me superando e, durante anos, eu mesmo desenhava e fabricava cada projeto.”
               </blockquote>
               <p className="tipo-corpo text-papel/85">
-                Mais de 15 anos de marcenaria e muitas batalhas depois, ele fundou a Império e passou a pensar totalmente fora da caixa.{' '}
-                <span className="tipo-cota text-dourado">[CONFIRMAR]</span>
+                Mais de 15 anos de marcenaria e muitas batalhas depois, ele fundou a Império e passou a pensar totalmente fora da caixa.
               </p>
             </article>
 
@@ -238,20 +245,19 @@ export const Donos: React.FC = () => {
                 artigosRef.current[1] = el;
               }}
               data-passo="2"
-              className={`min-h-[75vh] lg:min-h-screen flex flex-col justify-center items-start gap-24 py-48 transition-opacity duration-500 ${classeOpacidadePasso(
+              className={`min-h-[42vh] lg:min-h-screen flex flex-col justify-center items-start gap-16 lg:gap-24 p-24 lg:p-0 lg:py-48 rounded-xl lg:rounded-none bg-[#14110f]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none border border-papel/15 lg:border-0 shadow-[0_-8px_32px_rgba(0,0,0,0.8)] lg:shadow-none transition-opacity duration-500 ${classeOpacidadePasso(
                 2
               )}`}
             >
               <span className="tipo-cota text-dourado">
-                Arquiteta e designer de interiores
+                02 / 03 — Arquiteta e designer de interiores
               </span>
               <h3 className="tipo-h2 text-papel">Tatiane Cabral</h3>
               <blockquote className="tipo-voz text-papel">
                 “Quando entrei, o objetivo era levar o projeto para outro nível: interiores, personalização e cada detalhe com a cara de quem vai morar ali.”
               </blockquote>
               <p className="tipo-corpo text-papel/85">
-                Formada em arquitetura e em logística, cuida do projeto de interiores de cada ambiente e da personalização.{' '}
-                <span className="tipo-cota text-dourado">[CONFIRMAR]</span>
+                Formada em arquitetura e em logística, cuida do projeto de interiores de cada ambiente e da personalização.
               </p>
             </article>
 
@@ -261,17 +267,18 @@ export const Donos: React.FC = () => {
                 artigosRef.current[2] = el;
               }}
               data-passo="3"
-              className={`min-h-[75vh] lg:min-h-screen flex flex-col justify-center items-start gap-24 py-48 transition-opacity duration-500 ${classeOpacidadePasso(
+              className={`min-h-[42vh] lg:min-h-screen flex flex-col justify-center items-start gap-16 lg:gap-24 p-24 lg:p-0 lg:py-48 rounded-xl lg:rounded-none bg-[#14110f]/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none border border-papel/15 lg:border-0 shadow-[0_-8px_32px_rgba(0,0,0,0.8)] lg:shadow-none transition-opacity duration-500 ${classeOpacidadePasso(
                 3
               )}`}
             >
-              <span className="tipo-cota text-dourado">Pacote completo desde 2015</span>
-              <h3 className="tipo-h1 text-papel">
+              <span className="tipo-cota text-dourado">
+                03 / 03 — Pacote completo desde 2015
+              </span>
+              <h3 className="tipo-h2 lg:tipo-h1 text-papel">
                 Marcenaria e arquitetura na mesma mesa. A casa inteira, do risco à obra.
               </h3>
               <p className="tipo-corpo text-papel/85">
-                Do desenho de interiores e iluminação até a fabricação própria e montagem na sua obra em Jaú e região.{' '}
-                <span className="tipo-cota text-dourado">[CONFIRMAR]</span>
+                Do desenho de interiores e iluminação até a fabricação própria e montagem na sua obra em Jaú e região.
               </p>
             </article>
           </div>
@@ -288,11 +295,18 @@ export const Donos: React.FC = () => {
           </div>
         </div>
 
-        {/* Linha do tempo fora dos 3 passos, depois deles, em fluxo normal (nunca sobreposta) */}
-        <div className="pt-64 border-t border-papel/15 flex flex-col gap-32">
-          <span className="tipo-cota text-dourado">Trajetória da Império</span>
+        {/* Linha do tempo fora do container sticky: 100% visível e livre de sobreposição no celular e no desktop */}
+        <div className="relative z-30 bg-preto pt-48 lg:pt-64 border-t border-papel/15 flex flex-col gap-32">
+          <div className="flex flex-col gap-8">
+            <span className="tipo-cota text-dourado uppercase tracking-wider">
+              Trajetória da Império
+            </span>
+            <h3 className="tipo-h2 text-papel">
+              Mais de 15 anos de ofício e evolução em Jaú
+            </h3>
+          </div>
 
-          <div className="relative pl-32">
+          <div className="relative pl-24 sm:pl-32">
             {/* Linha de lápis vertical */}
             <svg
               aria-hidden="true"
@@ -310,12 +324,17 @@ export const Donos: React.FC = () => {
               />
             </svg>
 
-            <ol className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-32">
+            <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-24 lg:gap-32">
               {MARCOS_LINHA_TEMPO.map((marco, idx) => (
-                <li key={idx} className="flex flex-col gap-8">
-                  <span className="tipo-cota text-dourado">0{idx + 1}</span>
+                <li
+                  key={idx}
+                  className="flex flex-col gap-8 p-16 sm:p-20 rounded-xl bg-[#14110f] border border-papel/15"
+                >
+                  <span className="tipo-cota text-dourado font-bold">
+                    0{idx + 1}
+                  </span>
                   <h4 className="tipo-h3 text-papel">{marco.titulo}</h4>
-                  <p className="tipo-cota text-papel/75">{marco.detalhe}</p>
+                  <p className="tipo-cota text-papel/80">{marco.detalhe}</p>
                 </li>
               ))}
             </ol>

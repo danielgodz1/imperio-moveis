@@ -10,3 +10,4 @@ export const JsonLdSchema: React.FC = () => {
     />
   );
 };
+

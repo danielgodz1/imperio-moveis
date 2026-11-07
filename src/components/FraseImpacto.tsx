@@ -15,3 +15,4 @@ export const FraseImpacto: React.FC = () => {
     </section>
   );
 };
+

@@ -106,3 +106,4 @@ export default async function handler(req: any, res: any) {
   const resultado = await processarLeadOrcamento(req.body, ip);
   res.status(resultado.status).json(resultado.json);
 }
+
