@@ -1,6 +1,6 @@
 import React from 'react';
 import { MessageSquare } from 'lucide-react';
-import { getWhatsAppUrl } from '../utils/helpers';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 
 /**
  * Botão flutuante do WhatsApp (único círculo completo permitido pelo DESIGN.md).
@@ -12,6 +12,7 @@ export const WhatsAppWidget: React.FC = () => {
         href={getWhatsAppUrl()}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackWhatsAppClick('widget_flutuante')}
         aria-label="Chamar no WhatsApp"
         title="Chamar no WhatsApp"
         className="w-14 h-14 rounded-full bg-dourado text-preto hover:bg-preto hover:text-dourado border border-preto flex items-center justify-center transition-colors duration-200"

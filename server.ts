@@ -5,6 +5,8 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import layoutHandler from './api/layout';
+import leadHandler from './api/lead';
+import { injetarSeoNoHtml } from './src/utils/prerenderHtml';
 
 dotenv.config();
 
@@ -27,6 +29,10 @@ app.all('/api/layout', async (req, res) => {
   );
 });
 
+app.all('/api/lead', async (req, res) => {
+  await leadHandler(req, res);
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -43,7 +49,8 @@ async function startServer() {
       try {
         const indexPath = path.resolve(__dirname, 'index.html');
         const rawHtml = fs.readFileSync(indexPath, 'utf-8');
-        const template = await vite.transformIndexHtml(url, rawHtml);
+        const comSeo = injetarSeoNoHtml(rawHtml, url);
+        const template = await vite.transformIndexHtml(url, comSeo);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
       } catch (e: unknown) {
         if (e instanceof Error) {
@@ -55,7 +62,10 @@ async function startServer() {
   } else {
     app.use(express.static(path.join(__dirname, 'dist')));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+      const indexPath = path.join(__dirname, 'dist', 'index.html');
+      const rawHtml = fs.readFileSync(indexPath, 'utf-8');
+      const comSeo = injetarSeoNoHtml(rawHtml, req.originalUrl);
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(comSeo);
     });
   }
 

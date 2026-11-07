@@ -1,6 +1,6 @@
 import React from 'react';
 import { MessageSquare } from 'lucide-react';
-import { getWhatsAppUrl } from '../utils/helpers';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 import { WorkshopLocation } from './WorkshopLocation';
 
 interface FechamentoProps {
@@ -81,6 +81,7 @@ export const Fechamento: React.FC<FechamentoProps> = ({
               href={getWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick('fechamento_cta')}
               className="inline-flex items-center justify-center gap-8 px-32 h-[52px] rounded-curto bg-dourado text-preto hover:bg-preto hover:text-dourado border border-dourado transition-colors duration-200 tipo-cota font-semibold"
             >
               <MessageSquare className="w-4 h-4" strokeWidth={1.5} />
@@ -92,7 +93,7 @@ export const Fechamento: React.FC<FechamentoProps> = ({
               onClick={onNavigateContact}
               className="inline-flex items-center justify-center px-24 h-[52px] rounded-curto border-[1.5px] border-grafite bg-transparent text-grafite hover:bg-grafite hover:text-papel transition-colors duration-200 tipo-cota cursor-pointer"
             >
-              Preencher formulário de orçamento
+              Pedir orçamento rápido
             </button>
           </div>
         </div>
@@ -100,4 +101,3 @@ export const Fechamento: React.FC<FechamentoProps> = ({
     </section>
   );
 };
-

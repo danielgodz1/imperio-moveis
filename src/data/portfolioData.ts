@@ -2,11 +2,36 @@ import { ObraItem } from '../types';
 
 export const OBRAS_REAIS: ObraItem[] = [
   {
+    id: 'cozinha-ilha-verde',
+    ambiente: 'cozinhas',
+    titulo: 'Cozinha clara com ilha em verde-sálvia e LED linear',
+    arquivo: '/obras/cozinha-gringa-4k',
+    proporcao: '1696 / 2528',
+    alt: 'Cozinha planejada clara com ilha central em tom verde-sálvia, armários até o teto e perfil de LED linear em Jaú',
+    cota: 'Cozinha residencial, ilha em verde-sálvia e armários superiores brancos até o teto, Jaú/SP',
+    anotacoes: [
+      {
+        x: 36,
+        y: 68,
+        ex: 18,
+        ey: 82,
+        texto: 'ilha em verde-sálvia',
+      },
+      {
+        x: 58,
+        y: 24,
+        ex: 76,
+        ey: 16,
+        texto: 'modulação superior até o forro',
+      },
+    ],
+  },
+  {
     id: 'cozinha-ilha-ripado',
     ambiente: 'cozinhas',
     titulo: 'Cozinha clara com ilha em madeira ripada',
     arquivo: '/obras/cozinha-ilha-ripado',
-    proporcao: '692 / 852',
+    proporcao: '1882 / 2272',
     alt: 'Cozinha planejada clara com ilha de ripado de madeira, tampo em granito preto e coifa em inox em Jaú',
     cota: 'Cozinha residencial, armários claros, ilha em madeira ripada e granito preto, Jaú/SP',
     anotacoes: [
@@ -38,7 +63,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     ambiente: 'cozinhas',
     titulo: 'Cozinha com forro ripado e adega iluminada',
     arquivo: '/obras/cozinha-forro-ripado',
-    proporcao: '478 / 755',
+    proporcao: '1632 / 2564',
     alt: 'Cozinha planejada com forro de madeira ripada, adega vertical iluminada por LED e bancada em granito preto',
     cota: 'Cozinha integrada, forro e painel ripados em madeira, granito preto e LED, Jaú/SP',
     anotacoes: [
@@ -66,36 +91,11 @@ export const OBRAS_REAIS: ObraItem[] = [
     ],
   },
   {
-    id: 'cozinha-ilha-verde',
-    ambiente: 'cozinhas',
-    titulo: 'Cozinha clara com ilha em verde-sálvia',
-    arquivo: '/obras/cozinha-ilha-verde',
-    proporcao: '479 / 773',
-    alt: 'Cozinha planejada clara com ilha central em tom verde-sálvia, armários até o teto e perfil de LED linear',
-    cota: 'Cozinha residencial, ilha em verde-sálvia e armários superiores brancos, Jaú/SP',
-    anotacoes: [
-      {
-        x: 36,
-        y: 68,
-        ex: 18,
-        ey: 82,
-        texto: 'ilha em verde-sálvia',
-      },
-      {
-        x: 58,
-        y: 24,
-        ex: 76,
-        ey: 16,
-        texto: 'modulação superior até o forro',
-      },
-    ],
-  },
-  {
     id: 'cozinha-cinza-pendentes',
     ambiente: 'cozinhas',
     titulo: 'Cozinha cinza com pórtico e nicho iluminado',
     arquivo: '/obras/cozinha-cinza-pendentes',
-    proporcao: '484 / 641',
+    proporcao: '1792 / 2400',
     alt: 'Cozinha planejada cinza com bancada em granito, dois pendentes de cobre e nicho madeirado com luz amarela',
     cota: 'Cozinha planejada, MDF cinza, granito escuro e nicho iluminado em LED, Jaú/SP',
     anotacoes: [
@@ -127,7 +127,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     ambiente: 'quartos',
     titulo: 'Quarto infantil com cama em formato de casinha',
     arquivo: '/obras/quarto-infantil-casinha',
-    proporcao: '820 / 560',
+    proporcao: '2528 / 1690',
     alt: 'Quarto infantil planejado com cama baixa em formato de casinha de madeira clara e bancada de estudo lateral',
     cota: 'Quarto infantil, cama montessoriana em madeira clara e bancada de apoio, Jaú/SP',
     anotacoes: [
@@ -159,7 +159,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     ambiente: 'quartos',
     titulo: 'Quarto de bebê com nichos iluminados e guarda-roupa',
     arquivo: '/obras/quarto-bebe-nichos',
-    proporcao: '791 / 586',
+    proporcao: '2426 / 1728',
     alt: 'Quarto de bebê com guarda-roupa planejado, três nichos laterais iluminados por LED, berço e cômoda branca',
     cota: 'Quarto de bebê, guarda-roupa com nichos amadeirados iluminados e painel com LED, Jaú/SP',
     anotacoes: [
@@ -184,7 +184,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     ambiente: 'quartos',
     titulo: 'Dormitório duplo com cabeceira iluminada em LED',
     arquivo: '/obras/dormitorio-led-1',
-    proporcao: '478 / 773',
+    proporcao: '1632 / 2624',
     alt: 'Dormitório planejado com duas camas, cabeceira contínua amadeirada com fita de LED e bancada de estudo',
     cota: 'Dormitório residencial, cabeceira contínua com LED quente e mesas de cabeceira, Jaú/SP',
     anotacoes: [
@@ -209,7 +209,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     ambiente: 'quartos',
     titulo: 'Bancada em L e armário aéreo no dormitório',
     arquivo: '/obras/dormitorio-led-2',
-    proporcao: '478 / 791',
+    proporcao: '1600 / 2634',
     alt: 'Dormitório planejado mostrando armário aéreo basculante em madeira clara, prateleira superior e bancada em L',
     cota: 'Dormitório residencial, armário aéreo amadeirado e bancada de estudo em L, Jaú/SP',
     anotacoes: [
@@ -234,7 +234,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     ambiente: 'lojas',
     titulo: 'Marcenaria comercial — interior GoCoffee',
     arquivo: '/obras/comercial-gocoffee-interior',
-    proporcao: '440 / 802',
+    proporcao: '1536 / 2752',
     alt: 'Interior da cafeteria GoCoffee com balcão comercial planejado, vitrine expositora, parede de tijolinho e iluminação em trilho',
     cota: 'Marcenaria comercial para cafeteria GoCoffee, balcão de atendimento e vitrine, Jaú/SP [CONFIRMAR cidade]',
     anotacoes: [
@@ -259,7 +259,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     ambiente: 'lojas',
     titulo: 'Estante expositora e gabinete para cafeteria',
     arquivo: '/obras/comercial-expositor',
-    proporcao: '467 / 709',
+    proporcao: '1664 / 2518',
     alt: 'Estante expositora preta com prateleiras de produtos de café, plantas e gabinete inferior branco com coleta seletiva',
     cota: 'Expositor comercial estruturado em preto fosco e gabinete inferior, GoCoffee',
     anotacoes: [
@@ -284,7 +284,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     ambiente: 'lojas',
     titulo: 'Entrega comercial — fachada GoCoffee',
     arquivo: '/obras/comercial-gocoffee-fachada',
-    proporcao: '476 / 759',
+    proporcao: '1632 / 2594',
     alt: 'Fachada da cafeteria GoCoffee no dia de inauguração com balcão interno executado pela Império Móveis Planejados',
     cota: 'Projeto comercial entregue pela Império Móveis Planejados — GoCoffee [CONFIRMAR detalhes]',
     anotacoes: [

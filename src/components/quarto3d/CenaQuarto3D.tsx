@@ -2,7 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Line } from '@react-three/drei';
 import { QuartoLayout } from './schema';
-import { WOOD_FINISHES } from '../../data/woodData';
+import { ACABAMENTOS_3D } from '../../data/acabamentos';
+import { CENARIOS_AMBIENTES, CATALOGO_MODULOS_CENARIO } from '../../data/cenarios';
 
 interface CenaQuarto3DProps {
   layout: QuartoLayout;
@@ -16,7 +17,7 @@ interface PaletaTokens3D {
   grafite: string;
   grafiteSuave: string;
   preto: string;
-  luz: string;
+  dourado: string;
   freijo: string;
   areia: string;
 }
@@ -30,10 +31,10 @@ function lerTokensDesign(): PaletaTokens3D {
     estilo?.getPropertyValue(varName).trim() || fallback;
 
   const freijo =
-    WOOD_FINISHES.find((w) => w.id === 'freijo-ripado')?.colorHex ||
+    ACABAMENTOS_3D.find((w) => w.id === 'freijo-ripado')?.hex ||
     ler('--dourado', 'rgb(212, 168, 79)');
   const areia =
-    WOOD_FINISHES.find((w) => w.id === 'areia-acetinado')?.colorHex ||
+    ACABAMENTOS_3D.find((w) => w.id === 'areia-acetinado')?.hex ||
     ler('--papel-2', 'rgb(226, 224, 218)');
 
   return {
@@ -42,15 +43,15 @@ function lerTokensDesign(): PaletaTokens3D {
     grafite: ler('--grafite', 'rgb(38, 38, 36)'),
     grafiteSuave: ler('--grafite-suave', 'rgb(91, 90, 86)'),
     preto: ler('--preto', 'rgb(10, 10, 10)'),
-    luz: ler('--dourado', 'rgb(212, 168, 79)'),
+    dourado: ler('--dourado', 'rgb(212, 168, 79)'),
     freijo,
     areia,
   };
 }
 
 function obterCorAcabamento(idOuHex: string, padraoHex: string): string {
-  const encontrado = WOOD_FINISHES.find((w) => w.id === idOuHex);
-  return encontrado ? encontrado.colorHex : padraoHex;
+  const encontrado = ACABAMENTOS_3D.find((w) => w.id === idOuHex);
+  return encontrado ? encontrado.hex : padraoHex;
 }
 
 const CapturadorCanvas: React.FC<{
@@ -58,13 +59,20 @@ const CapturadorCanvas: React.FC<{
   acabamentoAtivoHex: string;
   onCanvasReady?: (canvas: HTMLCanvasElement) => void;
 }> = ({ layout, acabamentoAtivoHex, onCanvasReady }) => {
-  const { gl, invalidate } = useThree();
+  const { gl, invalidate, camera } = useThree();
 
   useEffect(() => {
     if (onCanvasReady) {
       onCanvasReady(gl.domElement);
     }
   }, [gl, onCanvasReady]);
+
+  useEffect(() => {
+    const pos = CENARIOS_AMBIENTES[layout.comodo].posicaoCamera;
+    camera.position.set(pos[0], pos[1], pos[2]);
+    camera.updateProjectionMatrix();
+    invalidate();
+  }, [layout.comodo, camera, invalidate]);
 
   useEffect(() => {
     invalidate();
@@ -81,8 +89,8 @@ const GeometriaAmbiente: React.FC<{
   const { largura_m: W, profundidade_m: D, pe_direito_m: H } = layout.dimensoes;
   const espessura = 0.08;
   const ledAceso = layout.led;
+  const cenario = CENARIOS_AMBIENTES[layout.comodo];
 
-  // Contorno em linha de lápis do ambiente (3D)
   const pontosContorno: Array<[number, number, number]> = [
     [-W / 2, 0.01, -D / 2],
     [W / 2, 0.01, -D / 2],
@@ -94,33 +102,38 @@ const GeometriaAmbiente: React.FC<{
     [W / 2, 0.01, -D / 2],
   ];
 
+  const corPiso = cenario.piso === 'porcelanato-claro' ? tokens.papel : tokens.areia;
+
   return (
     <group>
       {/* Iluminação Dia vs Noite ("Acender o LED") */}
       <ambientLight
-        intensity={ledAceso ? 0.38 : 1.15}
+        intensity={ledAceso ? 0.42 : 1.15}
         color={ledAceso ? tokens.papel : 'white'}
       />
       <directionalLight
         position={[4, 6, 5]}
-        intensity={ledAceso ? 0.45 : 1.25}
-        color={ledAceso ? tokens.luz : 'white'}
+        intensity={ledAceso ? 0.48 : 1.25}
+        color={ledAceso ? tokens.dourado : 'white'}
       />
 
-      {/* Contorno arquitetônico do ambiente em traço de lápis */}
+      {/* Contorno em traço de lápis */}
       <Line
         points={pontosContorno}
-        color={ledAceso ? tokens.luz : tokens.grafite}
+        color={ledAceso ? tokens.dourado : tokens.grafite}
         lineWidth={1.6}
       />
 
-      {/* Piso claro */}
+      {/* Piso do cenário */}
       <mesh position={[0, -espessura / 2, 0]}>
         <boxGeometry args={[W, espessura, D]} />
-        <meshStandardMaterial color={tokens.areia} roughness={0.85} />
+        <meshStandardMaterial
+          color={corPiso}
+          roughness={cenario.piso === 'porcelanato-claro' ? 0.35 : 0.8}
+        />
       </mesh>
 
-      {/* Sombra de contato falsa sob o piso para profundidade sem custo de GPU */}
+      {/* Sombra de contato falsa sob o piso */}
       <mesh position={[0, -espessura - 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W * 1.06, D * 1.06]} />
         <meshBasicMaterial color={tokens.preto} transparent opacity={0.35} />
@@ -138,22 +151,36 @@ const GeometriaAmbiente: React.FC<{
         <meshStandardMaterial color={tokens.papel2} roughness={0.92} />
       </mesh>
 
-      {/* Parede Leste (Direita — meia altura em corte para visualização limpa) */}
+      {/* Parede Leste (Meia altura transparente para corte arquitetônico) */}
       <mesh position={[W / 2 + espessura / 2, H * 0.45, 0]}>
         <boxGeometry args={[espessura, H * 0.9, D]} />
-        <meshStandardMaterial color={tokens.papel2} roughness={0.92} transparent opacity={0.35} />
+        <meshStandardMaterial color={tokens.papel2} roughness={0.92} transparent opacity={0.3} />
       </mesh>
 
-      {/* Aberturas (Janela / Porta representadas em corte técnico) */}
+      {/* Aberturas do cenário (janelas e portas) */}
       {layout.aberturas.map((ab, idx) => {
         const ehJanela = ab.tipo === 'janela';
-        const larg = Math.min(ab.largura_m, W * 0.6);
+        const larg = Math.min(ab.largura_m, W * 0.55);
         const alt = ehJanela ? 1.1 : 2.1;
         const posY = ehJanela ? 1.45 : alt / 2;
 
         if (ab.parede === 'N') {
           return (
-            <mesh key={`ab-${idx}`} position={[0.4, posY, -D / 2 + 0.01]}>
+            <mesh key={`ab-${idx}`} position={[ab.posicaoOffset_m, posY, -D / 2 + 0.01]}>
+              <planeGeometry args={[larg, alt]} />
+              <meshBasicMaterial
+                color={ehJanela ? (ledAceso ? tokens.grafite : tokens.papel2) : tokens.freijo}
+              />
+            </mesh>
+          );
+        }
+        if (ab.parede === 'O') {
+          return (
+            <mesh
+              key={`ab-${idx}`}
+              position={[-W / 2 + 0.01, posY, ab.posicaoOffset_m]}
+              rotation={[0, Math.PI / 2, 0]}
+            >
               <planeGeometry args={[larg, alt]} />
               <meshBasicMaterial
                 color={ehJanela ? (ledAceso ? tokens.grafite : tokens.papel2) : tokens.freijo}
@@ -164,39 +191,34 @@ const GeometriaAmbiente: React.FC<{
         return null;
       })}
 
-      {/* Módulos Paramétricos de Marcenaria */}
+      {/* Módulos Paramétricos do Cenário */}
       {layout.modulos.map((mod) => {
         const corModulo = obterCorAcabamento(mod.acabamento, acabamentoAtivoHex);
+        const regra = CATALOGO_MODULOS_CENARIO[mod.id];
+        if (!regra) return null;
+        const geo = regra.gerarGeometria(layout.dimensoes);
 
-        // 1. Guarda-roupa de parede inteira (Parede Oeste)
+        // 1. Guarda-roupa piso ao teto (Quarto / Closet)
         if (mod.id === 'guarda-roupa') {
-          const larg = Math.min(mod.largura_m, D - 0.3);
-          const alt = Math.min(mod.altura_m, H - 0.05);
-          const prof = 0.6;
           const numPortas = 4;
-          const largPorta = larg / numPortas;
-
+          const largPorta = geo.largura / numPortas;
           return (
-            <group
-              key={mod.id}
-              position={[-W / 2 + prof / 2, alt / 2, -D / 2 + larg / 2 + 0.15]}
-            >
-              {/* Caixa estrutural do guarda-roupa */}
+            <group key={mod.id} position={geo.posicao}>
               <mesh>
-                <boxGeometry args={[prof, alt, larg]} />
+                <boxGeometry args={[geo.profundidade, geo.altura, geo.largura]} />
                 <meshStandardMaterial color={corModulo} roughness={0.65} />
               </mesh>
-
-              {/* Divisões das portas e puxadores verticais */}
               {Array.from({ length: numPortas }).map((_, pIdx) => {
-                const zPorta = -larg / 2 + largPorta * pIdx + largPorta / 2;
+                const zPorta = -geo.largura / 2 + largPorta * pIdx + largPorta / 2;
                 return (
-                  <group key={`porta-${pIdx}`} position={[prof / 2 + 0.008, 0, zPorta]}>
+                  <group
+                    key={`porta-${pIdx}`}
+                    position={[geo.profundidade / 2 + 0.008, 0, zPorta]}
+                  >
                     <mesh>
-                      <boxGeometry args={[0.015, alt - 0.06, largPorta - 0.02]} />
+                      <boxGeometry args={[0.015, geo.altura - 0.06, largPorta - 0.02]} />
                       <meshStandardMaterial color={corModulo} roughness={0.55} />
                     </mesh>
-                    {/* Puxador linear em grafite */}
                     <mesh position={[0.012, -0.1, (pIdx % 2 === 0 ? 1 : -1) * (largPorta * 0.36)]}>
                       <boxGeometry args={[0.015, 0.55, 0.02]} />
                       <meshStandardMaterial color={tokens.grafite} metalness={0.4} roughness={0.4} />
@@ -204,20 +226,18 @@ const GeometriaAmbiente: React.FC<{
                   </group>
                 );
               })}
-
-              {/* Fita de LED superior do guarda-roupa */}
-              <mesh position={[prof / 2 + 0.02, alt / 2 - 0.03, 0]}>
-                <boxGeometry args={[0.02, 0.025, larg - 0.08]} />
+              <mesh position={[geo.profundidade / 2 + 0.02, geo.altura / 2 - 0.03, 0]}>
+                <boxGeometry args={[0.02, 0.025, geo.largura - 0.08]} />
                 <meshStandardMaterial
-                  color={ledAceso ? tokens.luz : tokens.grafiteSuave}
-                  emissive={ledAceso ? tokens.luz : tokens.preto}
+                  color={ledAceso ? tokens.dourado : tokens.grafiteSuave}
+                  emissive={ledAceso ? tokens.dourado : tokens.preto}
                   emissiveIntensity={ledAceso ? 2.4 : 0}
                 />
               </mesh>
               {ledAceso && (
                 <pointLight
-                  position={[prof / 2 + 0.35, alt / 2 - 0.15, 0]}
-                  color={tokens.luz}
+                  position={[geo.profundidade / 2 + 0.35, geo.altura / 2 - 0.15, 0]}
+                  color={tokens.dourado}
                   intensity={1.1}
                   distance={3.2}
                 />
@@ -226,58 +246,46 @@ const GeometriaAmbiente: React.FC<{
           );
         }
 
-        // 2. Cabeceira ripada com LED + Cama (Parede Norte)
-        if (mod.id === 'cabeceira-led') {
-          const larg = Math.min(mod.largura_m, W - 0.4);
-          const alt = Math.min(mod.altura_m, H * 0.65);
+        // 2. Cabeceira ripada com LED + Cama (Quarto)
+        if (mod.id === 'cabeceira-ripada-led') {
           const numRipas = 24;
-          const passoRipa = larg / numRipas;
-
+          const passoRipa = geo.largura / numRipas;
           return (
-            <group key={mod.id} position={[0.25, 0, -D / 2 + 0.06]}>
-              {/* Base do painel da cabeceira */}
-              <mesh position={[0, alt / 2, 0]}>
-                <boxGeometry args={[larg, alt, 0.04]} />
+            <group key={mod.id} position={geo.posicao}>
+              <mesh position={[0, geo.altura / 2, 0]}>
+                <boxGeometry args={[geo.largura, geo.altura, 0.04]} />
                 <meshStandardMaterial color={tokens.freijo} roughness={0.7} />
               </mesh>
-
-              {/* Ripas verticais procedurais */}
               {Array.from({ length: numRipas }).map((_, rIdx) => (
                 <mesh
                   key={`ripa-cab-${rIdx}`}
-                  position={[-larg / 2 + rIdx * passoRipa + passoRipa / 2, alt / 2, 0.03]}
+                  position={[-geo.largura / 2 + rIdx * passoRipa + passoRipa / 2, geo.altura / 2, 0.03]}
                 >
-                  <boxGeometry args={[passoRipa * 0.62, alt, 0.02]} />
+                  <boxGeometry args={[passoRipa * 0.62, geo.altura, 0.02]} />
                   <meshStandardMaterial color={corModulo} roughness={0.6} />
                 </mesh>
               ))}
-
-              {/* Perfil de Fita de LED embutida no topo da cabeceira */}
-              <mesh position={[0, alt + 0.015, 0.02]}>
-                <boxGeometry args={[larg, 0.025, 0.03]} />
+              <mesh position={[0, geo.altura + 0.015, 0.02]}>
+                <boxGeometry args={[geo.largura, 0.025, 0.03]} />
                 <meshStandardMaterial
-                  color={ledAceso ? tokens.luz : tokens.grafiteSuave}
-                  emissive={ledAceso ? tokens.luz : tokens.preto}
+                  color={ledAceso ? tokens.dourado : tokens.grafiteSuave}
+                  emissive={ledAceso ? tokens.dourado : tokens.preto}
                   emissiveIntensity={ledAceso ? 3.2 : 0}
                 />
               </mesh>
               {ledAceso && (
                 <pointLight
-                  position={[0, alt + 0.25, 0.35]}
-                  color={tokens.luz}
+                  position={[0, geo.altura + 0.25, 0.35]}
+                  color={tokens.dourado}
                   intensity={2.0}
                   distance={4.0}
                 />
               )}
-
-              {/* Cama centralizada na cabeceira */}
               <group position={[0, 0, 1.02]}>
-                {/* Base em madeira */}
                 <mesh position={[0, 0.18, 0]}>
                   <boxGeometry args={[1.58, 0.36, 1.98]} />
                   <meshStandardMaterial color={corModulo} roughness={0.65} />
                 </mesh>
-                {/* Colchão em tecido claro */}
                 <mesh position={[0, 0.44, 0]}>
                   <boxGeometry args={[1.48, 0.22, 1.9]} />
                   <meshStandardMaterial color={tokens.papel} roughness={0.9} />
@@ -287,56 +295,195 @@ const GeometriaAmbiente: React.FC<{
           );
         }
 
-        // 3. Painel de TV ripado com rack suspenso (Parede Leste)
-        if (mod.id === 'painel-tv') {
-          const larg = Math.min(mod.largura_m, D - 0.5);
-          const alt = Math.min(mod.altura_m, H - 0.3);
-          const numRipas = 18;
-          const passo = larg / numRipas;
-
+        // 3. Mesas de cabeceira suspensas (Quarto)
+        if (mod.id === 'criado-mudo') {
           return (
-            <group key={mod.id} position={[W / 2 - 0.06, 0, 0.15]}>
-              {/* Painel ripado vertical */}
-              <mesh position={[0, alt / 2 + 0.2, 0]}>
-                <boxGeometry args={[0.04, alt, larg]} />
+            <group key={mod.id} position={geo.posicao}>
+              <mesh position={[-1.05, 0, 0]}>
+                <boxGeometry args={[geo.largura, geo.altura, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.6} />
+              </mesh>
+              <mesh position={[1.05, 0, 0]}>
+                <boxGeometry args={[geo.largura, geo.altura, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.6} />
+              </mesh>
+            </group>
+          );
+        }
+
+        // 4. Painel de TV ripado com rack (Quarto)
+        if (mod.id === 'painel-tv-ripado') {
+          const numRipas = 18;
+          const passo = geo.largura / numRipas;
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              <mesh position={[0, geo.altura / 2 + 0.2, 0]}>
+                <boxGeometry args={[0.04, geo.altura, geo.largura]} />
                 <meshStandardMaterial color={corModulo} roughness={0.65} />
               </mesh>
               {Array.from({ length: numRipas }).map((_, idx) => (
                 <mesh
                   key={`tv-ripa-${idx}`}
-                  position={[-0.03, alt / 2 + 0.2, -larg / 2 + idx * passo + passo / 2]}
+                  position={[-0.03, geo.altura / 2 + 0.2, -geo.largura / 2 + idx * passo + passo / 2]}
                 >
-                  <boxGeometry args={[0.02, alt, passo * 0.6]} />
+                  <boxGeometry args={[0.02, geo.altura, passo * 0.6]} />
                   <meshStandardMaterial color={tokens.freijo} roughness={0.6} />
                 </mesh>
               ))}
-
-              {/* Rack suspenso inferior */}
               <mesh position={[-0.18, 0.48, 0]}>
-                <boxGeometry args={[0.36, 0.28, larg]} />
+                <boxGeometry args={[0.36, 0.28, geo.largura]} />
                 <meshStandardMaterial color={corModulo} roughness={0.55} />
               </mesh>
-
-              {/* Tela da TV */}
               <mesh position={[-0.06, 1.32, 0]}>
                 <boxGeometry args={[0.03, 0.72, 1.25]} />
                 <meshStandardMaterial color={tokens.preto} roughness={0.2} metalness={0.5} />
               </mesh>
+            </group>
+          );
+        }
 
-              {/* Fita de LED atrás do painel de TV */}
-              <mesh position={[-0.02, alt + 0.21, 0]}>
-                <boxGeometry args={[0.03, 0.025, larg]} />
+        // 5. Bancada em L com cuba e granito preto (Cozinha)
+        if (mod.id === 'bancada-l') {
+          const braçoOeste = Math.min(2.1, D - 0.8);
+          return (
+            <group key={mod.id}>
+              {/* Bancada Norte */}
+              <group position={geo.posicao}>
+                <mesh position={[0, geo.altura / 2 - 0.02, 0]}>
+                  <boxGeometry args={[geo.largura, geo.altura - 0.04, geo.profundidade]} />
+                  <meshStandardMaterial color={corModulo} roughness={0.6} />
+                </mesh>
+                <mesh position={[0, geo.altura, 0]}>
+                  <boxGeometry args={[geo.largura + 0.04, 0.04, geo.profundidade + 0.04]} />
+                  <meshStandardMaterial color={tokens.preto} roughness={0.25} metalness={0.2} />
+                </mesh>
+              </group>
+              {/* Retorno em L na Parede Oeste */}
+              <group position={[-W / 2 + 0.31, 0, -D / 2 + 0.62 + braçoOeste / 2]}>
+                <mesh position={[0, geo.altura / 2 - 0.02, 0]}>
+                  <boxGeometry args={[0.62, geo.altura - 0.04, braçoOeste]} />
+                  <meshStandardMaterial color={corModulo} roughness={0.6} />
+                </mesh>
+                <mesh position={[0, geo.altura, 0]}>
+                  <boxGeometry args={[0.66, 0.04, braçoOeste + 0.02]} />
+                  <meshStandardMaterial color={tokens.preto} roughness={0.25} metalness={0.2} />
+                </mesh>
+              </group>
+            </group>
+          );
+        }
+
+        // 6. Ilha central ripada com tampo em granito e cooktop (Cozinha)
+        if (mod.id === 'ilha') {
+          const numRipas = 18;
+          const passo = geo.largura / numRipas;
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              <mesh position={[0, geo.altura / 2, 0]}>
+                <boxGeometry args={[geo.largura, geo.altura - 0.04, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.65} />
+              </mesh>
+              {Array.from({ length: numRipas }).map((_, idx) => (
+                <mesh
+                  key={`ilha-ripa-${idx}`}
+                  position={[-geo.largura / 2 + idx * passo + passo / 2, geo.altura / 2, geo.profundidade / 2 + 0.012]}
+                >
+                  <boxGeometry args={[passo * 0.6, geo.altura - 0.06, 0.02]} />
+                  <meshStandardMaterial color={tokens.freijo} roughness={0.6} />
+                </mesh>
+              ))}
+              <mesh position={[0, geo.altura, 0]}>
+                <boxGeometry args={[geo.largura + 0.06, 0.045, geo.profundidade + 0.06]} />
+                <meshStandardMaterial color={tokens.preto} roughness={0.25} metalness={0.2} />
+              </mesh>
+              {ledAceso && (
+                <pointLight
+                  position={[0, geo.altura - 0.15, geo.profundidade / 2 + 0.35]}
+                  color={tokens.dourado}
+                  intensity={1.5}
+                  distance={3.2}
+                />
+              )}
+            </group>
+          );
+        }
+
+        // 7. Armários superiores até o teto + Fita de LED sob o armário (Cozinha)
+        if (mod.id === 'armarios-altos') {
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              <mesh>
+                <boxGeometry args={[geo.largura, geo.altura, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.55} />
+              </mesh>
+              <mesh position={[0, -geo.altura / 2 - 0.015, geo.profundidade / 2 - 0.04]}>
+                <boxGeometry args={[geo.largura - 0.1, 0.02, 0.03]} />
                 <meshStandardMaterial
-                  color={ledAceso ? tokens.luz : tokens.grafiteSuave}
-                  emissive={ledAceso ? tokens.luz : tokens.preto}
-                  emissiveIntensity={ledAceso ? 2.6 : 0}
+                  color={ledAceso ? tokens.dourado : tokens.grafiteSuave}
+                  emissive={ledAceso ? tokens.dourado : tokens.preto}
+                  emissiveIntensity={ledAceso ? 3.0 : 0}
                 />
               </mesh>
               {ledAceso && (
                 <pointLight
-                  position={[-0.4, 1.5, 0]}
-                  color={tokens.luz}
-                  intensity={1.3}
+                  position={[0, -geo.altura / 2 - 0.2, 0.25]}
+                  color={tokens.dourado}
+                  intensity={1.8}
+                  distance={3.2}
+                />
+              )}
+            </group>
+          );
+        }
+
+        // 8. Torre quente para forno e micro-ondas (Cozinha)
+        if (mod.id === 'torre-forno') {
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              <mesh>
+                <boxGeometry args={[geo.largura, geo.altura, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.6} />
+              </mesh>
+              {/* Nichos escuros do forno e micro-ondas */}
+              <mesh position={[0, -0.15, geo.profundidade / 2 + 0.008]}>
+                <boxGeometry args={[geo.largura * 0.82, 0.58, 0.02]} />
+                <meshStandardMaterial color={tokens.preto} roughness={0.2} metalness={0.6} />
+              </mesh>
+              <mesh position={[0, 0.42, geo.profundidade / 2 + 0.008]}>
+                <boxGeometry args={[geo.largura * 0.82, 0.38, 0.02]} />
+                <meshStandardMaterial color={tokens.preto} roughness={0.2} metalness={0.6} />
+              </mesh>
+            </group>
+          );
+        }
+
+        // 9. Coluna de nichos iluminados em LED (Closet / Home Office)
+        if (mod.id === 'nichos-led') {
+          const numPrateleiras = 5;
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              <mesh>
+                <boxGeometry args={[geo.largura, geo.altura, geo.profundidade]} />
+                <meshStandardMaterial color={tokens.freijo} roughness={0.65} />
+              </mesh>
+              {Array.from({ length: numPrateleiras }).map((_, idx) => {
+                const y = -geo.altura / 2 + ((idx + 1) * geo.altura) / (numPrateleiras + 1);
+                return (
+                  <mesh key={`prateleira-nicho-${idx}`} position={[0, y, geo.profundidade / 2]}>
+                    <boxGeometry args={[geo.largura - 0.06, 0.025, 0.04]} />
+                    <meshStandardMaterial
+                      color={ledAceso ? tokens.dourado : tokens.grafiteSuave}
+                      emissive={ledAceso ? tokens.dourado : tokens.preto}
+                      emissiveIntensity={ledAceso ? 2.6 : 0}
+                    />
+                  </mesh>
+                );
+              })}
+              {ledAceso && (
+                <pointLight
+                  position={[0, 0, geo.profundidade / 2 + 0.3]}
+                  color={tokens.dourado}
+                  intensity={1.5}
                   distance={3.0}
                 />
               )}
@@ -344,55 +491,99 @@ const GeometriaAmbiente: React.FC<{
           );
         }
 
-        // 4. Bancada / Ilha com corpo ripado e tampo em granito preto
-        if (mod.id === 'bancada-ilha') {
-          const larg = Math.min(mod.largura_m, W - 0.8);
-          const alt = mod.altura_m;
-          const prof = 0.75;
-          const numRipas = 16;
-          const passo = larg / numRipas;
-
+        // 10. Ilha central de closet (Closet)
+        if (mod.id === 'ilha-closet') {
           return (
-            <group key={mod.id} position={[0, 0, D / 2 - 0.85]}>
-              {/* Corpo ripado da ilha/bancada */}
-              <mesh position={[0, alt / 2, 0]}>
-                <boxGeometry args={[larg, alt - 0.04, prof]} />
+            <group key={mod.id} position={geo.posicao}>
+              <mesh>
+                <boxGeometry args={[geo.largura, geo.altura, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.55} />
+              </mesh>
+              <mesh position={[0, geo.altura / 2 + 0.015, 0]}>
+                <boxGeometry args={[geo.largura + 0.02, 0.03, geo.profundidade + 0.02]} />
+                <meshStandardMaterial color={tokens.papel} roughness={0.25} />
+              </mesh>
+            </group>
+          );
+        }
+
+        // 11. Módulo de sapateira e cabideiros (Closet)
+        if (mod.id === 'prateleiras-closet') {
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              <mesh>
+                <boxGeometry args={[geo.largura, geo.altura, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.6} />
+              </mesh>
+              <mesh position={[0, geo.altura / 2 - 0.04, geo.profundidade / 2 + 0.01]}>
+                <boxGeometry args={[geo.largura - 0.08, 0.025, 0.02]} />
+                <meshStandardMaterial
+                  color={ledAceso ? tokens.dourado : tokens.grafiteSuave}
+                  emissive={ledAceso ? tokens.dourado : tokens.preto}
+                  emissiveIntensity={ledAceso ? 2.5 : 0}
+                />
+              </mesh>
+            </group>
+          );
+        }
+
+        // 12. Bancada de trabalho em L (Home Office)
+        if (mod.id === 'bancada-trabalho') {
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              {/* Tampo da mesa */}
+              <mesh position={[0, 0, 0]}>
+                <boxGeometry args={[geo.largura, 0.045, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.55} />
+              </mesh>
+              {/* Pés laterais em painel */}
+              <mesh position={[-geo.largura / 2 + 0.03, -0.37, 0]}>
+                <boxGeometry args={[0.05, 0.74, geo.profundidade - 0.04]} />
+                <meshStandardMaterial color={corModulo} roughness={0.6} />
+              </mesh>
+              <mesh position={[geo.largura / 2 - 0.03, -0.37, 0]}>
+                <boxGeometry args={[0.05, 0.74, geo.profundidade - 0.04]} />
+                <meshStandardMaterial color={corModulo} roughness={0.6} />
+              </mesh>
+            </group>
+          );
+        }
+
+        // 13. Estante ripada e armário aéreo (Home Office)
+        if (mod.id === 'estante-ripada') {
+          const numRipas = 16;
+          const passo = geo.largura / numRipas;
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              <mesh>
+                <boxGeometry args={[geo.profundidade, geo.altura, geo.largura]} />
                 <meshStandardMaterial color={corModulo} roughness={0.65} />
               </mesh>
-
               {Array.from({ length: numRipas }).map((_, idx) => (
                 <mesh
-                  key={`ilha-ripa-${idx}`}
-                  position={[-larg / 2 + idx * passo + passo / 2, alt / 2, prof / 2 + 0.012]}
+                  key={`est-ripa-${idx}`}
+                  position={[
+                    geo.profundidade / 2 + 0.012,
+                    0,
+                    -geo.largura / 2 + idx * passo + passo / 2,
+                  ]}
                 >
-                  <boxGeometry args={[passo * 0.6, alt - 0.06, 0.02]} />
+                  <boxGeometry args={[0.02, geo.altura - 0.08, passo * 0.6]} />
                   <meshStandardMaterial color={tokens.freijo} roughness={0.6} />
                 </mesh>
               ))}
+            </group>
+          );
+        }
 
-              {/* Tampo em Granito Preto */}
-              <mesh position={[0, alt, 0]}>
-                <boxGeometry args={[larg + 0.06, 0.045, prof + 0.06]} />
-                <meshStandardMaterial color={tokens.preto} roughness={0.25} metalness={0.2} />
+        // 14. Gaveteiro de apoio (Home Office)
+        if (mod.id === 'gaveteiro') {
+          return (
+            <group key={mod.id} position={geo.posicao}>
+              <mesh>
+                <boxGeometry args={[geo.largura, geo.altura, geo.profundidade]} />
+                <meshStandardMaterial color={corModulo} roughness={0.58} />
               </mesh>
-
-              {/* Fita de LED sob a borda do granito */}
-              <mesh position={[0, alt - 0.03, prof / 2 + 0.02]}>
-                <boxGeometry args={[larg, 0.02, 0.02]} />
-                <meshStandardMaterial
-                  color={ledAceso ? tokens.luz : tokens.grafiteSuave}
-                  emissive={ledAceso ? tokens.luz : tokens.preto}
-                  emissiveIntensity={ledAceso ? 2.8 : 0}
-                />
-              </mesh>
-              {ledAceso && (
-                <pointLight
-                  position={[0, alt - 0.15, prof / 2 + 0.35]}
-                  color={tokens.luz}
-                  intensity={1.4}
-                  distance={3.0}
-                />
-              )}
             </group>
           );
         }
@@ -409,13 +600,14 @@ export const CenaQuarto3D: React.FC<CenaQuarto3DProps> = ({
   onCanvasReady,
 }) => {
   const tokens = useMemo(() => lerTokensDesign(), []);
+  const posCameraInicial = CENARIOS_AMBIENTES[layout.comodo].posicaoCamera;
 
   return (
     <Canvas
       gl={{ preserveDrawingBuffer: true, antialias: true }}
       dpr={[1, 1.75]}
       frameloop="demand"
-      camera={{ position: [4.2, 3.2, 4.8], fov: 42 }}
+      camera={{ position: posCameraInicial, fov: 42 }}
       className="w-full h-full block"
     >
       <color attach="background" args={[layout.led ? tokens.preto : tokens.grafite]} />
@@ -434,7 +626,7 @@ export const CenaQuarto3D: React.FC<CenaQuarto3DProps> = ({
         enablePan={false}
         minPolarAngle={0.25}
         maxPolarAngle={Math.PI / 2 - 0.04}
-        minDistance={2.5}
+        minDistance={2.4}
         maxDistance={9.0}
       />
     </Canvas>

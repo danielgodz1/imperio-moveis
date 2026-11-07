@@ -1,192 +1,414 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, MessageSquare } from 'lucide-react';
-import { getWhatsAppUrl } from '../utils/helpers';
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, X, Phone, ChevronDown } from 'lucide-react';
+import { EMPRESA } from '../data/empresa';
 import { scrollToTarget } from '../hooks/useScrollytelling';
 
-interface HeaderProps {
-  onNavigateContact: () => void;
-  onNavigateHome: () => void;
-  currentView: 'home' | 'contato';
+export interface HeaderProps {
+  onNavigatePath: (path: string) => void;
+  onOpenBriefing: (ambienteInicial?: string) => void;
+  currentPath: string;
   headerRef: React.RefObject<HTMLElement | null>;
 }
 
+const SECOES_OBSERVADAS = ['hero', 'donos', 'obras', 'quarto-3d', 'avaliacoes'] as const;
+
 export const Header: React.FC<HeaderProps> = ({
-  onNavigateHome,
-  currentView,
+  onNavigatePath,
+  onOpenBriefing,
+  currentPath,
   headerRef,
 }) => {
   const [menuAberto, setMenuAberto] = useState(false);
-  const [sobreHero, setSobreHero] = useState(true);
+  const [dropdownAmbientes, setDropdownAmbientes] = useState(false);
+  const [secaoAtiva, setSecaoAtiva] = useState<string>('hero');
+  const [logoErro, setLogoErro] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const naHome = currentPath === '/';
+
+  // IntersectionObserver para destacar o link ativo conforme a seção visível
   useEffect(() => {
-    const verificarScroll = () => {
-      const limiteHero = Math.max(window.innerHeight * 0.82, 480);
-      setSobreHero(window.scrollY < limiteHero);
+    if (!naHome) {
+      setSecaoAtiva('');
+      return;
+    }
+
+    const elementos = SECOES_OBSERVADAS.map((id) => document.getElementById(id)).filter(
+      Boolean
+    ) as HTMLElement[];
+    if (elementos.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visiveis = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visiveis[0]?.target?.id) {
+          setSecaoAtiva(visiveis[0].target.id);
+        }
+      },
+      { rootMargin: '-25% 0px -55% 0px', threshold: [0.1, 0.4] }
+    );
+
+    elementos.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [naHome]);
+
+  // Fecha menu suspenso ao clicar fora ou pressionar Esc
+  useEffect(() => {
+    const aoClicarFora = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownAmbientes(false);
+      }
     };
-    verificarScroll();
-    window.addEventListener('scroll', verificarScroll, { passive: true });
-    window.addEventListener('resize', verificarScroll, { passive: true });
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setDropdownAmbientes(false);
+        setMenuAberto(false);
+      }
+    };
+    document.addEventListener('mousedown', aoClicarFora);
+    window.addEventListener('keydown', aoTeclar);
     return () => {
-      window.removeEventListener('scroll', verificarScroll);
-      window.removeEventListener('resize', verificarScroll);
+      document.removeEventListener('mousedown', aoClicarFora);
+      window.removeEventListener('keydown', aoTeclar);
     };
   }, []);
 
-  const transparenteSobreFoto = currentView === 'home' && sobreHero && !menuAberto;
-
   const irParaSecao = (id: string) => {
     setMenuAberto(false);
-    if (currentView !== 'home') {
-      onNavigateHome();
+    setDropdownAmbientes(false);
+    if (!naHome) {
+      onNavigatePath('/');
       setTimeout(() => {
         scrollToTarget(`#${id}`, -72);
-      }, 120);
+      }, 150);
     } else {
       scrollToTarget(`#${id}`, -72);
     }
   };
 
+  const irParaRota = (path: string) => {
+    setMenuAberto(false);
+    setDropdownAmbientes(false);
+    onNavigatePath(path);
+  };
+
+  const linkClasse = (ativo: boolean) =>
+    `tipo-cota cursor-pointer transition-colors ${
+      ativo
+        ? 'text-dourado link-traco font-semibold'
+        : 'text-papel/85 hover:text-dourado'
+    }`;
+
   return (
     <header
       ref={headerRef}
-      data-tema={transparenteSobreFoto ? 'noite' : undefined}
-      className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 will-change-transform ${
-        transparenteSobreFoto
-          ? 'bg-transparent border-b border-transparent text-papel'
-          : 'bg-papel border-b border-grafite/15 text-grafite'
-      }`}
+      data-tema="noite"
+      className="fixed top-0 left-0 w-full z-50 bg-preto text-papel border-b border-papel/15 transition-transform duration-300 will-change-transform"
     >
-      <div className="max-w-[1280px] mx-auto px-16 sm:px-32 h-64 flex items-center justify-between">
-        {/* Marca à esquerda */}
+      <div className="max-w-[1280px] mx-auto px-16 sm:px-32 h-64 flex items-center justify-between gap-16">
+        {/* Logo à esquerda: public/logo-imperio.png com fallback tipográfico */}
         <a
           href="/"
           onClick={(e) => {
             e.preventDefault();
             setMenuAberto(false);
-            if (currentView !== 'home') {
-              onNavigateHome();
+            if (!naHome) {
+              irParaRota('/');
             } else {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className={`flex items-baseline gap-8 transition-colors ${
-            transparenteSobreFoto ? 'text-papel' : 'text-grafite'
-          }`}
+          className="flex items-center gap-12 text-papel shrink-0"
         >
-          <span className="tipo-logo text-2xl sm:text-3xl">IMPÉRIO</span>
-          <span
-            className={`tipo-cota hidden sm:inline ${
-              transparenteSobreFoto ? 'text-papel/80' : 'text-grafite-suave'
-            }`}
-          >
-            Marcenaria e Arquitetura
-          </span>
+          {!logoErro ? (
+            <img
+              src="/logo-imperio.png"
+              alt={EMPRESA.nome}
+              onError={() => setLogoErro(true)}
+              className="h-11 w-auto object-contain block"
+            />
+          ) : (
+            <div className="flex flex-col">
+              <span className="tipo-logo text-2xl text-papel leading-none">
+                {EMPRESA.nomeCurto}
+              </span>
+              <span className="tipo-cota text-[11px] text-dourado leading-tight">
+                {EMPRESA.subtitulo}
+              </span>
+            </div>
+          )}
         </a>
 
-        {/* Três links de navegação — Desktop */}
+        {/* Navegação Desktop */}
         <nav
           aria-label="Navegação principal"
-          className="hidden md:flex items-center gap-32"
+          className="hidden lg:flex items-center gap-24"
         >
+          <button
+            type="button"
+            onClick={() => {
+              if (!naHome) irParaRota('/');
+              else window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={linkClasse(naHome && secaoAtiva === 'hero')}
+          >
+            Home
+          </button>
+
+          {/* Menu suspenso Ambientes */}
+          <div ref={dropdownRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setDropdownAmbientes((prev) => !prev)}
+              aria-expanded={dropdownAmbientes}
+              aria-haspopup="true"
+              className={`inline-flex items-center gap-4 ${linkClasse(
+                currentPath.includes('-jau') || secaoAtiva === 'quarto-3d'
+              )}`}
+            >
+              <span>Ambientes</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform ${
+                  dropdownAmbientes ? 'rotate-180 text-dourado' : ''
+                }`}
+                strokeWidth={1.5}
+              />
+            </button>
+
+            {dropdownAmbientes && (
+              <div
+                role="menu"
+                className="absolute left-0 top-full mt-12 w-56 bg-preto border border-papel/20 py-8 flex flex-col z-50"
+              >
+                <a
+                  href="/cozinhas-planejadas-jau"
+                  role="menuitem"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    irParaRota('/cozinhas-planejadas-jau');
+                  }}
+                  className="px-16 py-8 text-left tipo-cota text-papel/85 hover:text-dourado hover:bg-papel/5"
+                >
+                  Cozinhas
+                </a>
+                <a
+                  href="/quartos-planejados-jau"
+                  role="menuitem"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    irParaRota('/quartos-planejados-jau');
+                  }}
+                  className="px-16 py-8 text-left tipo-cota text-papel/85 hover:text-dourado hover:bg-papel/5"
+                >
+                  Quartos
+                </a>
+                <a
+                  href="/closets-sob-medida-jau"
+                  role="menuitem"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    irParaRota('/closets-sob-medida-jau');
+                  }}
+                  className="px-16 py-8 text-left tipo-cota text-papel/85 hover:text-dourado hover:bg-papel/5"
+                >
+                  Closets
+                </a>
+                <a
+                  href="/home-office-planejado-jau"
+                  role="menuitem"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    irParaRota('/home-office-planejado-jau');
+                  }}
+                  className="px-16 py-8 text-left tipo-cota text-papel/85 hover:text-dourado hover:bg-papel/5"
+                >
+                  Home Office
+                </a>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => irParaSecao('quarto-3d')}
+                  className="px-16 py-8 text-left tipo-cota text-dourado hover:bg-papel/5 border-t border-papel/15 mt-4 pt-8 cursor-pointer"
+                >
+                  Projete em 3D
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={() => irParaSecao('obras')}
-            className={`tipo-corpo cursor-pointer hover:underline underline-offset-4 decoration-1 transition-colors ${
-              transparenteSobreFoto
-                ? 'text-papel/90 hover:text-papel'
-                : 'text-grafite hover:text-preto'
-            }`}
+            className={linkClasse(naHome && secaoAtiva === 'obras')}
           >
-            Obras
+            Projetos
           </button>
+
           <button
             type="button"
-            onClick={() => irParaSecao('processo')}
-            className={`tipo-corpo cursor-pointer hover:underline underline-offset-4 decoration-1 transition-colors ${
-              transparenteSobreFoto
-                ? 'text-papel/90 hover:text-papel'
-                : 'text-grafite hover:text-preto'
-            }`}
+            onClick={() => irParaSecao('donos')}
+            className={linkClasse(naHome && secaoAtiva === 'donos')}
           >
-            Processo
+            Sobre Nós
           </button>
+
           <button
             type="button"
-            onClick={() => irParaSecao('quarto-3d')}
-            className={`tipo-corpo cursor-pointer hover:underline underline-offset-4 decoration-1 transition-colors ${
-              transparenteSobreFoto
-                ? 'text-papel/90 hover:text-papel'
-                : 'text-grafite hover:text-preto'
-            }`}
+            onClick={() => irParaSecao('avaliacoes')}
+            className={linkClasse(naHome && secaoAtiva === 'avaliacoes')}
           >
-            Quarto 3D
+            Avaliações
           </button>
+
+          <a
+            href="/contato"
+            onClick={(e) => {
+              e.preventDefault();
+              irParaRota('/contato');
+            }}
+            className={linkClasse(currentPath === '/contato')}
+          >
+            Contato
+          </a>
         </nav>
 
-        {/* Botão WhatsApp à direita */}
+        {/* Telefone com ícone + Botão "Pedir orçamento" em dourado */}
         <div className="flex items-center gap-16">
           <a
-            href={getWhatsAppUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-8 px-16 h-[40px] rounded-curto bg-dourado text-preto hover:bg-preto hover:text-dourado border border-dourado transition-colors duration-200 tipo-cota font-semibold"
+            href={`tel:${EMPRESA.whatsapp}`}
+            className="hidden xl:inline-flex items-center gap-8 tipo-cota text-papel/85 hover:text-dourado transition-colors"
           >
-            <MessageSquare className="w-4 h-4 stroke-[1.5]" />
-            <span>Chamar no WhatsApp</span>
+            <Phone className="w-4 h-4 text-dourado" strokeWidth={1.5} />
+            <span>{EMPRESA.telefone}</span>
           </a>
+
+          <button
+            type="button"
+            onClick={() => onOpenBriefing()}
+            className="hidden sm:inline-flex items-center justify-center px-16 h-[40px] rounded-curto bg-dourado text-preto hover:bg-papel hover:text-preto transition-colors duration-200 tipo-cota font-semibold cursor-pointer"
+          >
+            Pedir orçamento
+          </button>
 
           <button
             type="button"
             onClick={() => setMenuAberto((prev) => !prev)}
             aria-expanded={menuAberto}
             aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'}
-            className={`md:hidden p-8 cursor-pointer ${
-              transparenteSobreFoto ? 'text-papel' : 'text-grafite'
-            }`}
+            className="lg:hidden p-8 text-papel cursor-pointer"
           >
             {menuAberto ? (
-              <X className="w-6 h-6 stroke-[1.5]" />
+              <X className="w-6 h-6" strokeWidth={1.5} />
             ) : (
-              <Menu className="w-6 h-6 stroke-[1.5]" />
+              <Menu className="w-6 h-6" strokeWidth={1.5} />
             )}
           </button>
         </div>
       </div>
 
-      {/* Menu Mobile */}
+      {/* Menu Móvel Acessível */}
       {menuAberto && (
-        <div className="md:hidden bg-papel border-t border-grafite/15 px-16 py-24 flex flex-col gap-16">
+        <div className="lg:hidden bg-preto border-t border-papel/15 px-16 py-24 flex flex-col gap-12 max-h-[85vh] overflow-y-auto">
+          <button
+            type="button"
+            onClick={() => irParaRota('/')}
+            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
+          >
+            Home
+          </button>
+
+          <div className="py-8 border-b border-papel/10 flex flex-col gap-8">
+            <span className="tipo-cota text-dourado">Ambientes</span>
+            <div className="grid grid-cols-2 gap-8 pl-8">
+              <button
+                type="button"
+                onClick={() => irParaRota('/cozinhas-planejadas-jau')}
+                className="text-left py-4 tipo-cota text-papel/85 hover:text-dourado cursor-pointer"
+              >
+                Cozinhas
+              </button>
+              <button
+                type="button"
+                onClick={() => irParaRota('/quartos-planejados-jau')}
+                className="text-left py-4 tipo-cota text-papel/85 hover:text-dourado cursor-pointer"
+              >
+                Quartos
+              </button>
+              <button
+                type="button"
+                onClick={() => irParaRota('/closets-sob-medida-jau')}
+                className="text-left py-4 tipo-cota text-papel/85 hover:text-dourado cursor-pointer"
+              >
+                Closets
+              </button>
+              <button
+                type="button"
+                onClick={() => irParaRota('/home-office-planejado-jau')}
+                className="text-left py-4 tipo-cota text-papel/85 hover:text-dourado cursor-pointer"
+              >
+                Home Office
+              </button>
+              <button
+                type="button"
+                onClick={() => irParaSecao('quarto-3d')}
+                className="text-left py-4 tipo-cota text-dourado font-semibold col-span-2 cursor-pointer"
+              >
+                Projete em 3D
+              </button>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={() => irParaSecao('obras')}
-            className="text-left py-8 tipo-h3 text-grafite border-b border-grafite/10"
+            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
           >
-            Obras
+            Projetos
           </button>
           <button
             type="button"
-            onClick={() => irParaSecao('processo')}
-            className="text-left py-8 tipo-h3 text-grafite border-b border-grafite/10"
+            onClick={() => irParaSecao('donos')}
+            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
           >
-            Processo
+            Sobre Nós
           </button>
           <button
             type="button"
-            onClick={() => irParaSecao('quarto-3d')}
-            className="text-left py-8 tipo-h3 text-grafite border-b border-grafite/10"
+            onClick={() => irParaSecao('avaliacoes')}
+            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
           >
-            Quarto 3D
+            Avaliações
           </button>
-          <a
-            href={getWhatsAppUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMenuAberto(false)}
-            className="mt-8 w-full h-[52px] rounded-curto bg-dourado text-preto hover:bg-preto hover:text-dourado transition-colors flex items-center justify-center gap-8 tipo-cota font-semibold"
+          <button
+            type="button"
+            onClick={() => irParaRota('/contato')}
+            className="text-left py-8 tipo-h3 text-papel border-b border-papel/10 cursor-pointer"
           >
-            <MessageSquare className="w-4 h-4 stroke-[1.5]" />
-            <span>Chamar no WhatsApp</span>
-          </a>
+            Contato
+          </button>
+
+          <div className="pt-8 flex flex-col gap-12">
+            <a
+              href={`tel:${EMPRESA.whatsapp}`}
+              className="inline-flex items-center gap-8 tipo-cota text-papel/85"
+            >
+              <Phone className="w-4 h-4 text-dourado" strokeWidth={1.5} />
+              <span>{EMPRESA.telefone}</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMenuAberto(false);
+                onOpenBriefing();
+              }}
+              className="w-full h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel hover:text-preto transition-colors flex items-center justify-center tipo-cota font-semibold cursor-pointer"
+            >
+              Pedir orçamento
+            </button>
+          </div>
         </div>
       )}
     </header>

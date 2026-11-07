@@ -130,7 +130,7 @@ export const ProcessoSection: React.FC = () => {
           <Foto
             srcBase="/obras/entrega-guindaste"
             alt="Operação com guindaste em frente a edifício acompanhada pela equipe da Império Móveis Planejados"
-            proporcao="483 / 722"
+            proporcao="1696 / 2528"
             sizes="(min-width: 1024px) 40vw, 100vw"
             className="w-full"
           />

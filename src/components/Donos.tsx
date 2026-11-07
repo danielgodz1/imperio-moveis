@@ -1,28 +1,22 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Foto } from './Foto';
 
 gsap.registerPlugin(ScrollTrigger);
 
-/**
- * Coordenadas do holofote sobre a foto `fundadores` (666x1178).
- * Mantidas no topo do arquivo para ajuste fino ou futura troca por retratos individuais.
- */
 export const COORDENADAS_HOLOFOTE = {
-  wellington: { x: 50, y: 25, raio: 38 },
-  tatiane: { x: 70, y: 47, raio: 38 },
-  juntos: { x: 58, y: 40, raio: 150 },
+  1: { mx: '50%', my: '25%', r: '34%' },
+  2: { mx: '70%', my: '47%', r: '36%' },
+  3: { mx: '58%', my: '40%', r: '150%' },
 } as const;
 
 export interface RetratoHolofoteProps {
   srcBase: string;
   alt: string;
   proporcao?: string;
-  x: number;
-  y: number;
-  raio: number;
   camadaColoridaRef?: React.RefObject<HTMLDivElement | null>;
+  onImgLoad?: () => void;
   className?: string;
 }
 
@@ -30,41 +24,44 @@ export const RetratoHolofote: React.FC<RetratoHolofoteProps> = ({
   srcBase,
   alt,
   proporcao = '666 / 1178',
-  x,
-  y,
-  raio,
   camadaColoridaRef,
+  onImgLoad,
   className = '',
 }) => {
-  const gradienteMascara = `radial-gradient(circle at ${x}% ${y}%, #000000 0%, #000000 ${
-    raio * 0.65
-  }%, transparent ${raio}%)`;
+  const mascaraCss =
+    'radial-gradient(circle at var(--mx, 50%) var(--my, 25%), #000 var(--r, 34%), transparent calc(var(--r, 34%) + 20%))';
 
   return (
     <div
       className={`relative overflow-hidden bg-preto select-none ${className}`}
       style={{ aspectRatio: proporcao }}
     >
-      {/* Camada Base: escala de cinza com brilho reduzido */}
-      <div className="w-full h-full [filter:grayscale(1)_brightness(0.55)]">
+      {/* Camada Base: escala de cinza com brilho 0.5 */}
+      <div className="w-full h-full [filter:grayscale(1)_brightness(0.5)]">
         <Foto
           srcBase={srcBase}
           alt={alt}
           proporcao={proporcao}
           sizes="(min-width: 1024px) 45vw, 100vw"
           className="w-full h-full"
+          onImgLoad={onImgLoad}
         />
       </div>
 
-      {/* Camada Superior Colorida: revelada pela máscara radial animada */}
+      {/* Camada Superior Colorida: controlada apenas pelas variáveis CSS --mx, --my, --r */}
       <div
         ref={camadaColoridaRef}
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none will-change-transform"
-        style={{
-          maskImage: gradienteMascara,
-          WebkitMaskImage: gradienteMascara,
-        }}
+        className="absolute inset-0 pointer-events-none"
+        style={
+          {
+            '--mx': '50%',
+            '--my': '25%',
+            '--r': '34%',
+            maskImage: mascaraCss,
+            WebkitMaskImage: mascaraCss,
+          } as React.CSSProperties
+        }
       >
         <Foto
           srcBase={srcBase}
@@ -80,212 +77,107 @@ export const RetratoHolofote: React.FC<RetratoHolofoteProps> = ({
 
 const MARCOS_LINHA_TEMPO = [
   {
-    titulo: 'Auxiliar de marcenaria em Jaú',
-    detalhe: 'Wellington inicia o ofício numa marcenaria pequena da cidade.',
+    titulo: 'Auxiliar de marcenaria',
+    detalhe: 'Wellington inicia o ofício numa marcenaria pequena em Jaú.',
   },
   {
-    titulo: 'Primeiros projetos próprios',
-    detalhe: 'Mais de 15 anos de evolução prática no chão de oficina.',
+    titulo: 'Fundou a Império',
+    detalhe: 'Mais de 15 anos de evolução prática e projetos próprios desde 2015. [CONFIRMAR]',
   },
   {
-    titulo: '2015 [CONFIRMAR o que aconteceu]',
-    detalhe: 'Atuação consolidada no ramo em Jaú e região.',
+    titulo: 'Projetos da casa inteira com a Tatiane',
+    detalhe: 'Arquitetura de interiores, logística e personalização integradas à fábrica.',
   },
   {
-    titulo: 'Marcenaria e arquitetura juntas',
-    detalhe: 'Tatiane na arquitetura e logística; Wellington na fabricação.',
+    titulo: 'Hoje',
+    detalhe: 'Pacote completo de arquitetura e marcenaria para residências e comércios em Jaú e região.',
   },
 ];
 
 export const Donos: React.FC = () => {
   const secaoRef = useRef<HTMLElement>(null);
-  const palcoDesktopRef = useRef<HTMLDivElement>(null);
   const mascaraDesktopRef = useRef<HTMLDivElement>(null);
   const mascaraMobileRef = useRef<HTMLDivElement>(null);
-  const linhaTempoPathRef = useRef<SVGPathElement>(null);
+  const artigosRef = useRef<Array<HTMLElement | null>>([]);
+  const [passoAtivo, setPassoAtivo] = useState<1 | 2 | 3>(1);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
-  const bloco1DesktopRef = useRef<HTMLDivElement>(null);
-  const bloco2DesktopRef = useRef<HTMLDivElement>(null);
-  const bloco3DesktopRef = useRef<HTMLDivElement>(null);
-
-  const bloco1MobileRef = useRef<HTMLDivElement>(null);
-  const bloco2MobileRef = useRef<HTMLDivElement>(null);
-  const bloco3MobileRef = useRef<HTMLDivElement>(null);
-
+  // Atualiza variáveis CSS --mx, --my, --r via GSAP quando o passo muda
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = window.innerWidth < 1024;
+    setReducedMotion(prefersReduced);
 
-    const aplicarMascara = (
-      el: HTMLDivElement | null,
-      x: number,
-      y: number,
-      raio: number
-    ) => {
-      if (!el) return;
-      const g = `radial-gradient(circle at ${x}% ${y}%, #000000 0%, #000000 ${
-        raio * 0.65
-      }%, transparent ${raio}%)`;
-      el.style.maskImage = g;
-      el.style.webkitMaskImage = g;
-    };
+    const alvos = [mascaraDesktopRef.current, mascaraMobileRef.current].filter(
+      Boolean
+    ) as HTMLDivElement[];
+    if (alvos.length === 0) return;
+
+    if (prefersReduced) {
+      alvos.forEach((el) => {
+        el.style.setProperty('--mx', COORDENADAS_HOLOFOTE[3].mx);
+        el.style.setProperty('--my', COORDENADAS_HOLOFOTE[3].my);
+        el.style.setProperty('--r', COORDENADAS_HOLOFOTE[3].r);
+      });
+      return;
+    }
+
+    const coord = COORDENADAS_HOLOFOTE[passoAtivo];
+    alvos.forEach((el) => {
+      gsap.to(el, {
+        '--mx': coord.mx,
+        '--my': coord.my,
+        '--r': coord.r,
+        duration: 0.9,
+        ease: 'power3.out',
+        overwrite: true,
+      });
+    });
+  }, [passoAtivo]);
+
+  // Cria os ScrollTriggers para os 3 <article data-passo> sem pin e sem scrub
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      setPassoAtivo(3);
+      return;
+    }
 
     const ctx = gsap.context(() => {
-      if (prefersReduced) {
-        aplicarMascara(
-          mascaraDesktopRef.current,
-          COORDENADAS_HOLOFOTE.juntos.x,
-          COORDENADAS_HOLOFOTE.juntos.y,
-          COORDENADAS_HOLOFOTE.juntos.raio
-        );
-        aplicarMascara(
-          mascaraMobileRef.current,
-          COORDENADAS_HOLOFOTE.juntos.x,
-          COORDENADAS_HOLOFOTE.juntos.y,
-          COORDENADAS_HOLOFOTE.juntos.raio
-        );
-        if (linhaTempoPathRef.current) {
-          gsap.set(linhaTempoPathRef.current, { strokeDashoffset: 0 });
-        }
-        return;
-      }
+      artigosRef.current.forEach((artigo, index) => {
+        if (!artigo) return;
+        const numeroPasso = (index + 1) as 1 | 2 | 3;
 
-      const estado = {
-        x: COORDENADAS_HOLOFOTE.wellington.x,
-        y: COORDENADAS_HOLOFOTE.wellington.y,
-        raio: COORDENADAS_HOLOFOTE.wellington.raio,
-      };
-
-      if (!isMobile && palcoDesktopRef.current) {
-        // Estado inicial no desktop: Wellington visível, Tatiane e Juntos aguardando
-        gsap.set(bloco1DesktopRef.current, { opacity: 1, y: 0 });
-        gsap.set([bloco2DesktopRef.current, bloco3DesktopRef.current], {
-          opacity: 0,
-          y: 24,
-        });
-
-        if (linhaTempoPathRef.current) {
-          gsap.set(linhaTempoPathRef.current, { strokeDashoffset: 400 });
-        }
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: palcoDesktopRef.current,
-            start: 'top top',
-            end: '+=240%',
-            pin: true,
-            scrub: 0.6,
+        ScrollTrigger.create({
+          trigger: artigo,
+          start: 'top 55%',
+          end: 'bottom 55%',
+          invalidateOnRefresh: true,
+          onToggle: (self) => {
+            if (self.isActive) {
+              setPassoAtivo(numeroPasso);
+            }
           },
         });
-
-        // Transição 1 -> 2 (Wellington para Tatiane)
-        tl.to(
-          estado,
-          {
-            x: COORDENADAS_HOLOFOTE.tatiane.x,
-            y: COORDENADAS_HOLOFOTE.tatiane.y,
-            raio: COORDENADAS_HOLOFOTE.tatiane.raio,
-            duration: 1,
-            ease: 'power2.inOut',
-            onUpdate: () => {
-              aplicarMascara(mascaraDesktopRef.current, estado.x, estado.y, estado.raio);
-            },
-          },
-          0.3
-        )
-          .to(
-            bloco1DesktopRef.current,
-            { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' },
-            0.3
-          )
-          .to(
-            bloco2DesktopRef.current,
-            { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' },
-            0.7
-          );
-
-        // Transição 2 -> 3 (Tatiane para Juntos + Linha do Tempo)
-        tl.to(
-          estado,
-          {
-            x: COORDENADAS_HOLOFOTE.juntos.x,
-            y: COORDENADAS_HOLOFOTE.juntos.y,
-            raio: COORDENADAS_HOLOFOTE.juntos.raio,
-            duration: 1.1,
-            ease: 'power2.inOut',
-            onUpdate: () => {
-              aplicarMascara(mascaraDesktopRef.current, estado.x, estado.y, estado.raio);
-            },
-          },
-          1.6
-        )
-          .to(
-            bloco2DesktopRef.current,
-            { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' },
-            1.6
-          )
-          .to(
-            bloco3DesktopRef.current,
-            { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' },
-            2.0
-          );
-
-        if (linhaTempoPathRef.current) {
-          tl.to(
-            linhaTempoPathRef.current,
-            { strokeDashoffset: 0, duration: 1.8, ease: 'none' },
-            0.2
-          );
-        }
-      } else {
-        // Mobile: sem pin; foto sticky no topo trocando o holofote conforme os 3 blocos passam
-        const animarPara = (alvo: { x: number; y: number; raio: number }) => {
-          gsap.to(estado, {
-            x: alvo.x,
-            y: alvo.y,
-            raio: alvo.raio,
-            duration: 0.65,
-            ease: 'power3.out',
-            onUpdate: () => {
-              aplicarMascara(mascaraMobileRef.current, estado.x, estado.y, estado.raio);
-            },
-          });
-        };
-
-        if (bloco1MobileRef.current) {
-          ScrollTrigger.create({
-            trigger: bloco1MobileRef.current,
-            start: 'top 75%',
-            end: 'bottom 50%',
-            onEnter: () => animarPara(COORDENADAS_HOLOFOTE.wellington),
-            onEnterBack: () => animarPara(COORDENADAS_HOLOFOTE.wellington),
-          });
-        }
-
-        if (bloco2MobileRef.current) {
-          ScrollTrigger.create({
-            trigger: bloco2MobileRef.current,
-            start: 'top 75%',
-            end: 'bottom 50%',
-            onEnter: () => animarPara(COORDENADAS_HOLOFOTE.tatiane),
-            onEnterBack: () => animarPara(COORDENADAS_HOLOFOTE.tatiane),
-          });
-        }
-
-        if (bloco3MobileRef.current) {
-          ScrollTrigger.create({
-            trigger: bloco3MobileRef.current,
-            start: 'top 75%',
-            end: 'bottom 50%',
-            onEnter: () => animarPara(COORDENADAS_HOLOFOTE.juntos),
-            onEnterBack: () => animarPara(COORDENADAS_HOLOFOTE.juntos),
-          });
-        }
-      }
+      });
     }, secaoRef);
+
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(() => {
+        ScrollTrigger.refresh();
+      });
+    }
 
     return () => ctx.revert();
   }, []);
+
+  const handleImageLoad = () => {
+    ScrollTrigger.refresh();
+  };
+
+  const classeOpacidadePasso = (passo: 1 | 2 | 3) => {
+    if (reducedMotion) return 'opacity-100';
+    return passoAtivo === passo ? 'opacity-100' : 'opacity-35';
+  };
 
   return (
     <section
@@ -293,165 +185,137 @@ export const Donos: React.FC = () => {
       id="donos"
       data-tema="noite"
       aria-label="Quem faz a Império: Wellington e Tatiane Cabral"
-      className="w-full bg-preto text-papel"
+      className="w-full bg-preto text-papel py-96 md:py-144 border-b border-papel/15"
     >
-      {/* Layout Desktop: Pin de ~300vh com 3 estados e linha do tempo */}
-      <div
-        ref={palcoDesktopRef}
-        className="hidden lg:flex min-h-screen w-full items-center py-64"
-      >
-        <div className="max-w-[1280px] w-full mx-auto px-32 grid grid-cols-12 gap-48 items-center">
-          {/* Coluna Esquerda (7 colunas): Textos dos 3 estados + Linha do tempo em traço de lápis */}
-          <div className="col-span-7 flex flex-col justify-between gap-48">
-            <div className="relative min-h-[260px] flex items-center">
-              {/* Estado 1: Wellington */}
-              <div
-                ref={bloco1DesktopRef}
-                className="w-full flex flex-col items-start gap-16"
-              >
-                <h2 className="tipo-h2 text-papel">Wellington Cabral</h2>
-                <blockquote className="tipo-voz text-papel/95">
-                  “Comecei como auxiliar numa marcenaria pequena aqui em Jaú. Fui aprendendo no chão da oficina e crescendo projeto a projeto, há mais de 15 anos.”
-                </blockquote>
-                <p className="tipo-cota text-dourado">
-                  Marceneiro e fundador [CONFIRMAR e pedir a fala dele]
-                </p>
-              </div>
+      <div className="max-w-[1280px] mx-auto px-16 sm:px-32 flex flex-col gap-64">
+        {/* Frase de abertura da seção */}
+        <header className="max-w-3xl flex flex-col items-start gap-16">
+          <span className="tipo-cota text-dourado">Quem assina cada projeto</span>
+          <h2 className="tipo-h1 text-papel">Do chão da oficina à casa inteira.</h2>
+        </header>
 
-              {/* Estado 2: Tatiane */}
-              <div
-                ref={bloco2DesktopRef}
-                className="absolute inset-0 w-full flex flex-col justify-center items-start gap-16"
-              >
-                <h2 className="tipo-h2 text-papel">Tatiane Cabral</h2>
-                <blockquote className="tipo-voz text-papel/95">
-                  “Sou arquiteta e estudei logística. Cuido do projeto de interiores e de cada detalhe que deixa o ambiente com a cara de quem mora.”
-                </blockquote>
-                <p className="tipo-cota text-dourado">
-                  Arquiteta e fundadora [CONFIRMAR e pedir a fala dela]
-                </p>
-              </div>
-
-              {/* Estado 3: Juntos */}
-              <div
-                ref={bloco3DesktopRef}
-                className="absolute inset-0 w-full flex flex-col justify-center items-start gap-16"
-              >
-                <h2 className="tipo-h1 text-papel">
-                  A casa inteira, projetada e construída por quem assina embaixo.
-                </h2>
-                <p className="tipo-corpo text-papel/85">
-                  Da planta de interiores e iluminação até o corte, montagem e entrega final na sua obra em Jaú e região.{' '}
-                  <span className="tipo-cota text-dourado">[CONFIRMAR]</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Linha do tempo vertical desenhada a lápis (--dourado sobre --preto) */}
-            <div className="relative pl-32 pt-16 border-t border-papel/15">
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 12 400"
-                preserveAspectRatio="none"
-                className="absolute left-0 top-16 bottom-0 w-3 h-[calc(100%-16px)] overflow-visible"
-              >
-                <path
-                  d="M 6 0 L 6 400"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  className="text-papel/20"
-                />
-                <path
-                  ref={linhaTempoPathRef}
-                  d="M 6 0 L 6 400"
-                  pathLength={400}
-                  strokeDasharray={400}
-                  strokeDashoffset={0}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  filter="url(#traco-lapis)"
-                  className="text-dourado"
-                />
-              </svg>
-
-              <ol className="grid grid-cols-2 gap-x-32 gap-y-24">
-                {MARCOS_LINHA_TEMPO.map((marco, idx) => (
-                  <li key={idx} className="flex flex-col gap-4">
-                    <span className="tipo-h3 text-papel">{marco.titulo}</span>
-                    <span className="tipo-cota text-papel/75">{marco.detalhe}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-
-          {/* Coluna Direita (5 colunas): Retrato com holofote */}
-          <div className="col-span-5">
-            <RetratoHolofote
-              srcBase="/obras/fundadores"
-              alt="Wellington e Tatiane Cabral, fundadores da Império, sorrindo lado a lado"
-              x={COORDENADAS_HOLOFOTE.wellington.x}
-              y={COORDENADAS_HOLOFOTE.wellington.y}
-              raio={COORDENADAS_HOLOFOTE.wellington.raio}
-              camadaColoridaRef={mascaraDesktopRef}
-              className="w-full max-h-[78vh] halo-luz"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Layout Celular (< 1024px): Sem pin; foto sticky no topo (60vh) e 3 blocos empilhados */}
-      <div className="lg:hidden relative px-16 sm:px-32 py-64">
-        <div className="sticky top-64 z-10 h-[56vh] mb-32 bg-preto">
+        {/* Foto sticky no topo apenas no celular (< 1024px, altura 55vh) */}
+        <div className="lg:hidden sticky top-64 z-10 h-[55vh] bg-preto py-8">
           <RetratoHolofote
             srcBase="/obras/fundadores"
-            alt="Wellington e Tatiane Cabral, fundadores da Império, sorrindo lado a lado"
-            x={COORDENADAS_HOLOFOTE.wellington.x}
-            y={COORDENADAS_HOLOFOTE.wellington.y}
-            raio={COORDENADAS_HOLOFOTE.wellington.raio}
+            alt="Wellington e Tatiane Cabral, fundadores da Império Móveis Planejados"
             camadaColoridaRef={mascaraMobileRef}
+            onImgLoad={handleImageLoad}
             className="w-full h-full"
           />
         </div>
 
-        <div className="relative z-20 flex flex-col gap-64 bg-preto/95 pt-24">
-          <div ref={bloco1MobileRef} className="flex flex-col gap-16 py-24 border-t border-papel/20">
-            <h2 className="tipo-h2 text-papel">Wellington Cabral</h2>
-            <blockquote className="tipo-voz text-papel/95">
-              “Comecei como auxiliar numa marcenaria pequena aqui em Jaú. Fui aprendendo no chão da oficina e crescendo projeto a projeto, há mais de 15 anos.”
-            </blockquote>
-            <p className="tipo-cota text-dourado">
-              Marceneiro e fundador [CONFIRMAR e pedir a fala dele]
-            </p>
+        {/* Grid de duas colunas no desktop (texto 1.1fr, foto 0.9fr) */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-48 items-start">
+          {/* Coluna do texto: 3 blocos <article data-passo> em fluxo normal */}
+          <div className="relative z-20 flex flex-col">
+            {/* Passo 1: Wellington Cabral */}
+            <article
+              ref={(el) => {
+                artigosRef.current[0] = el;
+              }}
+              data-passo="1"
+              className={`min-h-[75vh] lg:min-h-screen flex flex-col justify-center items-start gap-24 py-48 transition-opacity duration-500 ${classeOpacidadePasso(
+                1
+              )}`}
+            >
+              <span className="tipo-cota text-dourado">
+                Fundador e gerente de negócios
+              </span>
+              <h3 className="tipo-h2 text-papel">Wellington Cabral</h3>
+              <blockquote className="tipo-voz text-papel">
+                “Comecei como auxiliar numa marcenaria pequena aqui em Jaú. Mas nunca quis só seguir o padrão: quis fazer diferente. Fui aprendendo, me superando e, durante anos, eu mesmo desenhava e fabricava cada projeto.”
+              </blockquote>
+              <p className="tipo-corpo text-papel/85">
+                Mais de 15 anos de marcenaria e muitas batalhas depois, ele fundou a Império e passou a pensar totalmente fora da caixa.{' '}
+                <span className="tipo-cota text-dourado">[CONFIRMAR]</span>
+              </p>
+            </article>
+
+            {/* Passo 2: Tatiane Cabral */}
+            <article
+              ref={(el) => {
+                artigosRef.current[1] = el;
+              }}
+              data-passo="2"
+              className={`min-h-[75vh] lg:min-h-screen flex flex-col justify-center items-start gap-24 py-48 transition-opacity duration-500 ${classeOpacidadePasso(
+                2
+              )}`}
+            >
+              <span className="tipo-cota text-dourado">
+                Arquiteta e designer de interiores
+              </span>
+              <h3 className="tipo-h2 text-papel">Tatiane Cabral</h3>
+              <blockquote className="tipo-voz text-papel">
+                “Quando entrei, o objetivo era levar o projeto para outro nível: interiores, personalização e cada detalhe com a cara de quem vai morar ali.”
+              </blockquote>
+              <p className="tipo-corpo text-papel/85">
+                Formada em arquitetura e em logística, cuida do projeto de interiores de cada ambiente e da personalização.{' '}
+                <span className="tipo-cota text-dourado">[CONFIRMAR]</span>
+              </p>
+            </article>
+
+            {/* Passo 3: Juntos */}
+            <article
+              ref={(el) => {
+                artigosRef.current[2] = el;
+              }}
+              data-passo="3"
+              className={`min-h-[75vh] lg:min-h-screen flex flex-col justify-center items-start gap-24 py-48 transition-opacity duration-500 ${classeOpacidadePasso(
+                3
+              )}`}
+            >
+              <span className="tipo-cota text-dourado">Pacote completo desde 2015</span>
+              <h3 className="tipo-h1 text-papel">
+                Marcenaria e arquitetura na mesma mesa. A casa inteira, do risco à obra.
+              </h3>
+              <p className="tipo-corpo text-papel/85">
+                Do desenho de interiores e iluminação até a fabricação própria e montagem na sua obra em Jaú e região.{' '}
+                <span className="tipo-cota text-dourado">[CONFIRMAR]</span>
+              </p>
+            </article>
           </div>
 
-          <div ref={bloco2MobileRef} className="flex flex-col gap-16 py-24 border-t border-papel/20">
-            <h2 className="tipo-h2 text-papel">Tatiane Cabral</h2>
-            <blockquote className="tipo-voz text-papel/95">
-              “Sou arquiteta e estudei logística. Cuido do projeto de interiores e de cada detalhe que deixa o ambiente com a cara de quem mora.”
-            </blockquote>
-            <p className="tipo-cota text-dourado">
-              Arquiteta e fundadora [CONFIRMAR e pedir a fala dela]
-            </p>
+          {/* Coluna da foto no desktop: sticky top: 12vh, height: 76vh */}
+          <div className="hidden lg:block sticky top-[12vh] h-[76vh]">
+            <RetratoHolofote
+              srcBase="/obras/fundadores"
+              alt="Wellington e Tatiane Cabral, fundadores da Império Móveis Planejados"
+              camadaColoridaRef={mascaraDesktopRef}
+              onImgLoad={handleImageLoad}
+              className="w-full h-full halo-luz"
+            />
           </div>
+        </div>
 
-          <div ref={bloco3MobileRef} className="flex flex-col gap-24 py-24 border-t border-papel/20">
-            <h2 className="tipo-h2 text-papel">
-              A casa inteira, projetada e construída por quem assina embaixo.
-            </h2>
-            <p className="tipo-corpo text-papel/85">
-              Da planta de interiores e iluminação até o corte, montagem e entrega final na sua obra em Jaú e região. [CONFIRMAR]
-            </p>
+        {/* Linha do tempo fora dos 3 passos, depois deles, em fluxo normal (nunca sobreposta) */}
+        <div className="pt-64 border-t border-papel/15 flex flex-col gap-32">
+          <span className="tipo-cota text-dourado">Trajetória da Império</span>
 
-            {/* Linha do tempo vertical mobile */}
-            <ol className="relative pl-24 flex flex-col gap-24 border-l-[2px] border-dourado mt-16">
+          <div className="relative pl-32">
+            {/* Linha de lápis vertical */}
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 12 400"
+              preserveAspectRatio="none"
+              className="absolute left-0 top-0 bottom-0 w-3 h-full overflow-visible"
+            >
+              <path
+                d="M 6 4 L 6 396"
+                fill="none"
+                stroke="var(--dourado)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                filter="url(#traco-lapis)"
+              />
+            </svg>
+
+            <ol className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-32">
               {MARCOS_LINHA_TEMPO.map((marco, idx) => (
-                <li key={idx} className="flex flex-col gap-4">
-                  <span className="tipo-h3 text-papel">{marco.titulo}</span>
-                  <span className="tipo-cota text-papel/75">{marco.detalhe}</span>
+                <li key={idx} className="flex flex-col gap-8">
+                  <span className="tipo-cota text-dourado">0{idx + 1}</span>
+                  <h4 className="tipo-h3 text-papel">{marco.titulo}</h4>
+                  <p className="tipo-cota text-papel/75">{marco.detalhe}</p>
                 </li>
               ))}
             </ol>
@@ -461,4 +325,3 @@ export const Donos: React.FC = () => {
     </section>
   );
 };
-

@@ -3,16 +3,25 @@ import gsap from 'gsap';
 import {
   QuartoLayout,
   QuartoLayoutSchema,
-  LAYOUTS_INICIAIS,
-  CATALOGO_MODULOS,
+  construirLayoutDoCenario,
+  Ambiente,
   ModuloId,
 } from './schema';
-import { WOOD_FINISHES } from '../../data/woodData';
+import { CENARIOS_AMBIENTES, CATALOGO_MODULOS_CENARIO } from '../../data/cenarios';
+import { ACABAMENTOS_3D } from '../../data/acabamentos';
 import { CenaQuarto3D } from './CenaQuarto3D';
-import { getWhatsAppUrl } from '../../utils/helpers';
+import { getWhatsAppUrl, salvarResumo3DAtivo, trackWhatsAppClick } from '../../utils/helpers';
 
-export const Quarto3DExperiencia: React.FC = () => {
-  const [layout, setLayout] = useState<QuartoLayout>(LAYOUTS_INICIAIS.quarto);
+export interface Quarto3DExperienciaProps {
+  onOpenBriefingOutro?: () => void;
+}
+
+export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({
+  onOpenBriefingOutro,
+}) => {
+  const [layout, setLayout] = useState<QuartoLayout>(() =>
+    construirLayoutDoCenario('quarto', 'freijo-ripado')
+  );
   const [acabamentoGlobal, setAcabamentoGlobal] = useState<string>('freijo-ripado');
   const [descricaoIa, setDescricaoIa] = useState('');
   const [carregandoIa, setCarregandoIa] = useState(false);
@@ -22,10 +31,28 @@ export const Quarto3DExperiencia: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const contornoSvgPathRef = useRef<SVGPathElement>(null);
 
+  const cenarioAtual = CENARIOS_AMBIENTES[layout.comodo];
   const acabamentoAtualObj =
-    WOOD_FINISHES.find((w) => w.id === acabamentoGlobal) || WOOD_FINISHES[0];
+    ACABAMENTOS_3D.find((w) => w.id === acabamentoGlobal) || ACABAMENTOS_3D[0];
 
-  // Desenha o contorno do ambiente com a linha de lápis antes de os módulos 3D subirem
+  // Sincroniza o resumo do 3D para que o BriefingOrcamento possa anexar caso exista
+  useEffect(() => {
+    const nomesModulos = layout.modulos
+      .map((m) => CATALOGO_MODULOS_CENARIO[m.id]?.rotulo || m.id)
+      .join(', ');
+
+    const resumo = `${cenarioAtual.rotulo} (${layout.dimensoes.largura_m.toFixed(
+      2
+    )}m × ${layout.dimensoes.profundidade_m.toFixed(
+      2
+    )}m, pé-direito ${layout.dimensoes.pe_direito_m.toFixed(
+      2
+    )}m) | Módulos: ${nomesModulos} | Acabamento: ${acabamentoAtualObj.nome} | LED: ${
+      layout.led ? 'Sim' : 'Não'
+    }`;
+    salvarResumo3DAtivo(resumo);
+  }, [layout, acabamentoAtualObj, cenarioAtual]);
+
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced || !contornoSvgPathRef.current) {
@@ -49,12 +76,11 @@ export const Quarto3DExperiencia: React.FC = () => {
     return () => ctx.revert();
   }, []);
 
-  const trocarComodo = (novoComodo: QuartoLayout['comodo']) => {
-    const base = LAYOUTS_INICIAIS[novoComodo];
-    setLayout({
-      ...base,
-      modulos: base.modulos.map((m) => ({ ...m, acabamento: acabamentoGlobal })),
-    });
+  // REGRA: Mudar de ambiente RECONSTRÓI a cena (limpa módulos, aplica dimensoesPadrao, aberturasPadrao e modulosIniciais)
+  const trocarAmbiente = (novoAmbiente: Ambiente) => {
+    const novoLayout = construirLayoutDoCenario(novoAmbiente, acabamentoGlobal);
+    setLayout(novoLayout);
+    setAvisoIa(null);
   };
 
   const atualizarMedida = (
@@ -63,9 +89,15 @@ export const Quarto3DExperiencia: React.FC = () => {
   ) => {
     const num = Number(valorBruto.replace(',', '.'));
     if (Number.isNaN(num)) return;
-    const min = chave === 'pe_direito_m' ? 2.4 : 2.2;
-    const max = chave === 'pe_direito_m' ? 3.5 : 7.5;
-    const limitado = Math.max(min, Math.min(max, num));
+
+    const limites =
+      chave === 'largura_m'
+        ? cenarioAtual.limites.largura
+        : chave === 'profundidade_m'
+        ? cenarioAtual.limites.profundidade
+        : cenarioAtual.limites.pe_direito;
+
+    const limitado = Math.max(limites.min, Math.min(limites.max, num));
 
     setLayout((prev) => ({
       ...prev,
@@ -77,6 +109,9 @@ export const Quarto3DExperiencia: React.FC = () => {
   };
 
   const alternarModulo = (id: ModuloId) => {
+    // Bloqueia qualquer módulo que não pertença ao modulosPermitidos do ambiente atual
+    if (!cenarioAtual.modulosPermitidos.includes(id)) return;
+
     setLayout((prev) => {
       const existe = prev.modulos.some((m) => m.id === id);
       if (existe) {
@@ -86,17 +121,17 @@ export const Quarto3DExperiencia: React.FC = () => {
           modulos: prev.modulos.filter((m) => m.id !== id),
         };
       }
-      const info = CATALOGO_MODULOS.find((c) => c.id === id);
-      if (!info) return prev;
+      const regra = CATALOGO_MODULOS_CENARIO[id];
+      if (!regra) return prev;
       return {
         ...prev,
         modulos: [
           ...prev.modulos,
           {
             id,
-            parede: info.paredePadrao,
-            largura_m: info.larguraPadrao,
-            altura_m: info.alturaPadrao,
+            parede: regra.regraEncaixe.parede,
+            largura_m: regra.regraEncaixe.larguraPadrao,
+            altura_m: regra.regraEncaixe.alturaPadrao,
             acabamento: acabamentoGlobal,
           },
         ],
@@ -114,20 +149,21 @@ export const Quarto3DExperiencia: React.FC = () => {
 
   const gerarResumoTexto = (): string => {
     const nomesModulos = layout.modulos
-      .map((m) => CATALOGO_MODULOS.find((c) => c.id === m.id)?.rotulo || m.id)
+      .map((m) => CATALOGO_MODULOS_CENARIO[m.id]?.rotulo || m.id)
       .join(', ');
 
     return `Oi! Montei uma visualização 3D no site da Império e quero orçar meu projeto:
-- Ambiente: ${layout.comodo}
+- Ambiente: ${cenarioAtual.rotulo}
 - Medidas: ${layout.dimensoes.largura_m.toFixed(2)} m x ${layout.dimensoes.profundidade_m.toFixed(
       2
     )} m (pé-direito ${layout.dimensoes.pe_direito_m.toFixed(2)} m)
 - Módulos escolhidos: ${nomesModulos}
-- Acabamento: ${acabamentoAtualObj.name}
+- Acabamento: ${acabamentoAtualObj.nome}${!acabamentoAtualObj.confirmado ? ' (exemplo)' : ''}
 - Fita de LED: ${layout.led ? 'Sim' : 'Não'}`;
   };
 
   const enviarMeuQuarto = async () => {
+    trackWhatsAppClick('quarto_3d_enviar');
     const resumo = gerarResumoTexto();
     const canvas = canvasRef.current;
 
@@ -138,29 +174,27 @@ export const Quarto3DExperiencia: React.FC = () => {
         );
 
         if (blob) {
-          const arquivo = new File([blob], 'meu-ambiente-3d-imperio.png', {
+          const arquivo = new File([blob], `imperio-3d-${layout.comodo}.png`, {
             type: 'image/png',
           });
 
-          // No celular, usa navigator.share({ files, text }) quando suportado
           if (
             typeof navigator.share === 'function' &&
             typeof navigator.canShare === 'function' &&
             navigator.canShare({ files: [arquivo] })
           ) {
             await navigator.share({
-              title: 'Meu ambiente 3D — Império Móveis Planejados',
+              title: `Meu ${cenarioAtual.rotulo} 3D — Império Móveis Planejados`,
               text: resumo,
               files: [arquivo],
             });
             return;
           }
 
-          // Caso contrário, faz download do print e abre o WhatsApp orientando a anexar
           const urlPrint = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = urlPrint;
-          link.download = 'meu-ambiente-3d-imperio.png';
+          link.download = `imperio-3d-${layout.comodo}.png`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -201,7 +235,7 @@ export const Quarto3DExperiencia: React.FC = () => {
       }
 
       setLayout(validado.data);
-      setAvisoIa('Layout 3D atualizado a partir da sua descrição.');
+      setAvisoIa('Cenário 3D reconstruído a partir da sua descrição.');
     } catch {
       setAvisoIa(
         'Sugestão automática indisponível no momento. Use os controles de medida e módulos abaixo.'
@@ -213,41 +247,40 @@ export const Quarto3DExperiencia: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-32 items-start">
-      {/* Coluna Esquerda (5 colunas): Controles de medida, módulos, acabamento e LED */}
+      {/* Coluna Esquerda (5 colunas): Controles de cenário, medidas, módulos, acabamento em 2 colunas e LED */}
       <div className="lg:col-span-5 flex flex-col gap-24">
-        {/* Escolha de cômodo */}
+        {/* 1. Escolha do Cenário (Reconstrói a cena ao trocar) */}
         <div className="flex flex-col gap-8">
-          <span className="tipo-cota text-papel/75">Ambiente</span>
-          <div className="flex flex-wrap gap-16">
-            {(
-              [
-                { id: 'quarto', nome: 'Quarto' },
-                { id: 'cozinha', nome: 'Cozinha' },
-                { id: 'closet', nome: 'Closet' },
-                { id: 'home-office', nome: 'Home Office' },
-              ] as const
-            ).map((item) => {
-              const ativo = layout.comodo === item.id;
+          <span className="tipo-cota text-papel/75">Escolha o ambiente</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+            {(Object.keys(CENARIOS_AMBIENTES) as Ambiente[]).map((ambId) => {
+              const cenario = CENARIOS_AMBIENTES[ambId];
+              const ativo = layout.comodo === ambId;
               return (
                 <button
-                  key={item.id}
+                  key={ambId}
                   type="button"
-                  onClick={() => trocarComodo(item.id)}
-                  className={`tipo-cota cursor-pointer transition-colors ${
+                  onClick={() => trocarAmbiente(ambId)}
+                  aria-pressed={ativo}
+                  className={`px-12 py-8 rounded-curto border tipo-cota cursor-pointer transition-colors text-center ${
                     ativo
-                      ? 'text-dourado link-traco font-semibold'
-                      : 'text-papel/70 hover:text-papel'
+                      ? 'bg-dourado text-preto border-dourado font-semibold'
+                      : 'border-papel/25 text-papel/80 hover:border-papel/60'
                   }`}
                 >
-                  {item.nome}
+                  {cenario.rotulo}
                 </button>
               );
             })}
           </div>
+          <p className="tipo-cota text-papel/65 pt-4">
+            {cenarioAtual.descricaoReferencia} (Ref.:{' '}
+            <code>{cenarioAtual.fotoReferencia}</code>)
+          </p>
         </div>
 
-        {/* Medidas do ambiente (campos com linha inferior de 1.5px) */}
-        <div className="grid grid-cols-3 gap-16 pt-8">
+        {/* 2. Medidas do ambiente (respeitando limites do cenário ativo) */}
+        <div className="grid grid-cols-3 gap-16 pt-4">
           <div className="flex flex-col gap-4">
             <label htmlFor="medida-largura" className="tipo-cota text-papel/80">
               Largura (m)
@@ -256,8 +289,8 @@ export const Quarto3DExperiencia: React.FC = () => {
               id="medida-largura"
               type="number"
               step="0.1"
-              min="2.2"
-              max="7.5"
+              min={cenarioAtual.limites.largura.min}
+              max={cenarioAtual.limites.largura.max}
               value={layout.dimensoes.largura_m}
               onChange={(e) => atualizarMedida('largura_m', e.target.value)}
               className="w-full py-8 bg-transparent text-papel border-b-[1.5px] border-papel/60 focus:border-dourado focus:outline-none tipo-cota"
@@ -272,8 +305,8 @@ export const Quarto3DExperiencia: React.FC = () => {
               id="medida-profundidade"
               type="number"
               step="0.1"
-              min="2.2"
-              max="7.5"
+              min={cenarioAtual.limites.profundidade.min}
+              max={cenarioAtual.limites.profundidade.max}
               value={layout.dimensoes.profundidade_m}
               onChange={(e) => atualizarMedida('profundidade_m', e.target.value)}
               className="w-full py-8 bg-transparent text-papel border-b-[1.5px] border-papel/60 focus:border-dourado focus:outline-none tipo-cota"
@@ -288,8 +321,8 @@ export const Quarto3DExperiencia: React.FC = () => {
               id="medida-pe-direito"
               type="number"
               step="0.05"
-              min="2.4"
-              max="3.5"
+              min={cenarioAtual.limites.pe_direito.min}
+              max={cenarioAtual.limites.pe_direito.max}
               value={layout.dimensoes.pe_direito_m}
               onChange={(e) => atualizarMedida('pe_direito_m', e.target.value)}
               className="w-full py-8 bg-transparent text-papel border-b-[1.5px] border-papel/60 focus:border-dourado focus:outline-none tipo-cota"
@@ -297,19 +330,20 @@ export const Quarto3DExperiencia: React.FC = () => {
           </div>
         </div>
 
-        {/* Seleção dos 4 módulos paramétricos */}
-        <fieldset className="flex flex-col gap-8 pt-8">
+        {/* 3. Módulos permitidos EXCLUSIVAMENTE para o ambiente atual */}
+        <fieldset className="flex flex-col gap-8 pt-4">
           <legend className="tipo-cota text-papel/80 pb-4">
-            Módulos no ambiente
+            Módulos de {cenarioAtual.rotulo}
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {CATALOGO_MODULOS.map((mod) => {
-              const selecionado = layout.modulos.some((m) => m.id === mod.id);
+            {cenarioAtual.modulosPermitidos.map((modId) => {
+              const info = CATALOGO_MODULOS_CENARIO[modId];
+              const selecionado = layout.modulos.some((m) => m.id === modId);
               return (
                 <button
-                  key={mod.id}
+                  key={modId}
                   type="button"
-                  onClick={() => alternarModulo(mod.id)}
+                  onClick={() => alternarModulo(modId)}
                   aria-pressed={selecionado}
                   className={`text-left px-12 py-8 rounded-curto border tipo-cota cursor-pointer transition-colors ${
                     selecionado
@@ -318,47 +352,60 @@ export const Quarto3DExperiencia: React.FC = () => {
                   }`}
                 >
                   {selecionado ? '✓ ' : '+ '}
-                  {mod.rotulo}
+                  {info.rotulo}
                 </button>
               );
             })}
           </div>
         </fieldset>
 
-        {/* Escolha de acabamento (amostras de cor de woodData.ts) */}
-        <div className="flex flex-col gap-8 pt-8">
-          <span className="tipo-cota text-papel/80">
-            Acabamento: <strong>{acabamentoAtualObj.name}</strong>
-          </span>
-          <div className="flex flex-wrap items-center gap-12">
-            {WOOD_FINISHES.map((finish) => {
+        {/* 4. Acabamentos em grade de 2 colunas com botões do mesmo tamanho + etiqueta "exemplo" */}
+        <div className="flex flex-col gap-8 pt-4">
+          <div className="flex items-center justify-between gap-8">
+            <span className="tipo-cota text-papel/80">
+              Acabamento: <strong>{acabamentoAtualObj.nome}</strong>
+            </span>
+            {!acabamentoAtualObj.confirmado && (
+              <span className="px-8 py-2 rounded-curto bg-papel/10 text-papel/70 tipo-cota text-[11px]">
+                exemplo
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-8">
+            {ACABAMENTOS_3D.map((finish) => {
               const ativo = acabamentoGlobal === finish.id;
               return (
                 <button
                   key={finish.id}
                   type="button"
                   onClick={() => trocarAcabamento(finish.id)}
-                  aria-label={`Escolher acabamento ${finish.name}`}
+                  aria-label={`Escolher acabamento ${finish.nome}`}
                   aria-pressed={ativo}
-                  className={`flex items-center gap-8 px-12 py-8 rounded-curto border cursor-pointer tipo-cota transition-colors ${
+                  className={`w-full h-[44px] flex items-center justify-between gap-8 px-12 rounded-curto border cursor-pointer tipo-cota transition-colors ${
                     ativo
-                      ? 'border-papel text-dourado'
+                      ? 'border-papel text-dourado bg-papel/5'
                       : 'border-papel/25 text-papel/75 hover:border-papel/60'
                   }`}
                 >
-                  <span
-                    className="w-3.5 h-3.5 inline-block border border-papel/40"
-                    style={{ backgroundColor: finish.colorHex }}
-                  />
-                  <span>{finish.name}</span>
+                  <span className="flex items-center gap-8 truncate">
+                    <span
+                      className="w-3.5 h-3.5 shrink-0 inline-block border border-papel/40"
+                      style={{ backgroundColor: finish.hex }}
+                    />
+                    <span className="truncate">{finish.nome}</span>
+                  </span>
+                  {!finish.confirmado && (
+                    <span className="text-[10px] text-papel/50 shrink-0">ex.</span>
+                  )}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Terceiro momento orquestrado: Acender o LED + Enviar meu quarto */}
-        <div className="flex flex-wrap items-center gap-16 pt-16">
+        {/* 5. Acender o LED + Enviar meu ambiente */}
+        <div className="flex flex-wrap items-center gap-16 pt-8">
           <button
             type="button"
             onClick={() => setLayout((prev) => ({ ...prev, led: !prev.led }))}
@@ -377,24 +424,37 @@ export const Quarto3DExperiencia: React.FC = () => {
             onClick={enviarMeuQuarto}
             className="px-24 h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel hover:text-preto transition-colors tipo-cota font-semibold cursor-pointer"
           >
-            Enviar meu quarto
+            Enviar meu {cenarioAtual.rotulo.toLowerCase()}
           </button>
         </div>
 
-        {/* Campo experimental opcional: Descreva seu quarto -> POST /api/layout */}
+        {/* 6. Botão para ambientes não listados (quarto infantil, lavanderia, sala, loja) */}
+        {onOpenBriefingOutro && (
+          <div className="pt-8">
+            <button
+              type="button"
+              onClick={onOpenBriefingOutro}
+              className="tipo-cota text-dourado link-traco cursor-pointer text-left"
+            >
+              Não achou o seu ambiente? Cote com a gente
+            </button>
+          </div>
+        )}
+
+        {/* 7. Campo experimental opcional: Descreva seu ambiente -> POST /api/layout */}
         <form
           onSubmit={gerarLayoutPorDescricao}
           className="pt-16 border-t border-papel/15 flex flex-col gap-8"
         >
           <label htmlFor="campo-ia-quarto" className="tipo-cota text-papel/70">
-            Descreva seu quarto (experimental — máx. 400 caracteres)
+            Descreva seu ambiente (experimental — máx. 400 caracteres)
           </label>
           <div className="flex items-end gap-12">
             <input
               id="campo-ia-quarto"
               type="text"
               maxLength={400}
-              placeholder="Ex.: Quarto de 4x3,5m com cabeceira ripada, LED e guarda-roupa..."
+              placeholder="Ex.: Cozinha de 4,2x3,6m com ilha verde-sálvia e torre quente..."
               value={descricaoIa}
               onChange={(e) => setDescricaoIa(e.target.value)}
               className="flex-1 py-8 bg-transparent text-papel border-b-[1.5px] border-papel/40 focus:border-dourado focus:outline-none tipo-cota"
@@ -418,7 +478,6 @@ export const Quarto3DExperiencia: React.FC = () => {
             layout.led ? 'halo-luz' : ''
           }`}
         >
-          {/* Contorno inicial desenhado com a linha de lápis */}
           {!contornoConcluido && (
             <svg
               aria-hidden="true"
@@ -442,7 +501,7 @@ export const Quarto3DExperiencia: React.FC = () => {
 
           <CenaQuarto3D
             layout={layout}
-            acabamentoAtivoHex={acabamentoAtualObj.colorHex}
+            acabamentoAtivoHex={acabamentoAtualObj.hex}
             onCanvasReady={(c) => {
               canvasRef.current = c;
             }}
@@ -450,7 +509,8 @@ export const Quarto3DExperiencia: React.FC = () => {
 
           <div className="absolute bottom-12 left-12 right-12 pointer-events-none flex items-center justify-between gap-12">
             <span className="tipo-cota text-papel/85 bg-preto/80 px-8 py-4">
-              Arraste para girar • {layout.dimensoes.largura_m.toFixed(1)}m ×{' '}
+              {cenarioAtual.rotulo} 3D • Arraste para girar •{' '}
+              {layout.dimensoes.largura_m.toFixed(1)}m ×{' '}
               {layout.dimensoes.profundidade_m.toFixed(1)}m
             </span>
           </div>
@@ -465,15 +525,15 @@ export const Quarto3DExperiencia: React.FC = () => {
             aria-live="polite"
             className="tipo-cota text-papel/75 border-l-[1.5px] border-dourado pl-12"
           >
-            Resumo configurado: Ambiente {layout.comodo} com{' '}
+            Resumo configurado: {cenarioAtual.rotulo} com{' '}
             {layout.dimensoes.largura_m.toFixed(2)} m de largura,{' '}
             {layout.dimensoes.profundidade_m.toFixed(2)} m de profundidade e{' '}
             {layout.dimensoes.pe_direito_m.toFixed(2)} m de pé-direito. Módulos ativos:{' '}
             {layout.modulos
-              .map((m) => CATALOGO_MODULOS.find((c) => c.id === m.id)?.rotulo || m.id)
+              .map((m) => CATALOGO_MODULOS_CENARIO[m.id]?.rotulo || m.id)
               .join(', ')}
-            . Acabamento selecionado: {acabamentoAtualObj.name}. Iluminação em fita de LED:{' '}
-            {layout.led ? 'acesa' : 'apagada'}.
+            . Acabamento selecionado: {acabamentoAtualObj.nome} (exemplo). Iluminação em
+            fita de LED: {layout.led ? 'acesa' : 'apagada'}.
           </div>
         </div>
       </div>
@@ -482,4 +542,3 @@ export const Quarto3DExperiencia: React.FC = () => {
 };
 
 export default Quarto3DExperiencia;
-

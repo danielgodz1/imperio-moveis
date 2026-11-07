@@ -1,5 +1,26 @@
 {
+  "cleanUrls": true,
   "rewrites": [
+    {
+      "source": "/contato",
+      "destination": "/contato/index.html"
+    },
+    {
+      "source": "/cozinhas-planejadas-jau",
+      "destination": "/cozinhas-planejadas-jau/index.html"
+    },
+    {
+      "source": "/quartos-planejados-jau",
+      "destination": "/quartos-planejados-jau/index.html"
+    },
+    {
+      "source": "/closets-sob-medida-jau",
+      "destination": "/closets-sob-medida-jau/index.html"
+    },
+    {
+      "source": "/home-office-planejado-jau",
+      "destination": "/home-office-planejado-jau/index.html"
+    },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"

@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { PlantaCozinha } from './hero/PlantaCozinha';
 import { Foto } from './Foto';
-import { getWhatsAppUrl } from '../utils/helpers';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 import { scrollToTarget } from '../hooks/useScrollytelling';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -121,18 +121,18 @@ export const Hero: React.FC = () => {
       data-tema="noite"
       className="relative w-full min-h-screen bg-preto text-papel flex items-end overflow-hidden"
     >
-      {/* 1. Foto real da cozinha em tela cheia (enquadrando ilha de ripado e granito preto) */}
+      {/* 1. Foto real da cozinha 4K em tela cheia (cozinha_gringa_4k.jpg) */}
       <div className="absolute inset-0 z-0">
         <Foto
-          srcBase="/obras/cozinha-ilha-ripado"
-          alt="Cozinha planejada com ilha de ripado de madeira e tampo de granito preto executada pela Império em Jaú"
+          srcBase="/obras/cozinha-gringa-4k"
+          alt="Cozinha planejada de alto acabamento com ilha em verde-sálvia, armários até o teto e iluminação em LED executada pela Império em Jaú"
           prioridade
           sizes="100vw"
           className="w-full h-full"
           onImgLoad={handleHeroImageLoad}
           imgStyle={{
             objectFit: 'cover',
-            objectPosition: '32% 72%',
+            objectPosition: '50% 62%',
             imageRendering: 'auto',
           }}
         />
@@ -250,6 +250,7 @@ export const Hero: React.FC = () => {
               href={getWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick('hero_cta')}
               className="inline-flex items-center justify-center px-24 h-[52px] rounded-curto bg-dourado text-preto hover:bg-preto hover:text-dourado border border-dourado transition-colors duration-200 tipo-cota font-semibold"
             >
               Chamar no WhatsApp

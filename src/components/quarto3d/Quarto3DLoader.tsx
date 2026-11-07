@@ -3,6 +3,10 @@ import { Foto } from '../Foto';
 
 const Quarto3DExperienciaLazy = React.lazy(() => import('./Quarto3DExperiencia'));
 
+export interface Quarto3DLoaderProps {
+  onOpenBriefingOutro?: () => void;
+}
+
 function verificarWebGLDisponivel(): boolean {
   try {
     const canvas = document.createElement('canvas');
@@ -19,10 +23,12 @@ function verificarAparelhoFraco(): boolean {
   if (typeof navigator === 'undefined') return false;
   const nucleos = navigator.hardwareConcurrency || 8;
   const memoria = (navigator as unknown as { deviceMemory?: number }).deviceMemory || 8;
-  return nucleos <= 4 || memoria <= 4;
+  return nucleos <= 2 || memoria <= 2;
 }
 
-export const Quarto3DLoader: React.FC = () => {
+export const Quarto3DLoader: React.FC<Quarto3DLoaderProps> = ({
+  onOpenBriefingOutro,
+}) => {
   const secaoRef = useRef<HTMLElement>(null);
   const [entrouNaTela, setEntrouNaTela] = useState(false);
   const [temWebGL, setTemWebGL] = useState(true);
@@ -61,9 +67,9 @@ export const Quarto3DLoader: React.FC = () => {
     >
       <div className="max-w-[1280px] mx-auto px-16 sm:px-32 flex flex-col gap-48">
         <div className="max-w-2xl flex flex-col items-start gap-16">
-          <h2 className="tipo-h1 text-papel">Projete seu quarto em 3D</h2>
+          <h2 className="tipo-h1 text-papel">Projete seu ambiente em 3D</h2>
           <p className="tipo-corpo text-papel/80">
-            Ajuste as medidas da sua parede, escolha os módulos, experimente o acabamento amadeirado e acenda a fita de LED antes de enviar para o nosso orçamento.
+            Escolha entre Quarto, Cozinha, Closet ou Home Office, ajuste as medidas da parede, combine os módulos permitidos do cenário e acenda a fita de LED.
           </p>
         </div>
 
@@ -77,7 +83,7 @@ export const Quarto3DLoader: React.FC = () => {
               </div>
             }
           >
-            <Quarto3DExperienciaLazy />
+            <Quarto3DExperienciaLazy onOpenBriefingOutro={onOpenBriefingOutro} />
           </Suspense>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-32 items-center border border-papel/20 p-24 sm:p-32">
@@ -95,25 +101,36 @@ export const Quarto3DLoader: React.FC = () => {
                   ? 'Seu navegador atual está com o 3D desativado. Veja ao lado um dormitório real com cabeceira em LED feito pela Império.'
                   : 'Identificamos um aparelho com economia de recursos. Você pode abrir o simulador 3D interativo clicando abaixo.'}
               </p>
-              {temWebGL && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEntrouNaTela(true);
-                    setForcar3D(true);
-                  }}
-                  className="px-24 h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel hover:text-preto transition-colors tipo-cota font-semibold cursor-pointer"
-                >
-                  Ver mesmo assim
-                </button>
-              )}
+              <div className="flex flex-wrap items-center gap-16">
+                {temWebGL && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEntrouNaTela(true);
+                      setForcar3D(true);
+                    }}
+                    className="px-24 h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel hover:text-preto transition-colors tipo-cota font-semibold cursor-pointer"
+                  >
+                    Ver mesmo assim
+                  </button>
+                )}
+                {onOpenBriefingOutro && (
+                  <button
+                    type="button"
+                    onClick={onOpenBriefingOutro}
+                    className="tipo-cota text-dourado link-traco cursor-pointer"
+                  >
+                    Não achou o seu ambiente? Cote com a gente
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="lg:col-span-6">
               <Foto
                 srcBase="/obras/dormitorio-led-1"
                 alt="Dormitório planejado pela Império com cabeceira contínua iluminada por fita de LED"
-                proporcao="478 / 773"
+                proporcao="1632 / 2624"
                 sizes="(min-width: 1024px) 45vw, 100vw"
                 className="w-full max-h-[420px]"
               />
@@ -124,4 +141,3 @@ export const Quarto3DLoader: React.FC = () => {
     </section>
   );
 };
-
