@@ -1,148 +1,143 @@
 import React, { useEffect, useRef } from 'react';
-import { CheckCircle2 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Foto } from './Foto';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const ProcessoSection: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
+const ETAPAS_PROCESSO = [
+  {
+    numero: '01',
+    titulo: 'Conversa inicial',
+    texto:
+      'Você chama no WhatsApp, conta o que imagina para o ambiente ou para a casa inteira e alinhamos prioridades.',
+  },
+  {
+    numero: '02',
+    titulo: 'Medição técnica no imóvel',
+    texto:
+      'Vamos até a obra em Jaú e região [CONFIRMAR raio de atendimento] para conferir paredes, pontos de água, elétrica e esquadro.',
+  },
+  {
+    numero: '03',
+    titulo: 'Apresentação 3D e proposta',
+    texto:
+      'A Tatiane desenvolve o projeto de interiores em 3D e detalhamos materiais, divisões internas e orçamento.',
+  },
+  {
+    numero: '04',
+    titulo: 'Fabricação e instalação',
+    texto:
+      'Fabricamos na oficina e instalamos na sua casa. Quando o acesso é difícil, até guindaste entra na conta. [CONFIRMAR o contexto da foto]',
+  },
+];
 
-  const steps = [
-    {
-      num: '01',
-      title: 'Visita & Medição Técnica',
-      desc: 'Vamos até o seu imóvel em Jaú e região para coletar medidas milimétricas, entender a rotina da sua família e alinhar prioridades.',
-      badge: 'Sem custo e sem compromisso'
-    },
-    {
-      num: '02',
-      title: 'Projeto 3D Personalizado',
-      desc: 'Desenvolvemos a maquete tridimensional com texturas fiéis, disposições ergonômicas e iluminação para aprovação conjunta.',
-      badge: 'Ajustes até sua aprovação'
-    },
-    {
-      num: '03',
-      title: 'Fabricação de Precisão',
-      desc: 'Seu projeto entra na nossa oficina com maquinário de corte digital, fitamento térmico e seleção de ferragens amortecidas.',
-      badge: 'Matéria-prima 100% MDF'
-    },
-    {
-      num: '04',
-      title: 'Instalação & Limpeza',
-      desc: 'Equipe própria de montadores experientes realiza a instalação com isolamento do local, deixando o ambiente impecável e pronto para uso.',
-      badge: 'Garantia contratual documentada'
-    }
-  ];
+export const ProcessoSection: React.FC = () => {
+  const secaoRef = useRef<HTMLElement>(null);
+  const linhaPathRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced || !linhaPathRef.current) return;
 
     const ctx = gsap.context(() => {
-      if (prefersReduced) return;
-
-      // Golden ruler progress fill across the steps on desktop
-      if (progressBarRef.current) {
-        gsap.fromTo(
-          progressBarRef.current,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: '.steps-grid-container',
-              start: 'top 75%',
-              end: 'bottom 60%',
-              scrub: 0.8,
-            },
-          }
-        );
-      }
-
-      // Step cards staggered entrance
-      const stepCards = document.querySelectorAll('.step-card-box');
       gsap.fromTo(
-        stepCards,
-        { opacity: 0, y: 35 },
+        linhaPathRef.current,
+        { strokeDashoffset: 800 },
         {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.14,
-          ease: 'power3.out',
+          strokeDashoffset: 0,
+          ease: 'none',
           scrollTrigger: {
-            trigger: '.steps-grid-container',
-            start: 'top 80%',
-            toggleActions: 'play none none none',
+            trigger: secaoRef.current,
+            start: 'top 70%',
+            end: 'bottom 60%',
+            scrub: 0.5,
           },
         }
       );
-    }, sectionRef);
+    }, secaoRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full py-16 lg:py-24 bg-[#fef8f4] border-b border-[#ddd7cd] relative">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 flex flex-col space-y-16">
-        
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-[#775a19] font-bold">
-            <span>Como Funciona</span>
-            <span className="text-[#d3c4b9]">•</span>
-            <span>Do Esboço à Chave</span>
+    <section
+      ref={secaoRef}
+      id="processo"
+      className="w-full py-96 md:py-144 bg-papel-2 text-grafite border-b border-grafite/20"
+    >
+      <div className="max-w-[1280px] mx-auto px-16 sm:px-32 grid grid-cols-1 lg:grid-cols-12 gap-48 items-start">
+        {/* Coluna Esquerda (7 colunas): As 4 etapas numeradas ligadas pela linha de lápis */}
+        <div className="lg:col-span-7 flex flex-col gap-48">
+          <div className="flex flex-col items-start gap-16">
+            <h2 className="tipo-h1 text-grafite">Do risco à obra em 4 etapas</h2>
+            <p className="tipo-corpo text-grafite-suave">
+              Da primeira medida na parede até a entrega final instalada.
+            </p>
           </div>
-          <h2 className="font-serif-atelier text-3xl sm:text-4xl text-[#1d1b19] font-semibold">
-            Nosso Processo Sob Medida em 4 Etapas
-          </h2>
-          <p className="text-sm sm:text-base text-[#4f453c] leading-relaxed">
-            Sem imprevistos, sem atrasos. Um método estruturado para transformar seu sonho em realidade com segurança e tranquilidade.
+
+          <div className="relative pl-32">
+            {/* Linha de lápis vertical conectando as 4 etapas */}
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 12 800"
+              preserveAspectRatio="none"
+              className="absolute left-0 top-8 bottom-8 w-3 h-[calc(100%-16px)] overflow-visible"
+            >
+              <path
+                d="M 6 0 L 6 800"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+                className="text-grafite/20"
+              />
+              <path
+                ref={linhaPathRef}
+                d="M 6 0 L 6 800"
+                pathLength={800}
+                strokeDasharray={800}
+                strokeDashoffset={0}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                filter="url(#traco-lapis)"
+                className="text-grafite"
+              />
+            </svg>
+
+            <ol className="flex flex-col gap-32">
+              {ETAPAS_PROCESSO.map((etapa) => (
+                <li
+                  key={etapa.numero}
+                  className="flex flex-col gap-8 pb-24 border-b border-grafite/15 last:border-b-0"
+                >
+                  <div className="flex items-baseline gap-16">
+                    <span className="tipo-cota text-grafite-suave font-bold">
+                      {etapa.numero}
+                    </span>
+                    <h3 className="tipo-h2 text-grafite">{etapa.titulo}</h3>
+                  </div>
+                  <p className="tipo-corpo text-grafite-suave">{etapa.texto}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        {/* Coluna Direita (5 colunas): Foto real do guindaste na etapa 04 */}
+        <div className="lg:col-span-5 flex flex-col gap-12">
+          <Foto
+            srcBase="/obras/entrega-guindaste"
+            alt="Operação com guindaste em frente a edifício acompanhada pela equipe da Império Móveis Planejados"
+            proporcao="483 / 722"
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            className="w-full"
+          />
+          <p className="tipo-cota text-grafite-suave">
+            Operação com guindaste registrada pela Império em Jaú/SP [CONFIRMAR contexto exato da foto]
           </p>
         </div>
-
-        {/* 4 Steps Grid with connecting golden ruler */}
-        <div className="steps-grid-container relative">
-          
-          {/* Connecting Ruler Track on Desktop */}
-          <div className="hidden lg:block absolute top-12 left-8 right-8 h-[2px] bg-[#ddd7cd] z-0">
-            <div
-              ref={progressBarRef}
-              className="h-full bg-[#c5a059] origin-left scale-x-0 will-change-transform"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-            {steps.map((step) => (
-              <div
-                key={step.num}
-                className="step-card-box p-6 rounded-2xl bg-[#f3ede9] border border-[#ddd7cd] flex flex-col justify-between space-y-6 shadow-wood-sm hover:shadow-wood-md hover:border-[#c5a059] transition-all duration-300 group"
-              >
-                <div className="space-y-4">
-                  <span className="font-serif-atelier text-4xl text-[#775a19]/50 font-bold leading-none block group-hover:text-[#c5a059] group-hover:scale-105 transition-all">
-                    {step.num}
-                  </span>
-                  <div className="space-y-2">
-                    <h3 className="font-serif-atelier text-lg text-[#1d1b19] font-semibold">
-                      {step.title}
-                    </h3>
-                    <p className="text-xs text-[#4f453c] leading-relaxed">
-                      {step.desc}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="inline-flex items-center gap-2 text-[#52371c] text-xs font-semibold pt-2 border-t border-[#ddd7cd]/60">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{step.badge}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-
       </div>
     </section>
   );

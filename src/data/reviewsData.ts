@@ -1,4 +1,63 @@
-import { Review } from '../types';
+import { Review, ReviewStat, ReviewsOverview } from '../types';
+
+/**
+ * Enquanto `ehExemplo` for `true`, o componente `ReviewsSection` exibe um selo
+ * discreto "Exemplo (dados de demonstração)" no topo da seção.
+ * Quando os dados reais e autorizados forem inseridos abaixo, basta mudar para `false`.
+ */
+export const ehExemplo = true;
+
+export const REVIEWS_OVERVIEW: ReviewsOverview = {
+  eyebrowLeft: 'Avaliações Verificadas',
+  eyebrowRight: 'Clientes de Jaú & Região',
+  title: 'O que dizem os clientes de Jaú e região',
+  description:
+    'A confiança de quem escolheu a Império para projetar e transformar o seu lar sob medida.',
+  googleBadgeLetter: 'G',
+  googleRatingText: '5.0 / 5.0',
+  googleSubtitle: 'Satisfação comprovada no Google',
+  starCount: 5,
+};
+
+export const REVIEW_STATS: ReviewStat[] = [
+  {
+    id: 'rating',
+    categoryLabel: 'Avaliação',
+    targetValue: 5.0,
+    decimals: 1,
+    suffix: '★',
+    title: 'Classificação Máxima',
+    subtitle: 'Excelência no atendimento',
+  },
+  {
+    id: 'lares',
+    categoryLabel: 'Residências',
+    targetValue: 250,
+    decimals: 0,
+    prefix: '+',
+    title: 'Lares Transformados',
+    subtitle: 'Projetos entregues em Jaú e região',
+  },
+  {
+    id: 'mdf',
+    categoryLabel: 'Qualidade',
+    targetValue: 100,
+    decimals: 0,
+    suffix: '%',
+    title: 'MDF Certificado',
+    subtitle: 'Sem aglomerado, ferragens premium',
+  },
+  {
+    id: 'years',
+    categoryLabel: 'Experiência',
+    targetValue: 10,
+    decimals: 0,
+    prefix: '+',
+    suffix: ' Anos',
+    title: 'Marcenaria Própria',
+    subtitle: 'Tradição e oficina local em Jaú',
+  },
+];
 
 export const CLIENT_REVIEWS: Review[] = [
   {
@@ -11,7 +70,6 @@ export const CLIENT_REVIEWS: Review[] = [
     date: 'Há 2 meses',
     verified: true,
     projectType: 'Cozinha & Gourmet',
-    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&h=200&q=80'
   },
   {
     id: 'rev-2',
@@ -23,7 +81,6 @@ export const CLIENT_REVIEWS: Review[] = [
     date: 'Há 3 meses',
     verified: true,
     projectType: 'Closet & Suíte Master',
-    avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&h=200&q=80'
   },
   {
     id: 'rev-3',
@@ -35,6 +92,6 @@ export const CLIENT_REVIEWS: Review[] = [
     date: 'Há 1 mês',
     verified: true,
     projectType: 'Home Office & Sala',
-    avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80'
-  }
+  },
 ];
+

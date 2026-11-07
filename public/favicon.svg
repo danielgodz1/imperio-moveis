@@ -1,0 +1,8 @@
+<!-- Favicon provisório — substituir pelo vetor oficial da coroa com M -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" fill="#D4A84F" />
+  <path
+    d="M14 48V18h7l11 17 11-17h7v30h-6.5V29.5L33 45h-2L20.5 29.5V48H14z"
+    fill="#0A0A0A"
+  />
+</svg>

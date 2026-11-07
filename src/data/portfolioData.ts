@@ -1,140 +1,300 @@
-import { ProjectItem } from '../types';
+import { ObraItem } from '../types';
 
-export const PORTFOLIO_PROJECTS: ProjectItem[] = [
+export const OBRAS_REAIS: ObraItem[] = [
   {
-    id: 'residencial-quinta-grama',
-    title: 'Cozinha Gourmet Integrada em Freijó Ripada',
-    subtitle: 'Marcenaria Sob Medida — Jaú, SP',
-    category: 'cozinha',
-    location: 'Jaú, SP',
-    completionYear: '2026',
-    architectName: 'Arq. Mariana Camargo & Assoc.',
-    description: 'Projeto autoral desenvolvido com lâmina natural de Freijó Brasileiro em ripado contínuo do piso ao teto. Ilha central com balcão suspenso, colunas ocultas com amortecimento Blum servo-drive e nichos com iluminação LED de 2700K integrada.',
-    woodSpecies: 'Freijó Brasileiro Natural + MDF Naval em Laca Grafite',
-    hardwareBrand: 'Blum Tandembox & Servo-Drive (Áustria)',
-    lightingSpec: 'Perfis de LED 2700K embutidos com difusor leitoso e dimerização inteligente',
-    heroImage: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1600&q=80',
-    detailImages: [
-      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1200&q=80'
+    id: 'cozinha-ilha-ripado',
+    ambiente: 'cozinhas',
+    titulo: 'Cozinha clara com ilha em madeira ripada',
+    arquivo: '/obras/cozinha-ilha-ripado',
+    proporcao: '692 / 852',
+    alt: 'Cozinha planejada clara com ilha de ripado de madeira, tampo em granito preto e coifa em inox em Jaú',
+    cota: 'Cozinha residencial, armários claros, ilha em madeira ripada e granito preto, Jaú/SP',
+    anotacoes: [
+      {
+        x: 42,
+        y: 74,
+        ex: 18,
+        ey: 84,
+        texto: 'ripado de madeira na ilha',
+      },
+      {
+        x: 56,
+        y: 61,
+        ex: 78,
+        ey: 54,
+        texto: 'tampo em granito preto',
+      },
+      {
+        x: 68,
+        y: 26,
+        ex: 82,
+        ey: 16,
+        texto: 'armários superiores até o teto',
+      },
     ],
-    highlights: [
-      'Portas escamoteáveis para ocultação de eletros',
-      'Usinagem de puxadores cava em Freijó maciço',
-      'Resistência naval 100% à prova de umidade na área molhada'
-    ]
   },
   {
-    id: 'cobertura-villa-real',
-    title: 'Closet Master Walk-in em Nogueira Americana',
-    subtitle: 'Marcenaria Sob Medida — Jaú, SP',
-    category: 'closet',
-    location: 'Jaú, SP',
-    completionYear: '2025',
-    architectName: 'Estúdio Bernardi Arquitetura',
-    description: 'Closet de ilha central e armários com portas em alumínio bronze e vidro refleta fumê. Interior revestido em lâmina natural de Nogueira Americana com gaveteiros aveludados para joias e relógios.',
-    woodSpecies: 'Nogueira Americana Nobre',
-    hardwareBrand: 'Salice Italia + Dobradiças Invisíveis',
-    lightingSpec: 'Sensores de presença automáticos com Fita LED embutida 2700K',
-    heroImage: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1600&q=80',
-    detailImages: [
-      'https://images.unsplash.com/photo-1558882224-dda166733046?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80'
+    id: 'cozinha-forro-ripado',
+    ambiente: 'cozinhas',
+    titulo: 'Cozinha com forro ripado e adega iluminada',
+    arquivo: '/obras/cozinha-forro-ripado',
+    proporcao: '478 / 755',
+    alt: 'Cozinha planejada com forro de madeira ripada, adega vertical iluminada por LED e bancada em granito preto',
+    cota: 'Cozinha integrada, forro e painel ripados em madeira, granito preto e LED, Jaú/SP',
+    anotacoes: [
+      {
+        x: 58,
+        y: 22,
+        ex: 24,
+        ey: 14,
+        texto: 'forro em ripado de madeira',
+      },
+      {
+        x: 82,
+        y: 48,
+        ex: 62,
+        ey: 38,
+        texto: 'adega vertical com fita de LED',
+      },
+      {
+        x: 54,
+        y: 72,
+        ex: 22,
+        ey: 80,
+        texto: 'bancada em granito preto',
+      },
     ],
-    highlights: [
-      'Gaveteiros com forração tátil em camurça importada',
-      'Ilha central com tampo de quartzo e nichos em vidro',
-      'Amortecimento hidráulico em todas as portas de elevação'
-    ]
   },
   {
-    id: 'home-cinema-araraquara',
-    title: 'Painel Architectural Ripado de 6 Metros',
-    subtitle: 'Marcenaria Sob Medida — Jaú, SP',
-    category: 'hometheater',
-    location: 'Jaú, SP',
-    completionYear: '2026',
-    architectName: 'Studio Gabriel Ramos',
-    description: 'Marcenaria acústica de grande porte com ripado contínuo em Carvalho Americano maciço. O painel oculta cabeamento de som high-end, portas de acesso ao lavabo e sistema de ar-condicionado de duto.',
-    woodSpecies: 'Carvalho Americano Natural',
-    hardwareBrand: 'Hettich / Grass Tiomos (Alemanha)',
-    lightingSpec: 'Luz indireta superior e inferior dimerizável por automação',
-    heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
-    detailImages: [
-      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80'
+    id: 'cozinha-ilha-verde',
+    ambiente: 'cozinhas',
+    titulo: 'Cozinha clara com ilha em verde-sálvia',
+    arquivo: '/obras/cozinha-ilha-verde',
+    proporcao: '479 / 773',
+    alt: 'Cozinha planejada clara com ilha central em tom verde-sálvia, armários até o teto e perfil de LED linear',
+    cota: 'Cozinha residencial, ilha em verde-sálvia e armários superiores brancos, Jaú/SP',
+    anotacoes: [
+      {
+        x: 36,
+        y: 68,
+        ex: 18,
+        ey: 82,
+        texto: 'ilha em verde-sálvia',
+      },
+      {
+        x: 58,
+        y: 24,
+        ex: 76,
+        ey: 16,
+        texto: 'modulação superior até o forro',
+      },
     ],
-    highlights: [
-      'Tratamento acústico interno com lã de rocha e painel perfurado',
-      'Móvel inferior suspenso sem apoios visíveis',
-      'Acabamento em verniz poliuretano ultra fosco 5%'
-    ]
   },
   {
-    id: 'adega-bauru',
-    title: 'Adega Climatizada Sob Medida em Louro Ebanizado',
-    subtitle: 'Marcenaria Sob Medida — Jaú, SP',
-    category: 'adega',
-    location: 'Jaú, SP',
-    completionYear: '2025',
-    architectName: 'Arq. Fernanda Lins',
-    description: 'Adega exclusiva projetada para 350 garrafas com nichos modulares esculpidos em Louro Freijó Ebanizado. Porta em vidro duplo térmico com perfil de aço escovado bronze.',
-    woodSpecies: 'Louro Freijó Ebanizado com Verniz Marítimo',
-    hardwareBrand: 'Blum Movento & Fechamento Magnético',
-    lightingSpec: 'LED UV-Free específico para conservação de vinhos',
-    heroImage: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80',
-    detailImages: [
-      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1200&q=80'
+    id: 'cozinha-cinza-pendentes',
+    ambiente: 'cozinhas',
+    titulo: 'Cozinha cinza com pórtico e nicho iluminado',
+    arquivo: '/obras/cozinha-cinza-pendentes',
+    proporcao: '484 / 641',
+    alt: 'Cozinha planejada cinza com bancada em granito, dois pendentes de cobre e nicho madeirado com luz amarela',
+    cota: 'Cozinha planejada, MDF cinza, granito escuro e nicho iluminado em LED, Jaú/SP',
+    anotacoes: [
+      {
+        x: 41,
+        y: 35,
+        ex: 72,
+        ey: 22,
+        texto: 'pórtico com pendentes de cobre',
+      },
+      {
+        x: 66,
+        y: 55,
+        ex: 82,
+        ey: 46,
+        texto: 'nicho madeirado com luz de LED',
+      },
+      {
+        x: 34,
+        y: 68,
+        ex: 18,
+        ey: 82,
+        texto: 'bancada em granito preto',
+      },
     ],
-    highlights: [
-      'Tratamento térmico da madeira para suportar umidade de 70%',
-      'Gavetas para charutos e acessórios de degustação',
-      'Iluminação indireta quente com destaque para rótulos raros'
-    ]
   },
   {
-    id: 'suite-presidencial-jau',
-    title: 'Painel de Cabeceira Integrado com Criados Suspensos',
-    subtitle: 'Marcenaria Sob Medida — Jaú, SP',
-    category: 'suite',
-    location: 'Jaú, SP',
-    completionYear: '2026',
-    architectName: 'Império Móveis Planejados',
-    description: 'Cabeceira de parede inteira combinando lâmina de Freijó natural com frisos em latão escovado e nichos integrados com carregamento por indução sem fio oculto.',
-    woodSpecies: 'Freijó Natural & Pormenores em Latão Escovado',
-    hardwareBrand: 'Blum Tip-On com amortecimento',
-    lightingSpec: 'Luz de leitura orientável e fita LED 2700K no cortineiro',
-    heroImage: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1600&q=80',
-    detailImages: [
-      'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=80'
+    id: 'quarto-infantil-casinha',
+    ambiente: 'quartos',
+    titulo: 'Quarto infantil com cama em formato de casinha',
+    arquivo: '/obras/quarto-infantil-casinha',
+    proporcao: '820 / 560',
+    alt: 'Quarto infantil planejado com cama baixa em formato de casinha de madeira clara e bancada de estudo lateral',
+    cota: 'Quarto infantil, cama montessoriana em madeira clara e bancada de apoio, Jaú/SP',
+    anotacoes: [
+      {
+        x: 46,
+        y: 32,
+        ex: 22,
+        ey: 18,
+        texto: 'estrutura de casinha em madeira clara',
+      },
+      {
+        x: 55,
+        y: 72,
+        ex: 74,
+        ey: 86,
+        texto: 'grades baixas de proteção',
+      },
+      {
+        x: 84,
+        y: 64,
+        ex: 84,
+        ey: 44,
+        texto: 'bancada infantil com nicho',
+      },
     ],
-    highlights: [
-      'Carregadores sem fio embutidos sob a lâmina de madeira',
-      'Frizos de latão com usinagem micrométrica',
-      'Gavetas revestidas internamente em material aveludado'
-    ]
   },
   {
-    id: 'banheiro-luxo-ribeirao',
-    title: 'Gabinete Suspense em MDF Naval Hidrófugo',
-    subtitle: 'Marcenaria Sob Medida — Jaú, SP',
-    category: 'banheiro',
-    location: 'Jaú, SP',
-    completionYear: '2026',
-    architectName: 'Arq. Lucas & Renato Toledo',
-    description: 'Gabinete de lavabo master suspenso com cuba em pedra esculpida e gaveteiros em laca verde botânico com usinagem ripada delicada.',
-    woodSpecies: 'MDF Naval Hidrófugo + Laca Verde Botânico Fosca',
-    hardwareBrand: 'Blum Legrabox Inox',
-    lightingSpec: 'Espelho retroiluminado LED 3000K com desembaçador',
-    heroImage: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1600&q=80',
-    detailImages: [
-      'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=1200&q=80'
+    id: 'quarto-bebe-nichos',
+    ambiente: 'quartos',
+    titulo: 'Quarto de bebê com nichos iluminados e guarda-roupa',
+    arquivo: '/obras/quarto-bebe-nichos',
+    proporcao: '791 / 586',
+    alt: 'Quarto de bebê com guarda-roupa planejado, três nichos laterais iluminados por LED, berço e cômoda branca',
+    cota: 'Quarto de bebê, guarda-roupa com nichos amadeirados iluminados e painel com LED, Jaú/SP',
+    anotacoes: [
+      {
+        x: 17,
+        y: 34,
+        ex: 38,
+        ey: 20,
+        texto: 'nichos em madeira com luz interna',
+      },
+      {
+        x: 48,
+        y: 51,
+        ex: 68,
+        ey: 36,
+        texto: 'painel meia-parede com fita de LED',
+      },
     ],
-    highlights: [
-      '100% selado com cola pur poliuretano à prova d’água',
-      'Organizadores internos de acrílico cristal para cosméticos',
-      'Puxadores tipo cava usinados diretamente no painel'
-    ]
-  }
+  },
+  {
+    id: 'dormitorio-led-1',
+    ambiente: 'quartos',
+    titulo: 'Dormitório duplo com cabeceira iluminada em LED',
+    arquivo: '/obras/dormitorio-led-1',
+    proporcao: '478 / 773',
+    alt: 'Dormitório planejado com duas camas, cabeceira contínua amadeirada com fita de LED e bancada de estudo',
+    cota: 'Dormitório residencial, cabeceira contínua com LED quente e mesas de cabeceira, Jaú/SP',
+    anotacoes: [
+      {
+        x: 52,
+        y: 44,
+        ex: 26,
+        ey: 30,
+        texto: 'cabeceira contínua com fita de LED',
+      },
+      {
+        x: 74,
+        y: 58,
+        ex: 78,
+        ey: 42,
+        texto: 'gaveteiro e bancada integrados',
+      },
+    ],
+  },
+  {
+    id: 'dormitorio-led-2',
+    ambiente: 'quartos',
+    titulo: 'Bancada em L e armário aéreo no dormitório',
+    arquivo: '/obras/dormitorio-led-2',
+    proporcao: '478 / 791',
+    alt: 'Dormitório planejado mostrando armário aéreo basculante em madeira clara, prateleira superior e bancada em L',
+    cota: 'Dormitório residencial, armário aéreo amadeirado e bancada de estudo em L, Jaú/SP',
+    anotacoes: [
+      {
+        x: 68,
+        y: 38,
+        ex: 34,
+        ey: 24,
+        texto: 'armário aéreo e prateleira em madeira clara',
+      },
+      {
+        x: 72,
+        y: 57,
+        ex: 78,
+        ey: 72,
+        texto: 'bancada de estudo em L',
+      },
+    ],
+  },
+  {
+    id: 'comercial-gocoffee-interior',
+    ambiente: 'lojas',
+    titulo: 'Marcenaria comercial — interior GoCoffee',
+    arquivo: '/obras/comercial-gocoffee-interior',
+    proporcao: '440 / 802',
+    alt: 'Interior da cafeteria GoCoffee com balcão comercial planejado, vitrine expositora, parede de tijolinho e iluminação em trilho',
+    cota: 'Marcenaria comercial para cafeteria GoCoffee, balcão de atendimento e vitrine, Jaú/SP [CONFIRMAR cidade]',
+    anotacoes: [
+      {
+        x: 76,
+        y: 68,
+        ex: 44,
+        ey: 82,
+        texto: 'balcão comercial de atendimento',
+      },
+      {
+        x: 28,
+        y: 74,
+        ex: 22,
+        ey: 52,
+        texto: 'vitrine expositora integrada',
+      },
+    ],
+  },
+  {
+    id: 'comercial-expositor',
+    ambiente: 'lojas',
+    titulo: 'Estante expositora e gabinete para cafeteria',
+    arquivo: '/obras/comercial-expositor',
+    proporcao: '467 / 709',
+    alt: 'Estante expositora preta com prateleiras de produtos de café, plantas e gabinete inferior branco com coleta seletiva',
+    cota: 'Expositor comercial estruturado em preto fosco e gabinete inferior, GoCoffee',
+    anotacoes: [
+      {
+        x: 42,
+        y: 38,
+        ex: 74,
+        ey: 22,
+        texto: 'estante expositora em preto fosco',
+      },
+      {
+        x: 74,
+        y: 72,
+        ex: 36,
+        ey: 86,
+        texto: 'gabinete inferior com lixeiras embutidas',
+      },
+    ],
+  },
+  {
+    id: 'comercial-gocoffee-fachada',
+    ambiente: 'lojas',
+    titulo: 'Entrega comercial — fachada GoCoffee',
+    arquivo: '/obras/comercial-gocoffee-fachada',
+    proporcao: '476 / 759',
+    alt: 'Fachada da cafeteria GoCoffee no dia de inauguração com balcão interno executado pela Império Móveis Planejados',
+    cota: 'Projeto comercial entregue pela Império Móveis Planejados — GoCoffee [CONFIRMAR detalhes]',
+    anotacoes: [
+      {
+        x: 48,
+        y: 66,
+        ex: 24,
+        ey: 82,
+        texto: 'mobiliário interno visível na entrada',
+      },
+    ],
+  },
 ];

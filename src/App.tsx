@@ -6,129 +6,112 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { PortfolioGallery } from './components/PortfolioGallery';
-import { SobreNosSection } from './components/SobreNosSection';
+import { FaixaServicos } from './components/FaixaServicos';
+import { Donos } from './components/Donos';
+import { Obras } from './components/Obras';
 import { ProcessoSection } from './components/ProcessoSection';
-import { CraftsmanshipScrollyLayer } from './components/CraftsmanshipScrollyLayer';
+import { Quarto3DLoader } from './components/quarto3d/Quarto3DLoader';
 import { ReviewsSection } from './components/ReviewsSection';
-import { InstagramFeedSection } from './components/InstagramFeedSection';
-import { WorkshopLocation } from './components/WorkshopLocation';
-import { FaqSection } from './components/FaqSection';
-import { BannerCtaSection } from './components/BannerCtaSection';
+import { Fechamento } from './components/Fechamento';
 import { ContactQuotationPage } from './components/ContactQuotationPage';
 import { Footer } from './components/Footer';
 import { VisitBookingModal } from './components/VisitBookingModal';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
+import { FiltroLapis, LinhaLapis } from './components/LinhaLapis';
 import { useScrollytelling } from './hooks/useScrollytelling';
-import { playWoodChimeSound } from './utils/helpers';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'contato'>(() => (window.location.pathname.startsWith('/contato') ? 'contato' : 'home'));
+  const [currentView, setCurrentView] = useState<'home' | 'contato'>(() =>
+    window.location.pathname.startsWith('/contato') ? 'contato' : 'home'
+  );
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
 
-  // Initialize Item 1: Lenis Smooth Scroll + Golden Progress Bar + Smart Header
-  const { progressBarRef, headerRef } = useScrollytelling();
+  const { headerRef } = useScrollytelling();
 
   useEffect(() => {
-    const titles = { home: 'Móveis Planejados em Jaú SP | Império Móveis Planejados', contato: 'Pedir orçamento | Império Móveis Planejados Jaú SP' };
+    const titles = {
+      home: 'Móveis Planejados e Arquitetura em Jaú/SP — Império Móveis Planejados',
+      contato: 'Pedir orçamento — Império Móveis Planejados Jaú/SP',
+    };
     document.title = titles[currentView];
   }, [currentView]);
 
   useEffect(() => {
-    const onPop = () => setCurrentView(window.location.pathname.startsWith('/contato') ? 'contato' : 'home');
+    const onPop = () =>
+      setCurrentView(window.location.pathname.startsWith('/contato') ? 'contato' : 'home');
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   const handleNavigateContact = () => {
-    playWoodChimeSound();
     setCurrentView('contato');
     window.history.pushState({}, '', '/contato');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNavigateHome = () => {
-    playWoodChimeSound();
     setCurrentView('home');
     window.history.pushState({}, '', '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen bg-[#fef8f4] text-[#1d1b19] font-sans-atelier selection:bg-[#c5a059] selection:text-white flex flex-col">
-      {/* 1. Global Reading Progress Bar (Golden #c5a059 - Desktop only) */}
-      <div
-        ref={progressBarRef}
-        className="hidden md:block fixed top-0 left-0 w-full h-[3px] bg-[#c5a059] z-[100] origin-left scale-x-0 pointer-events-none shadow-sm"
-      />
+    <div className="min-h-screen bg-papel text-grafite flex flex-col">
+      {/* Filtro SVG global para textura orgânica de traço de lápis */}
+      <FiltroLapis />
 
-      {/* 2. Smart Header with hide-on-scroll-down, reveal-on-scroll-up */}
+      {/* Indicador de rolagem em traço de lápis (lateral no desktop, topo 2px no celular) */}
+      <LinhaLapis />
+
+      {/* Cabeçalho inteligente (transparente sobre a foto do hero) */}
       <Header
         headerRef={headerRef}
-        onOpenVisitBooking={() => setIsVisitModalOpen(true)}
         onNavigateContact={handleNavigateContact}
         onNavigateHome={handleNavigateHome}
         currentView={currentView}
       />
 
-      {/* 3. Main Content Views */}
-      <main className={currentView === 'home' ? 'flex-1' : 'flex-1 pt-24 sm:pt-28'}>
+      {/* Conteúdo principal */}
+      <main className="flex-1">
         {currentView === 'contato' ? (
           <ContactQuotationPage onBackToHome={handleNavigateHome} />
         ) : (
           <>
-            {/* Item 2: Hero Section (Line-by-line title reveal, light parallax card, image zoom, sequential seals) */}
-            <Hero
-              onNavigateContact={handleNavigateContact}
-            />
+            {/* Momento 1: Hero "Do risco à obra" + Faixa única de serviços */}
+            <Hero />
+            <FaixaServicos />
 
-            {/* Ambientes Planejados em Destaque */}
-            <PortfolioGallery
-              onNavigateContact={handleNavigateContact}
-            />
+            {/* Momento 2: Os donos (Wellington, Tatiane, Juntos + Linha do tempo) */}
+            <Donos />
 
-            {/* Sobre Nós / Tradição & Compromisso em Jaú */}
-            <SobreNosSection
-              onOpenBooking={() => setIsVisitModalOpen(true)}
-            />
+            {/* Momento 3: As obras (Projetos reais anotados com traço de lápis + Lightbox) */}
+            <Obras />
 
-            {/* Processo Sob Medida em 4 Etapas */}
+            {/* Momento 4: Do risco à obra em 4 etapas (com foto da instalação por guindaste) */}
             <ProcessoSection />
 
-            {/* Floating Craftsmanship Tools Layer (Parafusadeira, Esquadro, Lápis e Fitas de Freijó) */}
-            <CraftsmanshipScrollyLayer />
+            {/* Momento 5: Projete seu quarto em 3D (lazy-loaded em chunk separado) */}
+            <Quarto3DLoader />
 
-            {/* Avaliações Verificadas & Badge Google 5.0 */}
+            {/* Avaliações (posicionada depois de "As obras" e antes do "Fechamento") */}
             <ReviewsSection />
 
-            {/* Inspirações no Instagram (@imperio.moveis.jau) */}
-            <InstagramFeedSection />
-
-            {/* Onde Estamos: Marcenaria Própria em Jaú/SP com Mapa */}
-            <WorkshopLocation
-              onOpenVisitBooking={() => setIsVisitModalOpen(true)}
-            />
-
-            {/* FAQ: Perguntas Frequentes */}
-            <FaqSection />
-
-            {/* Banner CTA Final de Conversão */}
-            <BannerCtaSection
+            {/* Momento 6: Fechamento (Orçamento WhatsApp, Onde estamos, Perguntas curtas) */}
+            <Fechamento
               onNavigateContact={handleNavigateContact}
+              onOpenVisitBooking={() => setIsVisitModalOpen(true)}
             />
           </>
         )}
       </main>
 
-      {/* 4. Footer */}
-      <Footer
-        onNavigateContact={handleNavigateContact}
-      />
+      {/* Rodapé em --preto */}
+      <Footer onNavigateContact={handleNavigateContact} />
 
-      {/* 5. Floating WhatsApp Action Widget (Stitch design) */}
+      {/* Botão flutuante discreto de WhatsApp */}
       <WhatsAppWidget />
 
-      {/* 6. Technical Visit / Showroom Booking Modal */}
+      {/* Modal opcional de agendamento de visita */}
       <VisitBookingModal
         isOpen={isVisitModalOpen}
         onClose={() => setIsVisitModalOpen(false)}
