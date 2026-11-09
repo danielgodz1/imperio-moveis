@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
+import { HeroScrollytelling } from './components/heroScroll/HeroScrollytelling';
 import { FaixaServicos } from './components/FaixaServicos';
 import { FraseImpacto } from './components/FraseImpacto';
 import { Donos } from './components/Donos';
@@ -125,8 +125,8 @@ export default function App() {
           />
         ) : (
           <>
-            {/* Momento 1: Hero imersivo com imagem flutuante, planta técnica e faixas */}
-            <Hero onNavigateContact={() => handleNavigateRoute('/contato')} />
+            {/* Momento 1: Hero imersivo com scrollytelling 3D */}
+            <HeroScrollytelling onNavigateContact={() => handleNavigateRoute('/contato')} />
 
             {/* Frase de impacto entre o Hero e a seção Os donos */}
             <FraseImpacto />
