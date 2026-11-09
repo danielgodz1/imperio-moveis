@@ -136,8 +136,8 @@ export const Donos: React.FC = () => {
 
         ScrollTrigger.create({
           trigger: artigo,
-          start: isMobile ? 'top 82%' : 'top 58%',
-          end: isMobile ? 'bottom 58%' : 'bottom 45%',
+          start: isMobile ? 'top 75%' : 'top 58%',
+          end: isMobile ? 'bottom 55%' : 'bottom 45%',
           invalidateOnRefresh: true,
           onToggle: (self) => {
             if (self.isActive) {
@@ -182,8 +182,8 @@ export const Donos: React.FC = () => {
 
         <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-16 lg:gap-48 items-start">
           {/* No celular a foto fica presa no topo e o texto passa abaixo dela */}
-          <div className="lg:hidden sticky top-0 z-30 bg-preto py-8">
-            <div className="relative w-full h-[38svh] overflow-hidden">
+          <div className="lg:hidden sticky top-0 z-30 bg-preto pb-8">
+            <div className="relative w-full h-[34svh] sm:h-[44svh] overflow-hidden">
               <RetratoHolofote
                 srcBase="/obras/fundadores"
                 alt="Wellington e Tatiane Cabral, fundadores da Império Móveis Planejados"
@@ -201,7 +201,7 @@ export const Donos: React.FC = () => {
                 artigosRef.current[0] = el;
               }}
               data-passo="1"
-              className={`min-h-[44svh] lg:min-h-[62vh] flex flex-col justify-center items-start gap-16 transition-opacity duration-500 ${classeOpacidadePasso(1)}`}
+              className={`py-32 lg:py-0 lg:min-h-[62vh] flex flex-col justify-center items-start gap-16 transition-opacity duration-500 ${classeOpacidadePasso(1)}`}
             >
               <h3 className="tipo-h1 text-papel">Wellington Cabral</h3>
               <p className="tipo-cota text-dourado">Fundador e marceneiro, mais de 15 anos de ofício</p>
@@ -215,7 +215,7 @@ export const Donos: React.FC = () => {
                 artigosRef.current[1] = el;
               }}
               data-passo="2"
-              className={`min-h-[44svh] lg:min-h-[62vh] flex flex-col justify-center items-start gap-16 transition-opacity duration-500 ${classeOpacidadePasso(2)}`}
+              className={`py-32 lg:py-0 lg:min-h-[62vh] flex flex-col justify-center items-start gap-16 transition-opacity duration-500 ${classeOpacidadePasso(2)}`}
             >
               <h3 className="tipo-h1 text-papel">Tatiane Cabral</h3>
               <p className="tipo-cota text-dourado">Arquiteta e designer de interiores</p>
@@ -229,7 +229,7 @@ export const Donos: React.FC = () => {
                 artigosRef.current[2] = el;
               }}
               data-passo="3"
-              className={`min-h-[44svh] lg:min-h-[62vh] flex flex-col justify-center items-start gap-16 transition-opacity duration-500 ${classeOpacidadePasso(3)}`}
+              className={`py-32 lg:py-0 lg:min-h-[62vh] flex flex-col justify-center items-start gap-16 transition-opacity duration-500 ${classeOpacidadePasso(3)}`}
             >
               <h3 className="tipo-h1 text-papel">A casa inteira, do risco à obra.</h3>
               <p className="tipo-corpo text-papel/85">

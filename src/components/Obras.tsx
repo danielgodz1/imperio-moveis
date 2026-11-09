@@ -3,6 +3,7 @@ import { MessageSquare, X } from 'lucide-react';
 import { OBRAS_REAIS } from '../data/portfolioData';
 import { AmbienteCategoria, ObraItem } from '../types';
 import { Foto } from './Foto';
+import { AnotacoesObra } from './AnotacoesObra';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 
 const CATEGORIAS: Array<{ valor: AmbienteCategoria | 'todas'; rotulo: string }> = [
@@ -17,14 +18,6 @@ const AMBIENTE_BRIEFING: Record<string, string> = {
   quartos: 'Quarto',
   lojas: 'Comercial',
 };
-
-/** Ritmo editorial da grade: largura em colunas e proporção de cada posição. */
-const RITMO = [
-  { coluna: 'lg:col-span-8', proporcao: '16 / 11' },
-  { coluna: 'lg:col-span-4', proporcao: '4 / 5' },
-  { coluna: 'lg:col-span-5', proporcao: '4 / 5' },
-  { coluna: 'lg:col-span-7', proporcao: '16 / 11' },
-];
 
 const POR_PAGINA = 6;
 
@@ -85,44 +78,31 @@ export const Obras: React.FC<ObrasProps> = ({ onOpenBriefing }) => {
           </nav>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-24 gap-y-48 items-start -mx-16 sm:mx-0">
+        <div className="columns-1 md:columns-2 gap-x-24 [column-fill:balance]">
           {visiveis.map((obra, i) => {
-            const slot = RITMO[i % RITMO.length];
-            const destaque = i === 0;
+            const destaque = i < 2;
             return (
-              <figure key={obra.id} className={`${slot.coluna} flex flex-col gap-8`}>
+              <figure key={obra.id} className="break-inside-avoid flex flex-col gap-8 mb-48">
                 <button
                   type="button"
                   onClick={() => setObraAmpliada(obra)}
                   aria-label={`Ampliar foto: ${obra.titulo}`}
-                  className="relative block w-full cursor-zoom-in"
+                  className="relative block w-full cursor-zoom-in text-left"
                 >
                   <Foto
                     srcBase={obra.arquivo}
                     alt={obra.alt}
-                    proporcao={slot.proporcao}
+                    proporcao={obra.proporcao}
                     prioridade={destaque}
-                    sizes="(min-width: 1024px) 60vw, 100vw"
+                    sizes="(min-width: 768px) 50vw, 100vw"
                     className="w-full"
                   />
-                  {destaque && (
-                    <>
-                      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
-                        {obra.anotacoes.map((a, n) => (
-                          <path key={n} d={`M ${a.x} ${a.y} L ${a.ex} ${a.ey}`} fill="none" stroke="var(--dourado)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinecap="round" filter="url(#traco-lapis)" />
-                        ))}
-                      </svg>
-                      <div aria-hidden="true" className="absolute inset-0 pointer-events-none hidden sm:block">
-                        {obra.anotacoes.map((a, n) => (
-                          <span key={n} style={{ left: `${a.ex}%`, top: `${a.ey}%`, transform: 'translate(-50%, -50%)' }} className="absolute bg-preto text-papel tipo-cota px-8 py-4 whitespace-nowrap">
-                            {a.texto}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  <AnotacoesObra anotacoes={obra.anotacoes} />
                 </button>
-                <figcaption className="tipo-h3 text-grafite px-16 sm:px-0">{obra.titulo}</figcaption>
+                <figcaption className="flex flex-col gap-4">
+                  <span className="tipo-h3 text-grafite">{obra.titulo}</span>
+                  <span className="tipo-cota text-grafite-suave">{obra.cota}</span>
+                </figcaption>
               </figure>
             );
           })}

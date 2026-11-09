@@ -149,6 +149,14 @@
   line-height: 1.4;
 }
 
+.tipo-rotulo {
+  font-family: var(--font-archivo);
+  font-variation-settings: "wdth" 100;
+  font-weight: 500;
+  font-size: clamp(0.6875rem, 0.6rem + 0.35vw, 0.8125rem);
+  line-height: 1.3;
+}
+
 .tipo-logo {
   font-family: var(--font-archivo);
   font-variation-settings: "wdth" 62;

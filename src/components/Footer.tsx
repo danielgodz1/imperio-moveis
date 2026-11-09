@@ -1,13 +1,4 @@
 import React from 'react';
-import {
-  MapPin,
-  Phone,
-  Clock,
-  ShieldCheck,
-  ChevronRight,
-  MessageSquare,
-  Camera,
-} from 'lucide-react';
 import { EMPRESA } from '../data/empresa';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 import { scrollToTarget } from '../hooks/useScrollytelling';
@@ -17,7 +8,25 @@ interface FooterProps {
   onOpenBriefing: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigateRoute }) => {
+const AMBIENTES = [
+  { rotulo: 'Cozinhas planejadas', rota: '/cozinhas-planejadas-jau' },
+  { rotulo: 'Quartos e suítes', rota: '/quartos-planejados-jau' },
+  { rotulo: 'Closets sob medida', rota: '/closets-sob-medida-jau' },
+  { rotulo: 'Home office', rota: '/home-office-planejado-jau' },
+];
+
+const SITE = [
+  { rotulo: 'As obras', ancora: '#obras' },
+  { rotulo: 'Como trabalhamos', ancora: '#processo' },
+  { rotulo: 'Monte seu ambiente em 3D', ancora: '#quarto-3d' },
+  { rotulo: 'Avaliações', ancora: '#avaliacoes' },
+  { rotulo: 'Quem somos', ancora: '#donos' },
+];
+
+const LINK = 'text-papel/85 hover:text-dourado transition-colors cursor-pointer text-left link-traco decoration-papel/25';
+const TITULO = 'tipo-cota text-papel/60';
+
+export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing }) => {
   const anoAtual = new Date().getFullYear();
 
   const irParaSecao = (ancora: string) => {
@@ -30,290 +39,117 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute }) => {
   };
 
   return (
-    <footer
-      id="rodape"
-      data-tema="noite"
-      className="w-full bg-[#120e0b] text-[#f2e8d8]/85 text-xs border-t border-[#c9a04e]/25"
-    >
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
-          {/* Coluna 1: Marca, Descrição, Garantia & Montagem Própria e Redes */}
-          <div className="flex flex-col gap-4">
+    <footer id="rodape" data-tema="noite" className="w-full bg-preto text-papel">
+      {/* Fecha a história do site e leva a um único próximo passo */}
+      <div className="border-t border-papel/15">
+        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-64 md:py-96 flex flex-col lg:flex-row lg:items-end justify-between gap-32">
+          <p className="tipo-display text-papel max-w-[11ch]">Do risco à obra.</p>
+          <div className="flex flex-col items-start gap-16">
+            <p className="tipo-corpo text-papel/80 max-w-[34ch]">
+              Marcenaria e arquitetura de interiores em Jaú e região, desde {EMPRESA.anoInicio}.
+            </p>
             <button
               type="button"
-              onClick={() => irParaSecao('#hero')}
-              className="flex items-center gap-3 text-left cursor-pointer group"
+              onClick={onOpenBriefing}
+              className="h-[52px] px-32 rounded-curto bg-dourado text-preto font-semibold hover:bg-papel transition-colors duration-200 cursor-pointer"
             >
-              <img
-                src="/logo-quadrado.jpg"
-                alt={EMPRESA.nome}
-                className="h-11 w-11 object-cover rounded-lg shadow-sm border border-[#c9a04e]/40 bg-[#1b1b1b]"
-              />
-              <div className="flex flex-col">
-                <span className="font-serif-atelier text-xl font-bold text-[#f2e8d8] group-hover:text-[#c9a04e] transition-colors leading-none">
-                  {EMPRESA.nomeCurto}
-                </span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c9a04e] mt-1">
-                  Móveis &amp; Arquitetura
-                </span>
-              </div>
+              Pedir orçamento
             </button>
+          </div>
+        </div>
+      </div>
 
-            <p className="text-xs text-[#f2e8d8]/75 leading-relaxed">
-              Marcenaria sob medida e arquitetura de interiores em Jaú e região central de São Paulo. Wellington Cabral e Tatiane Cabral — no ramo desde 2015.
-            </p>
-
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#1d1612] border border-[#c9a04e]/30">
-              <ShieldCheck className="w-4 h-4 text-[#c9a04e] shrink-0" />
-              <span className="text-[11px] font-bold text-[#f2e8d8] uppercase tracking-wider">
-                Garantia &amp; Montagem Própria
+      <div className="border-t border-papel/15">
+        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-48 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr] gap-x-32 gap-y-48">
+          <div className="flex flex-col items-start gap-16">
+            <button type="button" onClick={() => irParaSecao('#hero')} className="flex items-center gap-16 text-left cursor-pointer group" aria-label="Voltar ao início">
+              <img src="/logo-quadrado.jpg" alt="" className="h-48 w-48 object-cover border border-papel/25" />
+              <span className="flex flex-col gap-4">
+                <span className="tipo-logo text-[1.75rem] text-papel group-hover:text-dourado transition-colors">{EMPRESA.nomeCurto}</span>
+                <span className="tipo-cota text-papel/70">{EMPRESA.subtitulo}</span>
               </span>
-            </div>
+            </button>
+            <p className="tipo-cota text-papel/70 max-w-[32ch]">{EMPRESA.fundadores}.</p>
+          </div>
 
-            <div className="flex items-center gap-3 pt-2">
-              <a
-                href="https://www.instagram.com/imperio.moveis.jau"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-[#1d1612] border border-[#c9a04e]/35 text-[#f2e8d8] flex items-center justify-center hover:bg-[#c9a04e] hover:text-[#15100c] transition-colors"
-                title="Instagram @imperio.moveis.jau"
-                aria-label="Instagram @imperio.moveis.jau"
-              >
-                <Camera className="w-4 h-4" />
-              </a>
+          <nav aria-label="Ambientes" className="flex flex-col gap-16">
+            <h3 className={TITULO}>Ambientes</h3>
+            <ul className="flex flex-col gap-8">
+              {AMBIENTES.map((a) => (
+                <li key={a.rota}>
+                  <a
+                    href={a.rota}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNavigateRoute(a.rota);
+                    }}
+                    className={LINK}
+                  >
+                    {a.rotulo}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-label="Site" className="flex flex-col gap-16">
+            <h3 className={TITULO}>No site</h3>
+            <ul className="flex flex-col gap-8">
+              {SITE.map((s) => (
+                <li key={s.ancora}>
+                  <button type="button" onClick={() => irParaSecao(s.ancora)} className={LINK}>
+                    {s.rotulo}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="flex flex-col gap-16">
+            <h3 className={TITULO}>Fale com a gente</h3>
+            <address className="not-italic flex flex-col gap-16 tipo-cota text-papel/85">
               <a
                 href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackWhatsAppClick('rodape_whatsapp')}
-                className="w-10 h-10 rounded-full bg-[#1d1612] border border-[#c9a04e]/35 text-[#f2e8d8] flex items-center justify-center hover:bg-[#c9a04e] hover:text-[#15100c] transition-colors"
-                title="WhatsApp (14) 99849-2834"
-                aria-label="WhatsApp (14) 99849-2834"
+                className="tipo-h3 text-papel hover:text-dourado transition-colors"
               >
-                <MessageSquare className="w-4 h-4" />
+                {EMPRESA.telefone}
               </a>
-              <a
-                href="https://www.instagram.com/imperio.moveis.jau"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-semibold text-[#c9a04e] hover:underline ml-1"
-              >
-                @imperio.moveis.jau
+              <a href={EMPRESA.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-papel/85 hover:text-dourado transition-colors link-traco decoration-papel/25 self-start">
+                {EMPRESA.instagram}
               </a>
-            </div>
-          </div>
-
-          {/* Coluna 2: Ambientes Planejados */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-serif-atelier text-base font-bold text-[#f2e8d8] mb-1">
-              Ambientes Planejados
-            </h3>
-            <ul className="flex flex-col gap-2.5">
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <a
-                  href="/cozinhas-planejadas-jau"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onNavigateRoute('/cozinhas-planejadas-jau');
-                  }}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  Cozinhas Planejadas
+              <span className="flex flex-col gap-4">
+                <span>{EMPRESA.endereco.logradouro}</span>
+                <span>
+                  {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
+                  {!EMPRESA.confirmado.endereco && ' [CONFIRMAR]'}
+                </span>
+                <a href={EMPRESA.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-papel hover:text-dourado transition-colors link-traco self-start">
+                  Ver no mapa
                 </a>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <a
-                  href="/quartos-planejados-jau"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onNavigateRoute('/quartos-planejados-jau');
-                  }}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  Quartos &amp; Suítes
-                </a>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <a
-                  href="/closets-sob-medida-jau"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onNavigateRoute('/closets-sob-medida-jau');
-                  }}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  Closets Sob Medida
-                </a>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <button
-                  type="button"
-                  onClick={() => irParaSecao('#obras')}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  Salas &amp; Comercial
-                </button>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <a
-                  href="/home-office-planejado-jau"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onNavigateRoute('/home-office-planejado-jau');
-                  }}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  Home Office Executivo
-                </a>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <button
-                  type="button"
-                  onClick={() => irParaSecao('#quarto-3d')}
-                  className="text-[#c9a04e] font-semibold hover:underline transition-colors cursor-pointer text-left"
-                >
-                  Projete seu Ambiente em 3D
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Coluna 3: Institucional */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-serif-atelier text-base font-bold text-[#f2e8d8] mb-1">
-              Institucional
-            </h3>
-            <ul className="flex flex-col gap-2.5">
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <button
-                  type="button"
-                  onClick={() => irParaSecao('#donos')}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  Sobre os Fundadores
-                </button>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <button
-                  type="button"
-                  onClick={() => irParaSecao('#obras')}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  As Obras (Portfólio 4K)
-                </button>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <button
-                  type="button"
-                  onClick={() => irParaSecao('#processo')}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  Nosso Processo &amp; Maquinário
-                </button>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <button
-                  type="button"
-                  onClick={() => irParaSecao('#avaliacoes')}
-                  className="text-[#f2e8d8]/80 hover:text-[#c9a04e] transition-colors cursor-pointer text-left"
-                >
-                  Avaliações de Clientes
-                </button>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <ChevronRight className="w-3.5 h-3.5 text-[#c9a04e]" />
-                <button
-                  type="button"
-                  onClick={() => onNavigateRoute('/contato')}
-                  className="text-[#c9a04e] hover:underline transition-colors cursor-pointer font-bold text-left"
-                >
-                  Pedir Orçamento ↗
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Coluna 4: Atendimento Local */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-serif-atelier text-base font-bold text-[#f2e8d8] mb-1">
-              Atendimento Local
-            </h3>
-
-            <div className="flex items-start gap-2.5">
-              <MapPin className="w-4 h-4 text-[#c9a04e] shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                <p className="font-bold text-[#f2e8d8]">
-                  {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade} – {EMPRESA.endereco.uf}
-                </p>
-                <p className="text-[11px] text-[#f2e8d8]/75">
-                  {EMPRESA.endereco.logradouro}
-                </p>
-                <p className="text-[10px] text-[#f2e8d8]/55">
-                  {EMPRESA.horarios.observacao}
-                </p>
-                <a
-                  href={EMPRESA.mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] text-[#c9a04e] hover:underline font-bold inline-block mt-0.5"
-                >
-                  Ver no Google Maps →
-                </a>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2.5 mt-2">
-              <Clock className="w-4 h-4 text-[#c9a04e] shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold text-[#f2e8d8]">Horário de Funcionamento</p>
-                <p className="text-[11px] text-[#f2e8d8]/75">Seg à Sex: 08h às 18h</p>
-                <p className="text-[11px] text-[#f2e8d8]/75">Sábados: 08h às 12h</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2.5 mt-2">
-              <Phone className="w-4 h-4 text-[#c9a04e] shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold text-[#f2e8d8]">WhatsApp &amp; Telefone</p>
-                <a
-                  href={`tel:+${EMPRESA.whatsapp}`}
-                  className="text-xs font-mono font-bold text-[#c9a04e] hover:underline"
-                >
-                  {EMPRESA.telefone}
-                </a>
-              </div>
-            </div>
+              </span>
+              <span className="flex flex-col gap-4 text-papel/70">
+                <span>{EMPRESA.horarios.semana}</span>
+                <span>
+                  {EMPRESA.horarios.sabado}
+                  {!EMPRESA.confirmado.horarios && ' [CONFIRMAR]'}
+                </span>
+              </span>
+            </address>
           </div>
         </div>
       </div>
 
-      {/* Barra de Copyright Escura */}
-      <div className="bg-[#0b0907] py-6 border-t border-[#c9a04e]/15">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#f2e8d8]/60 text-center md:text-left">
+      <div className="border-t border-papel/15">
+        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 pt-24 pb-96 sm:py-24 flex flex-col sm:flex-row sm:items-center justify-between gap-8 tipo-cota text-papel/60">
           <p>
-            © {anoAtual} {EMPRESA.nome}. Todos os direitos reservados. {EMPRESA.fundadores}.
+            © {anoAtual} {EMPRESA.nome}
           </p>
-          <div className="flex items-center gap-6">
-            <button
-              type="button"
-              onClick={() => onNavigateRoute('/contato')}
-              className="hover:text-[#c9a04e] cursor-pointer"
-            >
-              Privacidade (LGPD)
-            </button>
-            <span>•</span>
-            <span className="font-bold text-[#c9a04e]">Jaú / SP</span>
-          </div>
+          <button type="button" onClick={() => onNavigateRoute('/contato')} className="text-left sm:text-right hover:text-papel transition-colors cursor-pointer link-traco decoration-papel/25">
+            Privacidade e LGPD
+          </button>
         </div>
       </div>
     </footer>
