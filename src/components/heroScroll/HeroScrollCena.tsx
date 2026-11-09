@@ -1,39 +1,177 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
 import gsap from 'gsap';
 import { FASES, useHeroScrollStore } from './useHeroScrollStore';
 
-// Dimensões do ambiente da Cozinha Gourmet (metros)
+// Dimensões do ambiente da Cozinha Gourmet (metros reais de projeto)
 const COZINHA = {
-  largura: 4.4, // X: [-2.2, 2.2]
-  profundidade: 3.8, // Z: [-1.9, 1.9]
-  alturaParedes: 2.7, // Y: [0, 2.7]
+  largura: 4.6, // X: [-2.3, 2.3]
+  profundidade: 4.0, // Z: [-2.0, 2.0]
+  alturaParedes: 2.8, // Y: [0, 2.8]
 };
 
-// Posição e dimensões da Ilha Central Gourmet (1.80m x 0.90m)
+// Posição e dimensões da Ilha Central Gourmet (1.85m x 0.95m)
 const ILHA = {
   largura: 1.85,
   profundidade: 0.95,
   altura: 0.9,
-  posX: 0.1, // Ligeiramente à direita do centro
-  posY: 0.45, // Centro em Y (base no chão Y=0)
-  posZ: 0.25, // Na frente da bancada principal
+  posX: 0.12, // Ligeiramente à direita da linha central
+  posY: 0.45,
+  posZ: 0.28,
 };
 
-// Cores e acabamentos reais de "cozinha_gringa_4k" da Império (DESIGN.md / acabamentos.ts)
-const CORES = {
-  ouroPlanta: '#D4A84F', // Dourado nas linhas de cota técnica
-  verdeSalvia: '#687E67', // Verde-Sálvia nobre dos armários da ilha e bancadas
-  verdeSalviaEscuro: '#4F614E',
-  freijoMadeira: '#8A5A36', // Freijó do painel ripado da ilha e torre
-  freijoClaro: '#A36F45',
-  granitoPreto: '#1C1A18', // Granito Preto São Gabriel / Absoluto polido
-  metalOuro: '#C9A04E', // Pendentes, puxadores e detalhes em latão dourado
-  vidroCristaleira: '#27221E', // Vidro reflecta fumê
-  ledQuente: '#FFB46B', // Fitas de LED 2700K acolhedoras
-  pisoPorcelanato: '#C3BCB4', // Porcelanato acetinado cinza quente
-  parede: '#1E1915', // Alvenaria grafite/escura quente
-};
+// =============================================================================
+// GERADORES DE TEXTURAS PROCEDURAIS PBR (CanvasTexture de Alta Fidelidade)
+// =============================================================================
+
+/** Textura procedural de Madeira Freijó com veios orgânicos longitudinais */
+function gerarTexturaFreijo(): any {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  // Base amadeirada nobre e dourada
+  ctx.fillStyle = '#9B6E41';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Veios longitudinais finos e variações de tom
+  const numVeios = 140;
+  for (let i = 0; i < numVeios; i++) {
+    const y = (i / numVeios) * 512;
+    const tomAlpha = 0.08 + Math.random() * 0.16;
+    ctx.strokeStyle = Math.random() > 0.45
+      ? `rgba(128, 88, 48, ${tomAlpha})`
+      : `rgba(178, 134, 86, ${tomAlpha})`;
+    ctx.lineWidth = 1 + Math.random() * 3.5;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= 512; x += 16) {
+      const ondulacao = Math.sin((x / 512) * Math.PI * 4 + i * 0.25) * (3.5 + Math.random() * 5.5);
+      ctx.lineTo(x, y + ondulacao);
+    }
+    ctx.stroke();
+  }
+
+  // Micro-poros e textura de lixa fina
+  ctx.fillStyle = 'rgba(75, 48, 25, 0.06)';
+  for (let p = 0; p < 900; p++) {
+    const px = Math.random() * 512;
+    const py = Math.random() * 512;
+    ctx.fillRect(px, py, 2 + Math.random() * 6, 1);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+/** Textura procedural de Granito Preto São Gabriel / Absoluto com grãos minerais */
+function gerarTexturaGranitoPreto(): any {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  // Base mineral grafite profunda
+  ctx.fillStyle = '#1A1816';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Micro-pontos cristalinos de quartzo e feldspato
+  for (let i = 0; i < 4200; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 512;
+    const r = Math.random() * 1.6;
+    const shade = Math.floor(34 + Math.random() * 45);
+    const alpha = 0.22 + Math.random() * 0.42;
+    ctx.fillStyle = `rgba(${shade}, ${shade - 2}, ${shade - 4}, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Cristais com brilho de mica
+  for (let m = 0; m < 450; m++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 512;
+    ctx.fillStyle = 'rgba(92, 88, 82, 0.6)';
+    ctx.fillRect(x, y, 1.5, 1.5);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+/** Textura procedural de Porcelanato Claro Acetinado com juntas de rejunte */
+function gerarTexturaPorcelanatoPiso(): any {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  // Fundo porcelanato cinza claro acetinado
+  ctx.fillStyle = '#E2DDD4';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Nuvens minerais marmorizadas suaves
+  for (let i = 0; i < 70; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 512;
+    const rad = 50 + Math.random() * 90;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, rad);
+    grad.addColorStop(0, 'rgba(244, 240, 234, 0.28)');
+    grad.addColorStop(1, 'rgba(226, 221, 212, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+
+  // Linhas sutis de rejunte perimetrais (junta seca de 1.5mm)
+  ctx.strokeStyle = 'rgba(185, 178, 168, 0.45)';
+  ctx.lineWidth = 2.0;
+  ctx.strokeRect(0, 0, 512, 512);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(4, 4);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+/** Textura de laca acetinada Verde-Sálvia para armários */
+function gerarTexturaVerdeSalvia(): any {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#6D826F';
+  ctx.fillRect(0, 0, 256, 256);
+
+  for (let i = 0; i < 1800; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const alpha = 0.03 + Math.random() * 0.04;
+    ctx.fillStyle = Math.random() > 0.5 ? `rgba(132, 154, 134, ${alpha})` : `rgba(88, 106, 90, ${alpha})`;
+    ctx.fillRect(x, y, 1, 1);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
 
 interface ObjetoAnimavel3D {
   position: { x: number; y: number; z: number };
@@ -51,26 +189,99 @@ interface LuzAnimavel3D {
  * Orquestrada por uma única timeline GSAP sincronizada com o scroll.
  */
 function NarrativaCena() {
-  const { camera, invalidate } = useThree();
+  const { camera, invalidate, scene } = useThree();
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Vetor que a câmera segue suavemente com lookAt no useFrame
+  // Vetor dinâmico que a câmera segue com lookAt dentro do useFrame
   const alvoCamera = useRef({ x: 0, y: 0, z: 0 });
 
   // Refs de agrupamento para cada fase
   const paredesGroupRef = useRef<ObjetoAnimavel3D | null>(null);
   const pisoMeshRef = useRef<ObjetoAnimavel3D | null>(null);
 
-  // Luzes LED da bancada, cristaleira e pendentes da ilha
+  // Luzes LED sob armários e pendentes
   const ledIlhaRef = useRef<LuzAnimavel3D | null>(null);
   const ledBancadaRef = useRef<LuzAnimavel3D | null>(null);
   const ledCristaleiraRef = useRef<LuzAnimavel3D | null>(null);
 
-  // Lista de grupos que representam traços 2D da planta
+  // Lista de grupos da Fase 1 (traços da planta 2D)
   const linhasGrupos = useRef<ObjetoAnimavel3D[]>([]);
 
-  // Lista de peças individuais da cozinha gourmet
+  // Lista de peças individuais da Fase 3 (montagem da marcenaria)
   const pecasMeshes = useRef<ObjetoAnimavel3D[]>([]);
+
+  // Materiais PBR procedurais memorizados
+  const texturas = useMemo(() => {
+    return {
+      freijo: gerarTexturaFreijo(),
+      granito: gerarTexturaGranitoPreto(),
+      piso: gerarTexturaPorcelanatoPiso(),
+      verdeSalvia: gerarTexturaVerdeSalvia(),
+    };
+  }, []);
+
+  const materiaisPBR = useMemo(() => {
+    return {
+      verdeSalvia: new THREE.MeshStandardMaterial({
+        map: texturas.verdeSalvia,
+        color: '#6D826F',
+        roughness: 0.5,
+        metalness: 0.05,
+      }),
+      freijo: new THREE.MeshStandardMaterial({
+        map: texturas.freijo,
+        color: '#9C6F42',
+        roughness: 0.44,
+        metalness: 0.04,
+      }),
+      granito: new THREE.MeshStandardMaterial({
+        map: texturas.granito,
+        color: '#1A1816',
+        roughness: 0.16,
+        metalness: 0.16,
+      }),
+      piso: new THREE.MeshStandardMaterial({
+        map: texturas.piso,
+        color: '#E2DDD4',
+        roughness: 0.38,
+        metalness: 0.06,
+      }),
+      parede: new THREE.MeshStandardMaterial({
+        color: '#F4EFEB',
+        roughness: 0.92,
+        metalness: 0.01,
+      }),
+      teto: new THREE.MeshStandardMaterial({
+        color: '#FAF8F5',
+        roughness: 0.95,
+      }),
+      ouro: new THREE.MeshStandardMaterial({
+        color: '#C9A04E',
+        metalness: 0.86,
+        roughness: 0.22,
+      }),
+      ouroPlanta: new THREE.MeshBasicMaterial({
+        color: '#D4A84F',
+      }),
+      vidroReflecta: new THREE.MeshStandardMaterial({
+        color: '#241E1A',
+        roughness: 0.18,
+        metalness: 0.45,
+        transparent: true,
+        opacity: 0.85,
+      }),
+      inox: new THREE.MeshStandardMaterial({
+        color: '#D5D5D5',
+        metalness: 0.88,
+        roughness: 0.18,
+      }),
+      pretoFornos: new THREE.MeshStandardMaterial({
+        color: '#151515',
+        metalness: 0.85,
+        roughness: 0.25,
+      }),
+    };
+  }, [texturas]);
 
   const registrarLinha = (grupo: unknown) => {
     const g = grupo as ObjetoAnimavel3D | null;
@@ -114,15 +325,15 @@ function NarrativaCena() {
 
     // -------------------------------------------------------------------------
     // FASE 1: O TRAÇO 2D DA COZINHA EM L + ILHA CENTRAL (0.00 -> 0.20)
-    // Câmera zenital, linhas se desenham em scale.x com âncora inicial.
+    // Câmera zenital (90°), linhas se desenham em scale.x com âncora inicial.
     // -------------------------------------------------------------------------
     const { inicio: f1Inicio, fim: f1Fim } = FASES.traco;
     const durF1 = f1Fim - f1Inicio;
     const totalLinhas = Math.max(1, linhasGrupos.current.length);
     const passoLinha = durF1 / totalLinhas;
 
-    // Posição inicial da câmera olhando de cima (planta técnica)
-    camera.position.set(0, 8.4, 0.001);
+    // Configuração inicial obrigatória: topo absoluto, sem inclinação
+    camera.position.set(0, 8.5, 0.001);
     alvoCamera.current = { x: 0, y: 0, z: 0 };
 
     linhasGrupos.current.forEach((g, idx) => {
@@ -136,7 +347,7 @@ function NarrativaCena() {
 
     // -------------------------------------------------------------------------
     // FASE 2: PROFUNDIDADE & ALVENARIA (0.20 -> 0.40)
-    // Piso se revela, paredes sobem e câmera desce para perspectiva 3/4.
+    // Piso se revela, paredes claras sobem e câmera desce para perspectiva 3/4.
     // -------------------------------------------------------------------------
     const { inicio: f2Inicio, fim: f2Fim } = FASES.profundidade;
     const durF2 = f2Fim - f2Inicio;
@@ -159,13 +370,13 @@ function NarrativaCena() {
       );
     }
 
-    // Câmera desce suavemente para vista angular da cozinha
+    // Câmera desce suavemente de cima para perspectiva arquitetônica 3/4
     tl.to(
       camera.position,
       {
-        x: 3.4,
-        y: 3.8,
-        z: 4.6,
+        x: 3.2,
+        y: 3.6,
+        z: 4.4,
         duration: durF2,
         ease: 'power2.inOut',
       },
@@ -176,7 +387,7 @@ function NarrativaCena() {
       {
         x: 0,
         y: 0.9,
-        z: -0.2,
+        z: -0.15,
         duration: durF2,
         ease: 'power2.inOut',
       },
@@ -184,8 +395,8 @@ function NarrativaCena() {
     );
 
     // -------------------------------------------------------------------------
-    // FASE 3: MONTAGEM MILIMÉTRICA DA COZINHA GOURMET (0.40 -> 0.70)
-    // Armários em Verde-Sálvia, Torre em Freijó, Granito e Ilha com Ripado.
+    // FASE 3: MONTAGEM MILIMÉTRICA DA MARCENARIA (0.40 -> 0.70)
+    // Cada módulo chega e se encaixa em ordem lógica de marcenaria.
     // -------------------------------------------------------------------------
     const { inicio: f3Inicio, fim: f3Fim } = FASES.construcao;
     const durF3 = f3Fim - f3Inicio;
@@ -214,24 +425,24 @@ function NarrativaCena() {
         f3Inicio + idx * passoPeca
       );
 
-      // Leve rotação de encaixe nas portas e painéis ripados
+      // Leve rotação de encaixe nas portas e painéis
       if (Math.abs(offset.y) > 0.4 || Math.abs(offset.x) > 1.0) {
         tl.fromTo(
           peca.rotation,
-          { y: 0.1 },
+          { y: 0.08 },
           { y: 0, duration: passoPeca * 1.35, ease: 'power2.out' },
           f3Inicio + idx * passoPeca
         );
       }
     });
 
-    // Câmera aproxima da ilha central observando a marcenaria em verde-sálvia e o ripado
+    // Câmera acompanha o encaixe da marcenaria em Verde-Sálvia e do ripado
     tl.to(
       camera.position,
       {
-        x: 1.9,
+        x: 1.8,
         y: 2.1,
-        z: 3.4,
+        z: 3.5,
         duration: durF3,
         ease: 'power1.inOut',
       },
@@ -250,8 +461,8 @@ function NarrativaCena() {
     );
 
     // -------------------------------------------------------------------------
-    // FASE 4: INSTALAÇÃO & ILUMINAÇÃO LED (0.70 -> 0.85)
-    // Acende o LED da cristaleira, da bancada e pendentes da ilha.
+    // FASE 4: INSTALAÇÃO & ILUMINAÇÃO LED INTEGRADA (0.70 -> 0.85)
+    // Acende os perfis de LED 2700K e estabiliza no enquadramento exato da foto.
     // -------------------------------------------------------------------------
     const { inicio: f4Inicio, fim: f4Fim } = FASES.instalacao;
     const durF4 = f4Fim - f4Inicio;
@@ -260,7 +471,7 @@ function NarrativaCena() {
       tl.fromTo(
         ledIlhaRef.current,
         { intensity: 0 },
-        { intensity: 3.6, duration: durF4 * 0.8, ease: 'power2.in' },
+        { intensity: 2.4, duration: durF4 * 0.8, ease: 'power2.in' },
         f4Inicio
       );
     }
@@ -268,7 +479,7 @@ function NarrativaCena() {
       tl.fromTo(
         ledBancadaRef.current,
         { intensity: 0 },
-        { intensity: 2.5, duration: durF4 * 0.8, ease: 'power2.in' },
+        { intensity: 2.0, duration: durF4 * 0.8, ease: 'power2.in' },
         f4Inicio + durF4 * 0.15
       );
     }
@@ -276,18 +487,18 @@ function NarrativaCena() {
       tl.fromTo(
         ledCristaleiraRef.current,
         { intensity: 0 },
-        { intensity: 2.2, duration: durF4 * 0.8, ease: 'power2.in' },
+        { intensity: 1.8, duration: durF4 * 0.8, ease: 'power2.in' },
         f4Inicio + durF4 * 0.25
       );
     }
 
-    // Câmera recua suavemente se alinhando ao ângulo da foto real de cozinha_gringa_4k
+    // Alinhamento exato de perspectiva com a foto de cozinha_gringa_4k
     tl.to(
       camera.position,
       {
-        x: 1.4,
-        y: 1.9,
-        z: 4.1,
+        x: 1.15,
+        y: 1.85,
+        z: 3.9,
         duration: durF4,
         ease: 'power2.out',
       },
@@ -296,9 +507,9 @@ function NarrativaCena() {
     tl.to(
       alvoCamera.current,
       {
-        x: 0.15,
+        x: 0.1,
         y: 0.95,
-        z: 0.1,
+        z: 0.15,
         duration: durF4,
         ease: 'power2.out',
       },
@@ -306,7 +517,7 @@ function NarrativaCena() {
     );
 
     // -------------------------------------------------------------------------
-    // FASE 5: TRANSIÇÃO FINAL (0.85 -> 1.00)
+    // FASE 5: TRANSIÇÃO PARA A OBRA REAL (0.85 -> 1.00)
     // Câmera estabilizada, timeline cravada em 1.0 para o crossfade DOM da foto.
     // -------------------------------------------------------------------------
     tl.set({}, {}, 1.0);
@@ -344,19 +555,40 @@ function NarrativaCena() {
     );
   });
 
+  // Limpeza de texturas e geometrias no desmonte
+  useEffect(() => {
+    return () => {
+      Object.values(texturas).forEach((t) => t.dispose());
+      Object.values(materiaisPBR).forEach((m) => m.dispose());
+      scene.traverse((obj: any) => {
+        if (obj?.isMesh) {
+          obj.geometry?.dispose();
+        }
+      });
+    };
+  }, [scene, texturas, materiaisPBR]);
+
   return (
     <>
       {/* ===================================================================== */}
-      {/* ILUMINAÇÃO GERAL                                                      */}
+      {/* ILUMINAÇÃO ARQUITETÔNICA NATURAL (Ambiente Claro, sem subexposição)    */}
       {/* ===================================================================== */}
-      <ambientLight intensity={0.7} color="#FAF7F2" />
-      <directionalLight position={[5, 8, 4]} intensity={1.15} color="#FFFFFF" />
-      <directionalLight position={[-4, 6, -3]} intensity={0.45} color="#D4A84F" />
+      <ambientLight intensity={1.2} color="#FFFFFF" />
+      <hemisphereLight args={['#FFFFFF', '#DFD8CC', 0.95]} />
+      {/* Luz solar direta suave vinda da janela lateral */}
+      <directionalLight
+        position={[6, 11, 5]}
+        intensity={1.85}
+        color="#FFFDF7"
+        castShadow={false}
+      />
+      {/* Luz de preenchimento frontal */}
+      <directionalLight position={[-5, 7, 4]} intensity={0.75} color="#F5EFE6" />
 
-      {/* Fitas de LED da Ilha Central e Cristaleira (cor quente 2700K) */}
+      {/* Fitas de LED 2700K (detalhe arquitetônico de acabamento) */}
       <pointLight
         ref={ledIlhaRef as unknown as React.Ref<never>}
-        color={CORES.ledQuente}
+        color="#FFB46B"
         intensity={0}
         distance={3.2}
         decay={2}
@@ -364,71 +596,67 @@ function NarrativaCena() {
       />
       <pointLight
         ref={ledBancadaRef as unknown as React.Ref<never>}
-        color={CORES.ledQuente}
+        color="#FFB46B"
         intensity={0}
         distance={2.8}
         decay={2}
-        position={[-0.4, 1.45, -1.3]}
+        position={[-0.4, 1.45, -1.35]}
       />
       <pointLight
         ref={ledCristaleiraRef as unknown as React.Ref<never>}
-        color={CORES.ledQuente}
+        color="#FFB46B"
         intensity={0}
         distance={2.5}
         decay={2}
-        position={[0.8, 1.8, -1.35]}
+        position={[0.8, 1.8, -1.4]}
       />
 
       {/* ===================================================================== */}
-      {/* FASE 1: TRAÇO 2D DA PLANTA BAIXA DA COZINHA (PlantaCozinha.tsx)        */}
+      {/* FASE 1: TRAÇO 2D DA PLANTA BAIXA TÉCNICA (PlantaCozinha.tsx)          */}
       {/* ===================================================================== */}
       <group position={[0, 0.005, 0]}>
-        {/* Parede Norte / Fundo (4.4m ao longo de X em Z=-1.9) */}
+        {/* Parede Norte / Fundo (4.6m em Z=-2.0) */}
         <group
           ref={registrarLinha}
-          position={[-2.2, 0, -1.9]}
+          position={[-2.3, 0, -2.0]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[2.2, 0, 0]}>
-            <boxGeometry args={[4.4, 0.008, 0.02]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} />
+          <mesh position={[2.3, 0, 0]} material={materiaisPBR.ouroPlanta}>
+            <boxGeometry args={[4.6, 0.008, 0.02]} />
           </mesh>
         </group>
 
-        {/* Parede Oeste / Esquerda (3.8m ao longo de Z em X=-2.2) */}
+        {/* Parede Oeste / Esquerda (4.0m em X=-2.3) */}
         <group
           ref={registrarLinha}
-          position={[-2.2, 0, -1.9]}
+          position={[-2.3, 0, -2.0]}
           rotation={[0, -Math.PI / 2, 0]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[1.9, 0, 0]}>
-            <boxGeometry args={[3.8, 0.008, 0.02]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} />
+          <mesh position={[2.0, 0, 0]} material={materiaisPBR.ouroPlanta}>
+            <boxGeometry args={[4.0, 0.008, 0.02]} />
           </mesh>
         </group>
 
-        {/* Linha da Bancada Norte em L (3.2m de bancada) */}
+        {/* Linha da Bancada Norte em L (3.3m) */}
         <group
           ref={registrarLinha}
-          position={[-2.2, 0.002, -1.25]}
+          position={[-2.3, 0.002, -1.35]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[1.6, 0, 0]}>
-            <boxGeometry args={[3.2, 0.006, 0.015]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} opacity={0.85} transparent />
+          <mesh position={[1.65, 0, 0]} material={materiaisPBR.ouroPlanta}>
+            <boxGeometry args={[3.3, 0.006, 0.015]} />
           </mesh>
         </group>
 
-        {/* Retângulo da Ilha Central 2D (1.80m x 0.90m) */}
+        {/* Retângulo da Ilha Central (1.85m x 0.95m) */}
         <group
           ref={registrarLinha}
           position={[ILHA.posX - ILHA.largura / 2, 0.002, ILHA.posZ - ILHA.profundidade / 2]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[ILHA.largura / 2, 0, 0]}>
+          <mesh position={[ILHA.largura / 2, 0, 0]} material={materiaisPBR.ouroPlanta}>
             <boxGeometry args={[ILHA.largura, 0.006, 0.015]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} />
           </mesh>
         </group>
         <group
@@ -436,9 +664,8 @@ function NarrativaCena() {
           position={[ILHA.posX - ILHA.largura / 2, 0.002, ILHA.posZ + ILHA.profundidade / 2]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[ILHA.largura / 2, 0, 0]}>
+          <mesh position={[ILHA.largura / 2, 0, 0]} material={materiaisPBR.ouroPlanta}>
             <boxGeometry args={[ILHA.largura, 0.006, 0.015]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} />
           </mesh>
         </group>
         <group
@@ -447,9 +674,8 @@ function NarrativaCena() {
           rotation={[0, -Math.PI / 2, 0]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[ILHA.profundidade / 2, 0, 0]}>
+          <mesh position={[ILHA.profundidade / 2, 0, 0]} material={materiaisPBR.ouroPlanta}>
             <boxGeometry args={[ILHA.profundidade, 0.006, 0.015]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} />
           </mesh>
         </group>
         <group
@@ -458,314 +684,267 @@ function NarrativaCena() {
           rotation={[0, -Math.PI / 2, 0]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[ILHA.profundidade / 2, 0, 0]}>
+          <mesh position={[ILHA.profundidade / 2, 0, 0]} material={materiaisPBR.ouroPlanta}>
             <boxGeometry args={[ILHA.profundidade, 0.006, 0.015]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} />
           </mesh>
         </group>
       </group>
 
       {/* ===================================================================== */}
-      {/* FASE 2: PISO & PAREDES 3D ELEVADAS                                    */}
+      {/* FASE 2: PISO PORCELANATO & PAREDES ARQUITETÔNICAS CLARAS              */}
       {/* ===================================================================== */}
-      {/* Piso porcelanato acetinado cinza quente */}
+      {/* Piso em porcelanato claro acetinado com juntas de rejunte */}
       <mesh
         ref={pisoMeshRef as unknown as React.Ref<never>}
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
         scale={[0.0001, 0.0001, 1]}
+        material={materiaisPBR.piso}
       >
         <planeGeometry args={[COZINHA.largura, COZINHA.profundidade]} />
-        <meshStandardMaterial
-          color={CORES.pisoPorcelanato}
-          roughness={0.55}
-          metalness={0.08}
-        />
       </mesh>
 
-      {/* Paredes com âncora na base */}
+      {/* Paredes arquitetônicas claras com âncora na base */}
       <group
         ref={paredesGroupRef as unknown as React.Ref<never>}
         position={[0, 0, 0]}
         scale={[1, 0.0001, 1]}
       >
-        {/* Parede de Fundo (Norte) */}
-        <mesh position={[0, COZINHA.alturaParedes / 2, -1.975]}>
-          <boxGeometry
-            args={[COZINHA.largura + 0.3, COZINHA.alturaParedes, 0.15]}
-          />
-          <meshStandardMaterial color={CORES.parede} roughness={0.88} />
+        {/* Parede Norte (Fundo) */}
+        <mesh
+          position={[0, COZINHA.alturaParedes / 2, -2.075]}
+          material={materiaisPBR.parede}
+        >
+          <boxGeometry args={[COZINHA.largura + 0.3, COZINHA.alturaParedes, 0.15]} />
         </mesh>
 
-        {/* Parede Esquerda (Oeste) */}
-        <mesh position={[-2.275, COZINHA.alturaParedes / 2, 0]}>
-          <boxGeometry
-            args={[0.15, COZINHA.alturaParedes, COZINHA.profundidade]}
-          />
-          <meshStandardMaterial color={CORES.parede} roughness={0.88} />
+        {/* Parede Oeste (Esquerda) */}
+        <mesh
+          position={[-2.375, COZINHA.alturaParedes / 2, 0]}
+          material={materiaisPBR.parede}
+        >
+          <boxGeometry args={[0.15, COZINHA.alturaParedes, COZINHA.profundidade]} />
         </mesh>
 
         {/* Rodapé da alvenaria */}
-        <mesh position={[0, 0.05, -1.89]}>
+        <mesh position={[0, 0.05, -1.99]} material={materiaisPBR.ouro}>
           <boxGeometry args={[COZINHA.largura, 0.1, 0.02]} />
-          <meshStandardMaterial
-            color={CORES.metalOuro}
-            metalness={0.65}
-            roughness={0.3}
-          />
         </mesh>
       </group>
 
       {/* ===================================================================== */}
-      {/* FASE 3: MONTAGEM DOS MÓVEIS DA COZINHA GOURMET                        */}
+      {/* FASE 3: MONTAGEM MILIMÉTRICA DOS MÓVEIS PLANEJADOS DA COZINHA GOURMET */}
       {/* ===================================================================== */}
       <group>
         {/* ------------------------------------------------------------------- */}
-        {/* BANCADA DE FUNDO (EM VERDE-SÁLVIA + GRANITO PRETO + CRISTALEIRA)    */}
+        {/* BANCADA DE FUNDO: GABINETES VERDE-SÁLVIA + GRANITO + TORRE FREIJÓ   */}
         {/* ------------------------------------------------------------------- */}
-        {/* 1. Armários Inferiores de Fundo (Verde-Sálvia) */}
+        {/* 1. Rodapé Recuado da Bancada (10cm de altura) */}
         <mesh
-          ref={criarRefPeca(
-            [-0.5, 0.42, -1.55],
-            [-1.5, 1.2, -0.8]
-          ) as unknown as React.Ref<never>}
+          ref={criarRefPeca([-0.6, 0.05, -1.6], [-1.2, 0.8, -0.6]) as unknown as React.Ref<never>}
+          material={materiaisPBR.granito}
         >
-          <boxGeometry args={[2.8, 0.84, 0.65]} />
-          <meshStandardMaterial color={CORES.verdeSalvia} roughness={0.45} />
+          <boxGeometry args={[2.8, 0.1, 0.55]} />
         </mesh>
 
-        {/* 2. Tampo de Granito Preto da Bancada de Fundo */}
+        {/* 2. Estrutura dos Armários Inferiores em Verde-Sálvia (Chapas 18mm) */}
         <mesh
-          ref={criarRefPeca(
-            [-0.5, 0.86, -1.55],
-            [0, 1.8, -0.6]
-          ) as unknown as React.Ref<never>}
+          ref={criarRefPeca([-0.6, 0.47, -1.65], [-1.5, 1.4, -0.8]) as unknown as React.Ref<never>}
+          material={materiaisPBR.verdeSalvia}
         >
-          <boxGeometry args={[2.84, 0.04, 0.67]} />
-          <meshStandardMaterial
-            color={CORES.granitoPreto}
-            roughness={0.15}
-            metalness={0.15}
-          />
+          <boxGeometry args={[2.8, 0.74, 0.65]} />
         </mesh>
 
-        {/* 3. Cuba Dupla Inox de Sobrepor */}
+        {/* 3. Frentes de Gavetas e Portas com vãos de 3mm e puxadores cava */}
+        {[-1.6, -1.0, -0.4, 0.2].map((xOffset, idx) => (
+          <mesh
+            key={`porta-inf-${idx}`}
+            ref={criarRefPeca(
+              [xOffset, 0.47, -1.32],
+              [-0.8, 1.2, 0.5]
+            ) as unknown as React.Ref<never>}
+            material={materiaisPBR.verdeSalvia}
+          >
+            <boxGeometry args={[0.58, 0.72, 0.018]} />
+          </mesh>
+        ))}
+
+        {/* 4. Tampo de Granito Preto da Bancada de Fundo (Espessura 4cm com bisotê) */}
         <mesh
-          ref={criarRefPeca(
-            [-0.7, 0.885, -1.52],
-            [0, 1.2, 0.5]
-          ) as unknown as React.Ref<never>}
+          ref={criarRefPeca([-0.6, 0.86, -1.65], [0, 1.8, -0.6]) as unknown as React.Ref<never>}
+          material={materiaisPBR.granito}
+        >
+          <boxGeometry args={[2.84, 0.04, 0.68]} />
+        </mesh>
+
+        {/* 5. Cuba Dupla Inox de Sobrepor */}
+        <mesh
+          ref={criarRefPeca([-0.8, 0.885, -1.6], [0, 1.2, 0.5]) as unknown as React.Ref<never>}
+          material={materiaisPBR.inox}
         >
           <boxGeometry args={[0.78, 0.015, 0.44]} />
-          <meshStandardMaterial
-            color="#D8D8D8"
-            metalness={0.88}
-            roughness={0.2}
-          />
         </mesh>
 
-        {/* 4. Torneira Gourmet Monocomando em Latão Ouro Escovado */}
+        {/* 6. Torneira Gourmet Monocomando em Latão Escovado */}
         <mesh
-          ref={criarRefPeca(
-            [-0.7, 1.05, -1.68],
-            [0, 0.8, 0.8]
-          ) as unknown as React.Ref<never>}
+          ref={criarRefPeca([-0.8, 1.05, -1.78], [0, 0.8, 0.8]) as unknown as React.Ref<never>}
+          material={materiaisPBR.ouro}
         >
           <cylinderGeometry args={[0.015, 0.018, 0.32, 16]} />
-          <meshStandardMaterial
-            color={CORES.metalOuro}
-            metalness={0.9}
-            roughness={0.2}
-          />
         </mesh>
 
-        {/* 5. Torre Quente de Fornos e Geladeira (Freijó e Verde-Sálvia na direita) */}
+        {/* 7. Torre Quente de Fornos e Geladeira em Freijó (à direita da bancada) */}
         <mesh
-          ref={criarRefPeca(
-            [1.4, 1.25, -1.55],
-            [1.8, 0.8, -0.8]
-          ) as unknown as React.Ref<never>}
+          ref={criarRefPeca([1.35, 1.35, -1.65], [1.8, 0.8, -0.8]) as unknown as React.Ref<never>}
+          material={materiaisPBR.freijo}
         >
-          <boxGeometry args={[0.95, 2.5, 0.68]} />
-          <meshStandardMaterial color={CORES.freijoMadeira} roughness={0.4} />
+          <boxGeometry args={[1.0, 2.7, 0.68]} />
         </mesh>
-        {/* Nichos dos Fornos Embutidos na Torre */}
+        {/* Nichos dos Fornos Embutidos com Vidro Preto */}
         <mesh
-          ref={criarRefPeca(
-            [1.4, 1.35, -1.2],
-            [1.8, 0.8, 0.5]
-          ) as unknown as React.Ref<never>}
+          ref={criarRefPeca([1.35, 1.45, -1.3], [1.8, 0.8, 0.5]) as unknown as React.Ref<never>}
+          material={materiaisPBR.pretoFornos}
         >
-          <boxGeometry args={[0.7, 0.85, 0.04]} />
-          <meshStandardMaterial
-            color="#141414"
-            metalness={0.8}
-            roughness={0.25}
-          />
+          <boxGeometry args={[0.74, 0.88, 0.04]} />
         </mesh>
 
-        {/* 6. Armários Aéreos / Cristaleira Iluminada (Vidro Reflecta + Freijó) */}
+        {/* 8. Armários Aéreos e Cristaleira até o Teto (Vidro Reflecta + Freijó) */}
         <mesh
-          ref={criarRefPeca(
-            [-0.5, 1.95, -1.62],
-            [0, 2.0, -1.0]
-          ) as unknown as React.Ref<never>}
+          ref={criarRefPeca([-0.6, 2.15, -1.72], [0, 2.0, -1.0]) as unknown as React.Ref<never>}
+          material={materiaisPBR.vidroReflecta}
         >
-          <boxGeometry args={[2.8, 0.85, 0.38]} />
-          <meshStandardMaterial
-            color={CORES.vidroCristaleira}
-            roughness={0.25}
-            metalness={0.35}
-          />
+          <boxGeometry args={[2.8, 1.15, 0.38]} />
         </mesh>
 
-        {/* Perfil Dourado sutil na Cristaleira */}
+        {/* Perfil Dourado sutil na modulação superior */}
         <mesh
-          ref={criarRefPeca(
-            [-0.5, 1.95, -1.42],
-            [0, 1.6, 0.8]
-          ) as unknown as React.Ref<never>}
+          ref={criarRefPeca([-0.6, 1.58, -1.52], [0, 1.6, 0.8]) as unknown as React.Ref<never>}
+          material={materiaisPBR.ouro}
         >
           <boxGeometry args={[2.82, 0.015, 0.015]} />
-          <meshStandardMaterial
-            color={CORES.metalOuro}
-            metalness={0.85}
-            roughness={0.2}
-          />
         </mesh>
 
         {/* ------------------------------------------------------------------- */}
-        {/* A ILHA CENTRAL GOURMET (1.80m x 0.90m) — O CORAÇÃO DO PROJETO       */}
+        {/* A ILHA CENTRAL GOURMET (1.85m x 0.95m) — O CORAÇÃO DO PROJETO       */}
         {/* ------------------------------------------------------------------- */}
-        {/* 7. Base e Gaveteiros da Ilha em Verde-Sálvia */}
+        {/* 9. Rodapé Recuado da Ilha */}
         <mesh
           ref={criarRefPeca(
-            [ILHA.posX, 0.42, ILHA.posZ],
-            [0, 1.8, 1.5]
+            [ILHA.posX, 0.05, ILHA.posZ],
+            [0, 1.2, 1.2]
           ) as unknown as React.Ref<never>}
+          material={materiaisPBR.granito}
         >
-          <boxGeometry args={[ILHA.largura, 0.84, ILHA.profundidade - 0.06]} />
-          <meshStandardMaterial
-            color={CORES.verdeSalvia}
-            roughness={0.42}
-          />
+          <boxGeometry args={[ILHA.largura - 0.15, 0.1, ILHA.profundidade - 0.15]} />
         </mesh>
 
-        {/* 8. Painel Frontal Ripado em Madeira Freijó Nobre */}
+        {/* 10. Estrutura Interna e Gaveteiros da Ilha em Verde-Sálvia */}
         <mesh
           ref={criarRefPeca(
-            [ILHA.posX, 0.42, ILHA.posZ + ILHA.profundidade / 2 - 0.01],
-            [0, 1.2, 2.2]
+            [ILHA.posX, 0.44, ILHA.posZ],
+            [0, 1.6, 1.5]
           ) as unknown as React.Ref<never>}
+          material={materiaisPBR.verdeSalvia}
         >
-          <boxGeometry args={[ILHA.largura, 0.84, 0.025]} />
-          <meshStandardMaterial
-            color={CORES.freijoMadeira}
-            roughness={0.45}
-          />
+          <boxGeometry args={[ILHA.largura, 0.78, ILHA.profundidade - 0.06]} />
         </mesh>
 
-        {/* Detalhe de Ripas Verticais de Madeira na Ilha (Efeito Ripado Real) */}
-        {[-0.75, -0.45, -0.15, 0.15, 0.45, 0.75].map((xOffset, i) => (
-          <mesh
-            key={`ripa-${i}`}
-            ref={criarRefPeca(
-              [ILHA.posX + xOffset, 0.42, ILHA.posZ + ILHA.profundidade / 2 + 0.008],
-              [0, 1.4, 2.4]
-            ) as unknown as React.Ref<never>}
-          >
-            <boxGeometry args={[0.035, 0.84, 0.018]} />
-            <meshStandardMaterial
-              color={CORES.freijoClaro}
-              roughness={0.4}
-            />
-          </mesh>
-        ))}
-
-        {/* 9. Tampo Nobre em Granito Preto da Ilha (com beiral) */}
+        {/* 11. Painel Frontal em Madeira Freijó */}
         <mesh
           ref={criarRefPeca(
-            [ILHA.posX, 0.87, ILHA.posZ],
+            [ILHA.posX, 0.44, ILHA.posZ + ILHA.profundidade / 2 - 0.015],
+            [0, 1.2, 2.0]
+          ) as unknown as React.Ref<never>}
+          material={materiaisPBR.freijo}
+        >
+          <boxGeometry args={[ILHA.largura, 0.78, 0.02]} />
+        </mesh>
+
+        {/* 12. Ripas Individuais em Madeira Freijó (Relevo 3D Real) */}
+        {Array.from({ length: 18 }).map((_, rIdx) => {
+          const stepX = (ILHA.largura - 0.1) / 18;
+          const xPos = ILHA.posX - ILHA.largura / 2 + 0.05 + rIdx * stepX;
+          return (
+            <mesh
+              key={`ripa-ilha-${rIdx}`}
+              ref={criarRefPeca(
+                [xPos, 0.44, ILHA.posZ + ILHA.profundidade / 2 + 0.008],
+                [0, 1.4, 2.2 + (rIdx % 3) * 0.2]
+              ) as unknown as React.Ref<never>}
+              material={materiaisPBR.freijo}
+            >
+              <boxGeometry args={[0.04, 0.78, 0.018]} />
+            </mesh>
+          );
+        })}
+
+        {/* 13. Tampo Nobre em Granito Preto da Ilha (Espessura 5cm com Beiral para Banquetas) */}
+        <mesh
+          ref={criarRefPeca(
+            [ILHA.posX, 0.865, ILHA.posZ],
             [0, 2.2, 0.8]
           ) as unknown as React.Ref<never>}
+          material={materiaisPBR.granito}
         >
-          <boxGeometry args={[ILHA.largura + 0.06, 0.05, ILHA.profundidade + 0.06]} />
-          <meshStandardMaterial
-            color={CORES.granitoPreto}
-            roughness={0.14}
-            metalness={0.18}
-          />
+          <boxGeometry args={[ILHA.largura + 0.08, 0.05, ILHA.profundidade + 0.08]} />
         </mesh>
 
-        {/* 10. Cooktop 5 Bocas em Vidro Preto / Inox Embutido na Ilha */}
+        {/* 14. Cooktop 5 Bocas em Vidro Preto Embutido no Granito da Ilha */}
         <mesh
           ref={criarRefPeca(
-            [ILHA.posX - 0.25, 0.9, ILHA.posZ],
+            [ILHA.posX - 0.25, 0.895, ILHA.posZ],
             [0, 1.4, 1.2]
           ) as unknown as React.Ref<never>}
+          material={materiaisPBR.pretoFornos}
         >
           <boxGeometry args={[0.76, 0.012, 0.5]} />
-          <meshStandardMaterial
-            color="#111111"
-            roughness={0.18}
-            metalness={0.8}
-          />
         </mesh>
 
-        {/* 11. Queimadores do Cooktop */}
+        {/* Queimadores do Cooktop */}
         {[-0.18, 0, 0.18].map((qOffset, qi) => (
           <mesh
-            key={`queimador-${qi}`}
-            position={[ILHA.posX - 0.25 + qOffset, 0.912, ILHA.posZ]}
+            key={`queimador-ilha-${qi}`}
+            position={[ILHA.posX - 0.25 + qOffset, 0.908, ILHA.posZ]}
+            material={materiaisPBR.inox}
           >
             <cylinderGeometry args={[0.045, 0.045, 0.012, 16]} />
-            <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.3} />
           </mesh>
         ))}
 
-        {/* 12. Luminárias Pendentes Lineares em Latão Dourado sobre a Ilha */}
-        <group position={[ILHA.posX, 2.05, ILHA.posZ]}>
-          {/* Cabo do Pendente */}
+        {/* 15. Luminária Pendente Tubular em Latão Dourado sobre a Ilha */}
+        <group position={[ILHA.posX, 2.1, ILHA.posZ]}>
           <mesh position={[-0.45, 0.35, 0]}>
-            <cylinderGeometry args={[0.003, 0.003, 0.65, 8]} />
-            <meshStandardMaterial color="#111111" />
+            <cylinderGeometry args={[0.003, 0.003, 0.7, 8]} />
+            <meshStandardMaterial color="#1A1A1A" />
           </mesh>
           <mesh position={[0.45, 0.35, 0]}>
-            <cylinderGeometry args={[0.003, 0.003, 0.65, 8]} />
-            <meshStandardMaterial color="#111111" />
+            <cylinderGeometry args={[0.003, 0.003, 0.7, 8]} />
+            <meshStandardMaterial color="#1A1A1A" />
           </mesh>
-          {/* Barra Tubular Dourada de Iluminação Linear */}
           <mesh
             ref={criarRefPeca(
-              [ILHA.posX, 2.05, ILHA.posZ],
+              [ILHA.posX, 2.1, ILHA.posZ],
               [0, 1.8, 0]
             ) as unknown as React.Ref<never>}
             rotation={[0, 0, Math.PI / 2]}
+            material={materiaisPBR.ouro}
           >
-            <cylinderGeometry args={[0.018, 0.018, 1.3, 16]} />
-            <meshStandardMaterial
-              color={CORES.metalOuro}
-              metalness={0.88}
-              roughness={0.2}
-            />
+            <cylinderGeometry args={[0.018, 0.018, 1.35, 16]} />
           </mesh>
         </group>
 
-        {/* 13. Duas Banquetas Contemporâneas de Madeira/Couro junto à Ilha */}
+        {/* 16. Banquetas Contemporâneas de Madeira/Couro e Estrutura Dourada */}
         {[-0.45, 0.45].map((bOffset, bi) => (
           <group
-            key={`banqueta-${bi}`}
-            position={[ILHA.posX + bOffset, 0.32, ILHA.posZ + ILHA.profundidade / 2 + 0.42]}
+            key={`banqueta-cozinha-${bi}`}
+            position={[ILHA.posX + bOffset, 0.32, ILHA.posZ + ILHA.profundidade / 2 + 0.44]}
           >
-            {/* Assento da banqueta */}
             <mesh position={[0, 0.32, 0]}>
-              <cylinderGeometry args={[0.18, 0.18, 0.04, 20]} />
-              <meshStandardMaterial color="#3A2B20" roughness={0.6} />
+              <cylinderGeometry args={[0.18, 0.18, 0.04, 24]} />
+              <meshStandardMaterial color="#36281E" roughness={0.65} />
             </mesh>
-            {/* Pés em latão escovado */}
-            <mesh position={[0, 0.15, 0]}>
+            <mesh position={[0, 0.15, 0]} material={materiaisPBR.ouro}>
               <cylinderGeometry args={[0.14, 0.16, 0.32, 12]} />
-              <meshStandardMaterial color={CORES.metalOuro} metalness={0.8} roughness={0.3} />
             </mesh>
           </group>
         ))}
@@ -789,7 +968,7 @@ export const HeroScrollCena: React.FC = () => {
       frameloop="demand"
       dpr={isMobile ? [1, 1.5] : [1, 2]}
       camera={{
-        position: [0, 8.4, 0.001],
+        position: [0, 8.5, 0.001],
         fov: 38,
         near: 0.1,
         far: 60,
@@ -797,6 +976,8 @@ export const HeroScrollCena: React.FC = () => {
       gl={{
         antialias: !isMobile,
         powerPreference: 'high-performance',
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.15,
       }}
       className="w-full h-full block"
       aria-hidden="true"

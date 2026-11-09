@@ -153,8 +153,8 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
 
         <div ref={fotoFinalRef} className="absolute inset-0 opacity-0 pointer-events-none">
           <Foto
-            srcBase="/obras/dormitorio-led-1"
-            alt="Dormitório planejado com guarda-roupa iluminado por LED, executado pela Império em Jaú"
+            srcBase="/obras/cozinha-gringa-4k"
+            alt="Cozinha planejada com ilha em verde-sálvia, ripado de madeira freijó, bancada em granito preto e LED executada pela Império em Jaú"
             sizes="100vw"
             className="w-full h-full"
           />
@@ -281,7 +281,7 @@ function Narrativa() {
       <ambientLight intensity={0.5} />
       <directionalLight position={[4, 8, 5]} intensity={1.1} />
       <pointLight ref={led} color="#ffb46b" intensity={0} distance={3} position={[-0.6, 2.2, -1.2]} />
-      {/* planta (linhasPlanta), piso, paredes (group com âncora na base), peças do guarda-roupa */}
+      {/* planta (linhasPlanta), piso, paredes (group com âncora na base), módulos da cozinha e ilha central */}
     </>
   );
 }
@@ -320,8 +320,8 @@ interface HeroScrollFallbackProps {
 export const HeroScrollFallback: React.FC<HeroScrollFallbackProps> = ({ onNavigateContact }) => (
   <div className="relative min-h-[100svh]">
     <Foto
-      srcBase="/obras/dormitorio-led-1"
-      alt="Dormitório planejado com guarda-roupa iluminado por LED, executado pela Império em Jaú"
+      srcBase="/obras/cozinha-gringa-4k"
+      alt="Cozinha planejada com ilha em verde-sálvia, ripado de madeira freijó, bancada em granito preto e LED executada pela Império em Jaú"
       prioridade
       sizes="100vw"
       className="absolute inset-0 w-full h-full"

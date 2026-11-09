@@ -79,6 +79,7 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({
 
     const ctx = gsap.context(() => {
       const proxy = { progress: 0 };
+      useHeroScrollStore.getState().setProgress(0);
 
       gsap.to(proxy, {
         progress: 1,
@@ -112,7 +113,7 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({
     let ultimaFaseRegistrada = '';
 
     const unsubscribe = useHeroScrollStore.subscribe(({ progress }) => {
-      // (a) Crossfade da foto real dormitorio-led-1 (Fase 5: 0.85 -> 1.00)
+      // (a) Crossfade da foto real cozinha-gringa-4k (Fase 5: 0.85 -> 1.00)
       if (fotoFinalRef.current) {
         const opacidadeFoto = progressoNaFaixa(
           progress,
@@ -327,7 +328,7 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({
 
             {/* Painel Flutuante com o Indicador da Fase Narrativa Atual (Coluna Direita) */}
             <div className="lg:col-span-6 flex flex-col items-end pointer-events-auto">
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#1d1612]/90 backdrop-blur-md border border-[#c9a04e]/45 shadow-[0_16px_36px_rgba(0,0,0,0.7)] max-w-sm w-full">
+              <div className="p-3 sm:p-3.5 rounded-xl bg-[#1d1612]/85 backdrop-blur-md border border-[#c9a04e]/35 shadow-[0_12px_28px_rgba(0,0,0,0.6)] max-w-xs w-full transition-all duration-300">
                 <div className="flex items-center justify-between pb-2 border-b border-[#c9a04e]/20">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5 text-[#c9a04e]" />

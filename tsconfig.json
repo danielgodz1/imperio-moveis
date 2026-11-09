@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "three": [
+        "./src/types/three.d.ts"
       ]
     },
     "allowImportingTsExtensions": true,

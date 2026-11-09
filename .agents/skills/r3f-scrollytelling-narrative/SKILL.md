@@ -1,6 +1,6 @@
 ---
 name: r3f-scrollytelling-narrative
-description: Narrativa 3D scroll-driven com React Three Fiber, GSAP ScrollTrigger e Zustand para o hero da página inicial da Império Móveis. Use quando a tarefa for criar, corrigir ou auditar a experiência "planta 2D -> construção 3D -> guarda-roupa instalado -> foto real" ou qualquer cena 3D que precise progredir conforme o scroll. Define arquitetura, contratos com o resto da home, padrão de timeline única, performance, acessibilidade, testes e critérios de aceite. Não use para o configurador 3D interativo (src/components/quarto3d/), que tem outro modelo de interação.
+description: Narrativa 3D scroll-driven com React Three Fiber, GSAP ScrollTrigger e Zustand para o hero da página inicial da Império Móveis. Use quando a tarefa for criar, corrigir ou auditar a experiência "planta 2D -> construção 3D da Cozinha Gourmet -> ilha verde-sálvia com ripado de freijó instalada -> foto real cozinha-gringa-4k" ou qualquer cena 3D que precise progredir conforme o scroll. Define arquitetura, contratos com o resto da home, padrão de timeline única, performance, acessibilidade, testes e critérios de aceite. Não use para o configurador 3D interativo (src/components/quarto3d/), que tem outro modelo de interação.
 ---
 
 # R3F Scrollytelling Narrative — Império
@@ -156,17 +156,17 @@ Legendas de fase e o crossfade para a foto também leem o progress via `useHeroS
 - Animações por `clock.elapsedTime` (flutuação, rotação contínua) dentro da narrativa. Elas criam uma segunda fonte de tempo.
 - Carregar modelos GLB pesados no hero. Use geometria paramétrica (boxes, planes); a cena inteira deve caber em dezenas de meshes.
 
-## 7. Estrutura narrativa da Império
+## 7. Estrutura narrativa da Império (Cozinha Gourmet — Foto Referência: cozinha-gringa-4k)
 
 | Fase | Faixa de progress | O que acontece | Câmera |
 | :--- | :--- | :--- | :--- |
-| 1. Traço | 0.00 - 0.20 | A planta 2D do quarto se desenha linha por linha em dourado (`--dourado`), incluindo vão da porta e janela | Vista de cima, ortogonal ou fov estreito |
-| 2. Profundidade | 0.20 - 0.40 | Piso surge; paredes sobem (`scale.y` de ~0 a 1, âncora na base) | Desce para ângulo 3/4 |
-| 3. Construção | 0.40 - 0.70 | Guarda-roupa montado peça por peça: base -> laterais -> topo -> divisórias -> portas. Peças entram de fora do frame e se encaixam | Aproxima do móvel |
-| 4. Instalação | 0.70 - 0.85 | Móvel encaixado na parede; LED quente (2700K, cor ~#ffb46b) acende no interior | Recua mostrando o cômodo |
-| 5. Crossfade | 0.85 - 1.00 | Foto real `dormitorio-led-1` (via componente `Foto`, `srcBase="/obras/dormitorio-led-1"`) entra por opacidade sobre a cena | Parada |
+| 1. Traço | 0.00 - 0.20 | A planta técnica 2D da cozinha em L e da ilha central se desenha em linhas douradas (`--dourado`) com cotas em metros | Vista de cima zenital (90°) com enquadramento da planta |
+| 2. Profundidade | 0.20 - 0.40 | Piso em porcelanato acetinado claro surge; paredes claras sobem com vãos; o ambiente ganha profundidade e luz natural | Transição de 90° para perspectiva arquitetônica 3/4 |
+| 3. Construção | 0.40 - 0.70 | Montagem peça por peça: gabinetes em Verde-Sálvia, torre de fornos em Freijó, aéreos até o forro, corpo da ilha com ripas verticais de Freijó, tampo nobre em granito preto e cooktop | Aproximação suave focando na marcenaria e encaixe |
+| 4. Instalação & Acabamento | 0.70 - 0.85 | Cozinha instalada com alinhamentos perfeitos; fita de LED quente 2700K acende sob os aéreos e na cristaleira; banquetas posicionadas | Recua suavemente estabilizando no ângulo da fotografia |
+| 5. Obra Real | 0.85 - 1.00 | Crossfade progressivo e fluido para a fotografia real em alta resolução `/obras/cozinha-gringa-4k` | Estabilizada |
 
-Dimensões coerentes com marcenaria real: chapas de 18 mm (0.018 m), guarda-roupa ~2.40 m de altura, 0.60 m de profundidade, quarto ~3.5 m x 3.0 m. Se precisar de cores de madeira, use as de `src/data/acabamentos.ts` em vez de inventar.
+Dimensões coerentes com fabricação real: chapas de 18 mm e 25 mm, ilha central 1.85 m x 0.95 m, altura de bancada 0.90 m, armários superiores até o forro de gesso. Texturas PBR procedurais em CanvasTexture para madeira Freijó (veios e poros acetinados), Granito Preto mineral (micro-pontos e reflexo polido) e Verde-Sálvia acetinado.
 
 ## 8. Performance e limpeza (obrigatório)
 
