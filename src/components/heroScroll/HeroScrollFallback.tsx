@@ -9,7 +9,7 @@ interface HeroScrollFallbackProps {
 }
 
 /**
- * Fallback estático da experiência Hero.
+ * Fallback estático da experiência Hero com a Cozinha Gourmet em verde-sálvia e ripado.
  * Exibido quando prefers-reduced-motion está ativo ou quando o dispositivo
  * não possui suporte a WebGL/hardware 3D, garantindo CLS 0, SEO intacto
  * e altura natural sem área de rolagem vazia de 300vh.
@@ -22,7 +22,7 @@ export const HeroScrollFallback: React.FC<HeroScrollFallbackProps> = ({
       {/* Brilho radial quente de fundo */}
       <div
         aria-hidden="true"
-        className="absolute top-1/2 right-[5%] -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none opacity-60 z-0"
+        className="absolute top-1/2 right-[5%] -translate-y-1/2 w-[620px] h-[620px] rounded-full pointer-events-none opacity-60 z-0"
         style={{
           background:
             'radial-gradient(circle, rgba(201, 160, 78, 0.22) 0%, rgba(201, 160, 78, 0.05) 50%, transparent 70%)',
@@ -97,16 +97,19 @@ export const HeroScrollFallback: React.FC<HeroScrollFallbackProps> = ({
             </div>
           </div>
 
-          {/* Coluna Direita: Fotografia Real do Dormitório Executado */}
+          {/* Coluna Direita: Fotografia Real da Cozinha Gourmet Executada */}
           <div className="lg:col-span-6 relative flex flex-col items-center justify-center">
-            <div className="relative w-full max-w-[560px] aspect-[4/3] sm:aspect-[16/11] rounded-2xl sm:rounded-3xl overflow-hidden border border-[#c9a04e]/40 shadow-[0_24px_60px_rgba(0,0,0,0.85)] bg-[#1d1612]">
+            <div className="relative w-full max-w-[580px] aspect-[4/3] sm:aspect-[16/11] rounded-2xl sm:rounded-3xl overflow-hidden border border-[#c9a04e]/45 shadow-[0_24px_65px_rgba(0,0,0,0.85)] bg-[#1d1612]">
               <Foto
-                srcBase="/obras/dormitorio-led-1"
-                alt="Dormitório planejado com guarda-roupa iluminado por LED, executado pela Império Móveis Planejados em Jaú"
+                srcBase="/obras/cozinha-gringa-4k"
+                alt="Cozinha planejada com ilha em verde-sálvia, ripado de madeira freijó, bancada em granito preto e LED executada pela Império em Jaú"
                 prioridade
-                sizes="(min-width: 1024px) 560px, 95vw"
+                sizes="(min-width: 1024px) 580px, 95vw"
                 className="w-full h-full"
-                imgStyle={{ objectFit: 'cover' }}
+                imgStyle={{
+                  objectFit: 'cover',
+                  objectPosition: '50% 55%',
+                }}
               />
 
               {/* Degradê na base para legenda */}
@@ -119,12 +122,12 @@ export const HeroScrollFallback: React.FC<HeroScrollFallbackProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5 text-[#c9a04e]" />
-                    <p className="font-serif-atelier font-semibold text-sm text-[#f2e8d8]">
-                      Dormitório Master com LED
+                    <p className="font-serif-atelier font-semibold text-sm sm:text-base text-[#f2e8d8]">
+                      Cozinha Gourmet Jaú
                     </p>
                   </div>
                   <p className="text-[11px] text-[#c9a04e]">
-                    Guarda-roupa sob medida &bull; Executado em Jaú/SP
+                    Ilha Verde-Sálvia &bull; Ripado Freijó &bull; Granito Preto &bull; LED
                   </p>
                 </div>
                 <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md text-[10px] uppercase font-mono tracking-wider border border-[#c9a04e]/40 text-[#c9a04e]">
@@ -138,4 +141,3 @@ export const HeroScrollFallback: React.FC<HeroScrollFallbackProps> = ({
     </div>
   );
 };
-

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 /**
- * Faixas de progresso (0 a 1) da narrativa do hero.
+ * Faixas de progresso (0 a 1) da narrativa do hero da Cozinha Gourmet.
  * Fonte única de verdade para a timeline Three.js e para o overlay DOM.
  */
 export const FASES = {
@@ -26,31 +26,31 @@ export const METADADOS_FASES: Record<FaseId, FaseInfo> = {
     id: 'traco',
     numero: '01',
     titulo: 'O traço técnico inicial',
-    detalhe: 'Planta baixa 2D com cotas precisas e vão de esquadrias',
+    detalhe: 'Planta baixa 2D com bancada em L, ilha central e cotas precisas',
   },
   profundidade: {
     id: 'profundidade',
     numero: '02',
     titulo: 'A arquitetura ganha volume',
-    detalhe: 'Elevação de alvenaria, piso e perspectiva espacial',
+    detalhe: 'Elevação das paredes, piso porcelanato e perspectiva 3D',
   },
   construcao: {
     id: 'construcao',
     numero: '03',
     titulo: 'Montagem milimétrica',
-    detalhe: 'Chapas de 18mm, divisórias e portas encaixadas peça por peça',
+    detalhe: 'Ilha em verde-sálvia, painel ripado em freijó e armários em L',
   },
   instalacao: {
     id: 'instalacao',
     numero: '04',
-    titulo: 'Instalação e iluminação',
-    detalhe: 'Guarda-roupa instalado com fita LED interna quente 2700K',
+    titulo: 'Bancada de granito & fita LED',
+    detalhe: 'Tampo em granito preto, cristaleira iluminada e luz quente 2700K',
   },
   crossfade: {
     id: 'crossfade',
     numero: '05',
     titulo: 'A realidade executada',
-    detalhe: 'Dormitório real entregue pela marcenaria Império em Jaú',
+    detalhe: 'Cozinha Gourmet real executada pela marcenaria Império em Jaú',
   },
 };
 
@@ -78,4 +78,3 @@ export const useHeroScrollStore = create<HeroScrollState>()((set) => ({
   progress: 0,
   setProgress: (p) => set({ progress: Math.min(1, Math.max(0, p)) }),
 }));
-

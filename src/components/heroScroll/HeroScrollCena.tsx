@@ -3,32 +3,36 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import { FASES, useHeroScrollStore } from './useHeroScrollStore';
 
-// Dimensões do dormitório (metros)
-const QUARTO = {
-  largura: 3.6, // X: [-1.8, 1.8]
-  profundidade: 3.2, // Z: [-1.6, 1.6]
-  alturaParedes: 2.6, // Y: [0, 2.6]
+// Dimensões do ambiente da Cozinha Gourmet (metros)
+const COZINHA = {
+  largura: 4.4, // X: [-2.2, 2.2]
+  profundidade: 3.8, // Z: [-1.9, 1.9]
+  alturaParedes: 2.7, // Y: [0, 2.7]
 };
 
-// Posição e dimensões do guarda-roupa embutido na parede de fundo
-const ARMARIO = {
-  largura: 2.4,
-  altura: 2.4,
-  profundidade: 0.6,
-  posX: -0.4, // Centro em X
-  posY: 1.2, // Centro em Y (base no chão Y=0)
-  posZ: -1.3, // Encostado na parede Z=-1.6
+// Posição e dimensões da Ilha Central Gourmet (1.80m x 0.90m)
+const ILHA = {
+  largura: 1.85,
+  profundidade: 0.95,
+  altura: 0.9,
+  posX: 0.1, // Ligeiramente à direita do centro
+  posY: 0.45, // Centro em Y (base no chão Y=0)
+  posZ: 0.25, // Na frente da bancada principal
 };
 
-// Cores e acabamentos arquitetônicos da Império (DESIGN.md / acabamentos.ts)
+// Cores e acabamentos reais de "cozinha_gringa_4k" da Império (DESIGN.md / acabamentos.ts)
 const CORES = {
-  ouroPlanta: '#D4A84F', // Dourado no traço de lápis da planta 2D
-  pisoMadeira: '#C7B199', // Carvalho no piso
-  parede: '#1F1A15', // Alvenaria grafite/escura quente
-  madeiraMdf: '#8A5A36', // Freijó quente nos módulos
-  portaVidroLed: '#2E2620',
-  ledQuente: '#FFB46B', // 2700K acolhedor
-  metalOuro: '#C9A04E', // Puxadores e perfil
+  ouroPlanta: '#D4A84F', // Dourado nas linhas de cota técnica
+  verdeSalvia: '#687E67', // Verde-Sálvia nobre dos armários da ilha e bancadas
+  verdeSalviaEscuro: '#4F614E',
+  freijoMadeira: '#8A5A36', // Freijó do painel ripado da ilha e torre
+  freijoClaro: '#A36F45',
+  granitoPreto: '#1C1A18', // Granito Preto São Gabriel / Absoluto polido
+  metalOuro: '#C9A04E', // Pendentes, puxadores e detalhes em latão dourado
+  vidroCristaleira: '#27221E', // Vidro reflecta fumê
+  ledQuente: '#FFB46B', // Fitas de LED 2700K acolhedoras
+  pisoPorcelanato: '#C3BCB4', // Porcelanato acetinado cinza quente
+  parede: '#1E1915', // Alvenaria grafite/escura quente
 };
 
 interface ObjetoAnimavel3D {
@@ -43,28 +47,31 @@ interface LuzAnimavel3D {
 }
 
 /**
- * Componente interno que orquestra a cena Three.js e a timeline única do GSAP.
+ * Cena Three.js da Cozinha Gourmet em verde-sálvia, ripado de freijó e granito preto.
+ * Orquestrada por uma única timeline GSAP sincronizada com o scroll.
  */
 function NarrativaCena() {
   const { camera, invalidate } = useThree();
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Vetor dinâmico que a câmera segue com lookAt dentro do useFrame
+  // Vetor que a câmera segue suavemente com lookAt no useFrame
   const alvoCamera = useRef({ x: 0, y: 0, z: 0 });
 
   // Refs de agrupamento para cada fase
   const paredesGroupRef = useRef<ObjetoAnimavel3D | null>(null);
   const pisoMeshRef = useRef<ObjetoAnimavel3D | null>(null);
-  const luzLedRef = useRef<LuzAnimavel3D | null>(null);
-  const luzLed2Ref = useRef<LuzAnimavel3D | null>(null);
 
-  // Lista de grupos que representam traços 2D da planta ancorados no início
+  // Luzes LED da bancada, cristaleira e pendentes da ilha
+  const ledIlhaRef = useRef<LuzAnimavel3D | null>(null);
+  const ledBancadaRef = useRef<LuzAnimavel3D | null>(null);
+  const ledCristaleiraRef = useRef<LuzAnimavel3D | null>(null);
+
+  // Lista de grupos que representam traços 2D da planta
   const linhasGrupos = useRef<ObjetoAnimavel3D[]>([]);
 
-  // Lista de peças individuais do guarda-roupa
+  // Lista de peças individuais da cozinha gourmet
   const pecasMeshes = useRef<ObjetoAnimavel3D[]>([]);
 
-  // Registra grupo de linha da planta
   const registrarLinha = (grupo: unknown) => {
     const g = grupo as ObjetoAnimavel3D | null;
     if (g && !linhasGrupos.current.includes(g)) {
@@ -72,7 +79,6 @@ function NarrativaCena() {
     }
   };
 
-  // Registra peça do guarda-roupa com sua posição final memorizada
   const registrarPeca = (
     mesh: unknown,
     finalPos: [number, number, number],
@@ -107,16 +113,16 @@ function NarrativaCena() {
     });
 
     // -------------------------------------------------------------------------
-    // FASE 1: O TRAÇO 2D (0.00 -> 0.20)
-    // Câmera zenital (topo), linhas da planta crescem em scale.x com âncora inicial.
+    // FASE 1: O TRAÇO 2D DA COZINHA EM L + ILHA CENTRAL (0.00 -> 0.20)
+    // Câmera zenital, linhas se desenham em scale.x com âncora inicial.
     // -------------------------------------------------------------------------
     const { inicio: f1Inicio, fim: f1Fim } = FASES.traco;
     const durF1 = f1Fim - f1Inicio;
     const totalLinhas = Math.max(1, linhasGrupos.current.length);
     const passoLinha = durF1 / totalLinhas;
 
-    // Configuração inicial da câmera (olhando de cima)
-    camera.position.set(0, 7.8, 0.001);
+    // Posição inicial da câmera olhando de cima (planta técnica)
+    camera.position.set(0, 8.4, 0.001);
     alvoCamera.current = { x: 0, y: 0, z: 0 };
 
     linhasGrupos.current.forEach((g, idx) => {
@@ -130,7 +136,7 @@ function NarrativaCena() {
 
     // -------------------------------------------------------------------------
     // FASE 2: PROFUNDIDADE & ALVENARIA (0.20 -> 0.40)
-    // Piso se revela, paredes sobem em scale.y e câmera desce para perspectiva 3/4.
+    // Piso se revela, paredes sobem e câmera desce para perspectiva 3/4.
     // -------------------------------------------------------------------------
     const { inicio: f2Inicio, fim: f2Fim } = FASES.profundidade;
     const durF2 = f2Fim - f2Inicio;
@@ -153,13 +159,13 @@ function NarrativaCena() {
       );
     }
 
-    // Movimento suave da câmera de cima para perspectiva 3/4
+    // Câmera desce suavemente para vista angular da cozinha
     tl.to(
       camera.position,
       {
-        x: 3.6,
-        y: 4.2,
-        z: 4.8,
+        x: 3.4,
+        y: 3.8,
+        z: 4.6,
         duration: durF2,
         ease: 'power2.inOut',
       },
@@ -169,7 +175,7 @@ function NarrativaCena() {
       alvoCamera.current,
       {
         x: 0,
-        y: 1.0,
+        y: 0.9,
         z: -0.2,
         duration: durF2,
         ease: 'power2.inOut',
@@ -178,8 +184,8 @@ function NarrativaCena() {
     );
 
     // -------------------------------------------------------------------------
-    // FASE 3: MONTAGEM MILIMÉTRICA DO GUARDA-ROUPA (0.40 -> 0.70)
-    // Peças chegam do espaço externo e se encaixam com precisão de marcenaria.
+    // FASE 3: MONTAGEM MILIMÉTRICA DA COZINHA GOURMET (0.40 -> 0.70)
+    // Armários em Verde-Sálvia, Torre em Freijó, Granito e Ilha com Ripado.
     // -------------------------------------------------------------------------
     const { inicio: f3Inicio, fim: f3Fim } = FASES.construcao;
     const durF3 = f3Fim - f3Inicio;
@@ -208,24 +214,24 @@ function NarrativaCena() {
         f3Inicio + idx * passoPeca
       );
 
-      // Leve rotação de encaixe nas portas e laterais
-      if (Math.abs(offset.y) > 0.5) {
+      // Leve rotação de encaixe nas portas e painéis ripados
+      if (Math.abs(offset.y) > 0.4 || Math.abs(offset.x) > 1.0) {
         tl.fromTo(
           peca.rotation,
-          { y: 0.12 },
+          { y: 0.1 },
           { y: 0, duration: passoPeca * 1.35, ease: 'power2.out' },
           f3Inicio + idx * passoPeca
         );
       }
     });
 
-    // Câmera se aproxima focando na montagem das chapas
+    // Câmera aproxima da ilha central observando a marcenaria em verde-sálvia e o ripado
     tl.to(
       camera.position,
       {
-        x: 2.2,
-        y: 2.3,
-        z: 3.2,
+        x: 1.9,
+        y: 2.1,
+        z: 3.4,
         duration: durF3,
         ease: 'power1.inOut',
       },
@@ -234,9 +240,9 @@ function NarrativaCena() {
     tl.to(
       alvoCamera.current,
       {
-        x: ARMARIO.posX,
-        y: ARMARIO.posY,
-        z: ARMARIO.posZ,
+        x: ILHA.posX,
+        y: ILHA.posY + 0.1,
+        z: ILHA.posZ,
         duration: durF3,
         ease: 'power1.inOut',
       },
@@ -245,34 +251,43 @@ function NarrativaCena() {
 
     // -------------------------------------------------------------------------
     // FASE 4: INSTALAÇÃO & ILUMINAÇÃO LED (0.70 -> 0.85)
-    // LED acende no guarda-roupa, câmera recua revelando o dormitório completo.
+    // Acende o LED da cristaleira, da bancada e pendentes da ilha.
     // -------------------------------------------------------------------------
     const { inicio: f4Inicio, fim: f4Fim } = FASES.instalacao;
     const durF4 = f4Fim - f4Inicio;
 
-    if (luzLedRef.current) {
+    if (ledIlhaRef.current) {
       tl.fromTo(
-        luzLedRef.current,
+        ledIlhaRef.current,
         { intensity: 0 },
-        { intensity: 3.5, duration: durF4 * 0.8, ease: 'power2.in' },
+        { intensity: 3.6, duration: durF4 * 0.8, ease: 'power2.in' },
         f4Inicio
       );
     }
-    if (luzLed2Ref.current) {
+    if (ledBancadaRef.current) {
       tl.fromTo(
-        luzLed2Ref.current,
+        ledBancadaRef.current,
+        { intensity: 0 },
+        { intensity: 2.5, duration: durF4 * 0.8, ease: 'power2.in' },
+        f4Inicio + durF4 * 0.15
+      );
+    }
+    if (ledCristaleiraRef.current) {
+      tl.fromTo(
+        ledCristaleiraRef.current,
         { intensity: 0 },
         { intensity: 2.2, duration: durF4 * 0.8, ease: 'power2.in' },
-        f4Inicio + durF4 * 0.2
+        f4Inicio + durF4 * 0.25
       );
     }
 
+    // Câmera recua suavemente se alinhando ao ângulo da foto real de cozinha_gringa_4k
     tl.to(
       camera.position,
       {
-        x: 2.9,
-        y: 2.2,
-        z: 4.8,
+        x: 1.4,
+        y: 1.9,
+        z: 4.1,
         duration: durF4,
         ease: 'power2.out',
       },
@@ -281,9 +296,9 @@ function NarrativaCena() {
     tl.to(
       alvoCamera.current,
       {
-        x: -0.1,
-        y: 1.1,
-        z: -0.5,
+        x: 0.15,
+        y: 0.95,
+        z: 0.1,
         duration: durF4,
         ease: 'power2.out',
       },
@@ -303,7 +318,6 @@ function NarrativaCena() {
     tl.progress(pInicial);
     invalidate();
 
-    // Invalida render apenas quando o progresso mudar (frameloop="demand")
     const unsubscribe = useHeroScrollStore.subscribe(() => {
       invalidate();
     });
@@ -335,124 +349,118 @@ function NarrativaCena() {
       {/* ===================================================================== */}
       {/* ILUMINAÇÃO GERAL                                                      */}
       {/* ===================================================================== */}
-      <ambientLight intensity={0.65} color="#FAF7F2" />
-      <directionalLight position={[5, 8, 4]} intensity={1.1} color="#FFFFFF" />
-      <directionalLight position={[-4, 6, -3]} intensity={0.4} color="#D4A84F" />
+      <ambientLight intensity={0.7} color="#FAF7F2" />
+      <directionalLight position={[5, 8, 4]} intensity={1.15} color="#FFFFFF" />
+      <directionalLight position={[-4, 6, -3]} intensity={0.45} color="#D4A84F" />
 
-      {/* Fitas de LED embutidas dentro do guarda-roupa */}
+      {/* Fitas de LED da Ilha Central e Cristaleira (cor quente 2700K) */}
       <pointLight
-        ref={luzLedRef as unknown as React.Ref<never>}
+        ref={ledIlhaRef as unknown as React.Ref<never>}
         color={CORES.ledQuente}
         intensity={0}
-        distance={3.5}
+        distance={3.2}
         decay={2}
-        position={[ARMARIO.posX, 2.3, ARMARIO.posZ + 0.25]}
+        position={[ILHA.posX, 1.8, ILHA.posZ]}
       />
       <pointLight
-        ref={luzLed2Ref as unknown as React.Ref<never>}
+        ref={ledBancadaRef as unknown as React.Ref<never>}
         color={CORES.ledQuente}
         intensity={0}
         distance={2.8}
         decay={2}
-        position={[ARMARIO.posX + 0.6, 1.3, ARMARIO.posZ + 0.2]}
+        position={[-0.4, 1.45, -1.3]}
+      />
+      <pointLight
+        ref={ledCristaleiraRef as unknown as React.Ref<never>}
+        color={CORES.ledQuente}
+        intensity={0}
+        distance={2.5}
+        decay={2}
+        position={[0.8, 1.8, -1.35]}
       />
 
       {/* ===================================================================== */}
-      {/* FASE 1: TRAÇO 2D DA PLANTA BAIXA                                     */}
+      {/* FASE 1: TRAÇO 2D DA PLANTA BAIXA DA COZINHA (PlantaCozinha.tsx)        */}
       {/* ===================================================================== */}
       <group position={[0, 0.005, 0]}>
-        {/* Parede de Fundo (3.6m ao longo de X em Z=-1.6) */}
+        {/* Parede Norte / Fundo (4.4m ao longo de X em Z=-1.9) */}
         <group
           ref={registrarLinha}
-          position={[-1.8, 0, -1.6]}
+          position={[-2.2, 0, -1.9]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[1.8, 0, 0]}>
-            <boxGeometry args={[3.6, 0.008, 0.02]} />
+          <mesh position={[2.2, 0, 0]}>
+            <boxGeometry args={[4.4, 0.008, 0.02]} />
             <meshBasicMaterial color={CORES.ouroPlanta} />
           </mesh>
         </group>
 
-        {/* Parede Lateral Esquerda (3.2m ao longo de Z em X=-1.8) */}
+        {/* Parede Oeste / Esquerda (3.8m ao longo de Z em X=-2.2) */}
         <group
           ref={registrarLinha}
-          position={[-1.8, 0, -1.6]}
+          position={[-2.2, 0, -1.9]}
           rotation={[0, -Math.PI / 2, 0]}
+          scale={[0.0001, 1, 1]}
+        >
+          <mesh position={[1.9, 0, 0]}>
+            <boxGeometry args={[3.8, 0.008, 0.02]} />
+            <meshBasicMaterial color={CORES.ouroPlanta} />
+          </mesh>
+        </group>
+
+        {/* Linha da Bancada Norte em L (3.2m de bancada) */}
+        <group
+          ref={registrarLinha}
+          position={[-2.2, 0.002, -1.25]}
           scale={[0.0001, 1, 1]}
         >
           <mesh position={[1.6, 0, 0]}>
-            <boxGeometry args={[3.2, 0.008, 0.02]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} />
+            <boxGeometry args={[3.2, 0.006, 0.015]} />
+            <meshBasicMaterial color={CORES.ouroPlanta} opacity={0.85} transparent />
           </mesh>
         </group>
 
-        {/* Parede Frontal (Segmento 1: 1.9m até vão da porta em Z=+1.6) */}
+        {/* Retângulo da Ilha Central 2D (1.80m x 0.90m) */}
         <group
           ref={registrarLinha}
-          position={[-1.8, 0, 1.6]}
+          position={[ILHA.posX - ILHA.largura / 2, 0.002, ILHA.posZ - ILHA.profundidade / 2]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[0.95, 0, 0]}>
-            <boxGeometry args={[1.9, 0.008, 0.02]} />
+          <mesh position={[ILHA.largura / 2, 0, 0]}>
+            <boxGeometry args={[ILHA.largura, 0.006, 0.015]} />
             <meshBasicMaterial color={CORES.ouroPlanta} />
           </mesh>
         </group>
-
-        {/* Vão da porta (abertura de 0.9m) + Segmento 2 da Parede Frontal */}
         <group
           ref={registrarLinha}
-          position={[1.0, 0, 1.6]}
+          position={[ILHA.posX - ILHA.largura / 2, 0.002, ILHA.posZ + ILHA.profundidade / 2]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[0.4, 0, 0]}>
-            <boxGeometry args={[0.8, 0.008, 0.02]} />
+          <mesh position={[ILHA.largura / 2, 0, 0]}>
+            <boxGeometry args={[ILHA.largura, 0.006, 0.015]} />
             <meshBasicMaterial color={CORES.ouroPlanta} />
           </mesh>
         </group>
-
-        {/* Parede Lateral Direita com vão da janela */}
         <group
           ref={registrarLinha}
-          position={[1.8, 0, -1.6]}
+          position={[ILHA.posX - ILHA.largura / 2, 0.002, ILHA.posZ - ILHA.profundidade / 2]}
           rotation={[0, -Math.PI / 2, 0]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[0.5, 0, 0]}>
-            <boxGeometry args={[1.0, 0.008, 0.02]} />
+          <mesh position={[ILHA.profundidade / 2, 0, 0]}>
+            <boxGeometry args={[ILHA.profundidade, 0.006, 0.015]} />
             <meshBasicMaterial color={CORES.ouroPlanta} />
           </mesh>
         </group>
         <group
           ref={registrarLinha}
-          position={[1.8, 0, 0.6]}
+          position={[ILHA.posX + ILHA.largura / 2, 0.002, ILHA.posZ - ILHA.profundidade / 2]}
           rotation={[0, -Math.PI / 2, 0]}
           scale={[0.0001, 1, 1]}
         >
-          <mesh position={[0.5, 0, 0]}>
-            <boxGeometry args={[1.0, 0.008, 0.02]} />
+          <mesh position={[ILHA.profundidade / 2, 0, 0]}>
+            <boxGeometry args={[ILHA.profundidade, 0.006, 0.015]} />
             <meshBasicMaterial color={CORES.ouroPlanta} />
-          </mesh>
-        </group>
-
-        {/* Traço da projeção do Guarda-Roupa no chão */}
-        <group
-          ref={registrarLinha}
-          position={[-1.6, 0.002, -1.6]}
-          scale={[0.0001, 1, 1]}
-        >
-          <mesh position={[1.2, 0, 0]}>
-            <boxGeometry args={[2.4, 0.006, 0.015]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} opacity={0.8} transparent />
-          </mesh>
-        </group>
-        <group
-          ref={registrarLinha}
-          position={[-1.6, 0.002, -1.0]}
-          scale={[0.0001, 1, 1]}
-        >
-          <mesh position={[1.2, 0, 0]}>
-            <boxGeometry args={[2.4, 0.006, 0.015]} />
-            <meshBasicMaterial color={CORES.ouroPlanta} opacity={0.8} transparent />
           </mesh>
         </group>
       </group>
@@ -460,291 +468,307 @@ function NarrativaCena() {
       {/* ===================================================================== */}
       {/* FASE 2: PISO & PAREDES 3D ELEVADAS                                    */}
       {/* ===================================================================== */}
-      {/* Piso em carvalho nobre com acabamento refinado */}
+      {/* Piso porcelanato acetinado cinza quente */}
       <mesh
         ref={pisoMeshRef as unknown as React.Ref<never>}
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
         scale={[0.0001, 0.0001, 1]}
       >
-        <planeGeometry args={[QUARTO.largura, QUARTO.profundidade]} />
+        <planeGeometry args={[COZINHA.largura, COZINHA.profundidade]} />
         <meshStandardMaterial
-          color={CORES.pisoMadeira}
-          roughness={0.65}
-          metalness={0.05}
+          color={CORES.pisoPorcelanato}
+          roughness={0.55}
+          metalness={0.08}
         />
       </mesh>
 
-      {/* Grupo de paredes com âncora na base */}
+      {/* Paredes com âncora na base */}
       <group
         ref={paredesGroupRef as unknown as React.Ref<never>}
         position={[0, 0, 0]}
         scale={[1, 0.0001, 1]}
       >
-        {/* Parede de Fundo completa */}
-        <mesh position={[0, QUARTO.alturaParedes / 2, -1.675]}>
+        {/* Parede de Fundo (Norte) */}
+        <mesh position={[0, COZINHA.alturaParedes / 2, -1.975]}>
           <boxGeometry
-            args={[QUARTO.largura + 0.3, QUARTO.alturaParedes, 0.15]}
+            args={[COZINHA.largura + 0.3, COZINHA.alturaParedes, 0.15]}
           />
-          <meshStandardMaterial color={CORES.parede} roughness={0.85} />
+          <meshStandardMaterial color={CORES.parede} roughness={0.88} />
         </mesh>
 
-        {/* Parede Esquerda */}
-        <mesh position={[-1.875, QUARTO.alturaParedes / 2, 0]}>
+        {/* Parede Esquerda (Oeste) */}
+        <mesh position={[-2.275, COZINHA.alturaParedes / 2, 0]}>
           <boxGeometry
-            args={[0.15, QUARTO.alturaParedes, QUARTO.profundidade]}
+            args={[0.15, COZINHA.alturaParedes, COZINHA.profundidade]}
           />
-          <meshStandardMaterial color={CORES.parede} roughness={0.85} />
+          <meshStandardMaterial color={CORES.parede} roughness={0.88} />
         </mesh>
 
-        {/* Parede Direita (Parte 1: antes da janela) */}
-        <mesh position={[1.875, QUARTO.alturaParedes / 2, -1.1]}>
-          <boxGeometry args={[0.15, QUARTO.alturaParedes, 1.0]} />
-          <meshStandardMaterial color={CORES.parede} roughness={0.85} />
-        </mesh>
-        {/* Parede Direita (Parte 2: depois da janela) */}
-        <mesh position={[1.875, QUARTO.alturaParedes / 2, 1.1]}>
-          <boxGeometry args={[0.15, QUARTO.alturaParedes, 1.0]} />
-          <meshStandardMaterial color={CORES.parede} roughness={0.85} />
-        </mesh>
-        {/* Peitoril da Janela */}
-        <mesh position={[1.875, 0.45, 0]}>
-          <boxGeometry args={[0.15, 0.9, 1.2]} />
-          <meshStandardMaterial color={CORES.parede} roughness={0.85} />
-        </mesh>
-
-        {/* Rodapé elegante em latão/dourado na base */}
-        <mesh position={[0, 0.05, -1.59]}>
-          <boxGeometry args={[QUARTO.largura, 0.1, 0.02]} />
+        {/* Rodapé da alvenaria */}
+        <mesh position={[0, 0.05, -1.89]}>
+          <boxGeometry args={[COZINHA.largura, 0.1, 0.02]} />
           <meshStandardMaterial
             color={CORES.metalOuro}
-            metalness={0.6}
+            metalness={0.65}
             roughness={0.3}
           />
         </mesh>
       </group>
 
       {/* ===================================================================== */}
-      {/* FASE 3: GUARDA-ROUPA MONTADO PEÇA POR PEÇA                            */}
+      {/* FASE 3: MONTAGEM DOS MÓVEIS DA COZINHA GOURMET                        */}
       {/* ===================================================================== */}
       <group>
-        {/* 1. Rodapé e Base (Chapa 18mm) */}
+        {/* ------------------------------------------------------------------- */}
+        {/* BANCADA DE FUNDO (EM VERDE-SÁLVIA + GRANITO PRETO + CRISTALEIRA)    */}
+        {/* ------------------------------------------------------------------- */}
+        {/* 1. Armários Inferiores de Fundo (Verde-Sálvia) */}
         <mesh
           ref={criarRefPeca(
-            [ARMARIO.posX, 0.04, ARMARIO.posZ],
-            [0, 1.8, -1.2]
+            [-0.5, 0.42, -1.55],
+            [-1.5, 1.2, -0.8]
           ) as unknown as React.Ref<never>}
         >
-          <boxGeometry args={[ARMARIO.largura, 0.08, ARMARIO.profundidade]} />
-          <meshStandardMaterial color={CORES.madeiraMdf} roughness={0.5} />
+          <boxGeometry args={[2.8, 0.84, 0.65]} />
+          <meshStandardMaterial color={CORES.verdeSalvia} roughness={0.45} />
         </mesh>
 
-        {/* 2. Lateral Esquerda (Chapa 18mm) */}
+        {/* 2. Tampo de Granito Preto da Bancada de Fundo */}
         <mesh
           ref={criarRefPeca(
-            [ARMARIO.posX - ARMARIO.largura / 2 + 0.009, 1.24, ARMARIO.posZ],
-            [-2.2, 0.6, 0]
+            [-0.5, 0.86, -1.55],
+            [0, 1.8, -0.6]
           ) as unknown as React.Ref<never>}
         >
-          <boxGeometry args={[0.018, 2.32, ARMARIO.profundidade]} />
-          <meshStandardMaterial color={CORES.madeiraMdf} roughness={0.45} />
-        </mesh>
-
-        {/* 3. Lateral Direita (Chapa 18mm) */}
-        <mesh
-          ref={criarRefPeca(
-            [ARMARIO.posX + ARMARIO.largura / 2 - 0.009, 1.24, ARMARIO.posZ],
-            [2.2, 0.6, 0]
-          ) as unknown as React.Ref<never>}
-        >
-          <boxGeometry args={[0.018, 2.32, ARMARIO.profundidade]} />
-          <meshStandardMaterial color={CORES.madeiraMdf} roughness={0.45} />
-        </mesh>
-
-        {/* 4. Tampo Superior / Maleiro (Chapa 18mm) */}
-        <mesh
-          ref={criarRefPeca(
-            [ARMARIO.posX, 2.39, ARMARIO.posZ],
-            [0, 2.0, 0.8]
-          ) as unknown as React.Ref<never>}
-        >
-          <boxGeometry args={[ARMARIO.largura, 0.018, ARMARIO.profundidade]} />
-          <meshStandardMaterial color={CORES.madeiraMdf} roughness={0.45} />
-        </mesh>
-
-        {/* 5. Divisória Vertical Central 1 (Divide em 3 vãos de ~78cm) */}
-        <mesh
-          ref={criarRefPeca(
-            [ARMARIO.posX - 0.4, 1.24, ARMARIO.posZ],
-            [-0.8, 1.8, 1.2]
-          ) as unknown as React.Ref<never>}
-        >
-          <boxGeometry args={[0.018, 2.3, ARMARIO.profundidade - 0.03]} />
-          <meshStandardMaterial color={CORES.madeiraMdf} roughness={0.5} />
-        </mesh>
-
-        {/* 6. Divisória Vertical Central 2 */}
-        <mesh
-          ref={criarRefPeca(
-            [ARMARIO.posX + 0.4, 1.24, ARMARIO.posZ],
-            [0.8, 1.8, 1.2]
-          ) as unknown as React.Ref<never>}
-        >
-          <boxGeometry args={[0.018, 2.3, ARMARIO.profundidade - 0.03]} />
-          <meshStandardMaterial color={CORES.madeiraMdf} roughness={0.5} />
-        </mesh>
-
-        {/* 7. Prateleiras Horizontais do Maleiro Superior */}
-        <mesh
-          ref={criarRefPeca(
-            [ARMARIO.posX, 1.95, ARMARIO.posZ],
-            [0, 1.2, 1.5]
-          ) as unknown as React.Ref<never>}
-        >
-          <boxGeometry
-            args={[
-              ARMARIO.largura - 0.036,
-              0.018,
-              ARMARIO.profundidade - 0.04,
-            ]}
-          />
-          <meshStandardMaterial color={CORES.madeiraMdf} roughness={0.5} />
-        </mesh>
-
-        {/* 8. Bloco de Gaveteiro Interno (Módulo com 3 gavetas) */}
-        <mesh
-          ref={criarRefPeca(
-            [ARMARIO.posX, 0.45, ARMARIO.posZ],
-            [0, -0.8, 2.0]
-          ) as unknown as React.Ref<never>}
-        >
-          <boxGeometry args={[0.76, 0.7, ARMARIO.profundidade - 0.06]} />
-          <meshStandardMaterial color="#A47048" roughness={0.4} />
-        </mesh>
-
-        {/* 9. Varões Cabideiros em Alumínio/Ouro Champanhe */}
-        <mesh
-          ref={criarRefPeca(
-            [ARMARIO.posX - 0.8, 1.85, ARMARIO.posZ],
-            [-1.0, 1.5, 1.8]
-          ) as unknown as React.Ref<never>}
-          rotation={[0, 0, Math.PI / 2]}
-        >
-          <cylinderGeometry args={[0.014, 0.014, 0.76, 16]} />
+          <boxGeometry args={[2.84, 0.04, 0.67]} />
           <meshStandardMaterial
-            color={CORES.metalOuro}
-            metalness={0.8}
-            roughness={0.2}
+            color={CORES.granitoPreto}
+            roughness={0.15}
+            metalness={0.15}
           />
         </mesh>
+
+        {/* 3. Cuba Dupla Inox de Sobrepor */}
         <mesh
           ref={criarRefPeca(
-            [ARMARIO.posX + 0.8, 1.85, ARMARIO.posZ],
-            [1.0, 1.5, 1.8]
+            [-0.7, 0.885, -1.52],
+            [0, 1.2, 0.5]
           ) as unknown as React.Ref<never>}
-          rotation={[0, 0, Math.PI / 2]}
         >
-          <cylinderGeometry args={[0.014, 0.014, 0.76, 16]} />
+          <boxGeometry args={[0.78, 0.015, 0.44]} />
           <meshStandardMaterial
-            color={CORES.metalOuro}
-            metalness={0.8}
+            color="#D8D8D8"
+            metalness={0.88}
             roughness={0.2}
           />
         </mesh>
 
-        {/* 10. Portas Elegantes com Perfil Dourado e Vidro Reflecta/Madeira */}
-        {/* Porta Esquerda */}
+        {/* 4. Torneira Gourmet Monocomando em Latão Ouro Escovado */}
         <mesh
           ref={criarRefPeca(
-            [ARMARIO.posX - 0.8, 1.22, ARMARIO.posZ + ARMARIO.profundidade / 2],
-            [-1.6, 0, 1.8]
+            [-0.7, 1.05, -1.68],
+            [0, 0.8, 0.8]
           ) as unknown as React.Ref<never>}
         >
-          <boxGeometry args={[0.79, 2.26, 0.02]} />
+          <cylinderGeometry args={[0.015, 0.018, 0.32, 16]} />
           <meshStandardMaterial
-            color={CORES.portaVidroLed}
-            roughness={0.3}
-            metalness={0.3}
+            color={CORES.metalOuro}
+            metalness={0.9}
+            roughness={0.2}
           />
         </mesh>
 
-        {/* Porta Central */}
+        {/* 5. Torre Quente de Fornos e Geladeira (Freijó e Verde-Sálvia na direita) */}
         <mesh
           ref={criarRefPeca(
-            [ARMARIO.posX, 1.22, ARMARIO.posZ + ARMARIO.profundidade / 2],
-            [0, 1.5, 2.2]
+            [1.4, 1.25, -1.55],
+            [1.8, 0.8, -0.8]
           ) as unknown as React.Ref<never>}
         >
-          <boxGeometry args={[0.79, 2.26, 0.02]} />
+          <boxGeometry args={[0.95, 2.5, 0.68]} />
+          <meshStandardMaterial color={CORES.freijoMadeira} roughness={0.4} />
+        </mesh>
+        {/* Nichos dos Fornos Embutidos na Torre */}
+        <mesh
+          ref={criarRefPeca(
+            [1.4, 1.35, -1.2],
+            [1.8, 0.8, 0.5]
+          ) as unknown as React.Ref<never>}
+        >
+          <boxGeometry args={[0.7, 0.85, 0.04]} />
           <meshStandardMaterial
-            color={CORES.portaVidroLed}
-            roughness={0.3}
-            metalness={0.3}
+            color="#141414"
+            metalness={0.8}
+            roughness={0.25}
           />
         </mesh>
 
-        {/* Porta Direita */}
+        {/* 6. Armários Aéreos / Cristaleira Iluminada (Vidro Reflecta + Freijó) */}
         <mesh
           ref={criarRefPeca(
-            [ARMARIO.posX + 0.8, 1.22, ARMARIO.posZ + ARMARIO.profundidade / 2],
-            [1.6, 0, 1.8]
+            [-0.5, 1.95, -1.62],
+            [0, 2.0, -1.0]
           ) as unknown as React.Ref<never>}
         >
-          <boxGeometry args={[0.79, 2.26, 0.02]} />
+          <boxGeometry args={[2.8, 0.85, 0.38]} />
           <meshStandardMaterial
-            color={CORES.portaVidroLed}
-            roughness={0.3}
-            metalness={0.3}
+            color={CORES.vidroCristaleira}
+            roughness={0.25}
+            metalness={0.35}
           />
         </mesh>
 
-        {/* Puxadores em Barra Cava de Latão Dourado */}
+        {/* Perfil Dourado sutil na Cristaleira */}
         <mesh
-          position={[
-            ARMARIO.posX - 0.42,
-            1.2,
-            ARMARIO.posZ + ARMARIO.profundidade / 2 + 0.015,
-          ]}
+          ref={criarRefPeca(
+            [-0.5, 1.95, -1.42],
+            [0, 1.6, 0.8]
+          ) as unknown as React.Ref<never>}
         >
-          <boxGeometry args={[0.015, 0.7, 0.01]} />
+          <boxGeometry args={[2.82, 0.015, 0.015]} />
           <meshStandardMaterial
             color={CORES.metalOuro}
             metalness={0.85}
             roughness={0.2}
           />
         </mesh>
-        <mesh
-          position={[
-            ARMARIO.posX + 0.42,
-            1.2,
-            ARMARIO.posZ + ARMARIO.profundidade / 2 + 0.015,
-          ]}
-        >
-          <boxGeometry args={[0.015, 0.7, 0.01]} />
-          <meshStandardMaterial
-            color={CORES.metalOuro}
-            metalness={0.85}
-            roughness={0.2}
-          />
-        </mesh>
-      </group>
 
-      {/* ===================================================================== */}
-      {/* ELEMENTO COMPLEMENTAR: Mesa lateral / Criado arquitetônico            */}
-      {/* ===================================================================== */}
-      <group position={[1.2, 0.25, -1.2]}>
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[0.45, 0.5, 0.4]} />
-          <meshStandardMaterial color="#241E19" roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0.255, 0]}>
-          <boxGeometry args={[0.47, 0.018, 0.42]} />
+        {/* ------------------------------------------------------------------- */}
+        {/* A ILHA CENTRAL GOURMET (1.80m x 0.90m) — O CORAÇÃO DO PROJETO       */}
+        {/* ------------------------------------------------------------------- */}
+        {/* 7. Base e Gaveteiros da Ilha em Verde-Sálvia */}
+        <mesh
+          ref={criarRefPeca(
+            [ILHA.posX, 0.42, ILHA.posZ],
+            [0, 1.8, 1.5]
+          ) as unknown as React.Ref<never>}
+        >
+          <boxGeometry args={[ILHA.largura, 0.84, ILHA.profundidade - 0.06]} />
           <meshStandardMaterial
-            color={CORES.metalOuro}
-            metalness={0.7}
-            roughness={0.3}
+            color={CORES.verdeSalvia}
+            roughness={0.42}
           />
         </mesh>
+
+        {/* 8. Painel Frontal Ripado em Madeira Freijó Nobre */}
+        <mesh
+          ref={criarRefPeca(
+            [ILHA.posX, 0.42, ILHA.posZ + ILHA.profundidade / 2 - 0.01],
+            [0, 1.2, 2.2]
+          ) as unknown as React.Ref<never>}
+        >
+          <boxGeometry args={[ILHA.largura, 0.84, 0.025]} />
+          <meshStandardMaterial
+            color={CORES.freijoMadeira}
+            roughness={0.45}
+          />
+        </mesh>
+
+        {/* Detalhe de Ripas Verticais de Madeira na Ilha (Efeito Ripado Real) */}
+        {[-0.75, -0.45, -0.15, 0.15, 0.45, 0.75].map((xOffset, i) => (
+          <mesh
+            key={`ripa-${i}`}
+            ref={criarRefPeca(
+              [ILHA.posX + xOffset, 0.42, ILHA.posZ + ILHA.profundidade / 2 + 0.008],
+              [0, 1.4, 2.4]
+            ) as unknown as React.Ref<never>}
+          >
+            <boxGeometry args={[0.035, 0.84, 0.018]} />
+            <meshStandardMaterial
+              color={CORES.freijoClaro}
+              roughness={0.4}
+            />
+          </mesh>
+        ))}
+
+        {/* 9. Tampo Nobre em Granito Preto da Ilha (com beiral) */}
+        <mesh
+          ref={criarRefPeca(
+            [ILHA.posX, 0.87, ILHA.posZ],
+            [0, 2.2, 0.8]
+          ) as unknown as React.Ref<never>}
+        >
+          <boxGeometry args={[ILHA.largura + 0.06, 0.05, ILHA.profundidade + 0.06]} />
+          <meshStandardMaterial
+            color={CORES.granitoPreto}
+            roughness={0.14}
+            metalness={0.18}
+          />
+        </mesh>
+
+        {/* 10. Cooktop 5 Bocas em Vidro Preto / Inox Embutido na Ilha */}
+        <mesh
+          ref={criarRefPeca(
+            [ILHA.posX - 0.25, 0.9, ILHA.posZ],
+            [0, 1.4, 1.2]
+          ) as unknown as React.Ref<never>}
+        >
+          <boxGeometry args={[0.76, 0.012, 0.5]} />
+          <meshStandardMaterial
+            color="#111111"
+            roughness={0.18}
+            metalness={0.8}
+          />
+        </mesh>
+
+        {/* 11. Queimadores do Cooktop */}
+        {[-0.18, 0, 0.18].map((qOffset, qi) => (
+          <mesh
+            key={`queimador-${qi}`}
+            position={[ILHA.posX - 0.25 + qOffset, 0.912, ILHA.posZ]}
+          >
+            <cylinderGeometry args={[0.045, 0.045, 0.012, 16]} />
+            <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.3} />
+          </mesh>
+        ))}
+
+        {/* 12. Luminárias Pendentes Lineares em Latão Dourado sobre a Ilha */}
+        <group position={[ILHA.posX, 2.05, ILHA.posZ]}>
+          {/* Cabo do Pendente */}
+          <mesh position={[-0.45, 0.35, 0]}>
+            <cylinderGeometry args={[0.003, 0.003, 0.65, 8]} />
+            <meshStandardMaterial color="#111111" />
+          </mesh>
+          <mesh position={[0.45, 0.35, 0]}>
+            <cylinderGeometry args={[0.003, 0.003, 0.65, 8]} />
+            <meshStandardMaterial color="#111111" />
+          </mesh>
+          {/* Barra Tubular Dourada de Iluminação Linear */}
+          <mesh
+            ref={criarRefPeca(
+              [ILHA.posX, 2.05, ILHA.posZ],
+              [0, 1.8, 0]
+            ) as unknown as React.Ref<never>}
+            rotation={[0, 0, Math.PI / 2]}
+          >
+            <cylinderGeometry args={[0.018, 0.018, 1.3, 16]} />
+            <meshStandardMaterial
+              color={CORES.metalOuro}
+              metalness={0.88}
+              roughness={0.2}
+            />
+          </mesh>
+        </group>
+
+        {/* 13. Duas Banquetas Contemporâneas de Madeira/Couro junto à Ilha */}
+        {[-0.45, 0.45].map((bOffset, bi) => (
+          <group
+            key={`banqueta-${bi}`}
+            position={[ILHA.posX + bOffset, 0.32, ILHA.posZ + ILHA.profundidade / 2 + 0.42]}
+          >
+            {/* Assento da banqueta */}
+            <mesh position={[0, 0.32, 0]}>
+              <cylinderGeometry args={[0.18, 0.18, 0.04, 20]} />
+              <meshStandardMaterial color="#3A2B20" roughness={0.6} />
+            </mesh>
+            {/* Pés em latão escovado */}
+            <mesh position={[0, 0.15, 0]}>
+              <cylinderGeometry args={[0.14, 0.16, 0.32, 12]} />
+              <meshStandardMaterial color={CORES.metalOuro} metalness={0.8} roughness={0.3} />
+            </mesh>
+          </group>
+        ))}
       </group>
     </>
   );
@@ -765,7 +789,7 @@ export const HeroScrollCena: React.FC = () => {
       frameloop="demand"
       dpr={isMobile ? [1, 1.5] : [1, 2]}
       camera={{
-        position: [0, 7.8, 0.001],
+        position: [0, 8.4, 0.001],
         fov: 38,
         near: 0.1,
         far: 60,

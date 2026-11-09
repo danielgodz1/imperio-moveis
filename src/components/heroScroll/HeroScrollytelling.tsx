@@ -214,21 +214,21 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({
           </Suspense>
         </div>
 
-        {/* 4. Camada de Crossfade: Fotografia Real do Dormitório Executado */}
+        {/* 4. Camada de Crossfade: Fotografia Real da Cozinha Gourmet Executada */}
         <div
           ref={fotoFinalRef}
           aria-hidden="true"
           className="absolute inset-0 z-10 pointer-events-none opacity-0 will-change-transform"
         >
           <Foto
-            srcBase="/obras/dormitorio-led-1"
-            alt="Dormitório planejado com guarda-roupa iluminado por LED executado pela Império em Jaú"
+            srcBase="/obras/cozinha-gringa-4k"
+            alt="Cozinha planejada com ilha em verde-sálvia, ripado de madeira freijó, bancada em granito preto e LED executada pela Império em Jaú"
             prioridade
             sizes="100vw"
             className="w-full h-full"
             imgStyle={{
               objectFit: 'cover',
-              objectPosition: 'center 45%',
+              objectPosition: '50% 55%',
             }}
           />
           {/* Degradê quente de leitura na base e nas laterais */}
