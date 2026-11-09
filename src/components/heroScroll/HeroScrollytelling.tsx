@@ -1,36 +1,29 @@
-import React, {
-  Suspense,
-  lazy,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
-import { Camera, Layers, MessageSquare, Sparkles } from 'lucide-react';
+import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Foto } from '../Foto';
 import { HeroScrollFallback } from './HeroScrollFallback';
+import { ALT_FOTO_COZINHA, HeroScrollConteudo } from './HeroScrollConteudo';
 import {
   FASES,
   METADADOS_FASES,
+  PAINEL_DESKTOP,
+  RECORTE_FOTO,
   faseAtual,
   progressoNaFaixa,
   useHeroScrollStore,
 } from './useHeroScrollStore';
-import { getWhatsAppUrl, trackWhatsAppClick } from '../../utils/helpers';
-import { scrollToTarget } from '../../hooks/useScrollytelling';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Carregamento sob demanda do Canvas 3D para manter o bundle inicial super leve
+// Canvas sob demanda: three e R3F ficam fora do bundle inicial
 const HeroScrollCena = lazy(() =>
   import('./HeroScrollCena').then((mod) => ({ default: mod.HeroScrollCena }))
 );
 
-/** Verifica disponibilidade de WebGL no dispositivo do cliente */
+const LARGURA_PAINEL_CSS = `clamp(${PAINEL_DESKTOP.min}px, ${PAINEL_DESKTOP.vw * 100}vw, ${PAINEL_DESKTOP.max}px)`;
+
 function verificarSuporteWebGL(): boolean {
-  if (typeof window === 'undefined') return false;
   try {
     const canvas = document.createElement('canvas');
     return !!(
@@ -42,45 +35,48 @@ function verificarSuporteWebGL(): boolean {
   }
 }
 
-/** Determina se o modo estático deve ser ativado imediatamente */
 function deveAtivarModoEstatico(): boolean {
   if (typeof window === 'undefined') return true;
-  const prefereReducaoMovimento = window.matchMedia(
-    '(prefers-reduced-motion: reduce)'
-  ).matches;
-  return prefereReducaoMovimento || !verificarSuporteWebGL();
+  const reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return reduzido || !verificarSuporteWebGL();
 }
 
 interface HeroScrollytellingProps {
   onNavigateContact?: () => void;
 }
 
-export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({
-  onNavigateContact,
-}) => {
+export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNavigateContact }) => {
   const containerRef = useRef<HTMLElement>(null);
-  const stickyRef = useRef<HTMLDivElement>(null);
-  const fotoFinalRef = useRef<HTMLDivElement>(null);
-
-  // Refs de elementos do overlay atualizados diretamente sem re-render React
-  const badgeNumeroRef = useRef<HTMLSpanElement>(null);
-  const badgeTituloRef = useRef<HTMLSpanElement>(null);
-  const badgeDetalheRef = useRef<HTMLParagraphElement>(null);
-  const barraProgressoRef = useRef<HTMLDivElement>(null);
-  const overlayTextoRef = useRef<HTMLDivElement>(null);
+  const fotoRef = useRef<HTMLDivElement>(null);
+  const fundoPainelRef = useRef<HTMLDivElement>(null);
+  const conteudoRef = useRef<HTMLDivElement>(null);
+  const numeroRef = useRef<HTMLSpanElement>(null);
+  const tituloRef = useRef<HTMLSpanElement>(null);
+  const detalheRef = useRef<HTMLParagraphElement>(null);
+  const linhaRef = useRef<HTMLDivElement>(null);
+  const avisoRef = useRef<HTMLSpanElement>(null);
 
   const [modoEstatico] = useState(deveAtivarModoEstatico);
 
-  // ---------------------------------------------------------------------------
-  // 1. SCROLLTRIGGER COM SCRUB REAL VIA OBJETO PROXY
-  // ---------------------------------------------------------------------------
+  // Sem âncora, a narrativa sempre abre em 01/05: nada de restaurar o scroll no meio.
+  useLayoutEffect(() => {
+    if (modoEstatico || window.location.hash) return;
+    const anterior = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    return () => {
+      window.history.scrollRestoration = anterior;
+    };
+  }, [modoEstatico]);
+
+  // Única fonte de tempo: tween proxy com scrub.
   useLayoutEffect(() => {
     if (modoEstatico || !containerRef.current) return;
+    const toque = window.matchMedia('(pointer: coarse)').matches;
+    useHeroScrollStore.getState().setProgress(0);
 
     const ctx = gsap.context(() => {
       const proxy = { progress: 0 };
-      useHeroScrollStore.getState().setProgress(0);
-
       gsap.to(proxy, {
         progress: 1,
         ease: 'none',
@@ -88,12 +84,10 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 1,
+          scrub: toque ? 0.5 : 1,
           invalidateOnRefresh: true,
         },
-        onUpdate: () => {
-          useHeroScrollStore.getState().setProgress(proxy.progress);
-        },
+        onUpdate: () => useHeroScrollStore.getState().setProgress(proxy.progress),
       });
     }, containerRef);
 
@@ -103,282 +97,117 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({
     };
   }, [modoEstatico]);
 
-  // ---------------------------------------------------------------------------
-  // 2. SINCRONIZAÇÃO DAS CAMADAS DOM (Crossfade e Legendas)
-  // Conecta ao store Zustand sem disparar re-render no componente React
-  // ---------------------------------------------------------------------------
+  // Camadas DOM leem o mesmo progress, sem re-render do React.
   useEffect(() => {
     if (modoEstatico) return;
+    let faseEscrita = '';
 
-    let ultimaFaseRegistrada = '';
+    const aplicar = (progress: number) => {
+      const { inicio, fim } = FASES.obra;
+      const obra = progressoNaFaixa(progress, inicio, fim);
 
-    const unsubscribe = useHeroScrollStore.subscribe(({ progress }) => {
-      // (a) Crossfade da foto real cozinha-gringa-4k (Fase 5: 0.85 -> 1.00)
-      if (fotoFinalRef.current) {
-        const opacidadeFoto = progressoNaFaixa(
-          progress,
-          FASES.crossfade.inicio,
-          FASES.crossfade.fim
-        );
-        fotoFinalRef.current.style.opacity = opacidadeFoto.toFixed(3);
+      if (fotoRef.current) {
+        fotoRef.current.style.opacity = obra.toFixed(3);
+      }
+      if (fundoPainelRef.current && conteudoRef.current) {
+        // No desktop o painel recolhe até o bloco de texto e a foto toma a tela.
+        const topo = conteudoRef.current.offsetTop * progressoNaFaixa(obra, 0.25, 1);
+        fundoPainelRef.current.style.clipPath = `inset(${topo.toFixed(1)}px 0 0 0)`;
+      }
+      if (linhaRef.current) {
+        linhaRef.current.style.transform = `scaleX(${progress.toFixed(4)})`;
+      }
+      if (avisoRef.current) {
+        avisoRef.current.style.opacity = (1 - progressoNaFaixa(progress, 0.02, 0.08)).toFixed(2);
       }
 
-      // (b) Barra de progresso contínua no topo
-      if (barraProgressoRef.current) {
-        barraProgressoRef.current.style.transform = `scaleX(${progress.toFixed(4)})`;
+      const fase = faseAtual(progress);
+      if (fase !== faseEscrita) {
+        faseEscrita = fase;
+        const meta = METADADOS_FASES[fase];
+        if (numeroRef.current) numeroRef.current.textContent = `${meta.numero}/05`;
+        if (tituloRef.current) tituloRef.current.textContent = meta.titulo;
+        if (detalheRef.current) detalheRef.current.textContent = meta.detalhe;
       }
-
-      // (c) Atualização dos textos da fase atual (apenas quando a fase muda)
-      const faseId = faseAtual(progress);
-      if (faseId !== ultimaFaseRegistrada) {
-        ultimaFaseRegistrada = faseId;
-        const meta = METADADOS_FASES[faseId];
-
-        if (badgeNumeroRef.current) {
-          badgeNumeroRef.current.textContent = `ETAPA ${meta.numero}/05`;
-        }
-        if (badgeTituloRef.current) {
-          badgeTituloRef.current.textContent = meta.titulo;
-        }
-        if (badgeDetalheRef.current) {
-          badgeDetalheRef.current.textContent = meta.detalhe;
-        }
-      }
-
-      // (d) Leve atenuação do texto no crossfade final para priorizar a fotografia
-      if (overlayTextoRef.current) {
-        if (progress > 0.88) {
-          const atenuacao = 1 - (progress - 0.88) / 0.12 * 0.45;
-          overlayTextoRef.current.style.opacity = atenuacao.toFixed(2);
-        } else {
-          overlayTextoRef.current.style.opacity = '1';
-        }
-      }
-    });
-
-    return () => {
-      unsubscribe();
     };
+
+    aplicar(useHeroScrollStore.getState().progress);
+    return useHeroScrollStore.subscribe(({ progress }) => aplicar(progress));
   }, [modoEstatico]);
 
-  // Se o usuário prefere movimentos reduzidos ou não há WebGL, exibe o fallback estático
   if (modoEstatico) {
     return (
-      <section
-        id="hero"
-        data-tema="noite"
-        className="relative w-full bg-[#15100c] text-[#f2e8d8]"
-      >
+      <section id="hero" data-tema="noite" className="relative w-full bg-preto text-papel">
         <HeroScrollFallback onNavigateContact={onNavigateContact} />
       </section>
     );
   }
+
+  const inicial = METADADOS_FASES.traco;
 
   return (
     <section
       ref={containerRef}
       id="hero"
       data-tema="noite"
-      className="relative w-full bg-[#15100c] text-[#f2e8d8] border-b border-[#251d18]"
+      className="relative w-full bg-preto text-papel"
       style={{ minHeight: '300vh' }}
     >
-      {/* ===================================================================== */}
-      {/* CONTÊINER STICKY: Fixa a viewport (100vh / 100svh) sem pin destrutivo */}
-      {/* ===================================================================== */}
-      <div
-        ref={stickyRef}
-        className="sticky top-0 h-screen h-[100svh] w-full overflow-hidden flex flex-col justify-between"
-      >
-        {/* 1. Brilho radial quente de iluminação ambiente */}
-        <div
-          aria-hidden="true"
-          className="absolute top-1/2 right-[4%] -translate-y-1/2 w-[650px] sm:w-[850px] h-[650px] sm:h-[850px] rounded-full pointer-events-none opacity-60 z-0"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(201, 160, 78, 0.22) 0%, rgba(201, 160, 78, 0.06) 46%, transparent 70%)',
-          }}
-        />
-
-        {/* 2. Textura sutil de granulação cinematográfica (4% opacidade) */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none opacity-[0.035] z-0 mix-blend-overlay"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          }}
-        />
-
-        {/* 3. Camada Three.js (Canvas 3D Único) */}
-        <div className="absolute inset-0 z-0" aria-hidden="true">
+      {/* Sticky: nenhum ancestral pode ter overflow hidden/auto */}
+      <div className="sticky top-0 h-screen h-[100svh] w-full overflow-hidden flex flex-col lg:block">
+        {/* Palco: em tela cheia no desktop, acima do texto no celular */}
+        <div className="relative flex-1 min-h-0 lg:absolute lg:inset-0" aria-hidden="true">
           <Suspense fallback={null}>
             <HeroScrollCena />
           </Suspense>
-        </div>
 
-        {/* 4. Camada de Crossfade: Fotografia Real da Cozinha Gourmet Executada */}
-        <div
-          ref={fotoFinalRef}
-          aria-hidden="true"
-          className="absolute inset-0 z-10 pointer-events-none opacity-0 will-change-transform"
-        >
-          <Foto
-            srcBase="/obras/cozinha-gringa-4k"
-            alt="Cozinha planejada com ilha em verde-sálvia, ripado de madeira freijó, bancada em granito preto e LED executada pela Império em Jaú"
-            prioridade
-            sizes="100vw"
-            className="w-full h-full"
-            imgStyle={{
-              objectFit: 'cover',
-              objectPosition: '50% 55%',
-            }}
-          />
-          {/* Degradê quente de leitura na base e nas laterais */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#15100c]/90 via-[#15100c]/25 to-transparent pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#15100c]/80 via-transparent to-transparent pointer-events-none" />
-        </div>
-
-        {/* 5. Linha indicadora de progresso no topo */}
-        <div
-          aria-hidden="true"
-          className="absolute top-0 left-0 right-0 h-[2px] bg-[#251d18] z-30 pointer-events-none"
-        >
-          <div
-            ref={barraProgressoRef}
-            className="h-full bg-gradient-to-r from-[#c9a04e] via-[#eed59b] to-[#c9a04e] origin-left will-change-transform"
-            style={{ transform: 'scaleX(0)' }}
-          />
-        </div>
-
-        {/* ===================================================================== */}
-        {/* OVERLAY HTML DE CONTEÚDO (SEO, H1 & CONVERSÃO COMERCIAL)              */}
-        {/* ===================================================================== */}
-        <div
-          ref={overlayTextoRef}
-          className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-8 pt-24 sm:pt-32 lg:pt-36 flex flex-col justify-between flex-1 pb-6 pointer-events-none will-change-transform"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Bloco de Headline e CTAs (Coluna Esquerda, 6 colunas) */}
-            <div className="lg:col-span-6 flex flex-col items-start space-y-5 sm:space-y-6 pointer-events-auto">
-              {/* Eyebrow de Marca */}
-              <div className="inline-flex items-center gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-[#c9a04e] shadow-[0_0_8px_rgba(201,160,78,0.8)]" />
-                <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] text-[#c9a04e] uppercase">
-                  MARCENARIA E ARQUITETURA — JAÚ E REGIÃO
-                </span>
-              </div>
-
-              {/* H1 Semântico e Canônico */}
-              <h1 className="font-serif-atelier font-bold text-[#f2e8d8] text-[clamp(2.5rem,5.6vw,5.4rem)] leading-[0.98] tracking-tight">
-                <span className="block">Arquitetura e</span>
-                <span className="block">marcenaria na</span>
-                <span className="block italic text-[#c9a04e] font-normal font-serif mt-1">
-                  mesma mesa.
-                </span>
-              </h1>
-
-              {/* Subtítulo */}
-              <p className="text-sm sm:text-base text-[#f2e8d8]/85 leading-relaxed max-w-lg font-light">
-                A Tatiane projeta, o Wellington fabrica. Cozinhas, quartos, closets e lojas em Jaú e região com precisão milimétrica desde 2015.
-              </p>
-
-              {/* CTAs Comerciais */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-3.5 w-full pt-1">
-                {onNavigateContact ? (
-                  <button
-                    type="button"
-                    onClick={onNavigateContact}
-                    className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 rounded-xl bg-[#c9a04e] hover:bg-[#d8af5c] text-[#15100c] text-xs font-bold uppercase tracking-widest transition-all duration-200 shadow-[0_12px_28px_rgba(201,160,78,0.28)] hover:scale-[1.02] cursor-pointer"
-                  >
-                    <span>Pedir orçamento</span>
-                    <span className="text-sm font-semibold">↗</span>
-                  </button>
-                ) : (
-                  <a
-                    href={getWhatsAppUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackWhatsAppClick('hero_cta')}
-                    className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 rounded-xl bg-[#c9a04e] hover:bg-[#d8af5c] text-[#15100c] text-xs font-bold uppercase tracking-widest transition-all duration-200 shadow-[0_12px_28px_rgba(201,160,78,0.28)] hover:scale-[1.02] cursor-pointer"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>Chamar no WhatsApp</span>
-                  </a>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => scrollToTarget('#obras', -80)}
-                  className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3.5 rounded-xl border border-[#f2e8d8]/30 hover:border-[#c9a04e] text-[#f2e8d8] hover:text-[#c9a04e] text-xs font-semibold uppercase tracking-wider transition-all duration-200 hover:bg-[#c9a04e]/10 cursor-pointer"
-                >
-                  <span>Ver as obras</span>
-                </button>
-
-                <a
-                  href="https://www.instagram.com/imperio.moveis.jau"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border border-[#c9a04e]/40 bg-[#1d1612]/80 hover:border-[#c9a04e] text-[#f2e8d8] hover:text-[#c9a04e] text-xs font-semibold tracking-wider transition-all duration-200 hover:bg-[#c9a04e]/10"
-                  title="Siga @imperio.moveis.jau no Instagram"
-                >
-                  <Camera className="w-4 h-4 text-[#c9a04e]" />
-                  <span>@imperio.moveis.jau</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Painel Flutuante com o Indicador da Fase Narrativa Atual (Coluna Direita) */}
-            <div className="lg:col-span-6 flex flex-col items-end pointer-events-auto">
-              <div className="p-3 sm:p-3.5 rounded-xl bg-[#1d1612]/85 backdrop-blur-md border border-[#c9a04e]/35 shadow-[0_12px_28px_rgba(0,0,0,0.6)] max-w-xs w-full transition-all duration-300">
-                <div className="flex items-center justify-between pb-2 border-b border-[#c9a04e]/20">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-[#c9a04e]" />
-                    <span
-                      ref={badgeNumeroRef}
-                      className="text-[10px] sm:text-[11px] font-mono tracking-widest uppercase font-bold text-[#c9a04e]"
-                    >
-                      ETAPA 01/05
-                    </span>
-                  </div>
-                  <span className="flex items-center gap-1.5 text-[10px] uppercase font-mono tracking-wider text-[#f2e8d8]/60">
-                    <Layers className="w-3 h-3 text-[#c9a04e]" />
-                    <span>3D Realtime</span>
-                  </span>
-                </div>
-
-                <div className="pt-2.5">
-                  <span
-                    ref={badgeTituloRef}
-                    className="block font-serif-atelier font-semibold text-sm sm:text-base text-[#f2e8d8]"
-                  >
-                    O traço técnico inicial
-                  </span>
-                  <p
-                    ref={badgeDetalheRef}
-                    className="text-xs text-[#f2e8d8]/75 font-light leading-snug mt-1"
-                  >
-                    Planta baixa 2D com cotas precisas e vão de esquadrias
-                  </p>
-                </div>
-              </div>
-            </div>
+          <div ref={fotoRef} className="absolute inset-0 opacity-0 pointer-events-none">
+            <Foto
+              srcBase="/obras/cozinha-gringa-4k"
+              alt={ALT_FOTO_COZINHA}
+              prioridade
+              sizes="100vw"
+              className="w-full h-full"
+              imgStyle={{
+                objectFit: 'cover',
+                objectPosition: `${RECORTE_FOTO.x * 100}% ${RECORTE_FOTO.y * 100}%`,
+              }}
+            />
           </div>
+        </div>
 
-          {/* Barra de Rodapé do Hero: Indicação de Rolagem */}
-          <div className="w-full flex items-center justify-between pt-4 border-t border-[#f2e8d8]/10 text-xs text-[#f2e8d8]/60 pointer-events-auto">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c9a04e] animate-ping" />
-              <span className="font-mono text-[11px] uppercase tracking-wider text-[#c9a04e]">
-                Role para ver a construção
+        {/* Painel em --preto: o texto nunca depende do que está atrás dele */}
+        <div
+          className="relative shrink-0 flex flex-col justify-end lg:absolute lg:inset-y-0 lg:left-0 lg:w-[var(--painel)]"
+          style={{ '--painel': LARGURA_PAINEL_CSS } as React.CSSProperties}
+        >
+          <div ref={fundoPainelRef} className="absolute inset-0 bg-preto" />
+
+          <div ref={conteudoRef} className="relative px-16 sm:px-32 lg:px-48 pt-24 lg:pt-48 pb-24 lg:pb-48">
+            <div aria-hidden="true" className="mb-16 lg:mb-24">
+              <p className="tipo-cota text-papel flex items-baseline gap-8">
+                <span ref={numeroRef} className="text-dourado">{inicial.numero}/05</span>
+                <span ref={tituloRef}>{inicial.titulo}</span>
+              </p>
+              <p ref={detalheRef} className="tipo-cota text-papel/70 mt-4 hidden sm:block">
+                {inicial.detalhe}
+              </p>
+              <div className="relative h-[2px] mt-8 bg-papel/20">
+                <div
+                  ref={linhaRef}
+                  className="absolute inset-0 bg-dourado origin-left will-change-transform"
+                  style={{ transform: 'scaleX(0)' }}
+                />
+              </div>
+              <span ref={avisoRef} className="tipo-cota text-papel/70 inline-block mt-8">
+                Role para construir a cozinha
               </span>
             </div>
-            <div className="flex items-center gap-2 font-mono text-[11px] tracking-wider uppercase text-[#f2e8d8]/50">
-              <span>Do traço à obra pronta</span>
-              <span className="text-[#c9a04e] text-sm animate-bounce">↓</span>
-            </div>
+
+            <HeroScrollConteudo onNavigateContact={onNavigateContact} />
           </div>
         </div>
       </div>
     </section>
   );
 };
-

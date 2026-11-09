@@ -1,6 +1,6 @@
 # Implementação de referência — Hero scrollytelling
 
-Esqueleto tipado dos quatro arquivos descritos no `SKILL.md`. Ele mostra **como as peças se conectam**. A direção visual final (cores exatas, textos de legenda, número de peças) deve seguir `DESIGN.md` e a skill `imperio-design-direction`.
+Esqueleto tipado dos arquivos descritos no `SKILL.md`. Ele mostra **como as peças se conectam**; a implementação vigente está em `src/components/heroScroll/` e prevalece sobre este esqueleto. A direção visual final (cores exatas, textos de legenda, número de peças) deve seguir `DESIGN.md` e a skill `imperio-design-direction`.
 
 Os blocos usam `~~~` em vez de três crases, para poderem ser colados no chat sem cortar.
 
@@ -13,18 +13,18 @@ import { create } from 'zustand';
 
 /** Faixas de progress (0 a 1) de cada fase. Fonte única para timeline e overlay. */
 export const FASES = {
-  traco: { inicio: 0.0, fim: 0.2 },
-  profundidade: { inicio: 0.2, fim: 0.4 },
-  construcao: { inicio: 0.4, fim: 0.7 },
-  instalacao: { inicio: 0.7, fim: 0.85 },
-  crossfade: { inicio: 0.85, fim: 1.0 },
+  traco: { inicio: 0.0, fim: 0.18 },
+  profundidade: { inicio: 0.18, fim: 0.32 },
+  construcao: { inicio: 0.32, fim: 0.74 },
+  acabamento: { inicio: 0.74, fim: 0.88 },
+  obra: { inicio: 0.88, fim: 1.0 },
 } as const;
 
 export type FaseId = keyof typeof FASES;
 
 export function faseAtual(p: number): FaseId {
   const ids = Object.keys(FASES) as FaseId[];
-  return ids.find((id) => p < FASES[id].fim) ?? 'crossfade';
+  return ids.find((id) => p < FASES[id].fim) ?? 'obra';
 }
 
 /** Progresso local (0 a 1) dentro de uma faixa. */
@@ -114,7 +114,7 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
     if (modoEstatico) return;
     return useHeroScrollStore.subscribe(({ progress }) => {
       if (fotoFinalRef.current) {
-        const { inicio, fim } = FASES.crossfade;
+        const { inicio, fim } = FASES.obra;
         fotoFinalRef.current.style.opacity = String(progressoNaFaixa(progress, inicio, fim));
       }
       if (legendaRef.current) {
@@ -154,7 +154,7 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
         <div ref={fotoFinalRef} className="absolute inset-0 opacity-0 pointer-events-none">
           <Foto
             srcBase="/obras/cozinha-gringa-4k"
-            alt="Cozinha planejada com ilha em verde-sálvia, ripado de madeira freijó, bancada em granito preto e LED executada pela Império em Jaú"
+            alt="Cozinha planejada com ilha verde-sálvia, tampo de pedra clara, armários brancos e verdes, geladeira inox e fita de LED, executada pela Império em Jaú"
             sizes="100vw"
             className="w-full h-full"
           />
@@ -228,7 +228,7 @@ function Narrativa() {
     tl.to(alvo, { x: -0.6, y: 1.2, z: -1.2, duration: f3.fim - f3.inicio }, f3.inicio);
 
     // Fase 4 — Instalação: LED acende e câmera recua
-    const f4 = FASES.instalacao;
+    const f4 = FASES.acabamento;
     if (led.current) {
       tl.fromTo(led.current, { intensity: 0 }, { intensity: 2, duration: f4.fim - f4.inicio }, f4.inicio);
     }
@@ -321,7 +321,7 @@ export const HeroScrollFallback: React.FC<HeroScrollFallbackProps> = ({ onNaviga
   <div className="relative min-h-[100svh]">
     <Foto
       srcBase="/obras/cozinha-gringa-4k"
-      alt="Cozinha planejada com ilha em verde-sálvia, ripado de madeira freijó, bancada em granito preto e LED executada pela Império em Jaú"
+      alt="Cozinha planejada com ilha verde-sálvia, tampo de pedra clara, armários brancos e verdes, geladeira inox e fita de LED, executada pela Império em Jaú"
       prioridade
       sizes="100vw"
       className="absolute inset-0 w-full h-full"

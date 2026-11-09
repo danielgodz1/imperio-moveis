@@ -1,6 +1,6 @@
 ---
 name: r3f-scrollytelling-narrative
-description: Narrativa 3D scroll-driven com React Three Fiber, GSAP ScrollTrigger e Zustand para o hero da página inicial da Império Móveis. Use quando a tarefa for criar, corrigir ou auditar a experiência "planta 2D -> construção 3D da Cozinha Gourmet -> ilha verde-sálvia com ripado de freijó instalada -> foto real cozinha-gringa-4k" ou qualquer cena 3D que precise progredir conforme o scroll. Define arquitetura, contratos com o resto da home, padrão de timeline única, performance, acessibilidade, testes e critérios de aceite. Não use para o configurador 3D interativo (src/components/quarto3d/), que tem outro modelo de interação.
+description: Narrativa 3D scroll-driven com React Three Fiber, GSAP ScrollTrigger e Zustand para o hero da página inicial da Império Móveis. Use quando a tarefa for criar, corrigir ou auditar a experiência "planta 2D -> construção 3D da cozinha -> ilha verde-sálvia e armários shaker instalados -> foto real cozinha-gringa-4k" ou qualquer cena 3D que precise progredir conforme o scroll. Define arquitetura, contratos com o resto da home, padrão de timeline única, performance, acessibilidade, testes e critérios de aceite. Não use para o configurador 3D interativo (src/components/quarto3d/), que tem outro modelo de interação.
 ---
 
 # R3F Scrollytelling Narrative — Império
@@ -28,7 +28,10 @@ Antes de gerar qualquer JSX visual, ative também a skill `imperio-design-direct
 ~~~text
 src/components/heroScroll/
   useHeroScrollStore.ts     -> Zustand: progress global 0 a 1 + mapa de fases (FASES)
-  HeroScrollCena.tsx        -> Canvas único, câmera, luzes, meshes e A timeline GSAP
+  HeroScrollCena.tsx        -> Canvas único, câmera, luzes e A timeline GSAP
+  heroModelo.ts             -> cozinha paramétrica calibrada pela foto, peças e planta
+  heroMateriais.ts          -> texturas procedurais e materiais PBR com frente de acabamento
+  HeroScrollConteudo.tsx    -> H1, texto e CTAs, usados na narrativa e no fallback
   HeroScrollytelling.tsx    -> <section id="hero"> 300vh + cena sticky + ScrollTrigger (scrub) + overlay HTML
   HeroScrollFallback.tsx    -> imagem estática (WebGL indisponível ou prefers-reduced-motion)
 ~~~
@@ -89,11 +92,11 @@ As fases vivem num único objeto em `useHeroScrollStore.ts`. A timeline e o over
 
 ~~~ts
 export const FASES = {
-  traco:        { inicio: 0.0,  fim: 0.2  },
-  profundidade: { inicio: 0.2,  fim: 0.4  },
-  construcao:   { inicio: 0.4,  fim: 0.7  },
-  instalacao:   { inicio: 0.7,  fim: 0.85 },
-  crossfade:    { inicio: 0.85, fim: 1.0  },
+  traco:        { inicio: 0.0,  fim: 0.18 },
+  profundidade: { inicio: 0.18, fim: 0.32 },
+  construcao:   { inicio: 0.32, fim: 0.74 },
+  acabamento:   { inicio: 0.74, fim: 0.88 },
+  obra:         { inicio: 0.88, fim: 1.0  },
 } as const;
 ~~~
 
@@ -154,19 +157,25 @@ Legendas de fase e o crossfade para a foto também leem o progress via `useHeroS
 - Mais de um `<Canvas>` na narrativa.
 - `setTimeout`, `setInterval`, `IntersectionObserver` ou `requestAnimationFrame` próprio orquestrando fases. (O `setTimeout` de `ScrollTrigger.refresh` já existente em `useScrollytelling.ts` é infraestrutura, não narrativa; não mexa nele.)
 - Animações por `clock.elapsedTime` (flutuação, rotação contínua) dentro da narrativa. Elas criam uma segunda fonte de tempo.
-- Carregar modelos GLB pesados no hero. Use geometria paramétrica (boxes, planes); a cena inteira deve caber em dezenas de meshes.
+- Carregar modelos GLB pesados no hero. Use geometria paramétrica e funda partes de uma mesma peça com `mergeGeometries`; o celular descarta prateleiras, fundos e objetos pequenos.
 
-## 7. Estrutura narrativa da Império (Cozinha Gourmet — Foto Referência: cozinha-gringa-4k)
+## 7. Estrutura narrativa da Império (referência: foto real `cozinha-gringa-4k`)
+
+A fotografia `/obras/cozinha-gringa-4k` é a fonte da verdade do modelo. Ela mostra: ilha lisa em verde-sálvia com tampo de pedra clara e cooktop; armários shaker brancos até o forro; fileira shaker verde sobre a bancada; bancada branca com cuba; lava-louças e geladeira French door em inox; revestimento cinza; fita de LED sob a fileira verde e rasgo de luz no forro; esquadria preta; banquetas pretas; cadeiras estofadas. **Não há ripado de freijó, granito preto, cristaleira nem pendente**: não os modele. O freijó aparece só na porta, na mesa e nas pernas das cadeiras.
 
 | Fase | Faixa de progress | O que acontece | Câmera |
 | :--- | :--- | :--- | :--- |
-| 1. Traço | 0.00 - 0.20 | A planta técnica 2D da cozinha em L e da ilha central se desenha em linhas douradas (`--dourado`) com cotas em metros | Vista de cima zenital (90°) com enquadramento da planta |
-| 2. Profundidade | 0.20 - 0.40 | Piso em porcelanato acetinado claro surge; paredes claras sobem com vãos; o ambiente ganha profundidade e luz natural | Transição de 90° para perspectiva arquitetônica 3/4 |
-| 3. Construção | 0.40 - 0.70 | Montagem peça por peça: gabinetes em Verde-Sálvia, torre de fornos em Freijó, aéreos até o forro, corpo da ilha com ripas verticais de Freijó, tampo nobre em granito preto e cooktop | Aproximação suave focando na marcenaria e encaixe |
-| 4. Instalação & Acabamento | 0.70 - 0.85 | Cozinha instalada com alinhamentos perfeitos; fita de LED quente 2700K acende sob os aéreos e na cristaleira; banquetas posicionadas | Recua suavemente estabilizando no ângulo da fotografia |
-| 5. Obra Real | 0.85 - 1.00 | Crossfade progressivo e fluido para a fotografia real em alta resolução `/obras/cozinha-gringa-4k` | Estabilizada |
+| 1. Traço | 0.00 - 0.18 | Planta em traço único dourado (`--dourado`) com tremor de mão, revelada por `drawRange` | Zenital, com `up` em -Z |
+| 2. Profundidade | 0.18 - 0.32 | Placas de piso assentam, fundo vai de `--preto` a neutro claro, paredes sobem | Zenital para perspectiva 3/4 |
+| 3. Construção | 0.32 - 0.74 | Dez etapas em ordem de marcenaria (`PESO_ETAPAS`): base, laterais, divisórias, prateleiras, gavetas, portas com giro na dobradiça, painéis e eletrodomésticos, ilha, tampos, acabamentos. Peças em MDF cru/primer | 3/4 com aproximação lenta |
+| 4. Acabamento | 0.74 - 0.88 | Forro desce, frente de acabamento varre o ambiente (`uFrente`), LED 2700K acende | Vai até a posição calibrada da foto |
+| 5. Obra real | 0.88 - 1.00 | Crossfade DOM para a foto; o painel de texto recolhe até o bloco do H1 | Estável |
 
-Dimensões coerentes com fabricação real: chapas de 18 mm e 25 mm, ilha central 1.85 m x 0.95 m, altura de bancada 0.90 m, armários superiores até o forro de gesso. Texturas PBR procedurais em CanvasTexture para madeira Freijó (veios e poros acetinados), Granito Preto mineral (micro-pontos e reflexo polido) e Verde-Sálvia acetinado.
+**Calibração da câmera:** `CAMERA_FOTO` em `heroModelo.ts` guarda posição, guinada e tangentes extraídas dos pontos de fuga da foto. A projeção é escrita manualmente para coincidir com o recorte `object-cover` da foto (`RECORTE_FOTO`), em qualquer proporção de tela. Se mudar o `object-position`, mude `RECORTE_FOTO`.
+
+**Decisões de layout:** o texto fica num painel sólido `--preto` (sem scrim nem gradiente); no desktop a cena é deslocada para fora dele por deslocamento de lente; abaixo de 1024px o palco fica acima do texto.
+
+Chapas de 18 mm, folga de 3 mm entre frentes, medidas em metros derivadas da foto. Texturas procedurais em CanvasTexture com UV em metros (`heroMateriais.ts`). Tons de `acabamentos.ts`, ainda `confirmado: false`.
 
 ## 8. Performance e limpeza (obrigatório)
 
@@ -181,7 +190,7 @@ Dimensões coerentes com fabricação real: chapas de 18 mm e 25 mm, ilha centra
 ## 9. Acessibilidade e fallback
 
 - **Detecção de WebGL** antes de montar o Canvas: crie um canvas e tente `getContext('webgl2') || getContext('webgl')`, dentro de try/catch.
-- **`prefers-reduced-motion: reduce`** ou WebGL indisponível -> não cria ScrollTrigger, não monta Canvas e renderiza `HeroScrollFallback` (foto `dormitorio-led-1` + H1 + CTAs). Nesse modo o container **não** tem 300vh: usa altura de um hero normal, para não obrigar o usuário a rolar uma área vazia.
+- **`prefers-reduced-motion: reduce`** ou WebGL indisponível -> não cria ScrollTrigger, não monta Canvas e renderiza `HeroScrollFallback` (foto `cozinha-gringa-4k` + H1 + CTAs). Nesse modo o container **não** tem 300vh: usa altura de um hero normal, para não obrigar o usuário a rolar uma área vazia.
 - O Canvas recebe `aria-hidden="true"`. A narrativa é decorativa; o conteúdo semântico (H1, texto, CTAs) está no HTML.
 - CTAs alcançáveis por teclado em qualquer momento da narrativa (o overlay fica acima do canvas com `pointer-events` corretos).
 - Contraste: texto `--papel`/`#f2e8d8` sobre fundo escuro. Nunca `--dourado` como texto sobre `--papel` (regra do `DESIGN.md`).

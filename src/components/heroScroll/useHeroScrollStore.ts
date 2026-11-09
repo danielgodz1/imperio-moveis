@@ -5,12 +5,23 @@ import { create } from 'zustand';
  * Fonte única de verdade para a timeline Three.js e para o overlay DOM.
  */
 export const FASES = {
-  traco: { inicio: 0.0, fim: 0.2 },
-  profundidade: { inicio: 0.2, fim: 0.4 },
-  construcao: { inicio: 0.4, fim: 0.7 },
-  instalacao: { inicio: 0.7, fim: 0.85 },
-  crossfade: { inicio: 0.85, fim: 1.0 },
+  traco: { inicio: 0.0, fim: 0.18 },
+  profundidade: { inicio: 0.18, fim: 0.32 },
+  construcao: { inicio: 0.32, fim: 0.74 },
+  acabamento: { inicio: 0.74, fim: 0.88 },
+  obra: { inicio: 0.88, fim: 1.0 },
 } as const;
+
+/** Largura do painel de texto no desktop; a câmera desloca a cena para fora dele. */
+export const PAINEL_DESKTOP = { min: 440, vw: 0.38, max: 600, breakpoint: 1024 } as const;
+
+export function larguraPainel(larguraTela: number): number {
+  if (larguraTela < PAINEL_DESKTOP.breakpoint) return 0;
+  return Math.min(PAINEL_DESKTOP.max, Math.max(PAINEL_DESKTOP.min, larguraTela * PAINEL_DESKTOP.vw));
+}
+
+/** Recorte object-position da foto final; a câmera 3D usa o mesmo recorte. */
+export const RECORTE_FOTO = { x: 0.5, y: 0.55 } as const;
 
 export type FaseId = keyof typeof FASES;
 
@@ -25,32 +36,32 @@ export const METADADOS_FASES: Record<FaseId, FaseInfo> = {
   traco: {
     id: 'traco',
     numero: '01',
-    titulo: 'O traço técnico inicial',
-    detalhe: 'Planta baixa 2D com bancada em L, ilha central e cotas precisas',
+    titulo: 'O traço',
+    detalhe: 'Paredes, ilha e armários riscados na planta.',
   },
   profundidade: {
     id: 'profundidade',
     numero: '02',
-    titulo: 'A arquitetura ganha volume',
-    detalhe: 'Elevação das paredes, piso porcelanato e perspectiva 3D',
+    titulo: 'Profundidade',
+    detalhe: 'O piso assenta e as paredes sobem.',
   },
   construcao: {
     id: 'construcao',
     numero: '03',
-    titulo: 'Montagem milimétrica',
-    detalhe: 'Ilha em verde-sálvia, painel ripado em freijó e armários em L',
+    titulo: 'Construção',
+    detalhe: 'Caixas, gavetas, portas e tampo, peça por peça.',
   },
-  instalacao: {
-    id: 'instalacao',
+  acabamento: {
+    id: 'acabamento',
     numero: '04',
-    titulo: 'Bancada de granito & fita LED',
-    detalhe: 'Tampo em granito preto, cristaleira iluminada e luz quente 2700K',
+    titulo: 'Acabamento',
+    detalhe: 'Laca, pedra, inox e a fita de LED acesa.',
   },
-  crossfade: {
-    id: 'crossfade',
+  obra: {
+    id: 'obra',
     numero: '05',
-    titulo: 'A realidade executada',
-    detalhe: 'Cozinha Gourmet real executada pela marcenaria Império em Jaú',
+    titulo: 'Obra real',
+    detalhe: 'A mesma cozinha, fotografada depois de instalada.',
   },
 };
 
@@ -58,8 +69,8 @@ export function faseAtual(p: number): FaseId {
   if (p < FASES.traco.fim) return 'traco';
   if (p < FASES.profundidade.fim) return 'profundidade';
   if (p < FASES.construcao.fim) return 'construcao';
-  if (p < FASES.instalacao.fim) return 'instalacao';
-  return 'crossfade';
+  if (p < FASES.acabamento.fim) return 'acabamento';
+  return 'obra';
 }
 
 /** Progresso normalizado (0 a 1) dentro de uma faixa específica. */
