@@ -17,6 +17,21 @@ export const ACABAMENTOS_3D: Acabamento3D[] = [
     id: 'freijo-ripado',
     nome: 'Madeira Ripada Clara',
     hex: '#B6864C',
+    textura: 'madeira',
+    confirmado: false,
+  },
+  {
+    id: 'carvalho-natural',
+    nome: 'Carvalho Natural',
+    hex: '#C8A67A',
+    textura: 'madeira',
+    confirmado: false,
+  },
+  {
+    id: 'nogueira',
+    nome: 'Nogueira',
+    hex: '#6E4A30',
+    textura: 'madeira',
     confirmado: false,
   },
   {

@@ -8,3 +8,4 @@ Ainda é exemplo/protótipo:
 - Endereço do mapa (components/WorkshopLocation.tsx): confirmar com a loja. Endereço não incluído nos dados estruturados até confirmar.
 - Antes de publicar: sitemap.xml e canonical com o domínio real; imagem de compartilhamento (og:image); GA4/Pixel com evento no clique do WhatsApp.
 - Páginas por ambiente (/cozinhas-planejadas etc.) e novo hero de impacto: próxima etapa.
+- Fora do site até confirmar com a loja: nota do Google, números de resultado (+250 lares, 100% MDF, +10 anos) e as perguntas de prazo e custo da medição (já escritas em `Fechamento.tsx`, com `confirmado: false`).

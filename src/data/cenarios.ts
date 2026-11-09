@@ -131,7 +131,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
   'criado-mudo': {
     id: 'criado-mudo',
-    rotulo: 'Mesas de cabeceira + pendentes',
+    rotulo: 'Mesa de cabeceira + pendente',
     ambientes: ['quarto'],
     regraEncaixe: {
       parede: 'N',
@@ -218,10 +218,10 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       profundidadePadrao: 0.62,
     },
     gerarGeometria: ({ largura_m: W, profundidade_m: D }) => ({
-      largura: W - 0.85,
+      largura: W - 0.8,
       altura: 0.9,
       profundidade: 0.62,
-      posicao: [-0.35, 0, -D / 2 + 0.31],
+      posicao: [-0.4, 0, -D / 2 + 0.31],
     }),
   },
   ilha: {
@@ -256,10 +256,10 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       profundidadePadrao: 0.38,
     },
     gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
-      largura: W - 0.9,
+      largura: W - 0.8,
       altura: 0.9,
       profundidade: 0.38,
-      posicao: [-0.35, H - 0.48, -D / 2 + 0.2],
+      posicao: [-0.4, H - 0.48, -D / 2 + 0.2],
     }),
   },
   'torre-forno': {
@@ -359,7 +359,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
   'prateleiras-closet': {
     id: 'prateleiras-closet',
-    rotulo: 'Colmeia de cabideiros e bolsas (Norte)',
+    rotulo: 'Colmeia de cabideiros e bolsas',
     ambientes: ['closet'],
     regraEncaixe: {
       parede: 'N',
@@ -370,7 +370,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       profundidadePadrao: 0.52,
     },
     gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
-      largura: Math.min(2.1, W - 1.1),
+      largura: Math.min(1.8, W - 1.6),
       altura: H - 0.08,
       profundidade: 0.52,
       posicao: [-0.2, (H - 0.08) / 2, -D / 2 + 0.27],
@@ -407,12 +407,15 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       alturaPadrao: 0.76,
       profundidadePadrao: 0.6,
     },
-    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => ({
-      largura: Math.min(2.4, W - 0.6),
-      altura: 0.76,
-      profundidade: 0.6,
-      posicao: [-0.2, 0.74, -D / 2 + 0.32],
-    }),
+    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => {
+      const larg = Math.min(2.4, W - 1.1);
+      return {
+        largura: larg,
+        altura: 0.76,
+        profundidade: 0.6,
+        posicao: [-W / 2 + larg / 2, 0.74, -D / 2 + 0.32],
+      };
+    },
   },
   'estante-ripada': {
     id: 'estante-ripada',
@@ -427,10 +430,10 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       profundidadePadrao: 0.36,
     },
     gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
-      largura: Math.min(2.0, D - 0.5),
+      largura: Math.min(1.8, D - 1.2),
       altura: H - 0.15,
       profundidade: 0.36,
-      posicao: [-W / 2 + 0.2, (H - 0.15) / 2, 0],
+      posicao: [-W / 2 + 0.2, (H - 0.15) / 2, 0.3],
     }),
   },
   gaveteiro: {
@@ -464,12 +467,15 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       alturaPadrao: 0.65,
       profundidadePadrao: 0.36,
     },
-    gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
-      largura: Math.min(2.1, W - 0.8),
-      altura: 0.62,
-      profundidade: 0.36,
-      posicao: [-0.2, H - 0.52, -D / 2 + 0.2],
-    }),
+    gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => {
+      const larg = Math.min(2.1, W - 1.2);
+      return {
+        largura: larg,
+        altura: 0.62,
+        profundidade: 0.36,
+        posicao: [-W / 2 + larg / 2, H - 0.52, -D / 2 + 0.2],
+      };
+    },
   },
   'sofa-recepcao': {
     id: 'sofa-recepcao',
@@ -628,7 +634,7 @@ export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
       pe_direito: { min: 2.4, max: 3.4 },
     },
     aberturasPadrao: [
-      { tipo: 'janela', parede: 'N', largura_m: 1.1, posicaoOffset_m: -0.5 },
+      { tipo: 'janela', parede: 'L', largura_m: 1.1, posicaoOffset_m: 0 },
     ],
     modulosPermitidos: [
       'bancada-trabalho',

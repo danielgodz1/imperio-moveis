@@ -66,25 +66,25 @@ export const Quarto3DLoader: React.FC<Quarto3DLoaderProps> = ({
       className="w-full py-96 md:py-144 bg-preto text-papel border-b border-papel/15"
     >
       <div className="max-w-[1280px] mx-auto px-16 sm:px-32 flex flex-col gap-48">
-        <div className="max-w-2xl flex flex-col items-start gap-16">
-          <h2 className="tipo-h1 text-papel">Projete seu ambiente em 3D</h2>
+        <div className="max-w-3xl flex flex-col items-start gap-16">
+          <h2 className="tipo-display text-papel">Monte seu ambiente em 3D.</h2>
           <p className="tipo-corpo text-papel/80">
-            Escolha entre Quarto, Cozinha, Closet ou Home Office, ajuste as medidas da parede, combine os módulos permitidos do cenário e acenda a fita de LED.
+            Toque em um móvel, arraste, mude a medida e o acabamento. Quando gostar, mande para a gente orçar.
           </p>
         </div>
 
         {mostrarExperiencia3D ? (
           <Suspense
             fallback={
-              <div className="w-full h-[460px] border border-papel/20 flex flex-col items-center justify-center gap-16 p-32">
-                <span className="tipo-cota text-dourado">
-                  Desenhando o contorno 3D do ambiente...
-                </span>
+              <div className="w-full h-[58svh] min-h-[340px] border border-papel/20 flex items-center justify-center p-32">
+                <span className="tipo-cota text-dourado">Preparando o ambiente 3D...</span>
               </div>
             }
           >
             <Quarto3DExperienciaLazy onOpenBriefingOutro={onOpenBriefingOutro} />
           </Suspense>
+        ) : temWebGL && !aparelhoFraco ? (
+          <div className="w-full h-[58svh] min-h-[340px] border border-papel/20" aria-hidden="true" />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-32 items-center border border-papel/20 p-24 sm:p-32">
             <div className="lg:col-span-6 flex flex-col items-start gap-16">
@@ -93,13 +93,13 @@ export const Quarto3DLoader: React.FC<Quarto3DLoaderProps> = ({
               </p>
               <h3 className="tipo-h2 text-papel">
                 {!temWebGL
-                  ? 'Visualização estática do dormitório com LED'
-                  : 'Modo leve ativado para economizar bateria'}
+                  ? 'Veja um dormitório real com LED'
+                  : 'Seu aparelho pode ficar lento no 3D'}
               </h3>
               <p className="tipo-corpo text-papel/80">
                 {!temWebGL
-                  ? 'Seu navegador atual está com o 3D desativado. Veja ao lado um dormitório real com cabeceira em LED feito pela Império.'
-                  : 'Identificamos um aparelho com economia de recursos. Você pode abrir o simulador 3D interativo clicando abaixo.'}
+                  ? 'Seu navegador está com o 3D desativado. Ao lado, um dormitório feito pela Império.'
+                  : 'Se quiser, abra o 3D mesmo assim ou fale direto com a gente.'}
               </p>
               <div className="flex flex-wrap items-center gap-16">
                 {temWebGL && (
@@ -111,7 +111,7 @@ export const Quarto3DLoader: React.FC<Quarto3DLoaderProps> = ({
                     }}
                     className="px-24 h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel hover:text-preto transition-colors tipo-cota font-semibold cursor-pointer"
                   >
-                    Ver mesmo assim
+                    Abrir o 3D
                   </button>
                 )}
                 {onOpenBriefingOutro && (
@@ -120,7 +120,7 @@ export const Quarto3DLoader: React.FC<Quarto3DLoaderProps> = ({
                     onClick={onOpenBriefingOutro}
                     className="tipo-cota text-dourado link-traco cursor-pointer"
                   >
-                    Não achou o seu ambiente? Cote com a gente
+                    Falar com a gente
                   </button>
                 )}
               </div>

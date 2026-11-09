@@ -5,6 +5,7 @@ import {
   CENARIOS_AMBIENTES,
   CATALOGO_MODULOS_CENARIO,
 } from '../../data/cenarios';
+import { instanciaPadrao, normalizarInstancia } from './motorGeometrico';
 
 export type { Ambiente, ModuloId };
 
@@ -47,6 +48,12 @@ export const ModuloInstanciaSchema = z.object({
   largura_m: z.number().min(0.4).max(5.5),
   altura_m: z.number().min(0.05).max(3.5),
   acabamento: z.string(),
+  uid: z.string().optional(),
+  profundidade_m: z.number().min(0.03).max(2.5).optional(),
+  offset_m: z.number().optional(),
+  z_m: z.number().optional(),
+  rotacao: z.number().optional(),
+  tampo: z.string().optional(),
 });
 
 export const QuartoLayoutSchema = z
@@ -60,6 +67,9 @@ export const QuartoLayoutSchema = z
     aberturas: z.array(AberturaSchema),
     modulos: z.array(ModuloInstanciaSchema),
     led: z.boolean(),
+    piso: z.string().optional(),
+    corParede: z.string().optional(),
+    noite: z.boolean().optional(),
   })
   .superRefine((dados, ctx) => {
     const cenario = CENARIOS_AMBIENTES[dados.comodo];
@@ -83,21 +93,35 @@ export function construirLayoutDoCenario(
   acabamentoId = 'freijo-ripado'
 ): QuartoLayout {
   const cenario = CENARIOS_AMBIENTES[ambiente];
+  const dim = { ...cenario.dimensoesPadrao };
+  const modulos = cenario.modulosIniciais.flatMap((modId) =>
+    modId === 'criado-mudo'
+      ? [
+          instanciaPadrao(modId, dim, acabamentoId, -1.05),
+          instanciaPadrao(modId, dim, acabamentoId, 1.05),
+        ]
+      : [instanciaPadrao(modId, dim, acabamentoId)]
+  );
   return {
     comodo: ambiente,
-    dimensoes: { ...cenario.dimensoesPadrao },
+    dimensoes: dim,
     aberturas: cenario.aberturasPadrao.map((a) => ({ ...a })),
-    modulos: cenario.modulosIniciais.map((modId) => {
-      const regra = CATALOGO_MODULOS_CENARIO[modId];
-      return {
-        id: modId,
-        parede: regra.regraEncaixe.parede,
-        largura_m: regra.regraEncaixe.larguraPadrao,
-        altura_m: regra.regraEncaixe.alturaPadrao,
-        acabamento: acabamentoId,
-      };
-    }),
+    modulos,
     led: true,
+    piso: cenario.piso,
+    corParede: 'gelo',
+    noite: false,
+  };
+}
+
+/** Completa um layout vindo da API ou de versões antigas com as posições do motor. */
+export function normalizarLayout(layout: QuartoLayout): QuartoLayout {
+  return {
+    ...layout,
+    modulos: layout.modulos.map((m) => normalizarInstancia(m, layout.dimensoes)),
+    piso: layout.piso ?? CENARIOS_AMBIENTES[layout.comodo].piso,
+    corParede: layout.corParede ?? 'gelo',
+    noite: layout.noite ?? false,
   };
 }
 

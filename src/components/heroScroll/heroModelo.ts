@@ -21,6 +21,7 @@ export const CAMERA_FOTO = {
 };
 
 const CHAPA = 0.018;
+const PLANTA_INICIAL = 0.28;
 const FOLGA = 0.003;
 const ALTURA_PE_DIREITO = 3.0;
 export const PISO = { x: 5.4, z: 5.4, placa: 0.9 };
@@ -927,8 +928,8 @@ export function construirCozinha(mobile: boolean, m: MateriaisHero, t: TexturasH
   raiz.add(planta);
   const totalPlanta = idx.length;
   const desenharPlanta = (v: number) => {
-    plantaGeo.setDrawRange(0, Math.floor(v * totalPlanta / 6) * 6);
-    planta.visible = v > 0.0001;
+    // O primeiro quadro já mostra parte do traço: o hero nunca abre vazio.
+    plantaGeo.setDrawRange(0, Math.floor((PLANTA_INICIAL + (1 - PLANTA_INICIAL) * v) * totalPlanta / 6) * 6);
   };
   desenharPlanta(0);
   const apagarPlanta = (v: number) => {

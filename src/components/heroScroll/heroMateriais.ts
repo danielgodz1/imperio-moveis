@@ -17,9 +17,9 @@ function prng(semente: number) {
   };
 }
 
-type Desenho = (ctx: CanvasRenderingContext2D, tam: number, r: () => number) => void;
+export type Desenho = (ctx: CanvasRenderingContext2D, tam: number, r: () => number) => void;
 
-function textura(
+export function textura(
   tam: number,
   metrosPorRepeticao: number,
   anisotropia: number,
@@ -39,7 +39,7 @@ function textura(
 }
 
 /** Freijó: fibras no sentido U, faixas largas de tom e poros alongados. */
-const desenharFreijo =
+export const desenharFreijo =
   (base: string): Desenho =>
   (ctx, tam, r) => {
     ctx.fillStyle = base;
@@ -72,7 +72,7 @@ const desenharFreijo =
   };
 
 /** Pedra clara do tampo: fundo marfim, nuvens cinza e veios terrosos quebrados. */
-const desenharPedra: Desenho = (ctx, tam, r) => {
+export const desenharPedra: Desenho = (ctx, tam, r) => {
   ctx.fillStyle = '#E8E4DC';
   ctx.fillRect(0, 0, tam, tam);
   for (let i = 0; i < 60; i++) {
@@ -137,7 +137,7 @@ const desenharRevestimento: Desenho = (ctx, tam, r) => {
 };
 
 /** Pintura da parede: granulação discreta e neutra. */
-const desenharParede: Desenho = (ctx, tam, r) => {
+export const desenharParede: Desenho = (ctx, tam, r) => {
   ctx.fillStyle = '#E4DFD6';
   ctx.fillRect(0, 0, tam, tam);
   for (let i = 0; i < tam * 8; i++) {
@@ -147,7 +147,7 @@ const desenharParede: Desenho = (ctx, tam, r) => {
 };
 
 /** Inox escovado: riscos finos no sentido U, usados também como rugosidade. */
-const desenharEscovado =
+export const desenharEscovado =
   (claro: boolean): Desenho =>
   (ctx, tam, r) => {
     ctx.fillStyle = claro ? '#B4B5B4' : '#808080';
@@ -160,7 +160,7 @@ const desenharEscovado =
   };
 
 /** Mapa de rugosidade da pedra: polida, com leve variação. */
-const desenharRugosidadePedra: Desenho = (ctx, tam, r) => {
+export const desenharRugosidadePedra: Desenho = (ctx, tam, r) => {
   ctx.fillStyle = '#404040';
   ctx.fillRect(0, 0, tam, tam);
   for (let i = 0; i < tam * 2; i++) {
@@ -171,7 +171,7 @@ const desenharRugosidadePedra: Desenho = (ctx, tam, r) => {
 };
 
 /** Mancha macia de oclusão, para assentar móveis no piso sem custo de sombra. */
-function texturaOclusao(): THREE.CanvasTexture {
+export function texturaOclusao(): THREE.CanvasTexture {
   const tam = 128;
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = tam;
@@ -185,7 +185,7 @@ function texturaOclusao(): THREE.CanvasTexture {
 }
 
 /** Brilho quente que a fita de LED projeta na superfície, do topo para baixo. */
-function texturaBrilhoLed(): THREE.CanvasTexture {
+export function texturaBrilhoLed(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 16;
   canvas.height = 128;

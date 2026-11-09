@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { HeroScrollytelling } from './components/heroScroll/HeroScrollytelling';
 import { FaixaServicos } from './components/FaixaServicos';
-import { FraseImpacto } from './components/FraseImpacto';
 import { Donos } from './components/Donos';
 import { Obras } from './components/Obras';
 import { ProcessoSection } from './components/ProcessoSection';
@@ -126,31 +125,31 @@ export default function App() {
         ) : (
           <>
             {/* Momento 1: Hero imersivo com scrollytelling 3D */}
-            <HeroScrollytelling onNavigateContact={() => handleNavigateRoute('/contato')} />
+            <HeroScrollytelling onNavigateContact={() => handleOpenBriefing()} />
 
-            {/* Frase de impacto entre o Hero e a seção Os donos */}
-            <FraseImpacto />
+            {/* A única faixa em movimento do site, com os serviços reais */}
+            <FaixaServicos />
 
-            {/* Momento 2: Os donos (Wellington, Tatiane, Juntos + Linha do tempo) */}
-            <Donos />
+            {/* Momento 2: a prova primeiro, com convite para orçamento logo depois */}
+            <Obras onOpenBriefing={handleOpenBriefing} />
 
-            {/* Momento 3: As obras (Projetos reais anotados com traço de lápis + Scroll rápido + Lightbox) */}
-            <Obras />
-
-            {/* Momento 4: Do risco à obra em 4 etapas (com foto da instalação por guindaste) */}
+            {/* Momento 3: Do risco à obra em 4 passos */}
             <ProcessoSection />
 
-            {/* Momento 5: Projete seu ambiente em 3D (lazy-loaded em chunk separado) */}
+            {/* Momento 4: Monte seu ambiente em 3D (lazy-loaded em chunk separado) */}
             <Quarto3DLoader
               onOpenBriefingOutro={() => handleOpenBriefing('Outro')}
             />
 
-            {/* Avaliações (posicionada depois de "As obras" e antes do "Fechamento") */}
+            {/* Avaliações */}
             <ReviewsSection />
 
-            {/* Momento 6: Fechamento (Orçamento WhatsApp, Onde estamos, Perguntas curtas) */}
+            {/* Momento 5: Os donos */}
+            <Donos />
+
+            {/* Momento 6: Fechamento (CTA, perguntas curtas, onde estamos) */}
             <Fechamento
-              onNavigateContact={() => handleNavigateRoute('/contato')}
+              onNavigateContact={() => handleOpenBriefing()}
               onOpenVisitBooking={() => setIsVisitModalOpen(true)}
             />
           </>
@@ -172,7 +171,7 @@ export default function App() {
       />
 
       {/* Botão flutuante discreto de WhatsApp */}
-      <WhatsAppWidget />
+      <WhatsAppWidget aguardarHero={currentPath === '/'} />
 
       {/* Modal opcional de agendamento de visita */}
       <VisitBookingModal
