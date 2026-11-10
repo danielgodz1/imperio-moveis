@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Foto } from './Foto';
+import { temMovimento, useNivel } from '../vitrine/nivel';
 import { FRASE_DESTAQUE_ATUAL } from '../data/frases';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -79,6 +80,8 @@ export const RetratoHolofote: React.FC<RetratoHolofoteProps> = ({
 };
 
 export const Donos: React.FC = () => {
+  // No nível essencial a seção fica estática, como em prefers-reduced-motion.
+  const semMovimento = !temMovimento(useNivel());
   const secaoRef = useRef<HTMLElement>(null);
   const mascaraDesktopRef = useRef<HTMLDivElement>(null);
   const mascaraMobileRef = useRef<HTMLDivElement>(null);
@@ -88,7 +91,8 @@ export const Donos: React.FC = () => {
 
   // Atualiza variáveis CSS --mx, --my, --r via GSAP quando o passo muda
   useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReduced =
+      semMovimento || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setReducedMotion(prefersReduced);
 
     const alvos = [mascaraDesktopRef.current, mascaraMobileRef.current].filter(
@@ -116,13 +120,14 @@ export const Donos: React.FC = () => {
         overwrite: true,
       });
     });
-  }, [passoAtivo]);
+  }, [passoAtivo, semMovimento]);
 
   // Cria os ScrollTriggers para os 3 <article data-passo>
   // No celular, o texto fica na metade inferior da tela (abaixo da foto sticky z-30),
   // portanto o gatilho dispara assim que o artigo entra na metade inferior (top 80% -> bottom 55%)!
   useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReduced =
+      semMovimento || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) {
       setPassoAtivo(3);
       return;

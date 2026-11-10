@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Phone, ChevronDown, MessageSquare } from 'lucide-react';
 import { EMPRESA } from '../data/empresa';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
+import { tem3D, useNivel } from '../vitrine/nivel';
 import { scrollToTarget } from '../hooks/useScrollytelling';
 
 export interface HeaderProps {
@@ -18,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   currentPath,
   headerRef,
 }) => {
+  const com3D = tem3D(useNivel());
   const [menuAberto, setMenuAberto] = useState(false);
   const [dropdownAmbientes, setDropdownAmbientes] = useState(false);
   const [secaoAtiva, setSecaoAtiva] = useState<string>('hero');
@@ -260,14 +262,16 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   Home Office Executivo
                 </a>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => irParaSecao('quarto-3d')}
-                  className="px-4 py-2.5 rounded-lg text-left text-xs font-bold uppercase tracking-wider text-[#52371c] hover:bg-[#c9a04e]/15 border-t border-[#262624]/10 mt-1 pt-2.5 cursor-pointer"
-                >
-                  Projete em 3D →
-                </button>
+                {com3D && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => irParaSecao('quarto-3d')}
+                    className="px-4 py-2.5 rounded-lg text-left text-xs font-bold uppercase tracking-wider text-[#52371c] hover:bg-[#c9a04e]/15 border-t border-[#262624]/10 mt-1 pt-2.5 cursor-pointer"
+                  >
+                    Projete em 3D →
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -288,13 +292,15 @@ export const Header: React.FC<HeaderProps> = ({
             Processo
           </button>
 
-          <button
-            type="button"
-            onClick={() => irParaSecao('quarto-3d')}
-            className={linkClasse(naHome && secaoAtiva === 'quarto-3d')}
-          >
-            Quarto 3D
-          </button>
+          {com3D && (
+            <button
+              type="button"
+              onClick={() => irParaSecao('quarto-3d')}
+              className={linkClasse(naHome && secaoAtiva === 'quarto-3d')}
+            >
+              Quarto 3D
+            </button>
+          )}
 
           <button
             type="button"
@@ -382,13 +388,15 @@ export const Header: React.FC<HeaderProps> = ({
             Processo
           </button>
 
-          <button
-            type="button"
-            onClick={() => irParaSecao('quarto-3d')}
-            className="text-left py-4 text-xl font-bold text-[#262624] border-b border-[#262624]/12 hover:text-[#52371c] cursor-pointer"
-          >
-            Quarto 3D
-          </button>
+          {com3D && (
+            <button
+              type="button"
+              onClick={() => irParaSecao('quarto-3d')}
+              className="text-left py-4 text-xl font-bold text-[#262624] border-b border-[#262624]/12 hover:text-[#52371c] cursor-pointer"
+            >
+              Quarto 3D
+            </button>
+          )}
 
           <button
             type="button"

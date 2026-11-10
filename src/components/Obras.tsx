@@ -4,6 +4,7 @@ import { OBRAS_REAIS } from '../data/portfolioData';
 import { AmbienteCategoria, ObraItem } from '../types';
 import { Foto } from './Foto';
 import { AnotacoesObra } from './AnotacoesObra';
+import { temMovimento, useNivel } from '../vitrine/nivel';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 
 const CATEGORIAS: Array<{ valor: AmbienteCategoria | 'todas'; rotulo: string }> = [
@@ -26,6 +27,7 @@ interface ObrasProps {
 }
 
 export const Obras: React.FC<ObrasProps> = ({ onOpenBriefing }) => {
+  const nivel = useNivel();
   const [categoriaAtiva, setCategoriaAtiva] = useState<AmbienteCategoria | 'todas'>('todas');
   const [verTodas, setVerTodas] = useState(false);
   const [obraAmpliada, setObraAmpliada] = useState<ObraItem | null>(null);
@@ -97,7 +99,7 @@ export const Obras: React.FC<ObrasProps> = ({ onOpenBriefing }) => {
                     sizes="(min-width: 768px) 50vw, 100vw"
                     className="w-full"
                   />
-                  <AnotacoesObra anotacoes={obra.anotacoes} />
+                  {temMovimento(nivel) && <AnotacoesObra anotacoes={obra.anotacoes} />}
                 </button>
                 <figcaption className="flex flex-col gap-4">
                   <span className="tipo-h3 text-grafite">{obra.titulo}</span>

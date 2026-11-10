@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } f
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Foto } from '../Foto';
+import { tem3D, useNivel } from '../../vitrine/nivel';
 import { HeroScrollFallback } from './HeroScrollFallback';
 import { ALT_FOTO_COZINHA, HeroScrollConteudo } from './HeroScrollConteudo';
 import {
@@ -56,7 +57,8 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
   const linhaRef = useRef<HTMLDivElement>(null);
   const avisoRef = useRef<HTMLSpanElement>(null);
 
-  const [modoEstatico] = useState(deveAtivarModoEstatico);
+  const nivel = useNivel();
+  const [modoEstatico] = useState(() => !tem3D(nivel) || deveAtivarModoEstatico());
 
   // Sem âncora, a narrativa sempre abre em 01/05: nada de restaurar o scroll no meio.
   useLayoutEffect(() => {

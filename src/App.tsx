@@ -22,6 +22,8 @@ import { VisitBookingModal } from './components/VisitBookingModal';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
 import { FiltroLapis, LinhaLapis } from './components/LinhaLapis';
 import { useScrollytelling } from './hooks/useScrollytelling';
+import { SeletorNivel } from './vitrine/SeletorNivel';
+import { tem3D, useNivel } from './vitrine/nivel';
 import {
   METADADOS_ROTAS_SEO,
   PAGINAS_AMBIENTES_LOCAIS,
@@ -47,6 +49,7 @@ export default function App() {
   >(undefined);
 
   const { headerRef } = useScrollytelling();
+  const nivel = useNivel();
 
   useEffect(() => {
     const meta = METADADOS_ROTAS_SEO[currentPath] ?? METADADOS_ROTAS_SEO['/'];
@@ -110,7 +113,8 @@ export default function App() {
       />
 
       {/* Conteúdo principal */}
-      <main className="flex-1">
+      {/* Trocar de nível remonta o conteúdo, para cada seção iniciar no modo certo */}
+      <main key={nivel} className="flex-1">
         {currentPath === '/contato' ? (
           <ContactQuotationPage
             onBackToHome={() => handleNavigateRoute('/')}
@@ -137,9 +141,9 @@ export default function App() {
             <ProcessoSection />
 
             {/* Momento 4: Monte seu ambiente em 3D (lazy-loaded em chunk separado) */}
-            <Quarto3DLoader
-              onOpenBriefingOutro={() => handleOpenBriefing('Outro')}
-            />
+            {tem3D(nivel) && (
+              <Quarto3DLoader onOpenBriefingOutro={() => handleOpenBriefing('Outro')} />
+            )}
 
             {/* Avaliações */}
             <ReviewsSection />
@@ -172,6 +176,9 @@ export default function App() {
 
       {/* Botão flutuante discreto de WhatsApp */}
       <WhatsAppWidget aguardarHero={currentPath === '/'} />
+
+      {/* Seletor de níveis da vitrine: só aparece com ?nivel= na URL */}
+      <SeletorNivel />
 
       {/* Modal opcional de agendamento de visita */}
       <VisitBookingModal
