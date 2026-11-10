@@ -177,7 +177,7 @@ export default function App() {
       {/* Botão flutuante discreto de WhatsApp */}
       <WhatsAppWidget aguardarHero={currentPath === '/'} />
 
-      {/* Seletor de níveis da vitrine: só aparece com ?nivel= na URL */}
+      {/* Seletor de níveis da vitrine, sempre visível */}
       <SeletorNivel />
 
       {/* Modal opcional de agendamento de visita */}

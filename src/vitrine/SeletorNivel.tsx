@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { NIVEIS, definirNivel, useNivel, useVitrineAtiva } from './nivel';
+import { NIVEIS, definirNivel, useNivel } from './nivel';
 
-/** Seletor de demonstração: só existe quando a URL traz `?nivel=`. */
+/** Seletor de demonstração, visível para todo visitante. */
 export const SeletorNivel: React.FC = () => {
-  const ativa = useVitrineAtiva();
   const nivel = useNivel();
   const [aberto, setAberto] = useState(false);
 
-  if (!ativa) return null;
   const atual = NIVEIS.find((n) => n.id === nivel) ?? NIVEIS[NIVEIS.length - 1];
 
   return (

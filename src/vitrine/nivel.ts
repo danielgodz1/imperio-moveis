@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 /**
  * Níveis de experiência do site, usados para demonstrar o mesmo projeto em três entregas.
- * Sem `?nivel=` na URL o site roda completo e o seletor não aparece para o visitante.
+ * O seletor fica sempre visível; sem `?nivel=` na URL o site abre no nível completo.
  */
 export type Nivel = 'essencial' | 'profissional' | 'cinematografico';
 
@@ -39,14 +39,13 @@ const PADRAO: Nivel = 'cinematografico';
 
 interface Estado {
   nivel: Nivel;
-  vitrine: boolean;
 }
 
 function lerDaUrl(): Estado {
-  if (typeof window === 'undefined') return { nivel: PADRAO, vitrine: false };
+  if (typeof window === 'undefined') return { nivel: PADRAO };
   const valor = new URLSearchParams(window.location.search).get(PARAMETRO);
   const definicao = NIVEIS.find((n) => n.id === valor);
-  return { nivel: definicao?.id ?? PADRAO, vitrine: valor !== null };
+  return { nivel: definicao?.id ?? PADRAO };
 }
 
 let estado = lerDaUrl();
@@ -56,7 +55,7 @@ export function definirNivel(nivel: Nivel) {
   const url = new URL(window.location.href);
   url.searchParams.set(PARAMETRO, nivel);
   window.history.replaceState(window.history.state, '', url);
-  estado = { nivel, vitrine: true };
+  estado = { nivel };
   window.scrollTo(0, 0);
   ouvintes.forEach((avisar) => avisar());
 }
@@ -70,10 +69,6 @@ const lerEstado = () => estado;
 
 export function useNivel(): Nivel {
   return useSyncExternalStore(assinar, lerEstado, lerEstado).nivel;
-}
-
-export function useVitrineAtiva(): boolean {
-  return useSyncExternalStore(assinar, lerEstado, lerEstado).vitrine;
 }
 
 export const tem3D = (nivel: Nivel) => nivel === 'cinematografico';
