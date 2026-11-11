@@ -20,6 +20,11 @@ export interface EstadoEditor {
   /** Portas e gavetas abertas para mostrar o interno (não entra no histórico nem no projeto). */
   verDentro: boolean;
   alternarVerDentro: () => void;
+  /** Câmera na altura dos olhos, sem contornos, pronta para baixar a imagem. */
+  modoFoto: boolean;
+  alternarModoFoto: () => void;
+  /** Registrada pela cena: renderiza uma cópia em alta resolução (largura mínima de 1920 px). */
+  capturar: (() => HTMLCanvasElement | null) | null;
   /** Ação pontual: entra no histórico na hora. */
   aplicar: (fn: (prev: QuartoLayout) => QuartoLayout) => void;
   /** Gesto contínuo: vira um único passo de histórico em fimGesto. */
@@ -41,6 +46,9 @@ export const criarEstadoEditor = (inicial: QuartoLayout) =>
     selecionado: null,
     verDentro: false,
     alternarVerDentro: () => set({ verDentro: !get().verDentro }),
+    modoFoto: false,
+    capturar: null,
+    alternarModoFoto: () => set({ modoFoto: !get().modoFoto, selecionado: null }),
     aplicar: (fn) => {
       const { layout, passado, baseGesto } = get();
       const proximo = fn(layout);

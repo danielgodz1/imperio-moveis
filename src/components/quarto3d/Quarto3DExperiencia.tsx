@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Copy, DoorClosed, DoorOpen, Moon, Redo2, RotateCw, Sun, Trash2, Undo2 } from 'lucide-react';
+import { Camera, Copy, DoorClosed, DoorOpen, Download, Moon, Redo2, RotateCw, Sun, Trash2, Undo2 } from 'lucide-react';
 import { QuartoLayout, QuartoLayoutSchema, construirLayoutDoCenario, normalizarLayout, Ambiente, ModuloId } from './schema';
 import { CENARIOS_AMBIENTES, CATALOGO_MODULOS_CENARIO, ParedeCardeal } from '../../data/cenarios';
 import { ACABAMENTOS_3D } from '../../data/acabamentos';
@@ -19,6 +19,8 @@ import {
 } from './motorGeometrico';
 import { encaixar, sugerirCorrecao, validarProjeto } from './regrasProjeto';
 import { Interno, Puxador, TipoPorta, Vao, resolverVaos } from './marcenaria';
+import { COR_TEMPERATURA, NOME_TEMPERATURA, TEMPERATURAS_LED, TEMPERATURA_PADRAO } from './iluminacao';
+import { baixarArquivo, imagemComMarca } from './fotoProjeto';
 import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
 import { getWhatsAppUrl, salvarResumo3DAtivo, trackWhatsAppClick } from '../../utils/helpers';
 
@@ -108,6 +110,8 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   const podeRefazer = useEditor((e) => e.futuro.length > 0);
   const verDentro = useEditor((e) => e.verDentro);
   const alternarVerDentro = useEditor((e) => e.alternarVerDentro);
+  const modoFoto = useEditor((e) => e.modoFoto);
+  const alternarModoFoto = useEditor((e) => e.alternarModoFoto);
   const { aplicar, durante, fimGesto, desfazer, refazer, selecionar: setSelecionado } = useEditor.getState();
   const [aba, setAba] = useState<Aba>('moveis');
   const [vista, setVista] = useState<VistaCamera>('perspectiva');
@@ -306,8 +310,15 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
       'Oi! Montei meu projeto no 3D do site da Império e quero um orçamento:',
       `Ambiente: ${cenarioAtual.rotulo}, ${cm(W)} x ${cm(D)}, pé-direito ${cm(H)}`,
       ...linhas,
-      `Fita de LED: ${layout.led ? 'Sim' : 'Não'}`,
+      `Fita de LED: ${layout.led ? `Sim, ${layout.temperaturaLed ?? TEMPERATURA_PADRAO} K` : 'Não'}`,
     ].join('\n');
+  };
+
+  const baixarFoto = async () => {
+    const canvas = useEditor.getState().capturar?.() ?? canvasRef.current;
+    if (!canvas) return;
+    const blob = await imagemComMarca(canvas);
+    if (blob) baixarArquivo(blob, `imperio-${layout.comodo}.png`);
   };
 
   const enviarProjeto = async () => {
@@ -317,21 +328,14 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
 
     if (canvas) {
       try {
-        const blob: Blob | null = await new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/png'));
+        const blob = await imagemComMarca(canvas);
         if (blob) {
           const arquivo = new File([blob], `imperio-3d-${layout.comodo}.png`, { type: 'image/png' });
           if (typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [arquivo] })) {
             await navigator.share({ title: `Meu ${cenarioAtual.rotulo} 3D`, text: resumo, files: [arquivo] });
             return;
           }
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = arquivo.name;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
+          baixarArquivo(blob, arquivo.name);
         }
       } catch {
         // Segue para o WhatsApp com o resumo em texto
@@ -420,6 +424,29 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             >
               {layout.noite ? <Sun className="w-4 h-4" strokeWidth={1.5} /> : <Moon className="w-4 h-4" strokeWidth={1.5} />}
             </button>
+            <button
+              type="button"
+              onClick={alternarModoFoto}
+              aria-pressed={modoFoto}
+              aria-label={modoFoto ? 'Sair do modo foto' : 'Modo foto'}
+              title={modoFoto ? 'Sair do modo foto' : 'Modo foto: altura dos olhos, lente 26 mm'}
+              className={`h-[36px] px-8 flex items-center gap-4 ${CHIP_BASE} ${modoFoto ? 'bg-papel text-preto border-papel' : 'bg-preto/85 border-papel/25 text-papel'}`}
+            >
+              <Camera className="w-4 h-4" strokeWidth={1.5} />
+              <span className="hidden sm:inline">{modoFoto ? 'Sair da foto' : 'Modo foto'}</span>
+            </button>
+            {modoFoto && (
+              <button
+                type="button"
+                onClick={baixarFoto}
+                aria-label="Baixar imagem"
+                title="Baixar imagem (PNG)"
+                className={`h-[36px] px-8 flex items-center gap-4 bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel`}
+              >
+                <Download className="w-4 h-4" strokeWidth={1.5} />
+                <span className="hidden sm:inline">Baixar imagem</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={alternarVerDentro}
@@ -718,6 +745,23 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             >
               {layout.led ? 'Apagar a fita de LED' : 'Acender a fita de LED'}
             </button>
+
+            {layout.led && (
+              <div className="flex flex-col gap-8">
+                <span className="tipo-cota text-papel/85">Cor da luz do LED</span>
+                <div className="grid grid-cols-3 gap-4">
+                  {TEMPERATURAS_LED.map((t) => {
+                    const ativo = (layout.temperaturaLed ?? TEMPERATURA_PADRAO) === t;
+                    return (
+                      <button key={t} type="button" aria-pressed={ativo} title={NOME_TEMPERATURA[t]} onClick={() => aplicar((prev) => ({ ...prev, temperaturaLed: t }))} className={`min-h-[44px] px-4 flex items-center justify-center gap-4 ${chip(ativo)}`}>
+                        <span className="w-[10px] h-[10px] shrink-0 border border-papel/40" style={{ backgroundColor: COR_TEMPERATURA[t] }} />
+                        {t} K
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

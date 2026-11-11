@@ -13,8 +13,8 @@ import {
 } from '../heroScroll/heroMateriais';
 
 export const OPCOES_PISO = [
-  { id: 'madeira-clara', nome: 'Madeira clara', cor: '#C7A77F' },
-  { id: 'porcelanato-claro', nome: 'Porcelanato claro', cor: '#E7E2D9' },
+  { id: 'madeira-clara', nome: 'Vinílico madeirado', cor: '#C7A77F' },
+  { id: 'porcelanato-claro', nome: 'Porcelanato', cor: '#E7E2D9' },
   { id: 'cimento', nome: 'Cimento queimado', cor: '#A5A29B' },
 ] as const;
 
@@ -222,6 +222,7 @@ export function criarKit3D(mobile: boolean) {
       side: THREE.DoubleSide,
     }),
     oclusao: basico({ color: 0x000000, alphaMap: oclusao, transparent: true, depthWrite: false, opacity: 0.46 }),
+    oclusaoSuave: basico({ color: 0x000000, alphaMap: oclusao, transparent: true, depthWrite: false, opacity: 0.18 }),
   };
 
   const tampo = (id: string) => porId(materialPorId(id)?.uso.includes('tampo') ? id : 'pedra-clara', 'pedra-clara');

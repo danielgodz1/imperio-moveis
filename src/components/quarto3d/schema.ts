@@ -87,6 +87,8 @@ export const QuartoLayoutSchema = z
     piso: z.string().optional(),
     corParede: z.string().optional(),
     noite: z.boolean().optional(),
+    /** Temperatura da fita de LED em kelvin. */
+    temperaturaLed: z.union([z.literal(2700), z.literal(3000), z.literal(4000)]).optional(),
   })
   .superRefine((dados, ctx) => {
     const cenario = CENARIOS_AMBIENTES[dados.comodo];

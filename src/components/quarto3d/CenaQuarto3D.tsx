@@ -8,7 +8,8 @@ import { CENARIOS_AMBIENTES } from '../../data/cenarios';
 import { Kit3D, criarKit3D } from './materiais3D';
 import { MOVEIS } from './moveis3D';
 import { Caixa2D, Instancia, caixaAbertura, caixasModulo, faixaAbertura, moverPara, poseModulo, xLocalNaParede } from './motorGeometrico';
-import { PREFIXO_ABERTURA } from './estadoEditor';
+import { PREFIXO_ABERTURA, useEditor } from './estadoEditor';
+import { COR_TEMPERATURA, LENTE_FOTO_MM, TEMPERATURA_PADRAO, cameraFoto, luzDaJanela, manchasDeContato } from './iluminacao';
 import { perfilQualidade } from '../../vitrine/aparelho';
 import { GuardaQuadros } from '../../vitrine/GuardaQuadros';
 
@@ -51,22 +52,41 @@ function posicaoVista(layout: QuartoLayout, vista: VistaCamera, aspecto = 1.2): 
 
 function Camera({ layout, vista, pedidoVista }: Pick<CenaQuarto3DProps, 'layout' | 'vista' | 'pedidoVista'>) {
   const { camera, controls, invalidate, size } = useThree();
+  const modoFoto = useEditor((e) => e.modoFoto);
   const aspecto = size.width / size.height;
   const { comodo } = layout;
   const { largura_m, profundidade_m, pe_direito_m } = layout.dimensoes;
 
   useEffect(() => {
+    const c = controls as unknown as Controles | null;
+    const cam = camera as THREE.PerspectiveCamera;
+    if (modoFoto) {
+      // Foto de projetista: em pé na porta, olhos a 1,60 m, lente de 26 mm, câmera parada.
+      const f = cameraFoto(layout.dimensoes);
+      cam.position.set(...f.posicao);
+      cam.setFocalLength(LENTE_FOTO_MM);
+      cam.updateProjectionMatrix();
+      if (c) {
+        c.target.set(...f.alvo);
+        c.update();
+        c.enabled = false;
+      }
+      invalidate();
+      return;
+    }
+    cam.fov = 36;
+    cam.updateProjectionMatrix();
     const p = posicaoVista(layout, vista, aspecto);
     camera.position.set(p[0], p[1], p[2]);
-    const c = controls as unknown as Controles | null;
     if (c) {
+      c.enabled = true;
       c.target.set(0, vista === 'planta' ? 0 : pe_direito_m * 0.42, 0);
       c.update();
     }
     invalidate();
     // A câmera só volta ao enquadramento ao trocar ambiente, medida ou vista.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [comodo, largura_m, profundidade_m, pe_direito_m, vista, pedidoVista, aspecto, camera, controls, invalidate]);
+  }, [comodo, largura_m, profundidade_m, pe_direito_m, vista, pedidoVista, aspecto, camera, controls, invalidate, modoFoto]);
 
   return null;
 }
@@ -248,10 +268,31 @@ function Ambiente({
   }, [gl, scene, invalidate]);
 
   useEffect(() => {
-    scene.environmentIntensity = noite ? 0.14 : 0.42;
+    scene.environmentIntensity = noite ? 0.16 : 0.55;
     k.m.brilho.opacity = noite ? 0.55 : 0.14;
     invalidate();
   }, [noite, scene, invalidate, k]);
+
+  // Cor da fita de LED pela temperatura escolhida (2700, 3000 ou 4000 K).
+  const corLed = COR_TEMPERATURA[layout.temperaturaLed ?? TEMPERATURA_PADRAO];
+  useEffect(() => {
+    (k.m.ledLigado as THREE.MeshBasicMaterial).color.set(corLed).multiplyScalar(3);
+    (k.m.brilho as THREE.MeshBasicMaterial).color.set(corLed);
+    invalidate();
+  }, [corLed, k, invalidate]);
+
+  // Sol pela janela real do projeto; sem janela, luz difusa de cima e da frente.
+  const janela = useMemo(() => luzDaJanela(layout.aberturas, dim), [layout.aberturas, dim]);
+  const sol = useRef<THREE.DirectionalLight>(null);
+  useEffect(() => {
+    const luz = sol.current;
+    if (!luz) return;
+    luz.target.position.set(...(janela?.alvo ?? [0, 0, 0]));
+    luz.target.updateMatrixWorld();
+    invalidate();
+  }, [janela, invalidate]);
+  const manchas = useMemo(() => manchasDeContato(modulos, dim), [modulos, dim]);
+  const modoFoto = useEditor((e) => e.modoFoto);
 
   // A parede entre a câmera e o ambiente some, junto com os móveis presos nela.
   const dir = useMemo(() => new THREE.Vector3(), []);
@@ -353,9 +394,10 @@ function Ambiente({
       <ambientLight intensity={noite ? 0.12 : 0.28} color="#FFF4E6" />
       <hemisphereLight args={[noite ? '#3A4250' : '#FFFFFF', noite ? '#2A2520' : '#B9AF9E', noite ? 0.32 : 0.55]} />
       <directionalLight
-        position={[W * 0.2, H * 2.6, D * 1.5]}
-        intensity={noite ? 0.12 : 1.15}
-        color="#FFF6E8"
+        ref={sol}
+        position={janela?.posicao ?? [W * 0.2, H * 2.6, D * 1.5]}
+        intensity={noite ? 0.1 : janela ? 1.6 : 1.15}
+        color="#FFF3E2"
         castShadow={sombra}
         shadow-mapSize-width={1536}
         shadow-mapSize-height={1536}
@@ -367,8 +409,8 @@ function Ambiente({
         shadow-bias={-0.0006}
         shadow-radius={6}
       />
-      <pointLight position={[0, H - 0.25, 0]} color="#FFC58E" intensity={(noite ? 4.2 : 0.35) * brilhoNoite} distance={8} decay={1.6} />
-      <pointLight position={[-W * 0.28, H - 0.4, -D * 0.28]} color="#FFB46B" intensity={(noite ? 2.4 : 0.1) * brilhoNoite} distance={5} decay={1.8} />
+      <pointLight position={[0, H - 0.25, 0]} color={corLed} intensity={(noite ? 4.2 : 0.35) * brilhoNoite} distance={8} decay={1.6} />
+      <pointLight position={[-W * 0.28, H - 0.4, -D * 0.28]} color={corLed} intensity={(noite ? 2.4 : 0.1) * brilhoNoite} distance={5} decay={1.8} />
 
       <mesh geometry={k.caixa(W + 0.2, ESPESSURA, D + 0.2, 'x')} material={k.m.laje} position={[0, -ESPESSURA / 2 - 0.012, 0]} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow={sombra} material={pisoMat}>
@@ -386,6 +428,18 @@ function Ambiente({
           }}
         />
       </mesh>
+
+      {/* Sombra de contato: assenta cada peça no piso sem custo de sombra em tempo real. */}
+      {manchas.map((s, i) => (
+        <mesh
+          key={`sombra-${i}`}
+          geometry={k.plano(s.largura, s.profundidade)}
+          material={s.forte ? k.m.oclusao : k.m.oclusaoSuave}
+          position={[s.x, 0.003, s.z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          renderOrder={1}
+        />
+      ))}
 
       <Paredes layout={layout} k={k} refs={refsParedes} onSelecionar={onSelecionar} onArrastar={arrastarAbertura} />
 
@@ -430,20 +484,44 @@ function Ambiente({
         );
       })}
 
-      {modulos.map((m) => {
+      {!modoFoto && modulos.map((m) => {
         const conflito = conflitos.has(m.uid);
         if (!conflito && m.uid !== selecionado) return null;
         return <Contorno key={`c-${m.uid}`} caixas={caixasModulo(m, dim)} cor={conflito ? ALERTA : OURO} />;
       })}
-      {layout.aberturas.map((ab, i) =>
+      {!modoFoto && layout.aberturas.map((ab, i) =>
         selecionado === `${PREFIXO_ABERTURA}${i}` ? <Contorno key={`a-${i}`} caixas={[caixaAbertura(ab, dim)]} cor={OURO} /> : null
       )}
     </group>
   );
 }
 
+/** Largura mínima da imagem baixada no modo foto. */
+const LARGURA_FOTO = 1920;
+
 function Palco(props: CenaQuarto3DProps & { mobile: boolean }) {
-  const { gl, invalidate } = useThree();
+  const { gl, invalidate, scene, camera, size } = useThree();
+
+  // Captura em alta resolução: aumenta o pixel ratio só durante um quadro e volta ao normal.
+  useEffect(() => {
+    const capturar = () => {
+      const anterior = gl.getPixelRatio();
+      const alvo = Math.min(3, Math.max(anterior, LARGURA_FOTO / Math.max(1, size.width)));
+      gl.setPixelRatio(alvo);
+      gl.setSize(size.width, size.height, false);
+      gl.render(scene, camera);
+      const copia = document.createElement('canvas');
+      copia.width = gl.domElement.width;
+      copia.height = gl.domElement.height;
+      copia.getContext('2d')?.drawImage(gl.domElement, 0, 0);
+      gl.setPixelRatio(anterior);
+      gl.setSize(size.width, size.height, false);
+      invalidate();
+      return copia;
+    };
+    useEditor.setState({ capturar });
+    return () => useEditor.setState({ capturar: null });
+  }, [gl, scene, camera, size, invalidate]);
   const { mobile, onCanvasReady, ...resto } = props;
   const k = useMemo(() => criarKit3D(mobile), [mobile]);
 
@@ -471,8 +549,9 @@ export const CenaQuarto3D: React.FC<CenaQuarto3DProps> = (props) => {
       gl={{
         preserveDrawingBuffer: true,
         antialias: !mobile,
-        toneMapping: THREE.NeutralToneMapping,
-        toneMappingExposure: 1,
+        // AgX segura os brancos do LED e da janela sem lavar a madeira; exposição acima de 1 evita cena escura.
+        toneMapping: THREE.AgXToneMapping,
+        toneMappingExposure: 1.25,
         outputColorSpace: THREE.SRGBColorSpace,
       }}
       shadows={perfil.sombras ? { type: THREE.PCFShadowMap } : false}

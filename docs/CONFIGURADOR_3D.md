@@ -38,6 +38,15 @@ Medidas internas em metros; a interface mostra centímetros em passos de 5 cm. A
 - **Fita de borda:** as quatro bordas finas de cada chapa usam o mesmo acabamento sem relevo, 10% mais escuro e mais fosco.
 - Os ids antigos (`freijo-ripado`, `branco-neve`, `areia-acetinado`, `cinza-urbano`...) foram mantidos para não quebrar projetos salvos, o hero e a API; só os nomes mudaram para a paleta de referência.
 
+## Luz e modo foto
+
+- **Sol pela janela real** (`iluminacao.ts`, `luzDaJanela`): a luz direcional vem de fora da primeira janela e mira o piso; sem janela, luz difusa da frente.
+- **Exposição:** tonemapping AgX com exposição 1,25 e ambiente interno (RoomEnvironment) mais forte, para a cena não ficar escura.
+- **Sombra de contato:** uma mancha suave sob cada caixa do motor (forte no piso, leve em peça suspensa); funciona em qualquer aparelho, sem custo de sombra em tempo real. Sombras reais continuam só no aparelho forte.
+- **LED:** 2700 K, 3000 K (padrão) ou 4000 K, na aba Cores e luz; vale para fita, brilho e luzes pontuais e vai no resumo do WhatsApp.
+- **Modo foto:** câmera em pé junto à parede da frente, olhos a 1,60 m, lente de 26 mm, sem contornos. "Baixar imagem" gera PNG de pelo menos 1920 px com a marca "Império Móveis Planejados" no canto. A imagem enviada para orçamento também leva a marca.
+- **Pisos:** vinílico madeirado, porcelanato e cimento queimado.
+
 ## Regras de projeto
 
 | Regra | Valor |
@@ -67,7 +76,7 @@ Referências de medida (circulação, triângulo) são as usuais de projeto de i
 | 2. Motor de regras (circulação, porta, cama/TV, cozinha) | Feito |
 | 3. Módulos paramétricos e "ver por dentro" | Feito para guarda-roupa, balcão e aéreo. Faltam: torre quente, paneleiro, ilha, cabeceira, painel de TV, home office e closet em L/U |
 | 4. Catálogo de materiais com veio orientado | Feito |
-| 5. Luz, sombras, LED e modo foto | Pendente |
+| 5. Luz, sombras, LED e modo foto | Feito (sem AO em tela; sombra de contato por mancha) |
 | 6. Planta e elevação com cotas | Pendente |
 | 7. Painel em etapas, resumo, link e envio | Pendente |
 | 8. Celular e acessibilidade | Pendente |
