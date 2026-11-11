@@ -34,7 +34,7 @@ function percorrer(arquivo: string, vistos: Set<string>, erros: string[]) {
 }
 
 describe('funções serverless', () => {
-  it.each(['lead.ts', 'layout.ts'])('api/%s só importa caminhos relativos com .js', (arquivo) => {
+  it.each(['lead.ts', 'layout.ts', 'avaliacoes.ts'])('api/%s só importa caminhos relativos com .js', (arquivo) => {
     const erros: string[] = [];
     percorrer(path.join(RAIZ, 'api', arquivo), new Set(), erros);
     expect(erros).toEqual([]);

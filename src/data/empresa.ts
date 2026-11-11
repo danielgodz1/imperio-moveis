@@ -59,12 +59,13 @@ export const EMPRESA: DadosEmpresa = {
   whatsappE164: '+5514998492834',
   instagram: '@imperio.moveis.jau',
   instagramUrl: 'https://www.instagram.com/imperio.moveis.jau/',
-  googleProfileUrl: undefined, // CONFIRMAR COM A LOJA
+  // Perfil da Empresa no Google (identificador da ficha no Maps).
+  googleProfileUrl: 'https://maps.google.com/?cid=17403143123799287393',
   mapsUrl:
-    'https://www.google.com/maps/search/?api=1&query=R.+Don%C3%A1+Djanira+Werneck+de+Almeida+e+Silva,+280+-+Jardim+Itamarati,+Ja%C3%BA+-+SP,+17207-490',
+    'https://www.google.com/maps/search/?api=1&query=R.+Don%C3%A1+Djanira+Werneck+de+Almeida+e+Silva,+280+-+Jardim+Itamarati,+Ja%C3%BA+-+SP,+17209-450',
   mapsEmbedUrl:
     'https://maps.google.com/maps?q=R.+Don%C3%A1+Djanira+Werneck+de+Almeida+e+Silva%2C+280+-+Jardim+Itamarati%2C+Ja%C3%BA+-+SP%2C+17209-450&t=&z=16&ie=UTF8&iwloc=&output=embed',
-  // CONFIRMAR COM A LOJA (endereço vindo do protótipo original)
+  // Igual ao Perfil da Empresa no Google (nome, endereço e telefone iguais em todo lugar ajudam o SEO local).
   endereco: {
     rua: 'R. Doná Djanira Werneck de Almeida e Silva',
     numero: '280',
@@ -72,7 +73,7 @@ export const EMPRESA: DadosEmpresa = {
     bairro: 'Jardim Itamarati',
     cidade: 'Jaú',
     uf: 'SP',
-    cep: '17207-490',
+    cep: '17209-450',
     pais: 'BR',
   },
   geo: {
@@ -98,7 +99,7 @@ export const EMPRESA: DadosEmpresa = {
     'Itapuí',
   ],
   confirmado: {
-    endereco: false,
+    endereco: true,
     horarios: false,
     garantia: false,
   },
