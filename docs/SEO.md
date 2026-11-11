@@ -2,7 +2,7 @@
 
 Objetivo: aparecer no topo para buscas como "móveis planejados Jaú", "marcenaria Jaú", "cozinha planejada Jaú" e nas cidades vizinhas.
 
-Domínio canônico: `https://imperiomoveisplanejadosjau.com.br` (definido em `src/data/empresa.ts`, `index.html`, `public/sitemap.xml` e `public/robots.txt`).
+Domínio canônico: `https://www.imperiomoveisplanejadosjau.com.br` (definido em `src/data/empresa.ts`, `index.html`, `public/sitemap.xml` e `public/robots.txt`).
 
 ## O que já está no site
 
@@ -19,8 +19,9 @@ Domínio canônico: `https://imperiomoveisplanejadosjau.com.br` (definido em `sr
 2. **Avaliações reais no Google**, pedidas a cada obra entregue, de preferência citando o ambiente e a cidade. Elas também substituem as avaliações de exemplo do site.
 3. **Confirmar endereço e horário** e marcar `confirmado.endereco` e `confirmado.horarios` como `true` em `empresa.ts`. O JSON-LD passa a publicar endereço, coordenadas e horário (hoje fica de fora para não informar dado errado).
 4. **Mesmo nome, endereço e telefone** em todo lugar: site, Google, Instagram, Facebook e diretórios locais.
-5. **Google Search Console:** verificar o domínio novo e enviar `https://imperiomoveisplanejadosjau.com.br/sitemap.xml`.
-6. **Redirecionar o domínio antigo:** se algum dia `imperiomoveisjau.com.br` foi divulgado, apontá-lo com redirecionamento 301 para o novo.
+5. **Google Search Console:** usar a propriedade de domínio (cobre com e sem www) e enviar `https://www.imperiomoveisplanejadosjau.com.br/sitemap.xml`.
+6. **Projeto antigo na Vercel:** o `imperio-moveis.vercel.app` da conta anterior continua publicando o mesmo site. O canonical já aponta para o domínio novo, mas o ideal é redirecionar esse endereço para `https://www.imperiomoveisplanejadosjau.com.br` (Settings > Domains do projeto antigo) ou pausar o projeto.
+7. **Redirecionar o domínio antigo:** se algum dia `imperiomoveisjau.com.br` foi divulgado, apontá-lo com redirecionamento 301 para o novo.
 
 ## Próximos conteúdos sugeridos
 
