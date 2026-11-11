@@ -29,6 +29,8 @@ export interface InstanciaBase {
   z_m?: number;
   rotacao?: number;
   tampo?: string;
+  /** Guarda-roupa: portas de abrir (padrão) ou de correr. */
+  portas?: 'abrir' | 'correr';
 }
 
 export type Instancia = InstanciaBase & {
@@ -73,7 +75,7 @@ const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(
 export function elevacao(id: ModuloId, H: number, h: number): number {
   switch (id) {
     case 'armarios-altos':
-      return H - h - 0.03;
+      return ALTURA_BANCADA + VAO_AEREO;
     case 'armario-aereo-office':
       return Math.max(1.5, H - h - 0.35);
     case 'criado-mudo':
@@ -228,12 +230,33 @@ export function retornoBancada(dim: Dimensoes): number {
   return Math.max(0.6, Math.min(2.1, dim.profundidade_m - 1.4));
 }
 
+/** Cama desenhada junto da cabeceira (referencial da cabeceira). Usada no desenho e na colisão. */
+export const CAMA = { largura: 1.62, comprimento: 2.02, recuo: 0.07, altura: 0.62 } as const;
+
+/** Medidas de cozinha usadas pelo desenho e pelas regras. */
+export const ALTURA_BANCADA = 0.9;
+export const VAO_AEREO = 0.65;
+/** Centro da tela no painel de TV, medido do piso. */
+export const CENTRO_TELA_TV = 1.1;
+
+/** Pia na bancada em L e cooktop na ilha, no referencial local de cada móvel ([x, z]). */
+export const posPia = (w: number, d: number): [number, number] => [w * 0.08, d * 0.5];
+export const posCooktopIlha = (w: number, _d: number): [number, number] => [w * 0.14, -0.05];
+
+type Retangulo = [number, number, number, number, number, number];
+
 /** Retângulos ocupados no referencial local do móvel: [x0, x1, z0, z1, y0, y1]. */
-function pegadasLocais(inst: Instancia, dim: Dimensoes): number[][] {
+function pegadasLocais(inst: Instancia, dim: Dimensoes): Retangulo[] {
   const w = inst.largura_m;
   const h = inst.altura_m;
   const d = inst.profundidade_m;
-  if (inst.id === 'cabeceira-ripada-led') return [[-0.8, 0.8, 0, 2.08, 0, 0.62]];
+  if (inst.id === 'cabeceira-ripada-led') {
+    const meia = CAMA.largura / 2;
+    return [
+      [-w / 2, w / 2, 0, d, 0, h],
+      [-meia, meia, CAMA.recuo, CAMA.recuo + CAMA.comprimento, 0, CAMA.altura],
+    ];
+  }
   if (inst.id === 'bancada-l') {
     return [
       [-w / 2, w / 2, 0, d, 0, h],
@@ -244,11 +267,55 @@ function pegadasLocais(inst: Instancia, dim: Dimensoes): number[][] {
   return [[-w / 2, w / 2, 0, d, 0, h]];
 }
 
-export function caixasModulo(inst: Instancia, dim: Dimensoes): Caixa2D[] {
+/** Profundidade livre exigida na frente do guarda-roupa. */
+export const frenteGuardaRoupa = (inst: Pick<InstanciaBase, 'portas'>) => (inst.portas === 'correr' ? 0.4 : 0.6);
+export const CIRCULACAO_CAMA = 0.6;
+export const CIRCULACAO_COZINHA = 0.9;
+const ALTURA_ZONA = 2.0;
+
+/** Área livre de uso na frente/lados do móvel (referencial local). Vazio quando não há exigência. */
+function zonasLocais(inst: Instancia, dim: Dimensoes): Retangulo[] {
+  const w = inst.largura_m;
+  const d = inst.profundidade_m;
+  switch (inst.id) {
+    case 'guarda-roupa': {
+      const f = frenteGuardaRoupa(inst);
+      return [[-w / 2, w / 2, d, d + f, 0, ALTURA_ZONA]];
+    }
+    case 'cabeceira-ripada-led': {
+      const meia = CAMA.largura / 2;
+      const z0 = CAMA.recuo;
+      const z1 = CAMA.recuo + CAMA.comprimento;
+      return [
+        [-meia - CIRCULACAO_CAMA, -meia, z0, z1, 0, ALTURA_ZONA],
+        [meia, meia + CIRCULACAO_CAMA, z0, z1, 0, ALTURA_ZONA],
+      ];
+    }
+    case 'bancada-l': {
+      const ret = retornoBancada(dim);
+      const x0 = -w / 2 + 0.62;
+      return [
+        [x0, w / 2, d, d + CIRCULACAO_COZINHA, 0, ALTURA_ZONA],
+        [x0, x0 + CIRCULACAO_COZINHA, d, d + ret, 0, ALTURA_ZONA],
+      ];
+    }
+    case 'ilha':
+      return [
+        [-w / 2, w / 2, -d / 2 - CIRCULACAO_COZINHA, -d / 2, 0, ALTURA_ZONA],
+        [-w / 2, w / 2, d / 2, d / 2 + CIRCULACAO_COZINHA, 0, ALTURA_ZONA],
+      ];
+    case 'nicho-geladeira':
+      return [[-w / 2, w / 2, d, d + CIRCULACAO_COZINHA, 0, ALTURA_ZONA]];
+    default:
+      return [];
+  }
+}
+
+function paraMundo(inst: Instancia, dim: Dimensoes, retangulos: Retangulo[]): Caixa2D[] {
   const { posicao, rotY } = poseModulo(inst, dim);
   const c = Math.round(Math.cos(rotY));
   const s = Math.round(Math.sin(rotY));
-  return pegadasLocais(inst, dim).map(([x0, x1, z0, z1, y0, y1]) => {
+  return retangulos.map(([x0, x1, z0, z1, y0, y1]) => {
     const pontos = [
       [x0, z0],
       [x1, z0],
@@ -257,20 +324,38 @@ export function caixasModulo(inst: Instancia, dim: Dimensoes): Caixa2D[] {
     ].map(([x, z]) => [posicao[0] + x * c + z * s, posicao[2] - x * s + z * c]);
     const xs = pontos.map((p) => p[0]);
     const zs = pontos.map((p) => p[1]);
+    const zona = y0 === 0 && y1 === ALTURA_ZONA;
     return {
       minX: Math.min(...xs),
       maxX: Math.max(...xs),
       minZ: Math.min(...zs),
       maxZ: Math.max(...zs),
-      minY: posicao[1] + y0,
-      maxY: posicao[1] + y1,
+      // Zonas de uso vão do piso até 2 m, independentemente da elevação do móvel.
+      minY: zona ? 0 : posicao[1] + y0,
+      maxY: zona ? ALTURA_ZONA : posicao[1] + y1,
     };
   });
 }
 
-const TOLERANCIA = 0.012;
+export function caixasModulo(inst: Instancia, dim: Dimensoes): Caixa2D[] {
+  return paraMundo(inst, dim, pegadasLocais(inst, dim));
+}
 
-function sobrepoe(a: Caixa2D, b: Caixa2D): boolean {
+export function zonasDeUso(inst: Instancia, dim: Dimensoes): Caixa2D[] {
+  return paraMundo(inst, dim, zonasLocais(inst, dim));
+}
+
+/** Ponto do referencial local do móvel no mundo ([x, z]). */
+export function pontoNoMundo(inst: Instancia, dim: Dimensoes, x: number, z: number): [number, number] {
+  const { posicao, rotY } = poseModulo(inst, dim);
+  const c = Math.round(Math.cos(rotY));
+  const s = Math.round(Math.sin(rotY));
+  return [posicao[0] + x * c + z * s, posicao[2] - x * s + z * c];
+}
+
+export const TOLERANCIA = 0.012;
+
+export function sobrepoe(a: Caixa2D, b: Caixa2D): boolean {
   return (
     a.minX < b.maxX - TOLERANCIA &&
     a.maxX > b.minX + TOLERANCIA &&
@@ -313,13 +398,22 @@ export function prenderAbertura(ab: Abertura, dim: Dimensoes): Abertura {
   return { ...ab, largura_m, peitoril_m, altura_m, posicaoOffset_m: limitar(arredondar(ab.posicaoOffset_m), -folga, folga) };
 }
 
-/** Caixa no mundo ocupada pela abertura (fina, colada na face interna da parede). */
-export function caixaAbertura(ab: Abertura, dim: Dimensoes): Caixa2D {
+/** Altura máxima de um móvel que pode ficar sob a janela. */
+export const ALTURA_SOB_JANELA = 0.9;
+/** Faixa à frente da janela que um móvel alto não pode ocupar. */
+const PROFUNDIDADE_JANELA = 0.3;
+
+/** Raio de abertura da porta do ambiente (abre para dentro): quadrado da largura da folha. */
+export function giroDaPorta(ab: Abertura, dim: Dimensoes): Caixa2D {
+  return caixaAbertura(ab, dim, ab.largura_m);
+}
+
+/** Caixa no mundo ocupada pela abertura, colada na face interna da parede, com a profundidade pedida. */
+export function caixaAbertura(ab: Abertura, dim: Dimensoes, e = 0.03): Caixa2D {
   const W = dim.largura_m / 2;
   const D = dim.profundidade_m / 2;
   const { y0, y1 } = faixaAbertura(ab);
   const meia = ab.largura_m / 2;
-  const e = 0.03;
   switch (ab.parede) {
     case 'N':
       return { minX: ab.posicaoOffset_m - meia, maxX: ab.posicaoOffset_m + meia, minZ: -D, maxZ: -D + e, minY: y0, maxY: y1 };
@@ -330,6 +424,14 @@ export function caixaAbertura(ab: Abertura, dim: Dimensoes): Caixa2D {
     default:
       return { minX: W - e, maxX: W, minZ: ab.posicaoOffset_m - meia, maxZ: ab.posicaoOffset_m + meia, minY: y0, maxY: y1 };
   }
+}
+
+/**
+ * Mesa de cabeceira suspensa é fixada no painel ripado: contra a cabeceira, só conta a cama.
+ */
+function caixasColisao(a: Instancia, b: Instancia, caixas: Caixa2D[]): Caixa2D[] {
+  if (a.id === 'cabeceira-ripada-led' && b.id === 'criado-mudo') return caixas.slice(1);
+  return caixas;
 }
 
 /** Problemas encontrados por peça. Mapa vazio significa projeto sem conflitos. */
@@ -356,25 +458,26 @@ export function validarLayout(
 
     for (let j = i + 1; j < modulos.length; j++) {
       if (podeSobrepor(m, modulos[j])) continue;
-      const bate = caixas[i].some((a) => caixas[j].some((b) => sobrepoe(a, b)));
+      const bate = caixasColisao(m, modulos[j], caixas[i]).some((a) =>
+        caixasColisao(modulos[j], m, caixas[j]).some((b) => sobrepoe(a, b))
+      );
       if (bate) {
         problemas.set(m.uid, `encosta em ${rotulo(modulos[j].id)}`);
         problemas.set(modulos[j].uid, `encosta em ${rotulo(m.id)}`);
       }
     }
 
-    if (m.parede === 'centro') return;
-    const metade = m.largura_m / 2;
-    aberturas
-      .filter((ab) => ab.parede === m.parede)
-      .forEach((ab) => {
-        const { y0, y1 } = faixaAbertura(ab);
-        const ocupa = caixas[i][0];
-        const cruzaLado = Math.abs(m.offset_m - ab.posicaoOffset_m) < metade + ab.largura_m / 2 - TOLERANCIA;
-        if (cruzaLado && ocupa.minY < y1 && ocupa.maxY > y0) {
-          problemas.set(m.uid, ab.tipo === 'janela' ? 'cobre a janela' : 'bloqueia a porta');
+    aberturas.forEach((ab) => {
+      if (ab.tipo === 'janela') {
+        // Móvel de até 90 cm pode ficar sob a janela; acima disso, não pode cobri-la.
+        const frente = caixaAbertura(ab, dim, PROFUNDIDADE_JANELA);
+        if (caixas[i].some((c) => c.maxY > ALTURA_SOB_JANELA + TOLERANCIA && sobrepoe(c, frente))) {
+          problemas.set(m.uid, 'cobre a janela');
         }
-      });
+      } else if (caixas[i].some((c) => sobrepoe(c, giroDaPorta(ab, dim)))) {
+        problemas.set(m.uid, 'bloqueia a porta');
+      }
+    });
   });
 
   return problemas;

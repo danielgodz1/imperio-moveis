@@ -36,6 +36,7 @@ export const ModuloIdEnum = z.enum([
   'sofa-recepcao',
   'gabinete-banheiro',
   'espelheira-led',
+  'nicho-geladeira',
 ]);
 
 export const AmbienteEnum = z.enum(['quarto', 'cozinha', 'closet', 'home-office', 'banheiro']);
@@ -61,6 +62,7 @@ export const ModuloInstanciaSchema = z.object({
   z_m: z.number().optional(),
   rotacao: z.number().optional(),
   tampo: z.string().optional(),
+  portas: z.enum(['abrir', 'correr']).optional(),
 });
 
 export const QuartoLayoutSchema = z

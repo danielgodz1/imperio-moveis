@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { RoundedBox } from '@react-three/drei';
 import { ModuloId } from '../../data/cenarios';
 import { Kit3D } from './materiais3D';
-import { retornoBancada, Dimensoes } from './motorGeometrico';
+import { CAMA, CENTRO_TELA_TV, Dimensoes, posCooktopIlha, posPia, retornoBancada } from './motorGeometrico';
 
 type V3 = [number, number, number];
 const CHAPA = 0.018;
@@ -18,6 +18,7 @@ export interface PropsMovel {
   led: boolean;
   tampo: THREE.Material;
   dim: Dimensoes;
+  portas?: 'abrir' | 'correr';
 }
 
 function fabrica(k: Kit3D) {
@@ -98,13 +99,42 @@ const Livros: React.FC<{ k: Kit3D; l: number; a: number; y: number; z: number; s
   return <>{itens}</>;
 };
 
-const GuardaRoupa: React.FC<PropsMovel> = ({ w, h, d, a, k, led }) => {
+/** Portas de correr: folhas largas em dois trilhos, sobrepostas 3 cm. */
+const PortasCorrer: React.FC<{ k: Kit3D; w: number; h: number; y: number; z: number; a: THREE.Material }> = ({ k, w, h, y, z, a }) => {
   const C = fabrica(k);
-  const n = Math.max(2, Math.round(w / 0.6));
+  const n = Math.max(2, Math.round(w / 1.1));
+  const folha = w / n + 0.03;
   return (
     <group>
-      {C([w, h, d - 0.02], [0, h / 2, (d - 0.02) / 2], k.m.corpo)}
-      <Portas k={k} w={w} h={h - 0.1} y={(h - 0.1) / 2 + 0.08} z={d - 0.02} n={n} a={a} />
+      {C([w, 0.04, 0.05], [0, y + h / 2 + 0.02, z + 0.025], k.m.cromo, 'x', false)}
+      {Array.from({ length: n }, (_, i) => {
+        const x = -w / 2 + (w / n) * (i + 0.5);
+        const trilho = i % 2 === 0 ? 0 : 0.026;
+        return (
+          <group key={i} position={[x, y, z + CHAPA / 2 + trilho]}>
+            {C([folha, h - FOLGA, CHAPA], [0, 0, 0], a)}
+            {C([0.014, h - 0.02, 0.02], [(i % 2 === 0 ? 1 : -1) * (folha / 2 - 0.007), 0, CHAPA / 2 + 0.01], k.m.cromo, 'y', false)}
+          </group>
+        );
+      })}
+    </group>
+  );
+};
+
+const GuardaRoupa: React.FC<PropsMovel> = ({ w, h, d, a, k, led, portas }) => {
+  const C = fabrica(k);
+  const n = Math.max(2, Math.round(w / 0.6));
+  const correr = portas === 'correr';
+  // Portas de correr pedem caixa 5 cm mais funda por causa do trilho duplo.
+  const zPortas = correr ? d - 0.055 : d - 0.02;
+  return (
+    <group>
+      {C([w, h, zPortas], [0, h / 2, zPortas / 2], k.m.corpo)}
+      {correr ? (
+        <PortasCorrer k={k} w={w} h={h - 0.1} y={(h - 0.1) / 2 + 0.08} z={zPortas} a={a} />
+      ) : (
+        <Portas k={k} w={w} h={h - 0.1} y={(h - 0.1) / 2 + 0.08} z={zPortas} n={n} a={a} />
+      )}
       {C([w, 0.08, d - 0.04], [0, 0.04, (d - 0.04) / 2], k.m.preto, 'x')}
       <Fita k={k} led={led} s={[w - 0.1, 0.012, 0.012]} p={[0, h - 0.012, d + 0.008]} />
     </group>
@@ -120,8 +150,8 @@ const CabeceiraCama: React.FC<PropsMovel> = ({ w, h, a, k, led }) => {
       <mesh geometry={k.ripas(w, h, 0.055, 0.04, 0.026)} material={a} position={[0, h / 2, 0.044]} castShadow={sombra} />
       <Fita k={k} led={led} s={[w, 0.012, 0.018]} p={[0, h + 0.008, 0.034]} />
       <Brilho k={k} led={led} l={w} a={0.9} p={[0, h + 0.47, 0.012]} rot={[0, 0, Math.PI]} />
-      <group position={[0, 0, 1.08]}>
-        {C([1.62, 0.3, 2.02], [0, 0.17, 0], a, 'x')}
+      <group position={[0, 0, CAMA.recuo + CAMA.comprimento / 2]}>
+        {C([CAMA.largura, 0.3, CAMA.comprimento], [0, 0.17, 0], a, 'x')}
         <RoundedBox args={[1.54, 0.26, 1.96]} radius={0.06} smoothness={3} position={[0, 0.44, 0]} material={k.m.tecidoClaro} castShadow={sombra} receiveShadow={sombra} />
         {[-0.4, 0.4].map((x) => (
           <RoundedBox key={x} args={[0.68, 0.17, 0.44]} radius={0.075} smoothness={3} position={[x, 0.65, -0.72]} rotation={[0.28, 0, 0]} material={k.m.tecidoClaro} castShadow={sombra} />
@@ -155,7 +185,7 @@ const PainelTv: React.FC<PropsMovel> = ({ w, h, d, a, k, led }) => {
       <mesh geometry={k.ripas(w, h, 0.06, 0.042, 0.026)} material={a} position={[0, h / 2, 0.034]} castShadow={sombra} />
       {C([w, 0.28, d - 0.06], [0, 0.46, (d - 0.06) / 2 + 0.05], a, 'x')}
       <Portas k={k} w={w} h={0.26} y={0.46} z={d - 0.01} n={Math.max(2, Math.round(w / 0.6))} a={a} puxador="nenhum" />
-      {C([larguraTv, larguraTv * 0.57, 0.03], [0, 1.28, 0.068], k.m.tela, 'x')}
+      {C([larguraTv, larguraTv * 0.57, 0.03], [0, CENTRO_TELA_TV, 0.068], k.m.tela, 'x')}
       <Fita k={k} led={led} s={[w * 0.96, 0.01, 0.01]} p={[0, 0.3, d - 0.06]} />
       <Brilho k={k} led={led} l={w} a={0.3} p={[0, 0.15, 0.05]} />
     </group>
@@ -212,10 +242,10 @@ const BancadaL: React.FC<PropsMovel> = ({ w, h, d, a, k, tampo, dim }) => {
       {C([w - 0.02, 0.1, d - 0.08], [0, 0.05, (d - 0.08) / 2], k.m.preto, 'x')}
       <Portas k={k} w={w} h={hBase - 0.1} y={(hBase - 0.1) / 2 + 0.1} z={d - 0.02} n={n} a={a} puxador="horizontal" />
       <Tampo k={k} l={w + 0.02} p={d + 0.02} y={h - 0.02} z={(d + 0.02) / 2} mat={tampo} />
-      {C([0.58, 0.004, 0.38], [w * 0.08, h + 0.002, d * 0.5], k.m.inox, 'x', false)}
-      {C([0.5, 0.002, 0.3], [w * 0.08, h + 0.005, d * 0.5], k.m.folga, 'x', false)}
-      {C([0.024, 0.3, 0.024], [w * 0.08, h + 0.15, 0.09], k.m.cromo, 'y', false)}
-      {C([0.022, 0.022, 0.18], [w * 0.08, h + 0.3, 0.18], k.m.cromo, 'y', false)}
+      {C([0.58, 0.004, 0.38], [posPia(w, d)[0], h + 0.002, posPia(w, d)[1]], k.m.inox, 'x', false)}
+      {C([0.5, 0.002, 0.3], [posPia(w, d)[0], h + 0.005, posPia(w, d)[1]], k.m.folga, 'x', false)}
+      {C([0.024, 0.3, 0.024], [posPia(w, d)[0], h + 0.15, 0.09], k.m.cromo, 'y', false)}
+      {C([0.022, 0.022, 0.18], [posPia(w, d)[0], h + 0.3, 0.18], k.m.cromo, 'y', false)}
       <group position={[-w / 2 + 0.31, 0, d + ret / 2]}>
         {C([0.6, hBase - 0.1, ret], [0, (hBase - 0.1) / 2 + 0.1, 0], k.m.corpo, 'x')}
         {C([0.56, 0.1, ret], [-0.02, 0.05, 0], k.m.preto, 'x')}
@@ -239,7 +269,7 @@ const Ilha: React.FC<PropsMovel> = ({ w, h, d, a, k, led, tampo }) => {
       <mesh geometry={k.ripas(w, hBase - 0.1, 0.055, 0.04, 0.022)} material={a} position={[0, (hBase - 0.1) / 2 + 0.09, d + 0.011]} castShadow={sombra} />
       <Portas k={k} w={w} h={hBase - 0.1} y={(hBase - 0.1) / 2 + 0.09} z={-0.021} n={Math.max(2, Math.round(w / 0.5))} a={a} puxador="horizontal" />
       {C([w + 0.08, 0.045, d + 0.12], [0, h - 0.022, d / 2 + 0.03], tampo, 'x')}
-      {C([0.66, 0.008, 0.46], [w * 0.14, h + 0.004, d / 2 - 0.05], k.m.tela, 'x', false)}
+      {C([0.66, 0.008, 0.46], [posCooktopIlha(w, d)[0], h + 0.004, posCooktopIlha(w, d)[1] + d / 2], k.m.tela, 'x', false)}
       <Fita k={k} led={led} s={[w * 0.9, 0.01, 0.01]} p={[0, h - 0.052, d + 0.07]} />
       {[-0.46, 0.46].map((x) => (
         <group key={x} position={[x, 0, d + 0.36]}>
@@ -557,6 +587,23 @@ const EspelheiraLed: React.FC<PropsMovel> = ({ w, h, d, k, led }) => {
   );
 };
 
+/** Nicho de geladeira: caixa até o teto com a geladeira (inox) e porta basculante em cima. */
+const NichoGeladeira: React.FC<PropsMovel> = ({ w, h, d, a, k }) => {
+  const C = fabrica(k);
+  const alturaGeladeira = Math.min(1.85, h - 0.35);
+  const interno = w - 2 * CHAPA;
+  return (
+    <group>
+      {C([CHAPA, h, d], [-w / 2 + CHAPA / 2, h / 2, d / 2], a)}
+      {C([CHAPA, h, d], [w / 2 - CHAPA / 2, h / 2, d / 2], a)}
+      {C([interno, 0.02, d], [0, h - 0.01, d / 2], k.m.corpo, 'x')}
+      {C([interno - 0.04, alturaGeladeira, d - 0.08], [0, alturaGeladeira / 2, (d - 0.08) / 2 + 0.02], k.m.inox)}
+      {C([0.004, alturaGeladeira - 0.04, 0.004], [0, alturaGeladeira / 2, d - 0.058], k.m.folga, 'y', false)}
+      {C([interno, h - alturaGeladeira - 0.06, CHAPA], [0, (h + alturaGeladeira) / 2 + 0.01, d - CHAPA / 2], a, 'x')}
+    </group>
+  );
+};
+
 export const MOVEIS: Record<ModuloId, React.FC<PropsMovel>> = {
   'guarda-roupa': GuardaRoupa,
   'cabeceira-ripada-led': CabeceiraCama,
@@ -581,4 +628,5 @@ export const MOVEIS: Record<ModuloId, React.FC<PropsMovel>> = {
   'sofa-recepcao': Sofa,
   'gabinete-banheiro': GabineteBanheiro,
   'espelheira-led': EspelheiraLed,
+  'nicho-geladeira': NichoGeladeira,
 };

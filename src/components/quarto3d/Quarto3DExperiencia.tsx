@@ -15,9 +15,9 @@ import {
   novoUid,
   prenderAbertura,
   prenderAoAmbiente,
-  validarLayout,
   Abertura,
 } from './motorGeometrico';
+import { encaixar, sugerirCorrecao, validarProjeto } from './regrasProjeto';
 import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
 import { getWhatsAppUrl, salvarResumo3DAtivo, trackWhatsAppClick } from '../../utils/helpers';
 
@@ -99,8 +99,20 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   const aberturaAtual = iAbertura !== null ? layout.aberturas[iAbertura] ?? null : null;
 
   const conflitos = useMemo(
-    () => validarLayout(modulos, layout.aberturas, layout.dimensoes, rotuloModulo),
+    () => validarProjeto({ modulos, aberturas: layout.aberturas, dimensoes: layout.dimensoes }),
     [modulos, layout.aberturas, layout.dimensoes]
+  );
+  const emGesto = useEditor((e) => e.baseGesto !== null);
+  // Aviso em foco: a peça selecionada, se tiver problema; senão, a primeira com problema.
+  const uidAviso = selecionado && conflitos.has(selecionado) ? selecionado : modulos.find((m) => conflitos.has(m.uid))?.uid ?? null;
+  const pecaAviso = modulos.find((m) => m.uid === uidAviso) ?? null;
+  // A busca de correção roda só com a peça parada (fora de arrastos e sliders).
+  const sugestao = useMemo(
+    () =>
+      uidAviso && !emGesto
+        ? sugerirCorrecao({ modulos, aberturas: layout.aberturas, dimensoes: layout.dimensoes }, uidAviso, conflitos)
+        : null,
+    [uidAviso, emGesto, modulos, layout.aberturas, layout.dimensoes, conflitos]
   );
 
   // Atalhos: Ctrl+Z desfaz; Ctrl+Shift+Z ou Ctrl+Y refaz (fora de campos de texto).
@@ -204,7 +216,11 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
 
   const adicionarModulo = (id: ModuloId) => {
     if (!cenarioAtual.modulosPermitidos.includes(id)) return;
-    const nova = instanciaPadrao(id, layout.dimensoes, modulos[0]?.acabamento ?? 'freijo-ripado');
+    let nova = instanciaPadrao(id, layout.dimensoes, modulos[0]?.acabamento ?? 'freijo-ripado');
+    // Entra já num lugar válido quando o padrão bate em algo.
+    const comNova = { modulos: [...modulos, nova], aberturas: layout.aberturas, dimensoes: layout.dimensoes };
+    const s = sugerirCorrecao(comNova, nova.uid);
+    if (s) nova = prenderAoAmbiente({ ...nova, ...s.alteracao }, layout.dimensoes);
     aplicar((prev) => ({ ...prev, modulos: [...prev.modulos, nova] }));
     setSelecionado(nova.uid);
   };
@@ -245,7 +261,10 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
 
   const moverPeca = useCallback(
     (inst: Instancia) => {
-      durante((prev) => ({ ...prev, modulos: prev.modulos.map((m) => (m.uid === inst.uid ? inst : m)) }));
+      durante((prev) => {
+        const encaixada = encaixar(inst, prev.modulos as Instancia[], prev.dimensoes);
+        return { ...prev, modulos: prev.modulos.map((m) => (m.uid === inst.uid ? encaixada : m)) };
+      });
     },
     [durante]
   );
@@ -405,11 +424,27 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-16">
-          <p className={`tipo-cota ${conflitos.size > 0 ? 'text-dourado' : 'text-papel/75'}`} aria-live="polite">
-            {conflitos.size > 0
-              ? `${rotuloModulo(modulos.find((m) => conflitos.has(m.uid))!.id)}: ${[...conflitos.values()][0]}. Ajuste a posição em vermelho.`
-              : 'Visualização aproximada. O projeto final é detalhado após a medição.'}
-          </p>
+          <div className="flex flex-col gap-8 items-start" aria-live="polite">
+            <p className={`tipo-cota ${pecaAviso ? 'text-dourado' : 'text-papel/75'}`}>
+              {pecaAviso
+                ? `${rotuloModulo(pecaAviso.id)}: ${conflitos.get(pecaAviso.uid)![0].mensagem}${
+                    sugestao ? '' : ' Ajuste a peça marcada em vermelho.'
+                  }`
+                : 'Visualização aproximada. O projeto final é detalhado após a medição.'}
+            </p>
+            {pecaAviso && sugestao && (
+              <button
+                type="button"
+                onClick={() => {
+                  alterarPeca(pecaAviso.uid, sugestao.alteracao);
+                  setSelecionado(pecaAviso.uid);
+                }}
+                className={`px-16 h-[36px] ${CHIP_BASE} border-papel/50 text-papel hover:border-papel`}
+              >
+                {sugestao.rotulo}
+              </button>
+            )}
+          </div>
           <button
             type="button"
             onClick={enviarProjeto}
@@ -487,6 +522,19 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
                     ))}
                   </div>
                 </div>
+
+                {atual.id === 'guarda-roupa' && (
+                  <div className="flex flex-col gap-8">
+                    <span className="tipo-cota text-papel/85">Portas</span>
+                    <div className="grid grid-cols-2 gap-4">
+                      {(['abrir', 'correr'] as const).map((t) => (
+                        <button key={t} type="button" aria-pressed={(atual.portas ?? 'abrir') === t} onClick={() => alterarPeca(atual.uid, { portas: t })} className={`h-[36px] ${chip((atual.portas ?? 'abrir') === t)}`}>
+                          {t === 'abrir' ? 'De abrir' : 'De correr'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {COM_TAMPO.includes(atual.id) && (
                   <div className="flex flex-col gap-8">

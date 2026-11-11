@@ -17,7 +17,7 @@ export type VistaCamera = 'perspectiva' | 'planta' | 'frente';
 interface CenaQuarto3DProps {
   layout: QuartoLayout;
   selecionado: string | null;
-  conflitos: Map<string, string>;
+  conflitos: ReadonlyMap<string, unknown>;
   vista: VistaCamera;
   /** Muda a cada clique na vista, mesmo repetindo a mesma. */
   pedidoVista: number;
@@ -37,7 +37,8 @@ type Controles = {
 
 const ESPESSURA = 0.1;
 const OURO = '#D4A84F';
-const ALERTA = '#E0523F';
+// --erro do design system: contorno de lápis das peças com problema.
+const ALERTA = '#B3261E';
 
 function posicaoVista(layout: QuartoLayout, vista: VistaCamera, aspecto = 1.2): [number, number, number] {
   // Telas em pé pedem mais distância para o ambiente caber na largura.
@@ -420,6 +421,7 @@ function Ambiente({
               led={layout.led}
               tampo={k.tampos[m.tampo ?? 'pedra-clara'] ?? k.tampos['pedra-clara']}
               dim={dim}
+              portas={m.portas}
             />
           </group>
         );

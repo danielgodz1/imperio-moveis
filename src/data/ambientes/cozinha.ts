@@ -16,8 +16,8 @@ export const COZINHA: DefinicaoAmbiente = {
   aberturasPadrao: [
     { tipo: 'janela', parede: 'O', largura_m: 1.4, posicaoOffset_m: -0.3, peitoril_m: 1.1, altura_m: 1.0 },
   ],
-  modulosPermitidos: ['bancada-l', 'ilha', 'armarios-altos', 'torre-forno', 'cristaleira-led', 'forro-ripado-teto'],
-  modulosIniciais: ['bancada-l', 'ilha', 'armarios-altos', 'torre-forno', 'forro-ripado-teto'],
+  modulosPermitidos: ['bancada-l', 'ilha', 'armarios-altos', 'torre-forno', 'nicho-geladeira', 'cristaleira-led', 'forro-ripado-teto'],
+  modulosIniciais: ['bancada-l', 'ilha', 'armarios-altos', 'torre-forno', 'nicho-geladeira', 'forro-ripado-teto'],
   piso: 'porcelanato-claro',
   paredeDestaque: 'N',
   posicaoCamera: [4.5, 3.3, 5.0],

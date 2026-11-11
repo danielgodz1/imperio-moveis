@@ -14,7 +14,7 @@ export const QUARTO: DefinicaoAmbiente = {
     pe_direito: { min: 2.4, max: 3.4 },
   },
   aberturasPadrao: [
-    { tipo: 'janela', parede: 'N', largura_m: 1.2, posicaoOffset_m: 1.0, peitoril_m: 1.0, altura_m: 1.1 },
+    { tipo: 'janela', parede: 'L', largura_m: 1.2, posicaoOffset_m: 0, peitoril_m: 1.0, altura_m: 1.1 },
     { tipo: 'porta', parede: 'S', largura_m: 0.8, posicaoOffset_m: -1.1, peitoril_m: 0, altura_m: 2.1 },
   ],
   modulosPermitidos: [

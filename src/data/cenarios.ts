@@ -23,7 +23,8 @@ export type ModuloId =
   | 'armario-aereo-office'
   | 'sofa-recepcao'
   | 'gabinete-banheiro'
-  | 'espelheira-led';
+  | 'espelheira-led'
+  | 'nicho-geladeira';
 
 export type ParedeCardeal = 'N' | 'S' | 'L' | 'O' | 'centro';
 
@@ -100,14 +101,15 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       profundidadePadrao: 0.6,
     },
     gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => {
-      const larg = Math.min(2.4, D - 0.3);
+      // Começa depois da mesa de cabeceira e termina antes do giro da porta.
+      const larg = Math.min(2.2, D - 1.3);
       const alt = H - 0.05;
       const prof = 0.6;
       return {
         largura: larg,
         altura: alt,
         profundidade: prof,
-        posicao: [-W / 2 + prof / 2, alt / 2, -D / 2 + larg / 2 + 0.15],
+        posicao: [-W / 2 + prof / 2, alt / 2, -D / 2 + 0.4 + larg / 2],
       };
     },
   },
@@ -158,18 +160,19 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
     rotulo: 'Painel de TV ripado com rack',
     ambientes: ['quarto'],
     regraEncaixe: {
-      parede: 'L',
+      parede: 'S',
       larguraMin: 1.4,
       larguraMax: 3.0,
       larguraPadrao: 1.8,
       alturaPadrao: 2.1,
       profundidadePadrao: 0.35,
     },
-    gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
-      largura: Math.min(1.8, D - 0.6),
+    // Na parede oposta à cabeceira, centrado com a cama.
+    gerarGeometria: ({ largura_m: W, pe_direito_m: H }) => ({
+      largura: Math.min(1.8, W - 1.6),
       altura: Math.min(2.1, H - 0.35),
       profundidade: 0.35,
-      posicao: [W / 2 - 0.06, 0, 0.15],
+      posicao: [0.25, 0, 0],
     }),
   },
   'penteadeira-camarim': {
@@ -241,12 +244,16 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       alturaPadrao: 0.92,
       profundidadePadrao: 0.85,
     },
-    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => ({
-      largura: Math.min(1.9, W - 1.2),
-      altura: 0.92,
-      profundidade: 0.85,
-      posicao: [0.1, 0, D * 0.12],
-    }),
+    // 90 cm livres até a frente do retorno da bancada em L.
+    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => {
+      const larg = Math.min(1.9, W - 1.2);
+      return {
+        largura: larg,
+        altura: 0.92,
+        profundidade: 0.85,
+        posicao: [-W / 2 + 0.62 + 0.95 + larg / 2, 0, D * 0.12],
+      };
+    },
   },
   'armarios-altos': {
     id: 'armarios-altos',
@@ -260,11 +267,12 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       alturaPadrao: 0.95,
       profundidadePadrao: 0.38,
     },
+    // Base a 65 cm do tampo (bancada de 90 cm) e topo junto ao teto.
     gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
       largura: W - 0.8,
-      altura: 0.9,
+      altura: Math.max(0.6, H - 1.55 - 0.03),
       profundidade: 0.38,
-      posicao: [-0.4, H - 0.48, -D / 2 + 0.2],
+      posicao: [-0.4, 1.55, -D / 2 + 0.2],
     }),
   },
   'torre-forno': {
@@ -340,7 +348,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       largura: 0.85,
       altura: H - 0.15,
       profundidade: 0.4,
-      posicao: [W / 2 - 0.55, (H - 0.15) / 2, -D / 2 + 0.22],
+      posicao: [W / 2 - 0.425, (H - 0.15) / 2, -D / 2 + 0.22],
     }),
   },
   'ilha-closet': {
@@ -368,18 +376,23 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
     ambientes: ['closet'],
     regraEncaixe: {
       parede: 'N',
-      larguraMin: 1.4,
+      larguraMin: 1.2,
       larguraMax: 3.4,
       larguraPadrao: 2.1,
       alturaPadrao: 2.5,
       profundidadePadrao: 0.52,
     },
-    gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => ({
-      largura: Math.min(1.8, W - 1.6),
-      altura: H - 0.08,
-      profundidade: 0.52,
-      posicao: [-0.2, (H - 0.08) / 2, -D / 2 + 0.27],
-    }),
+    // Começa depois dos 60 cm livres na frente do guarda-roupa da parede esquerda.
+    gerarGeometria: ({ largura_m: W, profundidade_m: D, pe_direito_m: H }) => {
+      // Cabe entre a área livre do guarda-roupa e a coluna de nichos do canto direito.
+      const larg = Math.max(1.2, Math.min(1.8, W - 2.05));
+      return {
+        largura: larg,
+        altura: H - 0.08,
+        profundidade: 0.52,
+        posicao: [-W / 2 + 1.2 + larg / 2, (H - 0.08) / 2, -D / 2 + 0.27],
+      };
+    },
   },
   'sapateira-espelhada': {
     id: 'sapateira-espelhada',
@@ -534,6 +547,26 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       const larg = Math.min(1.2, W - 0.6);
       return { largura: larg, altura: 0.8, profundidade: 0.14, posicao: [-0.1, 1.05, -D / 2 + 0.07] };
     },
+  },
+  'nicho-geladeira': {
+    id: 'nicho-geladeira',
+    rotulo: 'Nicho de geladeira até o teto',
+    ambientes: ['cozinha'],
+    regraEncaixe: {
+      parede: 'L',
+      larguraMin: 0.8,
+      larguraMax: 1.1,
+      larguraPadrao: 0.9,
+      alturaPadrao: 2.6,
+      profundidadePadrao: 0.7,
+    },
+    // Na lateral, logo depois da torre quente.
+    gerarGeometria: ({ profundidade_m: D, pe_direito_m: H }) => ({
+      largura: 0.9,
+      altura: H - 0.06,
+      profundidade: 0.7,
+      posicao: [0, 0, -D / 2 + 0.62 + 0.45],
+    }),
   },
 };
 
