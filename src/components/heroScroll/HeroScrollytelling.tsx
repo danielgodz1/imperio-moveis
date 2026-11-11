@@ -5,6 +5,7 @@ import { Foto } from '../Foto';
 import { rebaixarPorDesempenho, tem3D, useNivel } from '../../vitrine/nivel';
 import { HeroScrollFallback } from './HeroScrollFallback';
 import { PosterTraco } from './PosterTraco';
+import { HeroVideoCena } from './HeroVideoCena';
 import { ALT_FOTO_COZINHA, HeroScrollConteudo } from './HeroScrollConteudo';
 import {
   FASES,
@@ -79,6 +80,8 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
   const nivel = useNivel();
   const [modoEstatico] = useState(() => !tem3D(nivel) || deveAtivarModoEstatico());
   const cenaAtiva = useAtivarNaInteracao();
+  // Teste: ?hero=video troca o 3D pelo vídeo gerado no Flow.
+  const [modoVideo] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('hero') === 'video');
 
   // Sem âncora, a narrativa sempre abre em 01/05: nada de restaurar o scroll no meio.
   useLayoutEffect(() => {
@@ -179,7 +182,9 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
       <div className="sticky top-0 h-screen h-[100svh] w-full overflow-hidden flex flex-col lg:block">
         {/* Palco: em tela cheia no desktop, acima do texto no celular */}
         <div className="relative flex-1 min-h-0 lg:absolute lg:inset-0" aria-hidden="true">
-          {cenaAtiva ? (
+          {modoVideo ? (
+            <HeroVideoCena />
+          ) : cenaAtiva ? (
             <Suspense fallback={<PosterTraco />}>
               <HeroScrollCena onLento={rebaixarPorDesempenho} />
             </Suspense>
