@@ -43,6 +43,13 @@ export interface MetaRotaSeo {
   resumoHtmlInicial: string;
 }
 
+/** Título e texto do hero da home (usados no componente e no HTML pré-renderizado). */
+export const TEXTO_HERO = {
+  titulo: 'Arquitetura e marcenaria na mesma mesa.',
+  texto:
+    'A Tatiane projeta, o Wellington fabrica. Móveis planejados para cozinhas, quartos, closets e lojas em Jaú e região, com precisão milimétrica desde 2015.',
+};
+
 export const PAGINAS_AMBIENTES_LOCAIS: Record<
   PaginaAmbienteConfig['rota'],
   PaginaAmbienteConfig
@@ -281,9 +288,8 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
       'Móveis planejados em Jaú e região com projeto de arquitetura e fabricação própria: cozinhas, quartos, closets e home office sob medida. Peça seu orçamento pelo WhatsApp.',
     canonical: `${EMPRESA.url}/`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
-    h1Inicial: 'Arquitetura e marcenaria na mesma mesa.',
-    resumoHtmlInicial:
-      'Móveis planejados em Jaú e região. A Tatiane projeta, o Wellington fabrica: cozinhas, quartos, closets e lojas desde 2015.',
+    h1Inicial: TEXTO_HERO.titulo,
+    resumoHtmlInicial: TEXTO_HERO.texto,
   },
   '/contato': {
     rota: '/contato',

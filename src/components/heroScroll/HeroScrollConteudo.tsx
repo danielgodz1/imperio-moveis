@@ -2,6 +2,7 @@ import React from 'react';
 import { MessageSquare } from 'lucide-react';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../../utils/helpers';
 import { scrollToTarget } from '../../hooks/useScrollytelling';
+import { TEXTO_HERO } from '../../data/paginasLocais';
 
 export const ALT_FOTO_COZINHA =
   'Cozinha planejada com ilha verde-sálvia, tampo de pedra clara, armários brancos e verdes, geladeira inox e fita de LED, executada pela Império em Jaú';
@@ -18,12 +19,9 @@ interface HeroScrollConteudoProps {
 /** H1, texto e CTAs; compartilhado pela narrativa 3D e pelo fallback estático. */
 export const HeroScrollConteudo: React.FC<HeroScrollConteudoProps> = ({ onNavigateContact }) => (
   <>
-    <h1 className="tipo-h1 text-papel">Arquitetura e marcenaria na mesma mesa.</h1>
+    <h1 className="tipo-h1 text-papel">{TEXTO_HERO.titulo}</h1>
 
-    <p className="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">
-      A Tatiane projeta, o Wellington fabrica. Móveis planejados para cozinhas, quartos, closets e
-      lojas em Jaú e região, com precisão milimétrica desde 2015.
-    </p>
+    <p className="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">{TEXTO_HERO.texto}</p>
 
     <div className="flex flex-wrap items-center gap-x-16 gap-y-8 mt-24">
       {onNavigateContact ? (
