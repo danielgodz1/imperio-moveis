@@ -103,7 +103,7 @@ export const ReviewsSection: React.FC = () => {
         </div>
 
         {avaliacoes.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-24">
+          <div className={`grid grid-cols-1 md:grid-cols-2 gap-24 ${avaliacoes.length === 4 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
             {avaliacoes.slice(0, 6).map((a, i) => (
               <article key={i} className="p-24 rounded-2xl bg-papel border border-grafite/15 flex flex-col justify-between gap-24">
                 <div className="flex flex-col gap-16">
@@ -111,7 +111,7 @@ export const ReviewsSection: React.FC = () => {
                     <Estrelas nota={a.nota} />
                     <span className="tipo-cota text-grafite-suave">{a.quando}</span>
                   </div>
-                  <p className="font-voz italic text-lg text-grafite leading-relaxed line-clamp-[8]">“{a.texto}”</p>
+                  <p className="font-voz italic text-lg text-grafite leading-relaxed line-clamp-[8] whitespace-pre-line">“{a.texto}”</p>
                 </div>
                 <div className="pt-16 border-t border-grafite/15 flex items-center gap-8">
                   {a.foto && (
