@@ -15,10 +15,17 @@ export interface Aparelho {
 }
 
 export interface PerfilQualidade {
-  /** Texturas menores, sem antialias e sem luzes extras. */
+  /** Texturas menores e sem luzes extras. */
   leve: boolean;
+  /** Sombras reais projetadas pela luz principal. */
   sombras: boolean;
   dpr: [number, number];
+  /** MSAA: bordas sem degraus. Custa pouco em GPU de celular e é o que mais tira o aspecto de jogo. */
+  antialias: boolean;
+  /** Lado do mapa de sombra em pixels (0 = sem sombra real). */
+  mapaSombra: number;
+  /** Segmentos do chanfro nas quinas dos móveis (0 = quina viva). */
+  bisel: number;
 }
 
 const SOFTWARE = /swiftshader|llvmpipe|softpipe|software|basic render|microsoft basic/i;
@@ -68,6 +75,9 @@ export function detectarAparelho(): Aparelho {
   };
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return resultado(0, 'movimento reduzido');
+  // ?qualidade=0..3 força a faixa (testes de qualidade e de desempenho em qualquer aparelho).
+  const forcada = new URLSearchParams(window.location.search).get('qualidade');
+  if (forcada !== null && /^[0-3]$/.test(forcada)) return resultado(Number(forcada) as FaixaAparelho, 'faixa forçada pela URL');
   if (!gpu) return resultado(0, 'sem WebGL');
   if (SOFTWARE.test(gpu)) return resultado(0, 'render por software');
   if (nav.connection?.saveData) return resultado(1, 'economia de dados');
@@ -82,7 +92,10 @@ export function detectarAparelho(): Aparelho {
 /** Ajustes do 3D para a faixa do aparelho. */
 export function perfilQualidade(aparelho = detectarAparelho()): PerfilQualidade {
   const { faixa, movel } = aparelho;
-  if (faixa >= 3 && !movel) return { leve: false, sombras: true, dpr: [1, 2] };
-  if (faixa >= 2) return { leve: movel, sombras: false, dpr: [1, 1.5] };
-  return { leve: true, sombras: false, dpr: [1, 1] };
+  // Computador com placa forte: tudo ligado.
+  if (faixa >= 3 && !movel) return { leve: false, sombras: true, dpr: [1, 2], antialias: true, mapaSombra: 2048, bisel: 2 };
+  // Intermediário (celular bom, integrado moderno): sombras suaves e MSAA, texturas menores no celular.
+  if (faixa >= 2) return { leve: movel, sombras: true, dpr: [1, 2], antialias: true, mapaSombra: movel ? 1024 : 1536, bisel: movel ? 1 : 2 };
+  // Entrada: sem sombra real (as manchas de oclusão seguram o visual), mas com MSAA e chanfro simples.
+  return { leve: true, sombras: false, dpr: [1, 1.5], antialias: true, mapaSombra: 0, bisel: 1 };
 }

@@ -6,7 +6,7 @@ import gsap from 'gsap';
 import { FASES, RECORTE_FOTO, larguraPainel, useHeroScrollStore } from './useHeroScrollStore';
 import { criarMateriais } from './heroMateriais';
 import { CAMERA_FOTO, PESO_ETAPAS, construirCozinha } from './heroModelo';
-import { perfilQualidade } from '../../vitrine/aparelho';
+import { perfilQualidade, type PerfilQualidade } from '../../vitrine/aparelho';
 import { GuardaQuadros } from '../../vitrine/GuardaQuadros';
 
 const PRETO = new THREE.Color('#0A0A0A');
@@ -32,7 +32,8 @@ function janelaFoto(aspecto: number) {
   return { l, r: l + largura * visivel, t: topo, b: base };
 }
 
-function NarrativaCena({ mobile, sombras }: { mobile: boolean; sombras: boolean }) {
+function NarrativaCena({ mobile, perfil }: { mobile: boolean; perfil: PerfilQualidade }) {
+  const sombras = perfil.sombras;
   const { camera, invalidate, scene, gl, size } = useThree();
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const sizeRef = useRef(size);
@@ -41,9 +42,9 @@ function NarrativaCena({ mobile, sombras }: { mobile: boolean; sombras: boolean 
   const recursos = useMemo(() => {
     const frente = { value: 0 };
     const { materiais, texturas } = criarMateriais(mobile, frente);
-    const modelo = construirCozinha(mobile, materiais, texturas);
+    const modelo = construirCozinha(mobile, materiais, texturas, { sombras: perfil.sombras, bisel: perfil.bisel });
     return { frente, materiais, texturas, modelo };
-  }, [mobile]);
+  }, [mobile, perfil]);
 
   const luzes = useMemo(
     () => ({
@@ -68,7 +69,7 @@ function NarrativaCena({ mobile, sombras }: { mobile: boolean; sombras: boolean 
     const ambiente = new RoomEnvironment();
     const envRT = pmrem.fromScene(ambiente, 0.04);
     scene.environment = envRT.texture;
-    scene.environmentIntensity = 0.5;
+    scene.environmentIntensity = 0.6;
     ambiente.traverse((o) => {
       const malha = o as THREE.Mesh;
       if (malha.isMesh) {
@@ -227,25 +228,27 @@ function NarrativaCena({ mobile, sombras }: { mobile: boolean; sombras: boolean 
 
   return (
     <>
-      <ambientLight intensity={0.3} color="#FFF8EE" />
-      <hemisphereLight args={['#FFFFFF', '#B9AF9E', 0.72]} />
+      <ambientLight intensity={0.22} color="#FFF8EE" />
+      <hemisphereLight args={['#FFFFFF', '#A89F8E', 0.55]} />
+      {/* Luz principal alta e de lado: dá relevo às frentes e faz o armário aéreo sombrear o balcão. */}
       <directionalLight
-        position={[2.2, 6.5, 8]}
-        intensity={1.3}
-        color="#FFF6E8"
+        position={[-1.5, 7.5, 6.5]}
+        intensity={1.55}
+        color="#FFF3E2"
         castShadow={sombras}
-        shadow-mapSize-width={1536}
-        shadow-mapSize-height={1536}
-        shadow-camera-left={-5}
-        shadow-camera-right={5}
-        shadow-camera-top={5}
-        shadow-camera-bottom={-5}
+        shadow-mapSize-width={perfil.mapaSombra || 1024}
+        shadow-mapSize-height={perfil.mapaSombra || 1024}
+        shadow-camera-left={-4.4}
+        shadow-camera-right={4.4}
+        shadow-camera-top={4.4}
+        shadow-camera-bottom={-4.4}
         shadow-camera-near={1}
         shadow-camera-far={18}
-        shadow-bias={-0.0006}
-        shadow-radius={7}
+        shadow-bias={-0.0004}
+        shadow-normalBias={0.018}
       />
-      <directionalLight position={[8, 3.5, 2]} intensity={0.3} color="#F2EEE8" />
+      {/* Contraluz frio do lado oposto: separa os móveis brancos da parede. */}
+      <directionalLight position={[8, 3.5, 2]} intensity={0.42} color="#EDEFF2" />
       {!mobile && <primitive object={luzes.led1} position={[0.85, 1.5, 0.34]} />}
       {!mobile && <primitive object={luzes.led2} position={[2.05, 1.5, 0.34]} />}
       <primitive object={recursos.modelo.raiz} />
@@ -262,10 +265,10 @@ export const HeroScrollCena: React.FC<{ onLento?: () => void }> = ({ onLento }) 
     <Canvas
       frameloop="demand"
       dpr={perfil.dpr}
-      shadows={perfil.sombras ? { type: THREE.PCFShadowMap } : false}
+      shadows={perfil.sombras ? { type: THREE.PCFSoftShadowMap } : false}
       camera={{ position: [2.5, 15, 2.45], fov: 28, near: NEAR, far: FAR }}
       gl={{
-        antialias: !mobile,
+        antialias: perfil.antialias,
         powerPreference: 'high-performance',
         toneMapping: THREE.NeutralToneMapping,
         toneMappingExposure: 1.0,
@@ -275,7 +278,7 @@ export const HeroScrollCena: React.FC<{ onLento?: () => void }> = ({ onLento }) 
       aria-hidden="true"
     >
       <GuardaQuadros onLento={onLento} />
-      <NarrativaCena mobile={mobile} sombras={perfil.sombras} />
+      <NarrativaCena mobile={mobile} perfil={perfil} />
     </Canvas>
   );
 };

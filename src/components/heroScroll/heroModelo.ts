@@ -49,7 +49,16 @@ function naoIndexada(g: THREE.BufferGeometry) {
   return g.index ? g.toNonIndexed() : g;
 }
 
-export function construirCozinha(mobile: boolean, m: MateriaisHero, t: TexturasHero) {
+/** Qualidade do modelo por aparelho: sombras reais e segmentos do chanfro nas quinas. */
+export interface QualidadeModelo {
+  sombras: boolean;
+  bisel: number;
+}
+
+/** Raio das quinas dos móveis (MDF real tem quina de 1 a 3 mm; 3,5 mm aparece sem exagerar). */
+const RAIO_BISEL = 0.0035;
+
+export function construirCozinha(mobile: boolean, m: MateriaisHero, t: TexturasHero, q: QualidadeModelo = { sombras: !mobile, bisel: mobile ? 0 : 2 }) {
   const raiz = new THREE.Group();
   const internos = new THREE.Group();
   const espelho = new THREE.Group();
@@ -68,15 +77,33 @@ export function construirCozinha(mobile: boolean, m: MateriaisHero, t: TexturasH
   /** Caixa com UV em metros, para a textura manter a escala em qualquer peça. */
   let deslocUv = 0;
   function caixa(l: number, a: number, p: number, veio: 'x' | 'y' = 'y') {
-    const g = new THREE.BoxGeometry(l, a, p);
+    // Quina chanfrada: pega um fio de luz e separa as peças brancas umas das outras.
+    const raio = q.bisel > 0 ? Math.min(RAIO_BISEL, Math.min(l, a, p) * 0.45) : 0;
+    const g: THREE.BufferGeometry = raio > 0.0006 ? new RoundedBoxGeometry(l, a, p, q.bisel, raio) : new THREE.BoxGeometry(l, a, p);
     const uv = g.attributes.uv as THREE.BufferAttribute;
+    const pos = g.attributes.position as THREE.BufferAttribute;
+    const nor = g.attributes.normal as THREE.BufferAttribute;
     deslocUv += 0.37;
     for (let i = 0; i < uv.count; i++) {
-      const f = Math.floor(i / 4);
-      const [U, V] = f < 2 ? [p, a] : f < 4 ? [l, p] : [l, a];
-      let u = uv.getX(i) * U;
-      let v = uv.getY(i) * V;
-      if (veio === 'y' && f !== 2 && f !== 3) [u, v] = [v, u];
+      // Projeção em caixa: o rosto dominante da normal decide quais eixos viram U e V (em metros).
+      const nx = Math.abs(nor.getX(i));
+      const ny = Math.abs(nor.getY(i));
+      const nz = Math.abs(nor.getZ(i));
+      let u: number;
+      let v: number;
+      let topoOuBase = false;
+      if (nx >= ny && nx >= nz) {
+        u = pos.getZ(i) + p / 2;
+        v = pos.getY(i) + a / 2;
+      } else if (ny >= nz) {
+        u = pos.getX(i) + l / 2;
+        v = pos.getZ(i) + p / 2;
+        topoOuBase = true;
+      } else {
+        u = pos.getX(i) + l / 2;
+        v = pos.getY(i) + a / 2;
+      }
+      if (veio === 'y' && !topoOuBase) [u, v] = [v, u];
       uv.setXY(i, u + deslocUv, v + deslocUv * 0.6);
     }
     return g;
@@ -107,8 +134,8 @@ export function construirCozinha(mobile: boolean, m: MateriaisHero, t: TexturasH
     const malha = new THREE.Mesh(geo, mat);
     const final = new THREE.Vector3(...centro);
     const origem = final.clone().add(new THREE.Vector3(...entrada));
-    malha.castShadow = !mobile && op.sombra !== false && !op.interna;
-    malha.receiveShadow = !mobile;
+    malha.castShadow = q.sombras && op.sombra !== false && !op.interna;
+    malha.receiveShadow = q.sombras;
     (op.interna ? internos : raiz).add(malha);
 
     const reflexo = op.espelho ? new THREE.Mesh(geo, mat) : null;
@@ -688,7 +715,7 @@ export function construirCozinha(mobile: boolean, m: MateriaisHero, t: TexturasH
   const uvPlaca = placaGeo.attributes.uv as THREE.BufferAttribute;
   for (let i = 0; i < uvPlaca.count; i++) uvPlaca.setXY(i, uvPlaca.getX(i) * PISO.placa, uvPlaca.getY(i) * PISO.placa);
   const piso = new THREE.InstancedMesh(placaGeo, m.piso, nx * nz);
-  piso.receiveShadow = !mobile;
+  piso.receiveShadow = q.sombras;
   piso.frustumCulled = false;
   piso.renderOrder = 1;
   raiz.add(piso);
@@ -715,7 +742,7 @@ export function construirCozinha(mobile: boolean, m: MateriaisHero, t: TexturasH
     g.translate(0, a / 2, 0);
     const ma = new THREE.Mesh(g, m.parede);
     ma.position.set(cx, y0, cz);
-    ma.receiveShadow = !mobile;
+    ma.receiveShadow = q.sombras;
     raiz.add(ma);
     const aplicar = (v: number) => {
       ma.visible = v > 0.002;

@@ -565,7 +565,7 @@ export const CenaQuarto3D: React.FC<CenaQuarto3DProps> = (props) => {
     <Canvas
       gl={{
         preserveDrawingBuffer: true,
-        antialias: !mobile,
+        antialias: perfil.antialias,
         // AgX segura os brancos do LED e da janela sem lavar a madeira; exposição acima de 1 evita cena escura.
         toneMapping: THREE.AgXToneMapping,
         toneMappingExposure: 1.25,
