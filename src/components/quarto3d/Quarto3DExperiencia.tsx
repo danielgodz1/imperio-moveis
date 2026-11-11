@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Copy, Moon, RotateCw, Sun, Trash2, Undo2 } from 'lucide-react';
+import { Copy, Moon, Redo2, RotateCw, Sun, Trash2, Undo2 } from 'lucide-react';
 import { QuartoLayout, QuartoLayoutSchema, construirLayoutDoCenario, normalizarLayout, Ambiente, ModuloId } from './schema';
 import { CENARIOS_AMBIENTES, CATALOGO_MODULOS_CENARIO, ParedeCardeal } from '../../data/cenarios';
 import { ACABAMENTOS_3D } from '../../data/acabamentos';
@@ -13,9 +13,12 @@ import {
   limitesModulo,
   normalizarInstancia,
   novoUid,
+  prenderAbertura,
   prenderAoAmbiente,
   validarLayout,
+  Abertura,
 } from './motorGeometrico';
+import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
 import { getWhatsAppUrl, salvarResumo3DAtivo, trackWhatsAppClick } from '../../utils/helpers';
 
 export interface Quarto3DExperienciaProps {
@@ -38,7 +41,9 @@ const VISTAS: Array<{ id: VistaCamera; rotulo: string }> = [
 
 const PAREDES: ParedeCardeal[] = ['N', 'O', 'L', 'S', 'centro'];
 const rotuloModulo = (id: ModuloId) => CATALOGO_MODULOS_CENARIO[id]?.rotulo ?? id;
-const metros = (v: number) => `${v.toFixed(2).replace('.', ',')} m`;
+/** Medidas aparecem em centímetros, em passos de 5 cm. */
+const cm = (v: number) => `${Math.round(v * 100)} cm`;
+const NOME_PAREDE_ABERTURA: Record<Abertura['parede'], string> = { N: 'Fundo', O: 'Esquerda', L: 'Direita', S: 'Frente' };
 
 const CHIP_BASE = 'tipo-cota rounded-curto border cursor-pointer transition-colors';
 const chip = (ativo: boolean) =>
@@ -56,7 +61,7 @@ const Medida: React.FC<{
   <label className="flex flex-col gap-4">
     <span className="flex items-center justify-between tipo-cota text-papel/85">
       <span>{rotulo}</span>
-      <span className="text-papel font-semibold">{metros(valor)}</span>
+      <span className="text-papel font-semibold">{cm(valor)}</span>
     </span>
     <input
       type="range"
@@ -73,68 +78,61 @@ const Medida: React.FC<{
 );
 
 export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpenBriefingOutro }) => {
-  const [layout, setLayoutCru] = useState<QuartoLayout>(() => construirLayoutDoCenario('quarto', 'freijo-ripado'));
-  const [selecionado, setSelecionado] = useState<string | null>(null);
+  const layout = useEditor((e) => e.layout);
+  const selecionado = useEditor((e) => e.selecionado);
+  const podeDesfazer = useEditor((e) => e.passado.length > 0);
+  const podeRefazer = useEditor((e) => e.futuro.length > 0);
+  const { aplicar, durante, fimGesto, desfazer, refazer, selecionar: setSelecionado } = useEditor.getState();
   const [aba, setAba] = useState<Aba>('moveis');
   const [vista, setVista] = useState<VistaCamera>('perspectiva');
   const [pedidoVista, setPedidoVista] = useState(0);
-  const [historico, setHistorico] = useState<QuartoLayout[]>([]);
   const [descricaoIa, setDescricaoIa] = useState('');
   const [carregandoIa, setCarregandoIa] = useState(false);
   const [avisoIa, setAvisoIa] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const baseGestoRef = useRef<QuartoLayout | null>(null);
-  const layoutRef = useRef(layout);
-  layoutRef.current = layout;
 
   const cenarioAtual = CENARIOS_AMBIENTES[layout.comodo];
   const modulos = layout.modulos as Instancia[];
   const atual = modulos.find((m) => m.uid === selecionado) ?? null;
+  const iAbertura = indiceAbertura(selecionado);
+  const aberturaAtual = iAbertura !== null ? layout.aberturas[iAbertura] ?? null : null;
 
   const conflitos = useMemo(
     () => validarLayout(modulos, layout.aberturas, layout.dimensoes, rotuloModulo),
     [modulos, layout.aberturas, layout.dimensoes]
   );
 
-  /** Ação pontual: entra no histórico na hora. */
-  const aplicar = useCallback((fn: (prev: QuartoLayout) => QuartoLayout) => {
-    setHistorico((h) => [...h.slice(-19), layoutRef.current]);
-    setLayoutCru(fn);
-  }, []);
-
-  /** Gesto contínuo (slider ou arrasto): um único passo de histórico ao terminar. */
-  const durante = useCallback((fn: (prev: QuartoLayout) => QuartoLayout) => {
-    if (!baseGestoRef.current) baseGestoRef.current = layoutRef.current;
-    setLayoutCru(fn);
-  }, []);
-
-  const fimGesto = useCallback(() => {
-    const base = baseGestoRef.current;
-    if (base) setHistorico((h) => [...h.slice(-19), base]);
-    baseGestoRef.current = null;
-  }, []);
-
-  const desfazer = () => {
-    setHistorico((h) => {
-      const ultimo = h[h.length - 1];
-      if (ultimo) setLayoutCru(ultimo);
-      return h.slice(0, -1);
-    });
-    setSelecionado(null);
-  };
+  // Atalhos: Ctrl+Z desfaz; Ctrl+Shift+Z ou Ctrl+Y refaz (fora de campos de texto).
+  useEffect(() => {
+    const tecla = (e: KeyboardEvent) => {
+      const alvo = e.target as HTMLInputElement | null;
+      if (alvo?.tagName === 'INPUT' && alvo.type === 'text') return;
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const letra = e.key.toLowerCase();
+      if (letra === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        desfazer();
+      } else if (letra === 'y' || (letra === 'z' && e.shiftKey)) {
+        e.preventDefault();
+        refazer();
+      }
+    };
+    window.addEventListener('keydown', tecla);
+    return () => window.removeEventListener('keydown', tecla);
+  }, [desfazer, refazer]);
 
   const resumoPecas = () =>
     modulos
       .map((m) => {
         const acab = ACABAMENTOS_3D.find((a) => a.id === m.acabamento)?.nome ?? m.acabamento;
-        return `${rotuloModulo(m.id)} (${metros(m.largura_m)} x ${metros(m.altura_m)}, ${acab})`;
+        return `${rotuloModulo(m.id)} (${cm(m.largura_m)} x ${cm(m.altura_m)}, ${acab})`;
       })
       .join('; ');
 
   useEffect(() => {
     const { largura_m: W, profundidade_m: D, pe_direito_m: H } = layout.dimensoes;
-    salvarResumo3DAtivo(`${cenarioAtual.rotulo} ${W.toFixed(2)}m x ${D.toFixed(2)}m, pé-direito ${H.toFixed(2)}m | ${resumoPecas()} | LED: ${layout.led ? 'Sim' : 'Não'}`);
+    salvarResumo3DAtivo(`${cenarioAtual.rotulo} ${cm(W)} x ${cm(D)}, pé-direito ${cm(H)} | ${resumoPecas()} | LED: ${layout.led ? 'Sim' : 'Não'}`);
     // resumoPecas deriva de modulos, já presente em layout
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout, cenarioAtual]);
@@ -151,10 +149,47 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
       return {
         ...prev,
         dimensoes,
+        aberturas: prev.aberturas.map((a) => prenderAbertura(a, dimensoes)),
         modulos: prev.modulos.map((m) => normalizarInstancia(m, dimensoes)),
       };
     });
   };
+
+  const alterarAbertura = (indice: number, parcial: Partial<Abertura>, gesto = false) => {
+    const fn = (prev: QuartoLayout): QuartoLayout => ({
+      ...prev,
+      aberturas: prev.aberturas.map((a, i) => (i === indice ? prenderAbertura({ ...a, ...parcial }, prev.dimensoes) : a)),
+    });
+    if (gesto) durante(fn);
+    else aplicar(fn);
+  };
+
+  const adicionarAbertura = (tipo: Abertura['tipo']) => {
+    const nova: Abertura =
+      tipo === 'janela'
+        ? { tipo, parede: 'L', largura_m: 1.0, posicaoOffset_m: 0, peitoril_m: 1.0, altura_m: 1.1 }
+        : { tipo, parede: 'S', largura_m: 0.8, posicaoOffset_m: 0, peitoril_m: 0, altura_m: 2.1 };
+    const indice = layout.aberturas.length;
+    aplicar((prev) => ({ ...prev, aberturas: [...prev.aberturas, prenderAbertura(nova, prev.dimensoes)] }));
+    setSelecionado(`${PREFIXO_ABERTURA}${indice}`);
+  };
+
+  const removerAbertura = (indice: number) => {
+    aplicar((prev) => ({ ...prev, aberturas: prev.aberturas.filter((_, i) => i !== indice) }));
+    setSelecionado(null);
+  };
+
+  const moverAbertura = useCallback(
+    (indice: number, posicao: number) => {
+      durante((prev) => ({
+        ...prev,
+        aberturas: prev.aberturas.map((a, i) =>
+          i === indice ? prenderAbertura({ ...a, posicaoOffset_m: posicao }, prev.dimensoes) : a
+        ),
+      }));
+    },
+    [durante]
+  );
 
   const alterarPeca = (uid: string, parcial: Partial<Instancia>, gesto = false) => {
     const fn = (prev: QuartoLayout): QuartoLayout => ({
@@ -200,10 +235,13 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     aplicar((prev) => ({ ...prev, modulos: prev.modulos.map((m) => ({ ...m, acabamento: id })) }));
   };
 
-  const selecionar = useCallback((uid: string | null) => {
-    setSelecionado(uid);
-    if (uid) setAba('moveis');
-  }, []);
+  const selecionar = useCallback(
+    (sel: string | null) => {
+      setSelecionado(sel);
+      if (sel) setAba(indiceAbertura(sel) !== null ? 'ambiente' : 'moveis');
+    },
+    [setSelecionado]
+  );
 
   const moverPeca = useCallback(
     (inst: Instancia) => {
@@ -217,11 +255,11 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     const linhas = modulos.map((m) => {
       const acab = ACABAMENTOS_3D.find((a) => a.id === m.acabamento)?.nome ?? m.acabamento;
       const parede = NOME_PAREDE[m.parede];
-      return `- ${rotuloModulo(m.id)}: ${metros(m.largura_m)} x ${metros(m.altura_m)}, ${acab}, parede: ${parede}`;
+      return `- ${rotuloModulo(m.id)}: ${cm(m.largura_m)} x ${cm(m.altura_m)}, ${acab}, parede: ${parede}`;
     });
     return [
       'Oi! Montei meu projeto no 3D do site da Império e quero um orçamento:',
-      `Ambiente: ${cenarioAtual.rotulo}, ${metros(W)} x ${metros(D)}, pé-direito ${metros(H)}`,
+      `Ambiente: ${cenarioAtual.rotulo}, ${cm(W)} x ${cm(D)}, pé-direito ${cm(H)}`,
       ...linhas,
       `Fita de LED: ${layout.led ? 'Sim' : 'Não'}`,
     ].join('\n');
@@ -303,6 +341,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             pedidoVista={pedidoVista}
             onSelecionar={selecionar}
             onMover={moverPeca}
+            onMoverAbertura={moverAbertura}
             onMoverFim={fimGesto}
             onCanvasReady={(c) => {
               canvasRef.current = c;
@@ -339,17 +378,29 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             <button
               type="button"
               onClick={desfazer}
-              disabled={historico.length === 0}
+              disabled={!podeDesfazer}
               aria-label="Desfazer"
-              title="Desfazer"
+              title="Desfazer (Ctrl+Z)"
               className={`w-[36px] h-[36px] flex items-center justify-center bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel disabled:opacity-40 disabled:cursor-not-allowed`}
             >
               <Undo2 className="w-4 h-4" strokeWidth={1.5} />
             </button>
+            <button
+              type="button"
+              onClick={refazer}
+              disabled={!podeRefazer}
+              aria-label="Refazer"
+              title="Refazer (Ctrl+Shift+Z)"
+              className={`w-[36px] h-[36px] flex items-center justify-center bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel disabled:opacity-40 disabled:cursor-not-allowed`}
+            >
+              <Redo2 className="w-4 h-4" strokeWidth={1.5} />
+            </button>
           </div>
 
           <p className="absolute bottom-8 left-8 right-8 pointer-events-none tipo-cota text-papel bg-preto/80 px-8 py-4 w-fit max-w-[calc(100%-24px)]">
-            {atual ? 'Arraste a peça para mover. Gire a cena fora dela.' : 'Toque em um móvel para editar.'}
+            {atual || aberturaAtual
+              ? 'Arraste para mover. Gire a cena fora da peça.'
+              : 'Toque em um móvel, porta ou janela para editar.'}
           </p>
         </div>
 
@@ -544,10 +595,72 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             </div>
 
             <div className="flex flex-col gap-16">
-              <Medida rotulo="Largura do ambiente" valor={layout.dimensoes.largura_m} min={lim.largura.min} max={lim.largura.max} passo={0.1} onChange={(v) => atualizarMedida('largura_m', v)} onFim={fimGesto} />
-              <Medida rotulo="Profundidade do ambiente" valor={layout.dimensoes.profundidade_m} min={lim.profundidade.min} max={lim.profundidade.max} passo={0.1} onChange={(v) => atualizarMedida('profundidade_m', v)} onFim={fimGesto} />
+              <Medida rotulo="Largura do ambiente" valor={layout.dimensoes.largura_m} min={lim.largura.min} max={lim.largura.max} onChange={(v) => atualizarMedida('largura_m', v)} onFim={fimGesto} />
+              <Medida rotulo="Profundidade do ambiente" valor={layout.dimensoes.profundidade_m} min={lim.profundidade.min} max={lim.profundidade.max} onChange={(v) => atualizarMedida('profundidade_m', v)} onFim={fimGesto} />
               <Medida rotulo="Pé-direito" valor={layout.dimensoes.pe_direito_m} min={lim.pe_direito.min} max={lim.pe_direito.max} onChange={(v) => atualizarMedida('pe_direito_m', v)} onFim={fimGesto} />
             </div>
+
+            <div className="flex flex-col gap-8">
+              <span className="tipo-cota text-papel/85">Portas e janelas</span>
+              <div className="flex flex-col">
+                {layout.aberturas.map((ab, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-pressed={iAbertura === i}
+                    onClick={() => setSelecionado(iAbertura === i ? null : `${PREFIXO_ABERTURA}${i}`)}
+                    className={`flex items-center justify-between gap-8 py-8 border-b border-papel/15 text-left tipo-cota cursor-pointer ${iAbertura === i ? 'text-papel font-semibold' : 'text-papel/85'}`}
+                  >
+                    <span>
+                      {ab.tipo === 'janela' ? 'Janela' : 'Porta'}, parede {NOME_PAREDE_ABERTURA[ab.parede].toLowerCase()}
+                    </span>
+                    <span>{cm(ab.largura_m)}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <button type="button" onClick={() => adicionarAbertura('janela')} className={`h-[36px] ${CHIP_BASE} border-papel/25 text-papel hover:border-papel/60`}>
+                  + Janela
+                </button>
+                <button type="button" onClick={() => adicionarAbertura('porta')} className={`h-[36px] ${CHIP_BASE} border-papel/25 text-papel hover:border-papel/60`}>
+                  + Porta
+                </button>
+              </div>
+            </div>
+
+            {aberturaAtual && iAbertura !== null && (
+              <div className="flex flex-col gap-16 p-16 border border-dourado/60">
+                <div className="flex items-start justify-between gap-8">
+                  <h3 className="tipo-h3 text-papel">{aberturaAtual.tipo === 'janela' ? 'Janela' : 'Porta'}</h3>
+                  <button type="button" aria-label="Remover abertura" title="Remover" onClick={() => removerAbertura(iAbertura)} className={`w-[36px] h-[36px] flex items-center justify-center ${CHIP_BASE} border-papel/25 text-papel`}>
+                    <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-4">
+                  {(['N', 'O', 'L', 'S'] as const).map((p) => (
+                    <button key={p} type="button" aria-pressed={aberturaAtual.parede === p} onClick={() => alterarAbertura(iAbertura, { parede: p, posicaoOffset_m: 0 })} className={`h-[36px] ${chip(aberturaAtual.parede === p)}`}>
+                      {NOME_PAREDE_ABERTURA[p]}
+                    </button>
+                  ))}
+                </div>
+                {(() => {
+                  const parede = aberturaAtual.parede === 'N' || aberturaAtual.parede === 'S' ? layout.dimensoes.largura_m : layout.dimensoes.profundidade_m;
+                  const folga = Math.max(0, parede / 2 - aberturaAtual.largura_m / 2 - 0.05);
+                  const janela = aberturaAtual.tipo === 'janela';
+                  const peitoril = aberturaAtual.peitoril_m ?? (janela ? 1 : 0);
+                  return (
+                    <>
+                      <Medida rotulo="Largura" valor={aberturaAtual.largura_m} min={0.4} max={Math.min(2.6, parede - 0.1)} onChange={(v) => alterarAbertura(iAbertura, { largura_m: v }, true)} onFim={fimGesto} />
+                      <Medida rotulo="Posição na parede" valor={aberturaAtual.posicaoOffset_m} min={-folga} max={folga} onChange={(v) => alterarAbertura(iAbertura, { posicaoOffset_m: v }, true)} onFim={fimGesto} />
+                      {janela && (
+                        <Medida rotulo="Altura do peitoril" valor={peitoril} min={0.1} max={layout.dimensoes.pe_direito_m - 0.4} onChange={(v) => alterarAbertura(iAbertura, { peitoril_m: v }, true)} onFim={fimGesto} />
+                      )}
+                      <Medida rotulo="Altura" valor={aberturaAtual.altura_m ?? (janela ? 1.1 : 2.1)} min={0.3} max={layout.dimensoes.pe_direito_m - peitoril - 0.05} onChange={(v) => alterarAbertura(iAbertura, { altura_m: v }, true)} onFim={fimGesto} />
+                    </>
+                  );
+                })()}
+              </div>
+            )}
 
             {onOpenBriefingOutro && (
               <button type="button" onClick={onOpenBriefingOutro} className="tipo-cota text-dourado link-traco cursor-pointer text-left">

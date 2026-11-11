@@ -47,6 +47,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ? 'closet'
     : descricaoLimpa.includes('office') || descricaoLimpa.includes('escrit')
     ? 'home-office'
+    : descricaoLimpa.includes('banheiro') || descricaoLimpa.includes('lavabo')
+    ? 'banheiro'
     : 'quarto';
 
   const base = construirLayoutDoCenario(comodoDetectado, 'freijo-ripado');

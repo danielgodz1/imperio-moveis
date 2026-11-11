@@ -43,7 +43,10 @@ export interface Abertura {
   tipo: 'porta' | 'janela';
   parede: 'N' | 'S' | 'L' | 'O';
   largura_m: number;
+  /** Posição do centro no eixo da parede: X nas paredes N/S, Z nas paredes O/L (mesmo eixo dos móveis). */
   posicaoOffset_m: number;
+  peitoril_m?: number;
+  altura_m?: number;
 }
 
 export const PASSO_MOVER = 0.05;
@@ -77,6 +80,10 @@ export function elevacao(id: ModuloId, H: number, h: number): number {
       return 0.36;
     case 'forro-ripado-teto':
       return H - h;
+    case 'gabinete-banheiro':
+      return 0.3;
+    case 'espelheira-led':
+      return Math.min(1.05, H - h - 0.1);
     default:
       return 0;
   }
@@ -280,8 +287,49 @@ function podeSobrepor(a: Instancia, b: Instancia): boolean {
   return par.includes('gaveteiro') && par.includes('bancada-trabalho');
 }
 
-function extensaoAbertura(ab: Abertura) {
-  return ab.tipo === 'janela' ? { y0: 1.0, y1: 2.05 } : { y0: 0, y1: 2.1 };
+/** Faixa vertical ocupada pela abertura. A mesma usada para desenhar a parede. */
+export function faixaAbertura(ab: Abertura): { y0: number; y1: number } {
+  const janela = ab.tipo === 'janela';
+  const y0 = ab.peitoril_m ?? (janela ? 1.0 : 0);
+  const altura = ab.altura_m ?? (janela ? 1.1 : 2.1);
+  return { y0, y1: y0 + altura };
+}
+
+/** Converte a posição da abertura (eixo do mundo) para o X local do grupo da parede. */
+export function xLocalNaParede(parede: Abertura['parede'], posicao: number): number {
+  return parede === 'N' || parede === 'L' ? posicao : -posicao;
+}
+
+const AFASTAMENTO_CANTO = 0.05;
+
+/** Mantém a abertura inteira dentro da parede e abaixo do teto, com medidas em passos de 5 cm. */
+export function prenderAbertura(ab: Abertura, dim: Dimensoes): Abertura {
+  const comprimento = comprimentoParede(ab.parede, dim);
+  const largura_m = limitar(arredondar(ab.largura_m), 0.4, Math.max(0.4, comprimento - 2 * AFASTAMENTO_CANTO));
+  const folga = Math.max(0, comprimento / 2 - largura_m / 2 - AFASTAMENTO_CANTO);
+  const { y0, y1 } = faixaAbertura(ab);
+  const peitoril_m = ab.tipo === 'porta' ? 0 : limitar(arredondar(y0), 0.1, dim.pe_direito_m - 0.4);
+  const altura_m = limitar(arredondar(y1 - y0), 0.3, dim.pe_direito_m - peitoril_m - 0.05);
+  return { ...ab, largura_m, peitoril_m, altura_m, posicaoOffset_m: limitar(arredondar(ab.posicaoOffset_m), -folga, folga) };
+}
+
+/** Caixa no mundo ocupada pela abertura (fina, colada na face interna da parede). */
+export function caixaAbertura(ab: Abertura, dim: Dimensoes): Caixa2D {
+  const W = dim.largura_m / 2;
+  const D = dim.profundidade_m / 2;
+  const { y0, y1 } = faixaAbertura(ab);
+  const meia = ab.largura_m / 2;
+  const e = 0.03;
+  switch (ab.parede) {
+    case 'N':
+      return { minX: ab.posicaoOffset_m - meia, maxX: ab.posicaoOffset_m + meia, minZ: -D, maxZ: -D + e, minY: y0, maxY: y1 };
+    case 'S':
+      return { minX: ab.posicaoOffset_m - meia, maxX: ab.posicaoOffset_m + meia, minZ: D - e, maxZ: D, minY: y0, maxY: y1 };
+    case 'O':
+      return { minX: -W, maxX: -W + e, minZ: ab.posicaoOffset_m - meia, maxZ: ab.posicaoOffset_m + meia, minY: y0, maxY: y1 };
+    default:
+      return { minX: W - e, maxX: W, minZ: ab.posicaoOffset_m - meia, maxZ: ab.posicaoOffset_m + meia, minY: y0, maxY: y1 };
+  }
 }
 
 /** Problemas encontrados por peça. Mapa vazio significa projeto sem conflitos. */
@@ -320,7 +368,7 @@ export function validarLayout(
     aberturas
       .filter((ab) => ab.parede === m.parede)
       .forEach((ab) => {
-        const { y0, y1 } = extensaoAbertura(ab);
+        const { y0, y1 } = faixaAbertura(ab);
         const ocupa = caixas[i][0];
         const cruzaLado = Math.abs(m.offset_m - ab.posicaoOffset_m) < metade + ab.largura_m / 2 - TOLERANCIA;
         if (cruzaLado && ocupa.minY < y1 && ocupa.maxY > y0) {

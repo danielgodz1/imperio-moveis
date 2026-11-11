@@ -526,6 +526,37 @@ const Sofa: React.FC<PropsMovel> = ({ w, h, d, a, k }) => {
   );
 };
 
+const GabineteBanheiro: React.FC<PropsMovel> = ({ w, h, d, a, k, tampo }) => {
+  const C = fabrica(k);
+  const n = Math.max(2, Math.ceil(w / 0.6));
+  const cuba = Math.min(0.5, w * 0.45);
+  return (
+    <group>
+      {C([w, h - 0.02, d - CHAPA - 0.002], [0, (h - 0.02) / 2, (d - CHAPA) / 2], k.m.corpo)}
+      <Portas k={k} w={w} h={h - 0.02} z={d - CHAPA - 0.002} n={n} a={a} puxador="horizontal" />
+      {C([w, 0.02, d + 0.01], [0, h - 0.01, (d + 0.01) / 2], tampo, 'x')}
+      {C([cuba, 0.012, d * 0.62], [0, h + 0.002, d * 0.5], k.m.folga, 'x', false)}
+      {C([0.03, 0.2, 0.03], [0, h + 0.1, 0.06], k.m.cromo, 'y', false)}
+      {C([0.025, 0.025, 0.14], [0, h + 0.19, 0.12], k.m.cromo, 'x', false)}
+    </group>
+  );
+};
+
+const EspelheiraLed: React.FC<PropsMovel> = ({ w, h, d, k, led }) => {
+  const C = fabrica(k);
+  const n = Math.max(1, Math.ceil(w / 0.6));
+  const passo = w / n;
+  return (
+    <group>
+      {C([w, h, d - CHAPA], [0, h / 2, (d - CHAPA) / 2], k.m.corpo)}
+      {Array.from({ length: n }, (_, i) => (
+        <group key={i}>{C([passo - FOLGA, h - FOLGA, 0.006], [-w / 2 + passo * (i + 0.5), h / 2, d - CHAPA / 2], k.m.espelho, 'y', false)}</group>
+      ))}
+      <Fita k={k} led={led} s={[w - 0.04, 0.01, 0.012]} p={[0, -0.006, d - 0.03]} />
+    </group>
+  );
+};
+
 export const MOVEIS: Record<ModuloId, React.FC<PropsMovel>> = {
   'guarda-roupa': GuardaRoupa,
   'cabeceira-ripada-led': CabeceiraCama,
@@ -548,4 +579,6 @@ export const MOVEIS: Record<ModuloId, React.FC<PropsMovel>> = {
   gaveteiro: Gaveteiro,
   'armario-aereo-office': AereoOffice,
   'sofa-recepcao': Sofa,
+  'gabinete-banheiro': GabineteBanheiro,
+  'espelheira-led': EspelheiraLed,
 };

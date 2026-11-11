@@ -7,7 +7,8 @@ import { QuartoLayout } from './schema';
 import { CENARIOS_AMBIENTES } from '../../data/cenarios';
 import { Kit3D, criarKit3D } from './materiais3D';
 import { MOVEIS } from './moveis3D';
-import { Instancia, caixasModulo, moverPara, poseModulo } from './motorGeometrico';
+import { Caixa2D, Instancia, caixaAbertura, caixasModulo, faixaAbertura, moverPara, poseModulo, xLocalNaParede } from './motorGeometrico';
+import { PREFIXO_ABERTURA } from './estadoEditor';
 import { perfilQualidade } from '../../vitrine/aparelho';
 import { GuardaQuadros } from '../../vitrine/GuardaQuadros';
 
@@ -22,6 +23,8 @@ interface CenaQuarto3DProps {
   pedidoVista: number;
   onSelecionar: (uid: string | null) => void;
   onMover: (inst: Instancia) => void;
+  /** Nova posição da abertura no eixo da parede durante o arrasto. */
+  onMoverAbertura: (indice: number, posicao: number) => void;
   onMoverFim: () => void;
   onCanvasReady?: (canvas: HTMLCanvasElement) => void;
 }
@@ -68,10 +71,10 @@ function Camera({ layout, vista, pedidoVista }: Pick<CenaQuarto3DProps, 'layout'
 }
 
 /** Contorno das peças: dourado na selecionada, vermelho quando há conflito. */
-function Contorno({ inst, dim, cor }: { inst: Instancia; dim: QuartoLayout['dimensoes']; cor: string }) {
+function Contorno({ caixas, cor }: { caixas: Caixa2D[]; cor: string }) {
   const geo = useMemo(() => {
     const pts: number[] = [];
-    caixasModulo(inst, dim).forEach((c) => {
+    caixas.forEach((c) => {
       const box = new THREE.Box3(new THREE.Vector3(c.minX, c.minY, c.minZ), new THREE.Vector3(c.maxX, c.maxY, c.maxZ));
       const g = new THREE.EdgesGeometry(new THREE.BoxGeometry(...box.getSize(new THREE.Vector3()).toArray()));
       g.translate(...box.getCenter(new THREE.Vector3()).toArray());
@@ -81,7 +84,7 @@ function Contorno({ inst, dim, cor }: { inst: Instancia; dim: QuartoLayout['dime
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
     return g;
-  }, [inst, dim]);
+  }, [caixas]);
 
   useEffect(() => () => geo.dispose(), [geo]);
 
@@ -92,7 +95,21 @@ function Contorno({ inst, dim, cor }: { inst: Instancia; dim: QuartoLayout['dime
   );
 }
 
-function Paredes({ layout, k, refs }: { layout: QuartoLayout; k: Kit3D; refs: React.MutableRefObject<Record<string, THREE.Object3D | null>> }) {
+type ArrastoAbertura = (e: ThreeEvent<PointerEvent>, indice: number) => void;
+
+function Paredes({
+  layout,
+  k,
+  refs,
+  onSelecionar,
+  onArrastar,
+}: {
+  layout: QuartoLayout;
+  k: Kit3D;
+  refs: React.MutableRefObject<Record<string, THREE.Object3D | null>>;
+  onSelecionar: (sel: string) => void;
+  onArrastar: ArrastoAbertura;
+}) {
   const { largura_m: W, profundidade_m: D, pe_direito_m: H } = layout.dimensoes;
   const cenario = CENARIOS_AMBIENTES[layout.comodo];
   const destaque = useMemo(() => {
@@ -118,7 +135,9 @@ function Paredes({ layout, k, refs }: { layout: QuartoLayout; k: Kit3D; refs: Re
   return (
     <>
       {paredes.map((p) => {
-        const aberturas = layout.aberturas.filter((a) => a.parede === p.id);
+        const aberturas = layout.aberturas.map((ab, indice) => ({ ab, indice })).filter(({ ab }) => ab.parede === p.id);
+        // A parede escondida (entre a câmera e o ambiente) não recebe cliques.
+        const visivel = () => refs.current[p.id]?.visible !== false;
         return (
           <group
             key={p.id}
@@ -138,15 +157,32 @@ function Paredes({ layout, k, refs }: { layout: QuartoLayout; k: Kit3D; refs: Re
             {ledLigado && (
               <mesh geometry={k.plano(p.len - 0.2, 0.9)} material={k.m.brilho} position={[0, H / 2 - 0.48, ESPESSURA / 2 + 0.004]} />
             )}
-            {aberturas.map((ab, i) => {
+            {aberturas.map(({ ab, indice }) => {
               const janela = ab.tipo === 'janela';
-              const larg = Math.min(ab.largura_m, p.len * 0.6);
-              const alt = janela ? 1.15 : 2.1;
-              const y = (janela ? 1.48 : alt / 2) - H / 2;
-              const x = p.id === 'S' || p.id === 'L' ? -ab.posicaoOffset_m : ab.posicaoOffset_m;
-              const xLocal = p.id === 'O' ? -ab.posicaoOffset_m : x;
+              const larg = ab.largura_m;
+              const { y0, y1 } = faixaAbertura(ab);
+              const alt = y1 - y0;
+              const y = (y0 + y1) / 2 - H / 2;
+              const xLocal = xLocalNaParede(ab.parede, ab.posicaoOffset_m);
               return (
-                <group key={i} position={[xLocal, y, ESPESSURA / 2 + 0.012]}>
+                <group
+                  key={indice}
+                  position={[xLocal, y, ESPESSURA / 2 + 0.012]}
+                  onClick={(e) => {
+                    if (!visivel()) return;
+                    e.stopPropagation();
+                    onSelecionar(`${PREFIXO_ABERTURA}${indice}`);
+                  }}
+                  onPointerDown={(e) => {
+                    if (visivel()) onArrastar(e, indice);
+                  }}
+                  onPointerOver={() => {
+                    if (visivel()) document.body.style.cursor = 'pointer';
+                  }}
+                  onPointerOut={() => {
+                    document.body.style.cursor = '';
+                  }}
+                >
                   <mesh geometry={k.caixa(larg + 0.1, alt + 0.1, 0.024, 'x')} material={janela ? k.m.esquadria : k.acabamento('freijo-ripado')} />
                   <mesh position={[0, 0, 0.014]}>
                     <boxGeometry args={[larg, alt, 0.004]} />
@@ -175,6 +211,7 @@ function Ambiente({
   conflitos,
   onSelecionar,
   onMover,
+  onMoverAbertura,
   onMoverFim,
 }: Omit<CenaQuarto3DProps, 'onCanvasReady' | 'vista' | 'pedidoVista'> & { k: Kit3D }) {
   const { camera, gl, controls, invalidate, scene } = useThree();
@@ -185,6 +222,8 @@ function Ambiente({
   const modulos = layout.modulos as Instancia[];
   const modulosRef = useRef(modulos);
   modulosRef.current = modulos;
+  const aberturasRef = useRef(layout.aberturas);
+  aberturasRef.current = layout.aberturas;
   const noite = !!layout.noite;
 
   useEffect(() => {
@@ -274,6 +313,36 @@ function Ambiente({
     window.addEventListener('pointercancel', soltar);
   };
 
+  /** Arrasto de porta ou janela: corre só ao longo da própria parede. */
+  const arrastarAbertura: ArrastoAbertura = (e, indice) => {
+    if (selecionado !== `${PREFIXO_ABERTURA}${indice}`) return;
+    const ab = aberturasRef.current[indice];
+    if (!ab) return;
+    e.stopPropagation();
+    const { y0, y1 } = faixaAbertura(ab);
+    const plano = new THREE.Plane(new THREE.Vector3(0, 1, 0), -(y0 + y1) / 2);
+    const eixo = ab.parede === 'N' || ab.parede === 'S' ? 'x' : 'z';
+    const p = projetar(e.nativeEvent.clientX, e.nativeEvent.clientY, plano);
+    if (!p) return;
+    const delta = ab.posicaoOffset_m - p[eixo];
+    const c = controls as unknown as Controles | null;
+    if (c) c.enabled = false;
+    const mover = (ev: PointerEvent) => {
+      const q = projetar(ev.clientX, ev.clientY, plano);
+      if (q) onMoverAbertura(indice, q[eixo] + delta);
+    };
+    const soltar = () => {
+      if (c) c.enabled = true;
+      window.removeEventListener('pointermove', mover);
+      window.removeEventListener('pointerup', soltar);
+      window.removeEventListener('pointercancel', soltar);
+      onMoverFim();
+    };
+    window.addEventListener('pointermove', mover);
+    window.addEventListener('pointerup', soltar);
+    window.addEventListener('pointercancel', soltar);
+  };
+
   const sombra = !k.mobile;
   const pisoMat = k.pisos[layout.piso ?? 'madeira-clara'] ?? k.pisos['madeira-clara'];
   const brilhoNoite = layout.led ? 1 : 0.35;
@@ -317,7 +386,7 @@ function Ambiente({
         />
       </mesh>
 
-      <Paredes layout={layout} k={k} refs={refsParedes} />
+      <Paredes layout={layout} k={k} refs={refsParedes} onSelecionar={onSelecionar} onArrastar={arrastarAbertura} />
 
       {modulos.map((m) => {
         const Movel = MOVEIS[m.id];
@@ -359,8 +428,11 @@ function Ambiente({
       {modulos.map((m) => {
         const conflito = conflitos.has(m.uid);
         if (!conflito && m.uid !== selecionado) return null;
-        return <Contorno key={`c-${m.uid}`} inst={m} dim={dim} cor={conflito ? ALERTA : OURO} />;
+        return <Contorno key={`c-${m.uid}`} caixas={caixasModulo(m, dim)} cor={conflito ? ALERTA : OURO} />;
       })}
+      {layout.aberturas.map((ab, i) =>
+        selecionado === `${PREFIXO_ABERTURA}${i}` ? <Contorno key={`a-${i}`} caixas={[caixaAbertura(ab, dim)]} cor={OURO} /> : null
+      )}
     </group>
   );
 }

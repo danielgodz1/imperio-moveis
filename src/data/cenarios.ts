@@ -1,4 +1,4 @@
-export type Ambiente = 'quarto' | 'cozinha' | 'closet' | 'home-office';
+export type Ambiente = 'quarto' | 'cozinha' | 'closet' | 'home-office' | 'banheiro';
 
 export type ModuloId =
   | 'guarda-roupa'
@@ -21,7 +21,9 @@ export type ModuloId =
   | 'estante-ripada'
   | 'gaveteiro'
   | 'armario-aereo-office'
-  | 'sofa-recepcao';
+  | 'sofa-recepcao'
+  | 'gabinete-banheiro'
+  | 'espelheira-led';
 
 export type ParedeCardeal = 'N' | 'S' | 'L' | 'O' | 'centro';
 
@@ -55,6 +57,9 @@ export interface AberturaAmbiente {
   parede: 'N' | 'S' | 'L' | 'O';
   largura_m: number;
   posicaoOffset_m: number;
+  /** Altura da base da abertura em relação ao piso (0 em portas). */
+  peitoril_m?: number;
+  altura_m?: number;
 }
 
 export interface DefinicaoAmbiente {
@@ -322,7 +327,7 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   'nichos-led': {
     id: 'nichos-led',
     rotulo: 'Coluna de nichos iluminados em LED',
-    ambientes: ['closet', 'home-office'],
+    ambientes: ['closet', 'home-office', 'banheiro'],
     regraEncaixe: {
       parede: 'N',
       larguraMin: 0.5,
@@ -496,163 +501,40 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
       posicao: [W / 2 - 0.42, 0, D * 0.16],
     }),
   },
+  'gabinete-banheiro': {
+    id: 'gabinete-banheiro',
+    rotulo: 'Gabinete suspenso com cuba e tampo',
+    ambientes: ['banheiro'],
+    regraEncaixe: {
+      parede: 'N',
+      larguraMin: 0.6,
+      larguraMax: 2.4,
+      larguraPadrao: 1.2,
+      alturaPadrao: 0.55,
+      profundidadePadrao: 0.5,
+    },
+    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => {
+      const larg = Math.min(1.2, W - 0.6);
+      return { largura: larg, altura: 0.55, profundidade: 0.5, posicao: [-0.1, 0.3, -D / 2 + 0.25] };
+    },
+  },
+  'espelheira-led': {
+    id: 'espelheira-led',
+    rotulo: 'Espelheira com armário e LED',
+    ambientes: ['banheiro'],
+    regraEncaixe: {
+      parede: 'N',
+      larguraMin: 0.5,
+      larguraMax: 2.4,
+      larguraPadrao: 1.2,
+      alturaPadrao: 0.8,
+      profundidadePadrao: 0.14,
+    },
+    gerarGeometria: ({ largura_m: W, profundidade_m: D }) => {
+      const larg = Math.min(1.2, W - 0.6);
+      return { largura: larg, altura: 0.8, profundidade: 0.14, posicao: [-0.1, 1.05, -D / 2 + 0.07] };
+    },
+  },
 };
 
-export const CENARIOS_AMBIENTES: Record<Ambiente, DefinicaoAmbiente> = {
-  quarto: {
-    id: 'quarto',
-    rotulo: 'Quarto',
-    descricaoReferencia:
-      'Suíte planejada com sanca iluminada, cabeceira ripada em LED, guarda-roupa até o teto, penteadeira camarim e painel de TV.',
-    fotoReferencia: 'dormitorio-led-1',
-    fotosInspiracao: ['dormitorio-led-1', 'quarto-bebe-nichos'],
-    dimensoesPadrao: {
-      largura_m: 3.8,
-      profundidade_m: 3.5,
-      pe_direito_m: 2.7,
-    },
-    limites: {
-      largura: { min: 2.6, max: 5.5 },
-      profundidade: { min: 2.6, max: 5.5 },
-      pe_direito: { min: 2.4, max: 3.4 },
-    },
-    aberturasPadrao: [
-      { tipo: 'janela', parede: 'N', largura_m: 1.2, posicaoOffset_m: 1.0 },
-      { tipo: 'porta', parede: 'S', largura_m: 0.8, posicaoOffset_m: -1.1 },
-    ],
-    modulosPermitidos: [
-      'cabeceira-ripada-led',
-      'criado-mudo',
-      'guarda-roupa',
-      'painel-tv-ripado',
-      'penteadeira-camarim',
-      'bancada-estudo-quarto',
-    ],
-    modulosIniciais: [
-      'cabeceira-ripada-led',
-      'criado-mudo',
-      'guarda-roupa',
-      'painel-tv-ripado',
-    ],
-    piso: 'madeira-clara',
-    paredeDestaque: 'N',
-    posicaoCamera: [4.2, 3.1, 4.8],
-  },
-  cozinha: {
-    id: 'cozinha',
-    rotulo: 'Cozinha',
-    descricaoReferencia:
-      'Cozinha gourmet com bancada em L, ilha ripada com banquetas, armários até o teto, torre quente, adega iluminada e forro ripado.',
-    fotoReferencia: 'cozinha-ilha-ripado',
-    fotosInspiracao: ['cozinha-ilha-ripado', 'cozinha-forro-ripado', 'cozinha-ilha-verde'],
-    dimensoesPadrao: {
-      largura_m: 4.2,
-      profundidade_m: 3.6,
-      pe_direito_m: 2.7,
-    },
-    limites: {
-      largura: { min: 2.8, max: 6.5 },
-      profundidade: { min: 2.6, max: 6.0 },
-      pe_direito: { min: 2.4, max: 3.5 },
-    },
-    aberturasPadrao: [
-      { tipo: 'janela', parede: 'O', largura_m: 1.4, posicaoOffset_m: -0.3 },
-    ],
-    modulosPermitidos: [
-      'bancada-l',
-      'ilha',
-      'armarios-altos',
-      'torre-forno',
-      'cristaleira-led',
-      'forro-ripado-teto',
-    ],
-    modulosIniciais: [
-      'bancada-l',
-      'ilha',
-      'armarios-altos',
-      'torre-forno',
-      'forro-ripado-teto',
-    ],
-    piso: 'porcelanato-claro',
-    paredeDestaque: 'N',
-    posicaoCamera: [4.5, 3.3, 5.0],
-  },
-  closet: {
-    id: 'closet',
-    rotulo: 'Closet',
-    descricaoReferencia:
-      'Closet arquitetônico com armários piso-teto, colmeia iluminada, ilha vitrine, penteadeira camarim e sapateira espelhada.',
-    fotoReferencia: 'quarto-bebe-nichos',
-    fotosInspiracao: ['quarto-bebe-nichos', 'dormitorio-led-1'],
-    dimensoesPadrao: {
-      largura_m: 3.4,
-      profundidade_m: 3.2,
-      pe_direito_m: 2.7,
-    },
-    limites: {
-      largura: { min: 2.2, max: 5.0 },
-      profundidade: { min: 2.2, max: 5.0 },
-      pe_direito: { min: 2.4, max: 3.4 },
-    },
-    aberturasPadrao: [
-      { tipo: 'porta', parede: 'S', largura_m: 0.8, posicaoOffset_m: 0 },
-    ],
-    modulosPermitidos: [
-      'guarda-roupa',
-      'prateleiras-closet',
-      'nichos-led',
-      'ilha-closet',
-      'penteadeira-camarim',
-      'sapateira-espelhada',
-    ],
-    modulosIniciais: [
-      'guarda-roupa',
-      'prateleiras-closet',
-      'nichos-led',
-      'ilha-closet',
-      'sapateira-espelhada',
-    ],
-    piso: 'madeira-clara',
-    paredeDestaque: 'O',
-    posicaoCamera: [3.9, 3.0, 4.4],
-  },
-  'home-office': {
-    id: 'home-office',
-    rotulo: 'Home Office',
-    descricaoReferencia:
-      'Escritório planejado com bancada dupla executiva, estante ripada, armário aéreo em LED, gaveteiro e sofá de apoio.',
-    fotoReferencia: 'dormitorio-led-2',
-    fotosInspiracao: ['dormitorio-led-2', 'comercial-expositor'],
-    dimensoesPadrao: {
-      largura_m: 3.4,
-      profundidade_m: 3.0,
-      pe_direito_m: 2.7,
-    },
-    limites: {
-      largura: { min: 2.2, max: 5.0 },
-      profundidade: { min: 2.2, max: 4.8 },
-      pe_direito: { min: 2.4, max: 3.4 },
-    },
-    aberturasPadrao: [
-      { tipo: 'janela', parede: 'L', largura_m: 1.1, posicaoOffset_m: 0 },
-    ],
-    modulosPermitidos: [
-      'bancada-trabalho',
-      'estante-ripada',
-      'gaveteiro',
-      'nichos-led',
-      'armario-aereo-office',
-      'sofa-recepcao',
-    ],
-    modulosIniciais: [
-      'bancada-trabalho',
-      'estante-ripada',
-      'gaveteiro',
-      'nichos-led',
-      'armario-aereo-office',
-    ],
-    piso: 'madeira-clara',
-    paredeDestaque: 'N',
-    posicaoCamera: [3.8, 3.0, 4.3],
-  },
-};
+export { CENARIOS_AMBIENTES } from './ambientes';
