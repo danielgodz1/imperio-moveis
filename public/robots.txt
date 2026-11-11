@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://imperiomoveisjau.com.br/sitemap.xml
+Sitemap: https://www.imperiomoveisplanejadosjau.com.br/sitemap.xml

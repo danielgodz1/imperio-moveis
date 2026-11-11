@@ -301,7 +301,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     title: PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].tituloSeo,
     description: PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].descricaoSeo,
     canonical: `${EMPRESA.url}/cozinhas-planejadas-jau`,
-    ogImage: `${EMPRESA.url}/obras/cozinha-gringa-4k-1280.jpg`,
+    ogImage: `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
     h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].h1,
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].paragrafosReais.join(' '),
@@ -311,7 +311,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     title: PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].tituloSeo,
     description: PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].descricaoSeo,
     canonical: `${EMPRESA.url}/quartos-planejados-jau`,
-    ogImage: `${EMPRESA.url}/obras/quarto-infantil-casinha-1280.jpg`,
+    ogImage: `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
     h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].h1,
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].paragrafosReais.join(' '),
@@ -321,7 +321,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     title: PAGINAS_AMBIENTES_LOCAIS['/closets-sob-medida-jau'].tituloSeo,
     description: PAGINAS_AMBIENTES_LOCAIS['/closets-sob-medida-jau'].descricaoSeo,
     canonical: `${EMPRESA.url}/closets-sob-medida-jau`,
-    ogImage: `${EMPRESA.url}/obras/dormitorio-led-2-1280.jpg`,
+    ogImage: `${EMPRESA.url}/obras/dormitorio-led-2.jpg`,
     h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/closets-sob-medida-jau'].h1,
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/closets-sob-medida-jau'].paragrafosReais.join(' '),
@@ -331,7 +331,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     title: PAGINAS_AMBIENTES_LOCAIS['/home-office-planejado-jau'].tituloSeo,
     description: PAGINAS_AMBIENTES_LOCAIS['/home-office-planejado-jau'].descricaoSeo,
     canonical: `${EMPRESA.url}/home-office-planejado-jau`,
-    ogImage: `${EMPRESA.url}/obras/comercial-expositor-1280.jpg`,
+    ogImage: `${EMPRESA.url}/obras/comercial-expositor.jpg`,
     h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/home-office-planejado-jau'].h1,
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/home-office-planejado-jau'].paragrafosReais.join(' '),
@@ -363,8 +363,8 @@ export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
     sameAs,
     image: [
       `${EMPRESA.url}/og-hero.jpg`,
-      `${EMPRESA.url}/obras/cozinha-gringa-4k-1280.jpg`,
-      `${EMPRESA.url}/obras/quarto-infantil-casinha-1280.jpg`,
+      `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
+      `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
     ],
   };
 

@@ -53,7 +53,7 @@ export const EMPRESA: DadosEmpresa = {
   fraseCurta: 'Marcenaria e arquitetura de interiores em Jaú e região.',
   fundadores: 'Wellington Cabral e Tatiane Cabral',
   anoInicio: 2015,
-  url: 'https://imperiomoveisjau.com.br',
+  url: 'https://www.imperiomoveisplanejadosjau.com.br',
   telefone: '(14) 99849-2834',
   whatsapp: '5514998492834',
   whatsappE164: '+5514998492834',
