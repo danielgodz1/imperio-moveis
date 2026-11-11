@@ -23,7 +23,7 @@ Auditoria de 2026-11-11. O site é estático (pré-renderizado) com duas funçõ
 - **X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy** (câmera, microfone, localização e pagamento desligados), **Cross-Origin-Opener-Policy**.
 - **Cache:** arquivos com hash em `/assets` imutáveis por 1 ano; fotos por 7 dias; `/api` sem cache.
 
-Ao adicionar Google Analytics, inclua `https://www.googletagmanager.com` em `script-src` e `https://*.google-analytics.com` em `connect-src`.
+Google Tag Manager (`GTM-KRTQ85BD`) liberado na CSP: `googletagmanager.com` em `script-src`, `img-src` e `frame-src`; `google-analytics.com` e `analytics.google.com` em `connect-src` e `img-src`. O início do GTM fica em `public/gtm-inicio.js`, porque a CSP não aceita script dentro do HTML. Tags do tipo "HTML personalizado" no GTM serão bloqueadas pela CSP; prefira as tags nativas (GA4, Google Ads).
 
 O zod roda em modo `jitless` (`schema.ts`), porque a CSP proíbe `eval`.
 

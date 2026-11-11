@@ -4,7 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import { defineConfig, Plugin } from 'vite';
 import { injetarSeoNoHtml } from './src/utils/prerenderHtml';
-import { RotaPublica } from './src/data/paginasLocais';
+import { execSync } from 'child_process';
+import { PAGINAS_AMBIENTES_LOCAIS, RotaPublica } from './src/data/paginasLocais';
+import { EMPRESA } from './src/data/empresa';
 
 const ROTAS_PRERENDER: RotaPublica[] = [
   '/',
@@ -14,6 +16,48 @@ const ROTAS_PRERENDER: RotaPublica[] = [
   '/closets-sob-medida-jau',
   '/home-office-planejado-jau',
 ];
+
+const xml = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/** Data do último commit (data real de alteração); sem git, o lastmod fica de fora. */
+function dataUltimoCommit(): string | null {
+  try {
+    return execSync('git log -1 --format=%cs', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Sitemap gerado das mesmas rotas pré-renderizadas, com as fotos de obra de cada página
+ * (extensão de imagens do Google). Sem changefreq/priority: o Google ignora esses campos.
+ */
+export function gerarSitemap(lastmod: string | null): string {
+  const fotosDe = (rota: RotaPublica): string[] => {
+    if (rota === '/') {
+      const todas = Object.values(PAGINAS_AMBIENTES_LOCAIS).flatMap((p) => p.fotos.map((f) => `${f.srcBase}.jpg`));
+      return ['/og-hero.jpg', ...new Set(todas)];
+    }
+    const pagina = PAGINAS_AMBIENTES_LOCAIS[rota as keyof typeof PAGINAS_AMBIENTES_LOCAIS];
+    return pagina ? pagina.fotos.map((f) => `${f.srcBase}.jpg`) : [];
+  };
+  const urls = ROTAS_PRERENDER.map((rota) => {
+    const loc = rota === '/' ? `${EMPRESA.url}/` : `${EMPRESA.url}${rota}`;
+    const imagens = fotosDe(rota)
+      .map((src) => `
+    <image:image><image:loc>${xml(EMPRESA.url + src)}</image:loc></image:image>`)
+      .join('');
+    return `  <url>
+    <loc>${xml(loc)}</loc>${lastmod ? `
+    <lastmod>${lastmod}</lastmod>` : ''}${imagens}
+  </url>`;
+  });
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${urls.join(String.fromCharCode(10))}
+</urlset>
+`;
+}
 
 function prerenderRotasLocaisPlugin(): Plugin {
   return {
@@ -35,6 +79,7 @@ function prerenderRotasLocaisPlugin(): Plugin {
           fs.writeFileSync(path.join(subDir, 'index.html'), htmlRota, 'utf-8');
         }
       }
+      fs.writeFileSync(path.join(distDir, 'sitemap.xml'), gerarSitemap(dataUltimoCommit()), 'utf-8');
     },
   };
 }

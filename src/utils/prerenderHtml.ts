@@ -35,7 +35,7 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
     const fotos = cfg.fotos
       .map(
         (f) =>
-          `<figure><img src="${escaparHtml(f.srcBase)}-800.jpg" alt="${escaparHtml(
+          `<figure><img src="${escaparHtml(f.srcBase)}.jpg" alt="${escaparHtml(
             f.alt
           )}" loading="lazy" /><figcaption>${escaparHtml(
             f.legenda
@@ -77,6 +77,36 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
           EMPRESA.cidadesAtendidas.join(', ')
         )}.</p>
       </main>`;
+}
+
+/** Trilha (Início > página) e serviço da página local, ligado à empresa pelo @id. */
+function jsonLdPagina(rota: RotaPublica): string {
+  if (!(rota in PAGINAS_AMBIENTES_LOCAIS)) return '';
+  const cfg = PAGINAS_AMBIENTES_LOCAIS[rota as keyof typeof PAGINAS_AMBIENTES_LOCAIS];
+  const url = METADADOS_ROTAS_SEO[rota].canonical;
+  const dados = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: `${EMPRESA.url}/` },
+        { '@type': 'ListItem', position: 2, name: cfg.h1, item: url },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: cfg.h1,
+      description: cfg.descricaoSeo,
+      url,
+      provider: { '@id': `${EMPRESA.url}/#empresa` },
+      areaServed: EMPRESA.cidadesAtendidas.map((c) => ({ '@type': 'City', name: c })),
+      image: cfg.fotos.map((f) => `${EMPRESA.url}${f.srcBase}.jpg`),
+    },
+  ];
+  return dados
+    .map((d) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`)
+    .join('');
 }
 
 export function injetarSeoNoHtml(htmlBase: string, pathname: string): string {
@@ -129,7 +159,7 @@ export function injetarSeoNoHtml(htmlBase: string, pathname: string): string {
 
   html = html.replace(
     /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json">${jsonLd}</script>`
+    `<script type="application/ld+json">${jsonLd}</script>${jsonLdPagina(rota)}`
   );
 
   html = html.replace(

@@ -9,8 +9,10 @@ Domínio canônico: `https://www.imperiomoveisplanejadosjau.com.br` (definido em
 - Título da home começando pela busca principal: "Móveis Planejados em Jaú/SP | Império Móveis Planejados".
 - Descrição, texto do hero e conteúdo pré-renderizado com "móveis planejados" e "Jaú e região".
 - Páginas próprias e pré-renderizadas: cozinhas, quartos, closets e home office em Jaú, cada uma com título, descrição, canonical e imagem de compartilhamento.
+- Páginas locais com JSON-LD `BreadcrumbList` e `Service` ligados à empresa pelo `@id`.
+- Google Tag Manager `GTM-KRTQ85BD` em todas as páginas (GA4 configurado dentro do GTM).
 - JSON-LD `FurnitureStore` com `@id`, logo, fundadores, cidades atendidas, Instagram e imagens reais.
-- `sitemap.xml` com data de atualização, `robots.txt`, `og:url`, `robots` e geolocalização (BR-SP, Jaú).
+- `sitemap.xml` gerado no build (`vite.config.ts`) a partir das rotas pré-renderizadas, com a data do último commit e as fotos de obra de cada página (sitemap de imagens); sem `changefreq`/`priority`, que o Google ignora, `robots.txt`, `og:url`, `robots` e geolocalização (BR-SP, Jaú).
 - Desempenho: fontes não usadas removidas e 3D só em aparelhos que aguentam (Core Web Vitals contam no ranking).
 
 ## O que mais pesa e depende de você (ordem de impacto)
