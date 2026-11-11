@@ -339,10 +339,12 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => irParaRota('/contato')}
-            className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-2.5 rounded-lg bg-[#c9a04e] hover:bg-[#d8af5c] text-[#15100c] transition-all duration-200 shadow-[0_4px_16px_rgba(201,160,78,0.25)] font-bold text-[11px] sm:text-xs uppercase tracking-wider cursor-pointer shrink-0"
+            className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 min-h-[44px] rounded-lg bg-[#c9a04e] hover:bg-[#d8af5c] text-[#15100c] transition-all duration-200 shadow-[0_4px_16px_rgba(201,160,78,0.25)] font-bold text-[11px] sm:text-xs uppercase tracking-wider cursor-pointer shrink-0"
           >
-            <span>Pedir Orçamento</span>
-            <span className="text-sm leading-none">↗</span>
+            {/* No celular, texto curto: o botão do menu precisa caber ao lado */}
+            <span className="sm:hidden">Orçamento</span>
+            <span className="hidden sm:inline">Pedir Orçamento</span>
+            <span className="hidden sm:inline text-sm leading-none" aria-hidden="true">↗</span>
           </button>
 
           <button
@@ -350,7 +352,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setMenuAberto((prev) => !prev)}
             aria-expanded={menuAberto}
             aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'}
-            className={`lg:hidden p-2 rounded-lg border transition-colors cursor-pointer shrink-0 ${
+            className={`lg:hidden w-[44px] h-[44px] flex items-center justify-center rounded-lg border transition-colors cursor-pointer shrink-0 ${
               modoClaro
                 ? 'bg-transparent text-[#262624] border-[#262624]/20 hover:bg-[#262624]/5'
                 : 'bg-[#251d18] text-[#f2e8d8] border-[#c9a04e]/30'

@@ -100,23 +100,28 @@ export default async function handler(req: Requisicao, res: Resposta) {
   if (req.method !== 'GET') return res.status(405).json({ erro: 'Use GET.' });
   if (!permitir(ipDoVisitante(req))) return res.status(429).json({ erro: 'Muitas tentativas.' });
 
+  const indisponivel = (motivo: string) => {
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).json({ nota: 0, total: 0, avaliacoes: [], indisponivel: motivo });
+  };
+
   const chave = process.env.GOOGLE_PLACES_API_KEY;
-  if (!chave) return res.status(503).json({ erro: 'Avaliações do Google ainda não configuradas.' });
+  if (!chave) return indisponivel('Avaliações do Google ainda não configuradas.');
 
   try {
     const busca = process.env.GOOGLE_PLACE_ID ? { id: process.env.GOOGLE_PLACE_ID } : await acharLugar(chave);
     const id = busca.id;
-    if (!id || !/^[\w-]+$/.test(id)) return res.status(502).json({ erro: 'Perfil do Google não encontrado.', motivo: busca.motivo });
+    if (!id || !/^[\w-]+$/.test(id)) return indisponivel(`Perfil do Google não encontrado: ${busca.motivo ?? ''}`.trim());
     const r = await fetch(`https://places.googleapis.com/v1/places/${id}?languageCode=pt-BR`, {
       headers: { 'X-Goog-Api-Key': chave, 'X-Goog-FieldMask': 'rating,userRatingCount,googleMapsUri,reviews' },
       signal: AbortSignal.timeout(5000),
     });
-    if (!r.ok) return res.status(502).json({ erro: 'O Google não respondeu agora.', motivo: await motivoGoogle(r) });
+    if (!r.ok) return indisponivel(`O Google não respondeu: ${await motivoGoogle(r)}`);
     // Cache na borda da Vercel: 1 dia, e até 1 semana servindo a última versão enquanto atualiza.
     res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
     res.setHeader('Vercel-CDN-Cache-Control', 'max-age=86400, stale-while-revalidate=604800');
     return res.status(200).json(converterLugar(await r.json()));
   } catch {
-    return res.status(502).json({ erro: 'O Google não respondeu agora.' });
+    return indisponivel('O Google não respondeu a tempo.');
   }
 }

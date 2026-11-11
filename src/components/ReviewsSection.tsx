@@ -29,8 +29,8 @@ interface DadosGoogle {
 
 const decimal = (n: number) => n.toFixed(1).replace('.', ',');
 
-const Estrelas: React.FC<{ nota: number; tamanho?: string }> = ({ nota, tamanho = 'w-4 h-4' }) => (
-  <span className="flex items-center gap-[2px]" aria-label={`${decimal(nota)} de 5 estrelas`}>
+const Estrelas: React.FC<{ nota: number; tamanho?: string }> = ({ nota, tamanho = 'w-[16px] h-[16px]' }) => (
+  <span role="img" className="flex items-center gap-[2px]" aria-label={`${decimal(nota)} de 5 estrelas`}>
     {[1, 2, 3, 4, 5].map((i) => (
       <Star
         key={i}
@@ -88,7 +88,7 @@ export const ReviewsSection: React.FC = () => {
                 className="inline-flex items-center gap-8 px-16 h-[44px] rounded-curto border-[1.5px] border-grafite text-grafite hover:bg-grafite hover:text-papel transition-colors tipo-cota font-semibold"
               >
                 Ver avaliações no Google
-                <ExternalLink className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
+                <ExternalLink className="w-[16px] h-[16px]" strokeWidth={1.5} aria-hidden="true" />
               </a>
               <a
                 href={link}
@@ -103,9 +103,14 @@ export const ReviewsSection: React.FC = () => {
         </div>
 
         {avaliacoes.length > 0 && (
-          <div className={`grid grid-cols-1 md:grid-cols-2 gap-24 ${avaliacoes.length === 4 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
+          // Celular: carrossel com deslize lateral; tablet e computador: grade.
+          <div
+            className={`flex gap-16 overflow-x-auto snap-x snap-mandatory scroll-px-16 -mx-16 px-16 pb-8 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 md:gap-24 md:overflow-visible ${
+              avaliacoes.length === 4 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'
+            }`}
+          >
             {avaliacoes.slice(0, 6).map((a, i) => (
-              <article key={i} className="p-24 rounded-2xl bg-papel border border-grafite/15 flex flex-col justify-between gap-24">
+              <article key={i} className="min-w-[85%] snap-start md:min-w-0 p-24 rounded-2xl bg-papel border border-grafite/15 flex flex-col justify-between gap-24">
                 <div className="flex flex-col gap-16">
                   <div className="flex items-center justify-between gap-8">
                     <Estrelas nota={a.nota} />
@@ -115,7 +120,7 @@ export const ReviewsSection: React.FC = () => {
                 </div>
                 <div className="pt-16 border-t border-grafite/15 flex items-center gap-8">
                   {a.foto && (
-                    <img src={a.foto} alt="" width={32} height={32} loading="lazy" referrerPolicy="no-referrer" className="w-8 h-8 rounded-full" />
+                    <img src={a.foto} alt="" width={32} height={32} loading="lazy" referrerPolicy="no-referrer" className="w-[32px] h-[32px] rounded-full" />
                   )}
                   <div className="flex flex-col">
                     {a.autorUrl || !dados ? (

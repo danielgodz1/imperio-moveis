@@ -144,7 +144,7 @@ export const Obras: React.FC<ObrasProps> = ({ onOpenBriefing }) => {
                 onClick={() => trackWhatsAppClick('obras_cta')}
                 className="inline-flex items-center gap-8 text-papel link-traco"
               >
-                <MessageSquare className="w-4 h-4" strokeWidth={1.5} />
+                <MessageSquare className="w-[16px] h-[16px]" strokeWidth={1.5} />
                 Chamar no WhatsApp
               </a>
             </div>
@@ -173,7 +173,7 @@ export const Obras: React.FC<ObrasProps> = ({ onOpenBriefing }) => {
                 aria-label="Fechar foto ampliada"
                 className="shrink-0 inline-flex items-center gap-8 px-16 h-[40px] rounded-curto border border-papel text-papel hover:bg-dourado hover:text-preto hover:border-dourado transition-colors tipo-cota cursor-pointer"
               >
-                <X className="w-4 h-4" strokeWidth={1.5} />
+                <X className="w-[16px] h-[16px]" strokeWidth={1.5} />
                 <span>Fechar</span>
               </button>
             </div>

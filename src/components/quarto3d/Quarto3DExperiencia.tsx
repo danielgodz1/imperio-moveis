@@ -520,7 +520,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             </div>
           )}
 
-          <div className="absolute top-8 right-8 flex items-center gap-4">
+          <div className="absolute top-[52px] right-8 flex flex-col items-end gap-4 sm:top-8 sm:flex-row sm:items-center">
             <button
               type="button"
               onClick={() => aplicar((prev) => ({ ...prev, noite: !prev.noite }))}
@@ -528,7 +528,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               title={layout.noite ? 'Ver de dia' : 'Ver à noite'}
               className={`w-[36px] h-[36px] flex items-center justify-center bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel`}
             >
-              {layout.noite ? <Sun className="w-4 h-4" strokeWidth={1.5} /> : <Moon className="w-4 h-4" strokeWidth={1.5} />}
+              {layout.noite ? <Sun className="w-[16px] h-[16px]" strokeWidth={1.5} /> : <Moon className="w-[16px] h-[16px]" strokeWidth={1.5} />}
             </button>
             <button
               type="button"
@@ -536,9 +536,9 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               aria-pressed={modoFoto}
               aria-label={modoFoto ? 'Sair do modo foto' : 'Modo foto'}
               title={modoFoto ? 'Sair do modo foto' : 'Modo foto: altura dos olhos, lente 26 mm'}
-              className={`h-[36px] px-8 flex items-center gap-4 ${CHIP_BASE} ${modoFoto ? 'bg-papel text-preto border-papel' : 'bg-preto/85 border-papel/25 text-papel'}`}
+              className={`h-[36px] min-w-[36px] px-8 flex items-center justify-center gap-4 ${CHIP_BASE} ${modoFoto ? 'bg-papel text-preto border-papel' : 'bg-preto/85 border-papel/25 text-papel'}`}
             >
-              <Camera className="w-4 h-4" strokeWidth={1.5} />
+              <Camera className="w-[16px] h-[16px]" strokeWidth={1.5} />
               <span className="hidden sm:inline">{modoFoto ? 'Sair da foto' : 'Modo foto'}</span>
             </button>
             {modoFoto && (
@@ -547,9 +547,9 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
                 onClick={baixarFoto}
                 aria-label="Baixar imagem"
                 title="Baixar imagem (PNG)"
-                className={`h-[36px] px-8 flex items-center gap-4 bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel`}
+                className={`h-[36px] min-w-[36px] px-8 flex items-center justify-center gap-4 bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel`}
               >
-                <Download className="w-4 h-4" strokeWidth={1.5} />
+                <Download className="w-[16px] h-[16px]" strokeWidth={1.5} />
                 <span className="hidden sm:inline">Baixar imagem</span>
               </button>
             )}
@@ -559,9 +559,9 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               aria-pressed={verDentro}
               aria-label={verDentro ? 'Fechar portas e gavetas' : 'Ver por dentro'}
               title={verDentro ? 'Fechar portas e gavetas' : 'Ver por dentro'}
-              className={`h-[36px] px-8 flex items-center gap-4 bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel`}
+              className={`h-[36px] min-w-[36px] px-8 flex items-center justify-center gap-4 bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel`}
             >
-              {verDentro ? <DoorOpen className="w-4 h-4" strokeWidth={1.5} /> : <DoorClosed className="w-4 h-4" strokeWidth={1.5} />}
+              {verDentro ? <DoorOpen className="w-[16px] h-[16px]" strokeWidth={1.5} /> : <DoorClosed className="w-[16px] h-[16px]" strokeWidth={1.5} />}
               <span className="hidden sm:inline">{verDentro ? 'Fechar' : 'Ver por dentro'}</span>
             </button>
             <button
@@ -572,7 +572,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               title="Desfazer (Ctrl+Z)"
               className={`w-[36px] h-[36px] flex items-center justify-center bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel disabled:opacity-40 disabled:cursor-not-allowed`}
             >
-              <Undo2 className="w-4 h-4" strokeWidth={1.5} />
+              <Undo2 className="w-[16px] h-[16px]" strokeWidth={1.5} />
             </button>
             <button
               type="button"
@@ -582,7 +582,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               title="Refazer (Ctrl+Shift+Z)"
               className={`w-[36px] h-[36px] flex items-center justify-center bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel disabled:opacity-40 disabled:cursor-not-allowed`}
             >
-              <Redo2 className="w-4 h-4" strokeWidth={1.5} />
+              <Redo2 className="w-[16px] h-[16px]" strokeWidth={1.5} />
             </button>
           </div>
 
@@ -790,14 +790,14 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
                   <div className="flex items-center gap-4 shrink-0">
                     {atual.parede === 'centro' && (
                       <button type="button" aria-label="Girar peça" title="Girar 90°" onClick={() => alterarPeca(atual.uid, { rotacao: atual.rotacao + Math.PI / 2 })} className={`w-[36px] h-[36px] flex items-center justify-center ${CHIP_BASE} border-papel/25 text-papel`}>
-                        <RotateCw className="w-4 h-4" strokeWidth={1.5} />
+                        <RotateCw className="w-[16px] h-[16px]" strokeWidth={1.5} />
                       </button>
                     )}
                     <button type="button" aria-label="Duplicar peça" title="Duplicar" onClick={() => duplicarPeca(atual)} className={`w-[36px] h-[36px] flex items-center justify-center ${CHIP_BASE} border-papel/25 text-papel`}>
-                      <Copy className="w-4 h-4" strokeWidth={1.5} />
+                      <Copy className="w-[16px] h-[16px]" strokeWidth={1.5} />
                     </button>
                     <button type="button" aria-label="Remover peça" title="Remover" onClick={() => removerPeca(atual.uid)} className={`w-[36px] h-[36px] flex items-center justify-center ${CHIP_BASE} border-papel/25 text-papel`}>
-                      <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                      <Trash2 className="w-[16px] h-[16px]" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
@@ -953,7 +953,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               <div className="grid grid-cols-2 gap-4">
                 {ACABAMENTOS_3D.map((f) => (
                   <button key={f.id} type="button" onClick={() => aplicarAcabamentoGeral(f.id)} className={`h-[44px] flex items-center gap-8 px-8 ${CHIP_BASE} border-papel/25 text-papel/90 hover:border-papel/60`}>
-                    <span className="w-4 h-4 shrink-0 border border-papel/40" style={{ backgroundColor: f.hex }} />
+                    <span className="w-[16px] h-[16px] shrink-0 border border-papel/40" style={{ backgroundColor: f.hex }} />
                     <span className="truncate">{f.nome}</span>
                   </button>
                 ))}
@@ -1057,7 +1057,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
                 <div className="flex items-start justify-between gap-8">
                   <h3 className="tipo-h3 text-papel">{aberturaAtual.tipo === 'janela' ? 'Janela' : 'Porta'}</h3>
                   <button type="button" aria-label="Remover abertura" title="Remover" onClick={() => removerAbertura(iAbertura)} className={`w-[36px] h-[36px] flex items-center justify-center ${CHIP_BASE} border-papel/25 text-papel`}>
-                    <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                    <Trash2 className="w-[16px] h-[16px]" strokeWidth={1.5} />
                   </button>
                 </div>
                 <div className="grid grid-cols-4 gap-4">

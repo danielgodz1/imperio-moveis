@@ -50,11 +50,13 @@ describe('avaliações do Google', () => {
     expect(d.avaliacoes[1].texto.length).toBe(600);
   });
 
-  it('sem a chave na Vercel responde 503 (o site mostra só o resumo)', async () => {
+  it('sem a chave na Vercel responde "indisponível" sem erro e sem cache (o site mostra o resumo)', async () => {
     delete process.env.GOOGLE_PLACES_API_KEY;
     const { r, res } = resposta();
     await handler({ method: 'GET', headers: {} }, res);
-    expect(r.codigo).toBe(503);
+    expect(r.codigo).toBe(200);
+    expect(r.corpo).toMatchObject({ total: 0, avaliacoes: [] });
+    expect(r.headers['Cache-Control']).toBe('no-store');
   });
 
   it('só aceita GET', async () => {

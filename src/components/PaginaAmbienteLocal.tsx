@@ -28,13 +28,13 @@ export const PaginaAmbienteLocal: React.FC<PaginaAmbienteLocalProps> = ({
     <article className="w-full bg-papel text-grafite min-h-screen py-64">
       <div className="max-w-[1280px] mx-auto px-16 sm:px-32 flex flex-col gap-64">
         {/* 1. Navegação de retorno e Cabeçalho da Página Local */}
-        <header className="flex flex-col items-start gap-20 border-b border-grafite/20 pb-32">
+        <header className="flex flex-col items-start gap-24 border-b border-grafite/20 pb-32">
           <button
             type="button"
             onClick={onNavigateHome}
             className="inline-flex items-center gap-8 tipo-cota text-grafite link-traco cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-[16px] h-[16px]" />
             <span>Voltar para a página inicial</span>
           </button>
 
@@ -66,7 +66,7 @@ export const PaginaAmbienteLocal: React.FC<PaginaAmbienteLocalProps> = ({
               onClick={() => trackWhatsAppClick(`pagina_local_${config.ambiente3D}`)}
               className="inline-flex items-center justify-center gap-8 px-24 h-[52px] rounded-curto border-[1.5px] border-grafite bg-transparent text-grafite hover:bg-grafite hover:text-papel transition-colors tipo-cota"
             >
-              <MessageSquare className="w-4 h-4" strokeWidth={1.5} />
+              <MessageSquare className="w-[16px] h-[16px]" strokeWidth={1.5} />
               <span>Chamar no WhatsApp</span>
             </a>
 
@@ -96,7 +96,7 @@ export const PaginaAmbienteLocal: React.FC<PaginaAmbienteLocalProps> = ({
                     : idx === 0
                     ? 'md:col-span-6'
                     : 'md:col-span-3'
-                } flex flex-col gap-12`}
+                } flex flex-col gap-16`}
               >
                 <div className="w-full overflow-hidden bg-papel-2 border border-grafite/15">
                   <Foto
@@ -118,7 +118,7 @@ export const PaginaAmbienteLocal: React.FC<PaginaAmbienteLocalProps> = ({
 
         {/* 3. Texto autoral baseado nas obras reais + Especificações técnicas */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-48 items-start pt-32 border-t border-grafite/20">
-          <div className="lg:col-span-7 flex flex-col gap-20">
+          <div className="lg:col-span-7 flex flex-col gap-24">
             <h2 className="tipo-h2 text-grafite">
               Como projetamos e fabricamos cada {config.ambienteBriefing.toLowerCase()}
             </h2>
@@ -128,23 +128,23 @@ export const PaginaAmbienteLocal: React.FC<PaginaAmbienteLocalProps> = ({
               </p>
             ))}
 
-            <div className="pt-12 flex flex-wrap items-center gap-16">
+            <div className="pt-16 flex flex-wrap items-center gap-16">
               <button
                 type="button"
                 onClick={() => irParaSecaoHome('#quarto-3d')}
-                className="inline-flex items-center gap-8 px-20 h-[48px] rounded-curto bg-preto text-papel hover:bg-dourado hover:text-preto transition-colors tipo-cota cursor-pointer"
+                className="inline-flex items-center gap-8 px-24 h-[48px] rounded-curto bg-preto text-papel hover:bg-dourado hover:text-preto transition-colors tipo-cota cursor-pointer"
               >
-                <Box className="w-4 h-4" />
+                <Box className="w-[16px] h-[16px]" />
                 <span>Testar módulos e acabamentos no simulador 3D</span>
               </button>
             </div>
           </div>
 
-          <div className="lg:col-span-5 flex flex-col gap-20 bg-papel-2 p-24 sm:p-32 border border-grafite/20">
+          <div className="lg:col-span-5 flex flex-col gap-24 bg-papel-2 p-24 sm:p-32 border border-grafite/20">
             <h3 className="tipo-h3 text-grafite">
               Padrão construtivo Império
             </h3>
-            <dl className="flex flex-col gap-20">
+            <dl className="flex flex-col gap-24">
               {config.especificacoesReais.map((item) => (
                 <div
                   key={item.titulo}

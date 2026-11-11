@@ -386,6 +386,17 @@ export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
     if (EMPRESA.googleProfileUrl) schema.hasMap = EMPRESA.googleProfileUrl;
   }
 
+  // Aba "Sobre" do Perfil da Empresa no Google.
+  schema.paymentAccepted = EMPRESA.sobre.pagamentos.join(', ');
+  schema.amenityFeature = EMPRESA.sobre.acessibilidade.map((nome) => ({
+    '@type': 'LocationFeatureSpecification',
+    name: nome,
+    value: true,
+  }));
+  schema.makesOffer = ['Projeto e fabricação de móveis planejados', ...EMPRESA.sobre.servicos.map((s) => `${s} de móveis`)].map(
+    (nome) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: nome } })
+  );
+
   if (EMPRESA.confirmado.horarios) {
     // Mesmo horário do Perfil da Empresa no Google; sem sábado.
     schema.openingHoursSpecification = [
