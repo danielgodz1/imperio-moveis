@@ -419,7 +419,7 @@ function Ambiente({
               a={k.acabamento(m.acabamento)}
               k={k}
               led={layout.led}
-              tampo={k.tampos[m.tampo ?? 'pedra-clara'] ?? k.tampos['pedra-clara']}
+              tampo={k.tampo(m.tampo ?? 'pedra-clara')}
               dim={dim}
               portas={m.portas}
               puxador={m.puxador}

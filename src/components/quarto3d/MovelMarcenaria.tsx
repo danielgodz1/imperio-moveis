@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Kit3D } from './materiais3D';
 import { Frente, Marcenaria, MaterialPeca, Movimento, Peca } from './marcenaria';
 import { useEditor } from './estadoEditor';
+import { sementeDe } from '../../data/materiais/catalogo';
 
 /** Ângulo de abertura das portas no "ver por dentro" (100°). */
 const ANGULO_ABERTO = (100 * Math.PI) / 180;
@@ -16,7 +17,7 @@ function materialDe(m: MaterialPeca, k: Kit3D, frente: THREE.Material): THREE.Ma
     case 'frente':
       return frente;
     case 'metal':
-      return k.m.cromo;
+      return k.m.puxador;
     case 'sombra':
       return k.m.preto;
     default:
@@ -24,15 +25,27 @@ function materialDe(m: MaterialPeca, k: Kit3D, frente: THREE.Material): THREE.Ma
   }
 }
 
-const Pecas: React.FC<{ pecas: Peca[]; k: Kit3D; frente: THREE.Material }> = ({ pecas, k, frente }) => {
+/**
+ * Chapa com fita de borda: as duas faces largas levam o acabamento; as quatro bordas finas,
+ * a fita (ordem das faces da caixa: +x, -x, +y, -y, +z, -z).
+ */
+function materiaisDaChapa(p: Peca, k: Kit3D, frente: THREE.Material): THREE.Material | THREE.Material[] {
+  const mat = materialDe(p.material, k, frente);
+  if (p.material === 'metal' || p.material === 'sombra') return mat;
+  const fina = p.tamanho.indexOf(Math.min(...p.tamanho));
+  const fita = k.fitaDe(mat);
+  return [0, 0, 1, 1, 2, 2].map((eixo) => (eixo === fina ? mat : fita));
+}
+
+const Pecas: React.FC<{ pecas: Peca[]; k: Kit3D; frente: THREE.Material; semente: number }> = ({ pecas, k, frente, semente }) => {
   const sombra = !k.mobile;
   return (
     <>
       {pecas.map((p, i) => (
         <mesh
           key={i}
-          geometry={k.caixa(p.tamanho[0], p.tamanho[1], p.tamanho[2], p.veio)}
-          material={materialDe(p.material, k, frente)}
+          geometry={k.caixa(p.tamanho[0], p.tamanho[1], p.tamanho[2], p.veio, sementeDe(semente, i, ...p.posicao))}
+          material={materiaisDaChapa(p, k, frente)}
           position={p.posicao}
           castShadow={sombra && p.material !== 'metal'}
           receiveShadow={sombra}
@@ -80,14 +93,14 @@ const FrenteMovel: React.FC<{ f: Frente; k: Kit3D; frente: THREE.Material; abert
     return (
       <group ref={externo} position={[px, 0, pz]}>
         <group position={[-px, 0, -pz]}>
-          <Pecas pecas={f.pecas} k={k} frente={frente} />
+          <Pecas pecas={f.pecas} k={k} frente={frente} semente={2} />
         </group>
       </group>
     );
   }
   return (
     <group ref={externo}>
-      <Pecas pecas={f.pecas} k={k} frente={frente} />
+      <Pecas pecas={f.pecas} k={k} frente={frente} semente={2} />
     </group>
   );
 };
@@ -101,7 +114,7 @@ export const MovelMarcenaria: React.FC<{ m: Marcenaria; k: Kit3D; frente: THREE.
   );
   return (
     <group>
-      <Pecas pecas={m.fixas} k={k} frente={frente} />
+      <Pecas pecas={m.fixas} k={k} frente={frente} semente={1} />
       {m.frentes.map((f) => (
         <FrenteMovel key={f.id} f={f} k={k} frente={frente} aberto={aberto} semMovimento={semMovimento} />
       ))}

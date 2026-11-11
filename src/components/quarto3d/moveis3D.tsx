@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei';
 import { ModuloId } from '../../data/cenarios';
 import { Kit3D } from './materiais3D';
 import { MovelMarcenaria } from './MovelMarcenaria';
+import { sementeDe } from '../../data/materiais/catalogo';
 import { Puxador, TipoPorta, Vao, gerarAereo, gerarBalcao, gerarGuardaRoupa } from './marcenaria';
 import { CAMA, CENTRO_TELA_TV, Dimensoes, posCooktopIlha, posPia, retornoBancada } from './motorGeometrico';
 
@@ -30,7 +31,7 @@ function fabrica(k: Kit3D) {
   const sombra = !k.mobile;
   return (s: V3, p: V3, m: THREE.Material, veio: 'x' | 'y' = 'y', projeta = true) => (
     <mesh
-      geometry={k.caixa(s[0], s[1], s[2], veio)}
+      geometry={k.caixa(s[0], s[1], s[2], veio, sementeDe(...s, ...p))}
       material={m}
       position={p}
       castShadow={sombra && projeta}

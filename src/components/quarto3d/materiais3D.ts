@@ -1,13 +1,12 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { ACABAMENTOS_3D } from '../../data/acabamentos';
+import { CATALOGO, MaterialCatalogo, RUGOSIDADE, deslocamentoVeio, materialPorId, materiaisPorUso } from '../../data/materiais/catalogo';
+import { TipoMapas, gerarMapas, texturaDeCanvas } from './texturasPbr';
 import {
   Desenho,
   desenharEscovado,
   desenharFreijo,
   desenharParede,
-  desenharPedra,
-  desenharRugosidadePedra,
   textura,
   texturaBrilhoLed,
   texturaOclusao,
@@ -26,11 +25,16 @@ export const OPCOES_PAREDE = [
   { id: 'grafite', nome: 'Grafite', cor: '#4B4A47' },
 ] as const;
 
-export const OPCOES_TAMPO = [
-  { id: 'pedra-clara', nome: 'Pedra clara', cor: '#E8E4DC' },
-  { id: 'granito-preto', nome: 'Granito preto', cor: '#1E1D1B' },
-  { id: 'madeira', nome: 'Madeira', cor: '#B6864C' },
-] as const;
+/** Tampos vêm do catálogo (uso "tampo"). */
+export const OPCOES_TAMPO = materiaisPorUso('tampo').map((m) => ({ id: m.id, nome: m.nome, cor: m.cor }));
+
+function tipoMapas(m: MaterialCatalogo): TipoMapas | null {
+  if (m.tipo === 'madeirado') return 'madeira';
+  if (m.tipo === 'metal') return 'escovado';
+  if (m.tipo === 'pedra') return m.acabamento === 'brilho' ? 'granito' : 'quartzo';
+  if (m.tipo === 'vidro') return null;
+  return m.acabamento === 'fosco' ? 'tx' : null;
+}
 
 /** Tábuas corridas: fibra no sentido U, emendas desencontradas. */
 const desenharAssoalho: Desenho = (ctx, tam, r) => {
@@ -92,9 +96,86 @@ export function criarKit3D(mobile: boolean) {
     return mat;
   };
 
-  const pedra = reg(textura(tam, 1.5, aniso, 23, desenharPedra));
-  const pedraRug = reg(textura(tam / 2, 1.5, aniso, 29, desenharRugosidadePedra, false));
-  const madeiraTampo = reg(textura(tam, 1.1, aniso, 12, desenharFreijo('#B6864C')));
+  const fisico = (p: THREE.MeshPhysicalMaterialParameters) => {
+    const mat = new THREE.MeshPhysicalMaterial(p);
+    mats.push(mat);
+    return mat;
+  };
+  const carregador = new THREE.TextureLoader();
+  const foto = (url: string, metros: number, cor: boolean) => {
+    const t = reg(carregador.load(url));
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(1 / metros, 1 / metros);
+    t.colorSpace = cor ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    t.anisotropy = aniso;
+    return t;
+  };
+
+  /** Material PBR de um item do catálogo: fotos dos mapas quando houver, senão mapas gerados. */
+  function deCatalogo(item: MaterialCatalogo, semente: number): THREE.MeshStandardMaterial {
+    const metros = item.escalaCm / 100;
+    const rug = RUGOSIDADE[item.acabamento];
+    const brilho = item.acabamento === 'brilho';
+    const base: THREE.MeshPhysicalMaterialParameters = { color: item.cor, roughness: rug, metalness: item.tipo === 'metal' ? 1 : 0 };
+    if (item.tipo === 'vidro') {
+      return fisico({ color: item.cor, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.24, envMapIntensity: 1.6, clearcoat: 1, clearcoatRoughness: 0.03 });
+    }
+    const tipo = tipoMapas(item);
+    if (item.mapas.baseColor || item.mapas.normal || item.mapas.roughness) {
+      if (item.mapas.baseColor) {
+        base.map = foto(item.mapas.baseColor, metros, true);
+        base.color = '#FFFFFF';
+      }
+      if (item.mapas.normal) base.normalMap = foto(item.mapas.normal, metros, false);
+      if (item.mapas.roughness) {
+        base.roughnessMap = foto(item.mapas.roughness, metros, false);
+        base.roughness = 1;
+      }
+    } else if (tipo) {
+      const mapas = gerarMapas(tipo, item.cor, tam, rug, semente);
+      if (mapas.cor) {
+        base.map = reg(texturaDeCanvas(mapas.cor, metros, aniso, true));
+        base.color = '#FFFFFF';
+      }
+      const metrosRelevo = tipo === 'tx' ? 0.12 : metros;
+      const escala = tipo === 'madeira' ? 0.35 : 0.2;
+      base.normalMap = reg(texturaDeCanvas(mapas.normal, metrosRelevo, aniso, false));
+      base.normalScale = new THREE.Vector2(escala, escala);
+      base.roughnessMap = reg(texturaDeCanvas(mapas.rugosidade, metrosRelevo, aniso, false));
+      base.roughness = 1;
+    }
+    // Brilho (laca, pedra polida) ganha verniz: reflexo nítido por cima da cor.
+    return brilho ? fisico({ ...base, clearcoat: 1, clearcoatRoughness: 0.06 }) : padrao(base as THREE.MeshStandardMaterialParameters);
+  }
+
+  // Criado só na primeira vez que aparece na cena: aparelho fraco não gera mapas que não usa.
+  const doCatalogo = new Map<string, THREE.MeshStandardMaterial>();
+  const porId = (id: string, reserva: string) => {
+    const item = materialPorId(id) ?? materialPorId(reserva)!;
+    let mat = doCatalogo.get(item.id);
+    if (!mat) {
+      mat = deCatalogo(item, 80 + CATALOGO.indexOf(item));
+      doCatalogo.set(item.id, mat);
+    }
+    return mat;
+  };
+
+  /** Fita de borda: mesmo acabamento, sem relevo, um pouco mais escura e mais fosca (PVC). */
+  const fitas = new Map<THREE.Material, THREE.Material>();
+  function fitaDe(mat: THREE.Material): THREE.Material {
+    let f = fitas.get(mat);
+    if (!f) {
+      const c = (mat as THREE.MeshStandardMaterial).clone();
+      c.normalMap = null;
+      c.color.multiplyScalar(0.9);
+      c.roughness = Math.min(1, c.roughness + 0.08);
+      mats.push(c);
+      fitas.set(mat, c);
+      f = c;
+    }
+    return f;
+  }
+
   const inox = reg(textura(tam / 2, 0.6, aniso, 61, desenharEscovado(true)));
   const parede = reg(textura(256, 0.8, 1, 53, desenharParede));
   const oclusao = reg(texturaOclusao());
@@ -106,7 +187,9 @@ export function criarKit3D(mobile: boolean) {
   };
 
   const m = {
-    corpo: padrao({ color: '#EFEEEA', roughness: 0.5 }),
+    // Caixaria em Branco TX do catálogo.
+    corpo: porId('branco-neve', 'branco-neve'),
+    puxador: porId('aluminio-escovado', 'aluminio-escovado'),
     tecidoClaro: padrao({ color: '#EDE8DF', roughness: 0.95 }),
     tecidoAreia: padrao({ color: '#CDBBA2', roughness: 0.92 }),
     tecidoEscuro: padrao({ color: '#58544D', roughness: 0.95 }),
@@ -116,7 +199,7 @@ export function criarKit3D(mobile: boolean) {
     latao: padrao({ color: '#C4A15A', roughness: 0.28, metalness: 1 }),
     inox: padrao({ map: inox, roughness: 0.38, metalness: 0.85 }),
     espelho: padrao({ color: '#DCE3E4', roughness: 0.04, metalness: 1 }),
-    vidro: padrao({ color: '#DDE5E4', roughness: 0.06, metalness: 0.1, transparent: true, opacity: 0.26 }),
+    vidro: porId('vidro-incolor', 'vidro-incolor'),
     folga: basico({ color: '#2B2925' }),
     parede: padrao({ map: parede, roughness: 0.92 }),
     rodape: padrao({ color: '#F1EEE7', roughness: 0.6 }),
@@ -141,29 +224,19 @@ export function criarKit3D(mobile: boolean) {
     oclusao: basico({ color: 0x000000, alphaMap: oclusao, transparent: true, depthWrite: false, opacity: 0.46 }),
   };
 
-  const tampos: Record<string, THREE.MeshStandardMaterial> = {
-    'pedra-clara': padrao({ map: pedra, roughnessMap: pedraRug, roughness: 0.9 }),
-    'granito-preto': padrao({ color: '#1E1D1B', roughness: 0.16, metalness: 0.25 }),
-    madeira: padrao({ map: madeiraTampo, roughness: 0.42 }),
-  };
-
-  const acabamentos = new Map<string, THREE.MeshStandardMaterial>();
-  ACABAMENTOS_3D.forEach((a, i) => {
-    acabamentos.set(
-      a.id,
-      a.textura === 'madeira'
-        ? padrao({ map: reg(textura(tam, 1.1, aniso, 80 + i, desenharFreijo(a.hex))), roughness: 0.48 })
-        : padrao({ color: a.hex, roughness: 0.46 })
-    );
-  });
+  const tampo = (id: string) => porId(materialPorId(id)?.uso.includes('tampo') ? id : 'pedra-clara', 'pedra-clara');
 
   const paredesCor = new Map<string, THREE.Color>(
     [...OPCOES_PAREDE].map((p) => [p.id, new THREE.Color(p.cor)])
   );
 
-  /** Caixa com UV em metros, cacheada pelas medidas em milímetros. */
-  function caixa(l: number, a: number, p: number, veio: Veio = 'y') {
-    const chave = `${Math.round(l * 1000)}:${Math.round(a * 1000)}:${Math.round(p * 1000)}:${veio}`;
+  /**
+   * Caixa com UV em metros, cacheada pelas medidas em milímetros.
+   * `semente` desloca o veio para peças vizinhas não repetirem o mesmo desenho.
+   */
+  function caixa(l: number, a: number, p: number, veio: Veio = 'y', semente?: number) {
+    const chave = `${Math.round(l * 1000)}:${Math.round(a * 1000)}:${Math.round(p * 1000)}:${veio}:${semente ?? ''}`;
+    const [du, dv] = semente === undefined ? [0, 0] : deslocamentoVeio(semente);
     const pronta = geos.get(chave);
     if (pronta) return pronta;
     const g = new THREE.BoxGeometry(l, a, p);
@@ -174,7 +247,7 @@ export function criarKit3D(mobile: boolean) {
       let u = uv.getX(i) * U;
       let v = uv.getY(i) * V;
       if (veio === 'y' && f !== 2 && f !== 3) [u, v] = [v, u];
-      uv.setXY(i, u, v);
+      uv.setXY(i, u + du, v + dv);
     }
     geos.set(chave, g);
     return g;
@@ -222,8 +295,9 @@ export function criarKit3D(mobile: boolean) {
     mobile,
     m,
     pisos,
-    tampos,
-    acabamento: (id: string) => acabamentos.get(id) ?? acabamentos.get('freijo-ripado')!,
+    tampo,
+    acabamento: (id: string) => porId(id, 'freijo-ripado'),
+    fitaDe,
     corParede: (id: string) => paredesCor.get(id) ?? paredesCor.get('gelo')!,
     caixa,
     ripas,

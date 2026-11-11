@@ -12,6 +12,8 @@ Prévia comercial para gerar orçamento qualificado. Não substitui o projeto ex
 | `src/components/quarto3d/regrasProjeto.ts` | Regras de projeto: circulação, giro da porta, cama x TV, cozinha (bancada, aéreo, triângulo), sugestão de correção e encaixe |
 | `src/components/quarto3d/marcenaria.ts` | Gerador puro de marcenaria: caixaria 18 mm, frentes 18 mm, fundo 6 mm, folga 3 mm, portas de até 60 cm, vãos, gavetas, maleiro, puxadores |
 | `src/components/quarto3d/MovelMarcenaria.tsx` | Desenha o que o gerador devolve e anima o "ver por dentro" no laço do próprio Canvas |
+| `src/data/materiais/catalogo.json` | Catálogo de acabamentos que os donos preenchem: nome, fabricante, tipo, superfície, cor, escala, veio, uso e mapas |
+| `src/components/quarto3d/texturasPbr.ts` | Mapas de cor, relevo e rugosidade gerados por código quando o catálogo não traz fotos |
 | `src/components/quarto3d/schema.ts` | Contrato do layout (zod), versão (`VERSAO_LAYOUT`) e migração de layouts antigos (`normalizarLayout`) |
 | `src/components/quarto3d/estadoEditor.ts` | Estado único no Zustand: layout, seleção, desfazer e refazer (gestos contínuos viram um passo só) |
 | `src/components/quarto3d/CenaQuarto3D.tsx` | Único `<Canvas>`; desenha com as mesmas funções do motor |
@@ -25,6 +27,16 @@ Medidas internas em metros; a interface mostra centímetros em passos de 5 cm. A
 - **Balcão da bancada em L:** módulos de até 60 cm, gaveteiro de 3 na ponta oposta à pia, canto cego atrás do retorno e rodapé recuado.
 - **Aéreo:** portas de até 60 cm, prateleira a meia altura, puxador toque por padrão.
 - **Ver por dentro:** botão na cena; portas giram 100°, gavetas correm e folhas de correr deslizam. Com `prefers-reduced-motion`, abre sem animação.
+
+## Materiais
+
+- Fonte única: `src/data/materiais/catalogo.json`. Validado em `npm test` (`catalogoSchema.ts`): id único, cor `#RRGGBB`, mapas só em `/materiais/`.
+- **Como preencher:** trocar `nome` pelo nome comercial, preencher `fabricante`, marcar `confirmado: true`. Para fotos reais, salvar `public/materiais/<id>-cor.webp`, `-normal.webp` e `-rugosidade.webp` (até 1024 px, repetíveis) e apontar em `mapas`. A `escalaCm` é quanto uma repetição cobre na peça real.
+- **Sem foto:** madeira, pedra, TX e metal têm cor, relevo e rugosidade gerados do mesmo desenho; criados só quando aparecem na cena, em 512 px no aparelho fraco e 1024 px no forte.
+- **Superfícies:** fosco (rugosidade 0,78), acetinado (0,42), brilho (0,10 com verniz).
+- **Veio:** segue a maior dimensão da peça e é deslocado por peça, então portas vizinhas não repetem o desenho.
+- **Fita de borda:** as quatro bordas finas de cada chapa usam o mesmo acabamento sem relevo, 10% mais escuro e mais fosco.
+- Os ids antigos (`freijo-ripado`, `branco-neve`, `areia-acetinado`, `cinza-urbano`...) foram mantidos para não quebrar projetos salvos, o hero e a API; só os nomes mudaram para a paleta de referência.
 
 ## Regras de projeto
 
@@ -54,7 +66,7 @@ Referências de medida (circulação, triângulo) são as usuais de projeto de i
 | 1. Ambientes separados, banheiro, portas e janelas editáveis, Zustand, schema versionado | Feito |
 | 2. Motor de regras (circulação, porta, cama/TV, cozinha) | Feito |
 | 3. Módulos paramétricos e "ver por dentro" | Feito para guarda-roupa, balcão e aéreo. Faltam: torre quente, paneleiro, ilha, cabeceira, painel de TV, home office e closet em L/U |
-| 4. Catálogo de materiais com veio orientado | Pendente |
+| 4. Catálogo de materiais com veio orientado | Feito |
 | 5. Luz, sombras, LED e modo foto | Pendente |
 | 6. Planta e elevação com cotas | Pendente |
 | 7. Painel em etapas, resumo, link e envio | Pendente |
