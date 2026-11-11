@@ -10,12 +10,21 @@ Prévia comercial para gerar orçamento qualificado. Não substitui o projeto ex
 | `src/data/cenarios.ts` | Catálogo de módulos (`CATALOGO_MODULOS_CENARIO`) e tipos; reexporta `CENARIOS_AMBIENTES` |
 | `src/components/quarto3d/motorGeometrico.ts` | Fonte única de medidas: pose, caixas de colisão, aberturas (`faixaAbertura`, `caixaAbertura`, `xLocalNaParede`, `prenderAbertura`) e validação |
 | `src/components/quarto3d/regrasProjeto.ts` | Regras de projeto: circulação, giro da porta, cama x TV, cozinha (bancada, aéreo, triângulo), sugestão de correção e encaixe |
+| `src/components/quarto3d/marcenaria.ts` | Gerador puro de marcenaria: caixaria 18 mm, frentes 18 mm, fundo 6 mm, folga 3 mm, portas de até 60 cm, vãos, gavetas, maleiro, puxadores |
+| `src/components/quarto3d/MovelMarcenaria.tsx` | Desenha o que o gerador devolve e anima o "ver por dentro" no laço do próprio Canvas |
 | `src/components/quarto3d/schema.ts` | Contrato do layout (zod), versão (`VERSAO_LAYOUT`) e migração de layouts antigos (`normalizarLayout`) |
 | `src/components/quarto3d/estadoEditor.ts` | Estado único no Zustand: layout, seleção, desfazer e refazer (gestos contínuos viram um passo só) |
 | `src/components/quarto3d/CenaQuarto3D.tsx` | Único `<Canvas>`; desenha com as mesmas funções do motor |
 | `src/components/quarto3d/Quarto3DExperiencia.tsx` | Painel lateral |
 
 Medidas internas em metros; a interface mostra centímetros em passos de 5 cm. A posição de móveis e aberturas usa o mesmo eixo: X nas paredes do fundo e da frente, Z nas laterais.
+
+## Módulos paramétricos
+
+- **Guarda-roupa:** a largura vira vãos de cerca de 90 cm; cada vão escolhe cabideiro, prateleiras, gavetas (2 a 4) ou sapateira; maleiro opcional no topo com portas próprias; portas de abrir (divididas em até 60 cm), de correr (trilho duplo) ou sem porta; puxador cava, perfil, alça ou toque.
+- **Balcão da bancada em L:** módulos de até 60 cm, gaveteiro de 3 na ponta oposta à pia, canto cego atrás do retorno e rodapé recuado.
+- **Aéreo:** portas de até 60 cm, prateleira a meia altura, puxador toque por padrão.
+- **Ver por dentro:** botão na cena; portas giram 100°, gavetas correm e folhas de correr deslizam. Com `prefers-reduced-motion`, abre sem animação.
 
 ## Regras de projeto
 
@@ -44,7 +53,7 @@ Referências de medida (circulação, triângulo) são as usuais de projeto de i
 | 0. Testes do motor atual | Feito |
 | 1. Ambientes separados, banheiro, portas e janelas editáveis, Zustand, schema versionado | Feito |
 | 2. Motor de regras (circulação, porta, cama/TV, cozinha) | Feito |
-| 3. Módulos paramétricos e "ver por dentro" | Pendente |
+| 3. Módulos paramétricos e "ver por dentro" | Feito para guarda-roupa, balcão e aéreo. Faltam: torre quente, paneleiro, ilha, cabeceira, painel de TV, home office e closet em L/U |
 | 4. Catálogo de materiais com veio orientado | Pendente |
 | 5. Luz, sombras, LED e modo foto | Pendente |
 | 6. Planta e elevação com cotas | Pendente |

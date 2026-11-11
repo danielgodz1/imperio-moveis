@@ -29,8 +29,13 @@ export interface InstanciaBase {
   z_m?: number;
   rotacao?: number;
   tampo?: string;
-  /** Guarda-roupa: portas de abrir (padrão) ou de correr. */
-  portas?: 'abrir' | 'correr';
+  /** Guarda-roupa: portas de abrir (padrão), de correr ou sem porta. */
+  portas?: 'abrir' | 'correr' | 'sem';
+  puxador?: 'cava' | 'perfil' | 'alca' | 'toque';
+  /** Guarda-roupa: compartimento de malas no topo (padrão: sim). */
+  maleiro?: boolean;
+  /** Guarda-roupa: interno de cada vão, da esquerda para a direita. */
+  vaos?: Array<{ interno: 'cabideiro' | 'prateleiras' | 'gavetas' | 'sapateira'; gavetas?: number }>;
 }
 
 export type Instancia = InstanciaBase & {
@@ -268,7 +273,7 @@ function pegadasLocais(inst: Instancia, dim: Dimensoes): Retangulo[] {
 }
 
 /** Profundidade livre exigida na frente do guarda-roupa. */
-export const frenteGuardaRoupa = (inst: Pick<InstanciaBase, 'portas'>) => (inst.portas === 'correr' ? 0.4 : 0.6);
+export const frenteGuardaRoupa = (inst: Pick<InstanciaBase, 'portas'>) => ((inst.portas ?? 'abrir') === 'abrir' ? 0.6 : 0.4);
 export const CIRCULACAO_CAMA = 0.6;
 export const CIRCULACAO_COZINHA = 0.9;
 const ALTURA_ZONA = 2.0;

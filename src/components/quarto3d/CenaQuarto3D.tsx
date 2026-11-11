@@ -422,6 +422,9 @@ function Ambiente({
               tampo={k.tampos[m.tampo ?? 'pedra-clara'] ?? k.tampos['pedra-clara']}
               dim={dim}
               portas={m.portas}
+              puxador={m.puxador}
+              maleiro={m.maleiro}
+              vaos={m.vaos}
             />
           </group>
         );

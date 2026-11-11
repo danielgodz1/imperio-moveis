@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Copy, Moon, Redo2, RotateCw, Sun, Trash2, Undo2 } from 'lucide-react';
+import { Copy, DoorClosed, DoorOpen, Moon, Redo2, RotateCw, Sun, Trash2, Undo2 } from 'lucide-react';
 import { QuartoLayout, QuartoLayoutSchema, construirLayoutDoCenario, normalizarLayout, Ambiente, ModuloId } from './schema';
 import { CENARIOS_AMBIENTES, CATALOGO_MODULOS_CENARIO, ParedeCardeal } from '../../data/cenarios';
 import { ACABAMENTOS_3D } from '../../data/acabamentos';
@@ -18,6 +18,7 @@ import {
   Abertura,
 } from './motorGeometrico';
 import { encaixar, sugerirCorrecao, validarProjeto } from './regrasProjeto';
+import { Interno, Puxador, TipoPorta, Vao, resolverVaos } from './marcenaria';
 import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
 import { getWhatsAppUrl, salvarResumo3DAtivo, trackWhatsAppClick } from '../../utils/helpers';
 
@@ -43,6 +44,29 @@ const PAREDES: ParedeCardeal[] = ['N', 'O', 'L', 'S', 'centro'];
 const rotuloModulo = (id: ModuloId) => CATALOGO_MODULOS_CENARIO[id]?.rotulo ?? id;
 /** Medidas aparecem em centímetros, em passos de 5 cm. */
 const cm = (v: number) => `${Math.round(v * 100)} cm`;
+const OPCOES_PORTA: Array<{ id: TipoPorta; nome: string }> = [
+  { id: 'abrir', nome: 'De abrir' },
+  { id: 'correr', nome: 'De correr' },
+  { id: 'sem', nome: 'Sem porta' },
+];
+const OPCOES_PUXADOR: Array<{ id: Puxador; nome: string }> = [
+  { id: 'cava', nome: 'Cava' },
+  { id: 'perfil', nome: 'Perfil' },
+  { id: 'alca', nome: 'Alça' },
+  { id: 'toque', nome: 'Toque' },
+];
+const OPCOES_INTERNO: Array<{ id: Interno; nome: string }> = [
+  { id: 'cabideiro', nome: 'Cabideiro' },
+  { id: 'gavetas', nome: 'Gavetas' },
+  { id: 'prateleiras', nome: 'Prateleiras' },
+  { id: 'sapateira', nome: 'Sapateira' },
+];
+/** Puxador padrão de cada móvel paramétrico. */
+const PUXADOR_PADRAO: Partial<Record<ModuloId, Puxador>> = {
+  'guarda-roupa': 'alca',
+  'bancada-l': 'alca',
+  'armarios-altos': 'toque',
+};
 const NOME_PAREDE_ABERTURA: Record<Abertura['parede'], string> = { N: 'Fundo', O: 'Esquerda', L: 'Direita', S: 'Frente' };
 
 const CHIP_BASE = 'tipo-cota rounded-curto border cursor-pointer transition-colors';
@@ -82,6 +106,8 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   const selecionado = useEditor((e) => e.selecionado);
   const podeDesfazer = useEditor((e) => e.passado.length > 0);
   const podeRefazer = useEditor((e) => e.futuro.length > 0);
+  const verDentro = useEditor((e) => e.verDentro);
+  const alternarVerDentro = useEditor((e) => e.alternarVerDentro);
   const { aplicar, durante, fimGesto, desfazer, refazer, selecionar: setSelecionado } = useEditor.getState();
   const [aba, setAba] = useState<Aba>('moveis');
   const [vista, setVista] = useState<VistaCamera>('perspectiva');
@@ -396,6 +422,17 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             </button>
             <button
               type="button"
+              onClick={alternarVerDentro}
+              aria-pressed={verDentro}
+              aria-label={verDentro ? 'Fechar portas e gavetas' : 'Ver por dentro'}
+              title={verDentro ? 'Fechar portas e gavetas' : 'Ver por dentro'}
+              className={`h-[36px] px-8 flex items-center gap-4 bg-preto/85 ${CHIP_BASE} border-papel/25 text-papel`}
+            >
+              {verDentro ? <DoorOpen className="w-4 h-4" strokeWidth={1.5} /> : <DoorClosed className="w-4 h-4" strokeWidth={1.5} />}
+              <span className="hidden sm:inline">{verDentro ? 'Fechar' : 'Ver por dentro'}</span>
+            </button>
+            <button
+              type="button"
               onClick={desfazer}
               disabled={!podeDesfazer}
               aria-label="Desfazer"
@@ -526,13 +563,65 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
                 {atual.id === 'guarda-roupa' && (
                   <div className="flex flex-col gap-8">
                     <span className="tipo-cota text-papel/85">Portas</span>
-                    <div className="grid grid-cols-2 gap-4">
-                      {(['abrir', 'correr'] as const).map((t) => (
-                        <button key={t} type="button" aria-pressed={(atual.portas ?? 'abrir') === t} onClick={() => alterarPeca(atual.uid, { portas: t })} className={`h-[36px] ${chip((atual.portas ?? 'abrir') === t)}`}>
-                          {t === 'abrir' ? 'De abrir' : 'De correr'}
+                    <div className="grid grid-cols-3 gap-4">
+                      {OPCOES_PORTA.map((o) => (
+                        <button key={o.id} type="button" aria-pressed={(atual.portas ?? 'abrir') === o.id} onClick={() => alterarPeca(atual.uid, { portas: o.id })} className={`h-[36px] ${chip((atual.portas ?? 'abrir') === o.id)}`}>
+                          {o.nome}
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {PUXADOR_PADRAO[atual.id] && (atual.id !== 'guarda-roupa' || (atual.portas ?? 'abrir') !== 'sem') && (
+                  <div className="flex flex-col gap-8">
+                    <span className="tipo-cota text-papel/85">Puxador</span>
+                    <div className="grid grid-cols-4 gap-4">
+                      {OPCOES_PUXADOR.map((o) => {
+                        const ativo = (atual.puxador ?? PUXADOR_PADRAO[atual.id]) === o.id;
+                        return (
+                          <button key={o.id} type="button" aria-pressed={ativo} onClick={() => alterarPeca(atual.uid, { puxador: o.id })} className={`h-[36px] ${chip(ativo)}`}>
+                            {o.nome}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {atual.id === 'guarda-roupa' && (
+                  <div className="flex flex-col gap-8">
+                    <div className="flex items-center justify-between gap-8">
+                      <span className="tipo-cota text-papel/85">Divisão interna</span>
+                      <button type="button" aria-pressed={atual.maleiro ?? true} onClick={() => alterarPeca(atual.uid, { maleiro: !(atual.maleiro ?? true) })} className={`px-8 h-[32px] ${chip(atual.maleiro ?? true)}`}>
+                        Maleiro
+                      </button>
+                    </div>
+                    {resolverVaos(atual.largura_m, atual.vaos).map((vao, i, todos) => {
+                      const trocar = (novo: Vao) => alterarPeca(atual.uid, { vaos: todos.map((v, j) => (j === i ? novo : v)) });
+                      return (
+                        <div key={i} className="flex flex-col gap-4 py-8 border-b border-papel/15">
+                          <span className="tipo-cota text-papel/70">Vão {i + 1}</span>
+                          <div className="grid grid-cols-4 gap-4">
+                            {OPCOES_INTERNO.map((o) => (
+                              <button key={o.id} type="button" aria-pressed={vao.interno === o.id} onClick={() => trocar({ interno: o.id, gavetas: o.id === 'gavetas' ? 3 : undefined })} className={`min-h-[32px] px-4 ${chip(vao.interno === o.id)}`}>
+                                {o.nome}
+                              </button>
+                            ))}
+                          </div>
+                          {vao.interno === 'gavetas' && (
+                            <div className="flex items-center gap-4">
+                              <span className="tipo-cota text-papel/70 pr-4">Gavetas</span>
+                              {[2, 3, 4].map((n) => (
+                                <button key={n} type="button" aria-pressed={vao.gavetas === n} onClick={() => trocar({ interno: 'gavetas', gavetas: n })} className={`w-[32px] h-[32px] ${chip(vao.gavetas === n)}`}>
+                                  {n}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 

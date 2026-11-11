@@ -17,6 +17,9 @@ export interface EstadoEditor {
   /** Layout no início de um gesto contínuo (slider ou arrasto). */
   baseGesto: QuartoLayout | null;
   selecionado: Selecao;
+  /** Portas e gavetas abertas para mostrar o interno (não entra no histórico nem no projeto). */
+  verDentro: boolean;
+  alternarVerDentro: () => void;
   /** Ação pontual: entra no histórico na hora. */
   aplicar: (fn: (prev: QuartoLayout) => QuartoLayout) => void;
   /** Gesto contínuo: vira um único passo de histórico em fimGesto. */
@@ -36,6 +39,8 @@ export const criarEstadoEditor = (inicial: QuartoLayout) =>
     futuro: [],
     baseGesto: null,
     selecionado: null,
+    verDentro: false,
+    alternarVerDentro: () => set({ verDentro: !get().verDentro }),
     aplicar: (fn) => {
       const { layout, passado, baseGesto } = get();
       const proximo = fn(layout);

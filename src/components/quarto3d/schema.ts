@@ -62,7 +62,13 @@ export const ModuloInstanciaSchema = z.object({
   z_m: z.number().optional(),
   rotacao: z.number().optional(),
   tampo: z.string().optional(),
-  portas: z.enum(['abrir', 'correr']).optional(),
+  portas: z.enum(['abrir', 'correr', 'sem']).optional(),
+  puxador: z.enum(['cava', 'perfil', 'alca', 'toque']).optional(),
+  maleiro: z.boolean().optional(),
+  vaos: z
+    .array(z.object({ interno: z.enum(['cabideiro', 'prateleiras', 'gavetas', 'sapateira']), gavetas: z.number().int().min(2).max(4).optional() }))
+    .max(8)
+    .optional(),
 });
 
 export const QuartoLayoutSchema = z

@@ -87,7 +87,7 @@ function permitidoNaZona(dono: Instancia, intruso: Instancia): boolean {
 function mensagemZona(dono: Instancia): { regra: string; mensagem: string } {
   switch (dono.id) {
     case 'guarda-roupa':
-      return dono.portas === 'correr'
+      return (dono.portas ?? 'abrir') !== 'abrir'
         ? { regra: 'circulacao-guarda-roupa', mensagem: 'Falta passagem de 40 cm na frente do guarda-roupa.' }
         : { regra: 'circulacao-guarda-roupa', mensagem: 'Sem 60 cm livres para abrir as portas do guarda-roupa.' };
     case 'cabeceira-ripada-led':
@@ -307,7 +307,7 @@ export function sugerirCorrecao(p: Projeto, uid: string, problemas: Problemas = 
     const alteracao = { altura_m: ALTURA_BANCADA };
     if (resolve(p, problemas, { ...peca, ...alteracao })) return { rotulo: 'Voltar para 90 cm', alteracao };
   }
-  if (regras.has('circulacao-guarda-roupa') && peca.id === 'guarda-roupa' && peca.portas !== 'correr') {
+  if (regras.has('circulacao-guarda-roupa') && peca.id === 'guarda-roupa' && (peca.portas ?? 'abrir') === 'abrir') {
     const alteracao = { portas: 'correr' as const };
     if (resolve(p, problemas, { ...peca, ...alteracao })) return { rotulo: 'Usar portas de correr', alteracao };
   }

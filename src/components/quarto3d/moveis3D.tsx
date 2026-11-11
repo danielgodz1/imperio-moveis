@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import * as THREE from 'three';
 import { RoundedBox } from '@react-three/drei';
 import { ModuloId } from '../../data/cenarios';
 import { Kit3D } from './materiais3D';
+import { MovelMarcenaria } from './MovelMarcenaria';
+import { Puxador, TipoPorta, Vao, gerarAereo, gerarBalcao, gerarGuardaRoupa } from './marcenaria';
 import { CAMA, CENTRO_TELA_TV, Dimensoes, posCooktopIlha, posPia, retornoBancada } from './motorGeometrico';
 
 type V3 = [number, number, number];
@@ -18,7 +20,10 @@ export interface PropsMovel {
   led: boolean;
   tampo: THREE.Material;
   dim: Dimensoes;
-  portas?: 'abrir' | 'correr';
+  portas?: TipoPorta;
+  puxador?: Puxador;
+  maleiro?: boolean;
+  vaos?: Vao[];
 }
 
 function fabrica(k: Kit3D) {
@@ -99,43 +104,11 @@ const Livros: React.FC<{ k: Kit3D; l: number; a: number; y: number; z: number; s
   return <>{itens}</>;
 };
 
-/** Portas de correr: folhas largas em dois trilhos, sobrepostas 3 cm. */
-const PortasCorrer: React.FC<{ k: Kit3D; w: number; h: number; y: number; z: number; a: THREE.Material }> = ({ k, w, h, y, z, a }) => {
-  const C = fabrica(k);
-  const n = Math.max(2, Math.round(w / 1.1));
-  const folha = w / n + 0.03;
+const GuardaRoupa: React.FC<PropsMovel> = ({ w, h, d, a, k, led, portas, puxador, maleiro, vaos }) => {
+  const m = useMemo(() => gerarGuardaRoupa({ w, h, d, portas, puxador, maleiro, vaos }), [w, h, d, portas, puxador, maleiro, vaos]);
   return (
     <group>
-      {C([w, 0.04, 0.05], [0, y + h / 2 + 0.02, z + 0.025], k.m.cromo, 'x', false)}
-      {Array.from({ length: n }, (_, i) => {
-        const x = -w / 2 + (w / n) * (i + 0.5);
-        const trilho = i % 2 === 0 ? 0 : 0.026;
-        return (
-          <group key={i} position={[x, y, z + CHAPA / 2 + trilho]}>
-            {C([folha, h - FOLGA, CHAPA], [0, 0, 0], a)}
-            {C([0.014, h - 0.02, 0.02], [(i % 2 === 0 ? 1 : -1) * (folha / 2 - 0.007), 0, CHAPA / 2 + 0.01], k.m.cromo, 'y', false)}
-          </group>
-        );
-      })}
-    </group>
-  );
-};
-
-const GuardaRoupa: React.FC<PropsMovel> = ({ w, h, d, a, k, led, portas }) => {
-  const C = fabrica(k);
-  const n = Math.max(2, Math.round(w / 0.6));
-  const correr = portas === 'correr';
-  // Portas de correr pedem caixa 5 cm mais funda por causa do trilho duplo.
-  const zPortas = correr ? d - 0.055 : d - 0.02;
-  return (
-    <group>
-      {C([w, h, zPortas], [0, h / 2, zPortas / 2], k.m.corpo)}
-      {correr ? (
-        <PortasCorrer k={k} w={w} h={h - 0.1} y={(h - 0.1) / 2 + 0.08} z={zPortas} a={a} />
-      ) : (
-        <Portas k={k} w={w} h={h - 0.1} y={(h - 0.1) / 2 + 0.08} z={zPortas} n={n} a={a} />
-      )}
-      {C([w, 0.08, d - 0.04], [0, 0.04, (d - 0.04) / 2], k.m.preto, 'x')}
+      <MovelMarcenaria m={m} k={k} frente={a} />
       <Fita k={k} led={led} s={[w - 0.1, 0.012, 0.012]} p={[0, h - 0.012, d + 0.008]} />
     </group>
   );
@@ -231,16 +204,18 @@ const Tampo: React.FC<{ k: Kit3D; l: number; p: number; y: number; z: number; x?
   return <>{C([l, 0.04, p], [x, y, z], mat, 'x')}</>;
 };
 
-const BancadaL: React.FC<PropsMovel> = ({ w, h, d, a, k, tampo, dim }) => {
+const BancadaL: React.FC<PropsMovel> = ({ w, h, d, a, k, tampo, dim, puxador }) => {
   const C = fabrica(k);
   const ret = retornoBancada(dim);
   const hBase = h - 0.04;
-  const n = Math.max(2, Math.round(w / 0.5));
+  // Trecho principal paramétrico; os 62 cm do canto ficam atrás do retorno (canto cego).
+  const balcao = useMemo(
+    () => gerarBalcao({ w, h: hBase, d, puxador: puxador ?? 'alca', xPia: posPia(w, d)[0], cantoCego: 0.62 }),
+    [w, hBase, d, puxador]
+  );
   return (
     <group>
-      {C([w, hBase - 0.1, d - 0.02], [0, (hBase - 0.1) / 2 + 0.1, (d - 0.02) / 2], k.m.corpo, 'x')}
-      {C([w - 0.02, 0.1, d - 0.08], [0, 0.05, (d - 0.08) / 2], k.m.preto, 'x')}
-      <Portas k={k} w={w} h={hBase - 0.1} y={(hBase - 0.1) / 2 + 0.1} z={d - 0.02} n={n} a={a} puxador="horizontal" />
+      <MovelMarcenaria m={balcao} k={k} frente={a} />
       <Tampo k={k} l={w + 0.02} p={d + 0.02} y={h - 0.02} z={(d + 0.02) / 2} mat={tampo} />
       {C([0.58, 0.004, 0.38], [posPia(w, d)[0], h + 0.002, posPia(w, d)[1]], k.m.inox, 'x', false)}
       {C([0.5, 0.002, 0.3], [posPia(w, d)[0], h + 0.005, posPia(w, d)[1]], k.m.folga, 'x', false)}
@@ -282,12 +257,11 @@ const Ilha: React.FC<PropsMovel> = ({ w, h, d, a, k, led, tampo }) => {
   );
 };
 
-const ArmariosAltos: React.FC<PropsMovel> = ({ w, h, d, a, k, led }) => {
-  const C = fabrica(k);
+const ArmariosAltos: React.FC<PropsMovel> = ({ w, h, d, a, k, led, puxador }) => {
+  const aereo = useMemo(() => gerarAereo({ w, h, d, puxador: puxador ?? 'toque' }), [w, h, d, puxador]);
   return (
     <group>
-      {C([w, h, d - 0.02], [0, h / 2, (d - 0.02) / 2], k.m.corpo, 'x')}
-      <Portas k={k} w={w} h={h} z={d - 0.02} n={Math.max(2, Math.round(w / 0.48))} a={a} puxador="nenhum" />
+      <MovelMarcenaria m={aereo} k={k} frente={a} />
       <Fita k={k} led={led} s={[w - 0.1, 0.008, 0.012]} p={[0, -0.004, d - 0.08]} />
       <Brilho k={k} led={led} l={w - 0.04} a={0.62} p={[0, -0.31, 0.02]} />
     </group>
