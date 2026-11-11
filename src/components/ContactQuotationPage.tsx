@@ -27,7 +27,7 @@ export const ContactQuotationPage: React.FC<ContactQuotationPageProps> = ({
           </button>
 
           <h1 className="tipo-h1 text-grafite">
-            Enviar medidas ou pedir orçamento em Jaú
+            Pedir orçamento de móveis planejados em Jaú
           </h1>
           <p className="tipo-corpo text-grafite-suave">
             Responda os 3 passos rápidos abaixo. Ao confirmar, abrimos a conversa no WhatsApp com o resumo pronto para o Wellington e a Tatiane.

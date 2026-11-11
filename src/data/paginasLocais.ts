@@ -297,10 +297,10 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     rota: '/contato',
     title: 'Pedir Orçamento de Móveis Planejados em Jaú/SP | Império Móveis',
     description:
-      'Envie as medidas do seu ambiente ou chame o Wellington e a Tatiane Cabral no WhatsApp (14) 99849-2834. Orçamento rápido para cozinhas, quartos, closets e lojas em Jaú.',
+      'Conte o que você quer planejar e quando quer começar, ou chame o Wellington e a Tatiane Cabral no WhatsApp (14) 99849-2834. Orçamento rápido para cozinhas, quartos, closets e lojas em Jaú.',
     canonical: `${EMPRESA.url}/contato`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
-    h1Inicial: 'Enviar medidas ou pedir orçamento em Jaú',
+    h1Inicial: 'Pedir orçamento de móveis planejados em Jaú',
     resumoHtmlInicial:
       'Responda os 3 passos rápidos de orçamento e fale direto com o Wellington e a Tatiane Cabral pelo WhatsApp (14) 99849-2834.',
   },

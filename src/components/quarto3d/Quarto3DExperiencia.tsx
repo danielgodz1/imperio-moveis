@@ -27,7 +27,7 @@ import { LIMITE_ABERTURAS, contarAberturas, podeAdicionarAbertura } from './limi
 import { DadosLead, PRAZOS, codificarProjeto, decodificarProjeto, estimarPreco, linhasDoProjeto, montarMensagem, reais } from './resumoProjeto';
 import { EMPRESA } from '../../data/empresa';
 import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
-import { getWhatsAppUrl, salvarResumo3DAtivo, trackWhatsAppClick } from '../../utils/helpers';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../../utils/helpers';
 
 export interface Quarto3DExperienciaProps {
   onOpenBriefingOutro?: () => void;
@@ -185,20 +185,6 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     return () => window.removeEventListener('keydown', tecla);
   }, [desfazer, refazer]);
 
-  const resumoPecas = () =>
-    modulos
-      .map((m) => {
-        const acab = ACABAMENTOS_3D.find((a) => a.id === m.acabamento)?.nome ?? m.acabamento;
-        return `${rotuloModulo(m.id)} (${cm(m.largura_m)} x ${cm(m.altura_m)}, ${acab})`;
-      })
-      .join('; ');
-
-  useEffect(() => {
-    const { largura_m: W, profundidade_m: D, pe_direito_m: H } = layout.dimensoes;
-    salvarResumo3DAtivo(`${cenarioAtual.rotulo} ${cm(W)} x ${cm(D)}, pé-direito ${cm(H)} | ${resumoPecas()} | LED: ${layout.led ? 'Sim' : 'Não'}`);
-    // resumoPecas deriva de modulos, já presente em layout
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layout, cenarioAtual]);
 
   // Abre o projeto do link (#projeto=...) ou o último salvo neste navegador.
   useEffect(() => {

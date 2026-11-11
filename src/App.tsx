@@ -21,6 +21,7 @@ import { JsonLdSchema } from './components/JsonLdSchema';
 import { Footer } from './components/Footer';
 import { VisitBookingModal } from './components/VisitBookingModal';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
+import { AvisoProjeto3D } from './components/AvisoProjeto3D';
 import { FiltroLapis, LinhaLapis } from './components/LinhaLapis';
 import { useScrollytelling } from './hooks/useScrollytelling';
 import { useNivel } from './vitrine/nivel';
@@ -187,6 +188,9 @@ export default function App() {
 
       {/* Botão flutuante: abre o pedido de orçamento (WhatsApp direto fica no painel) */}
       <WhatsAppWidget aguardarHero={currentPath === '/'} onAbrirOrcamento={() => handleOpenBriefing()} />
+
+      {/* Lembrete do 3D online (uma vez por semana, fora da página do 3D) */}
+      <AvisoProjeto3D rota={currentPath} onAbrir={() => handleNavigateRoute('/projetar')} />
 
       {/* Modal opcional de agendamento de visita */}
       <VisitBookingModal

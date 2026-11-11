@@ -9,16 +9,6 @@ declare global {
   }
 }
 
-let resumo3DAtivo = '';
-
-export function salvarResumo3DAtivo(resumo: string): void {
-  resumo3DAtivo = resumo;
-}
-
-export function obterResumo3DAtivo(): string {
-  return resumo3DAtivo;
-}
-
 /**
  * Dispara eventos GA4 (whatsapp_click e generate_lead) sem dados pessoais (PII).
  */

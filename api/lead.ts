@@ -11,7 +11,11 @@ export const SchemaLeadOrcamento = z.object({
   whatsapp: z.string().trim().regex(/^[\d\s()+-]{10,20}$/, 'WhatsApp inválido.'),
   cidade: z.string().trim().min(2).max(120).default('Jaú'),
   ambientes: z.array(z.string().trim().min(1).max(60)).min(1).max(10),
-  fase: z.enum(['Só planejando', 'Imóvel em obra', 'Pronto para medir']),
+  /** Quando quer começar (substitui a antiga "fase"). */
+  prazo: z.string().trim().max(60).optional().default(''),
+  /** Estilo desejado para a cotação, se o cliente tiver um. */
+  estilo: z.string().trim().max(60).optional().default(''),
+  fase: z.string().trim().max(60).optional().default(''),
   medidas: z.string().trim().max(300).optional().default(''),
   temFotosOuPlanta: z.boolean().optional().default(false),
   observacoes: z.string().trim().max(600).optional().default(''),

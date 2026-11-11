@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { X, MessageSquare, Check, ArrowRight, ArrowLeft, ImagePlus, FileText } from 'lucide-react';
 import {
   getWhatsAppUrl,
-  obterResumo3DAtivo,
   trackGenerateLead,
   trackWhatsAppClick,
 } from '../utils/helpers';
@@ -36,10 +35,22 @@ export const OPCOES_AMBIENTE_BRIEFING = [
   'Outro',
 ] as const;
 
-export const OPCOES_FASE_BRIEFING = [
-  'Só planejando',
-  'Imóvel em obra',
-  'Pronto para medir',
+/** Quando o cliente quer começar. */
+export const OPCOES_PRAZO_BRIEFING = [
+  'O quanto antes',
+  'Em 1 a 3 meses',
+  'Em 3 a 6 meses',
+  'Só pesquisando',
+] as const;
+
+/** Estilo para a cotação (opcional). */
+export const OPCOES_ESTILO_BRIEFING = [
+  'Moderno',
+  'Minimalista',
+  'Clássico',
+  'Industrial',
+  'Madeira natural',
+  'Ainda não sei',
 ] as const;
 
 interface BriefingOrcamentoProps {
@@ -57,8 +68,8 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
 }) => {
   const [passo, setPasso] = useState<1 | 2 | 3>(1);
   const [ambientes, setAmbientes] = useState<string[]>(['Cozinha']);
-  const [fase, setFase] = useState<string>('Só planejando');
-  const [medidas, setMedidas] = useState<string>('');
+  const [prazo, setPrazo] = useState<string>('');
+  const [estilo, setEstilo] = useState<string>('');
   const [fotos, setFotos] = useState<File[]>([]);
   const [avisoFotos, setAvisoFotos] = useState<string | null>(null);
   const [envioFotos, setEnvioFotos] = useState<'compartilhado' | 'anexar' | null>(null);
@@ -73,8 +84,6 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
   const [erroPasso, setErroPasso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState<boolean>(false);
   const [concluido, setConcluido] = useState<boolean>(false);
-
-  const resumo3D = obterResumo3DAtivo();
 
   useEffect(() => {
     if (ambienteInicial) {
@@ -133,6 +142,10 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
         setErroPasso('Escolha pelo menos um ambiente para continuar.');
         return;
       }
+      if (!prazo) {
+        setErroPasso('Diga quando você quer começar.');
+        return;
+      }
       setPasso(2);
       return;
     }
@@ -149,19 +162,13 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
 
   const montarMensagemWhatsApp = () => {
     const listaAmbientes = ambientes.join(', ');
-    const trechoMedidas = medidas.trim() ? ` (${medidas.trim()})` : '';
-    const partes = [
-      `Oi! Sou ${nome.trim()}.`,
-      `Quero ${listaAmbientes}${trechoMedidas}.`,
-      `Fase: ${fase}.`,
-      `Cidade: ${cidadeBairro.trim() || 'Jaú'}.`,
-    ];
+    const partes = [`Oi! Sou ${nome.trim()}.`, `Quero orçamento de: ${listaAmbientes}.`];
+    if (estilo && estilo !== 'Ainda não sei') partes.push(`Estilo: ${estilo}.`);
+    partes.push(`Quero começar: ${prazo.toLowerCase()}.`);
+    partes.push(`Cidade: ${cidadeBairro.trim() || 'Jaú'}.`);
 
     if (observacoes.trim()) {
       partes.push(`Observações: ${observacoes.trim()}.`);
-    }
-    if (resumo3D.trim()) {
-      partes.push(resumo3D.trim());
     }
     if (temFotosOuPlanta) {
       partes.push(`Estou enviando ${fotos.length === 1 ? '1 arquivo' : `${fotos.length} arquivos`} (fotos do local ou planta).`);
@@ -178,9 +185,9 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
       return;
     }
 
-    if (ambientes.length === 0) {
+    if (ambientes.length === 0 || !prazo) {
       setPasso(1);
-      setErroPasso('Escolha pelo menos um ambiente.');
+      setErroPasso('Escolha o ambiente e quando quer começar.');
       return;
     }
 
@@ -198,7 +205,7 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
     setEnviando(true);
 
     const textoMensagem = montarMensagemWhatsApp();
-    trackGenerateLead(ambientes.join(', '), fase);
+    trackGenerateLead(ambientes.join(', '), prazo);
     trackWhatsAppClick(modo === 'painel' ? 'briefing_painel' : 'briefing_pagina');
 
     // Celular com fotos: o compartilhamento do sistema leva fotos e mensagem juntas para o WhatsApp.
@@ -231,11 +238,10 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
           whatsapp: whatsapp.trim(),
           cidade: cidadeBairro.trim() || 'Jaú',
           ambientes,
-          fase,
-          medidas: medidas.trim(),
+          prazo,
+          estilo,
           temFotosOuPlanta,
           observacoes: observacoes.trim(),
-          resumo3D: resumo3D.trim(),
           consentimentoLgpd,
           website: honeypot,
         }),
@@ -276,15 +282,6 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
           />
         </div>
       </div>
-
-      {resumo3D && (
-        <div className="p-16 bg-papel-2 border border-grafite/25 rounded-curto flex flex-col gap-4">
-          <span className="tipo-cota text-grafite font-semibold">
-            Simulação 3D anexada automaticamente:
-          </span>
-          <span className="tipo-cota text-grafite-suave">{resumo3D}</span>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-24" noValidate>
         {/* Campo honeypot invisível para proteção contra bots */}
@@ -332,24 +329,53 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
 
             <fieldset className="flex flex-col gap-16">
               <legend className="tipo-cota text-grafite font-semibold pb-4">
-                Em que fase está o seu projeto?
+                Quando você quer começar? *
               </legend>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                {OPCOES_FASE_BRIEFING.map((itemFase) => {
-                  const ativo = fase === itemFase;
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+                {OPCOES_PRAZO_BRIEFING.map((item) => {
+                  const ativo = prazo === item;
                   return (
                     <button
-                      key={itemFase}
+                      key={item}
                       type="button"
-                      onClick={() => setFase(itemFase)}
+                      onClick={() => {
+                        setErroPasso(null);
+                        setPrazo(item);
+                      }}
                       aria-pressed={ativo}
-                      className={`h-[46px] px-16 rounded-curto border tipo-cota flex items-center justify-center transition-colors cursor-pointer ${
+                      className={`h-[46px] px-16 rounded-curto border tipo-cota flex items-center justify-center text-center transition-colors cursor-pointer ${
                         ativo
                           ? 'bg-preto text-papel border-preto font-semibold'
                           : 'bg-papel-2 text-grafite border-grafite/25 hover:border-grafite'
                       }`}
                     >
-                      {itemFase}
+                      {item}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            <fieldset className="flex flex-col gap-16">
+              <legend className="tipo-cota text-grafite font-semibold pb-4">
+                Tem um estilo em mente? (opcional)
+              </legend>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
+                {OPCOES_ESTILO_BRIEFING.map((item) => {
+                  const ativo = estilo === item;
+                  return (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => setEstilo(ativo ? '' : item)}
+                      aria-pressed={ativo}
+                      className={`h-[46px] px-16 rounded-curto border tipo-cota flex items-center justify-center text-center transition-colors cursor-pointer ${
+                        ativo
+                          ? 'bg-preto text-papel border-preto font-semibold'
+                          : 'bg-papel-2 text-grafite border-grafite/25 hover:border-grafite'
+                      }`}
+                    >
+                      {item}
                     </button>
                   );
                 })}
@@ -362,22 +388,8 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
         {passo === 2 && (
           <div className="flex flex-col gap-24">
             <h3 className="tipo-h3 text-grafite">
-              2. Detalhes do espaço (opcional)
+              2. Detalhes (opcional)
             </h3>
-
-            <div className="flex flex-col gap-8">
-              <label htmlFor="briefing-medidas" className="tipo-cota text-grafite">
-                Medidas aproximadas (se souber)
-              </label>
-              <input
-                id="briefing-medidas"
-                type="text"
-                placeholder="Ex.: parede de 3,80m x 2,60m ou apartamento de 72m²"
-                value={medidas}
-                onChange={(e) => setMedidas(e.target.value)}
-                className="w-full py-[12px] px-16 bg-papel-2 text-grafite border border-grafite/35 rounded-curto focus:outline-none focus:border-preto tipo-corpo"
-              />
-            </div>
 
             <div className="flex flex-col gap-8">
               <span className="tipo-cota text-grafite">Fotos do local ou planta (opcional, até {MAX_FOTOS})</span>
