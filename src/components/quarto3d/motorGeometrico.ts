@@ -3,7 +3,7 @@ import {
   CATALOGO_MODULOS_CENARIO,
   ModuloId,
   ParedeCardeal,
-} from '../../data/cenarios';
+} from '../../data/cenarios.js';
 
 /**
  * Motor geométrico puro do configurador: as mesmas medidas valem para validar e desenhar.

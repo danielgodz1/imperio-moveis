@@ -7,8 +7,8 @@ import {
   ModuloId,
   CENARIOS_AMBIENTES,
   CATALOGO_MODULOS_CENARIO,
-} from '../../data/cenarios';
-import { instanciaPadrao, normalizarInstancia, prenderAbertura } from './motorGeometrico';
+} from '../../data/cenarios.js';
+import { instanciaPadrao, normalizarInstancia, prenderAbertura } from './motorGeometrico.js';
 
 export type { Ambiente, ModuloId };
 

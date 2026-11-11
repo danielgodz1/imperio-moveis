@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { criarLimitador, ipDoVisitante, validarOrigem } from './_seguranca';
+import { criarLimitador, ipDoVisitante, validarOrigem } from './_seguranca.js';
 
 /**
  * Rota opcional /api/lead para persistência ou encaminhamento a webhook/planilha.

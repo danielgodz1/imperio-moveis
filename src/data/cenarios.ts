@@ -570,4 +570,4 @@ export const CATALOGO_MODULOS_CENARIO: Record<ModuloId, RegraModulo> = {
   },
 };
 
-export { CENARIOS_AMBIENTES } from './ambientes';
+export { CENARIOS_AMBIENTES } from './ambientes/index.js';

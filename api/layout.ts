@@ -1,8 +1,8 @@
 import {
   QuartoLayoutSchema,
   construirLayoutDoCenario,
-} from '../src/components/quarto3d/schema';
-import { criarLimitador, ipDoVisitante, validarOrigem } from './_seguranca';
+} from '../src/components/quarto3d/schema.js';
+import { criarLimitador, ipDoVisitante, validarOrigem } from './_seguranca.js';
 
 const permitirLayout = criarLimitador(8, 10 * 60 * 1000);
 
