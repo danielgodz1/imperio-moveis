@@ -72,16 +72,28 @@ export function converterLugar(lugar: {
   };
 }
 
-async function acharLugar(chave: string): Promise<string | null> {
+/** Motivo informado pelo Google (ex.: faturamento desativado, API não ativada), sem a chave. */
+async function motivoGoogle(r: Response): Promise<string> {
+  try {
+    const corpo = (await r.json()) as { error?: { status?: string; message?: string } };
+    const msg = (corpo.error?.message ?? '').replace(/AIza[\w-]{20,}/g, '[chave]').slice(0, 300);
+    return `${r.status} ${corpo.error?.status ?? ''} ${msg}`.trim();
+  } catch {
+    return String(r.status);
+  }
+}
+
+async function acharLugar(chave: string): Promise<{ id?: string; motivo?: string }> {
   const r = await fetch('https://places.googleapis.com/v1/places:searchText', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': chave, 'X-Goog-FieldMask': 'places.id' },
     body: JSON.stringify({ textQuery: BUSCA, languageCode: 'pt-BR', regionCode: 'BR' }),
     signal: AbortSignal.timeout(5000),
   });
-  if (!r.ok) return null;
+  if (!r.ok) return { motivo: await motivoGoogle(r) };
   const dados = (await r.json()) as { places?: Array<{ id: string }> };
-  return dados.places?.[0]?.id ?? null;
+  const id = dados.places?.[0]?.id;
+  return id ? { id } : { motivo: 'nenhum lugar encontrado na busca' };
 }
 
 export default async function handler(req: Requisicao, res: Resposta) {
@@ -92,13 +104,14 @@ export default async function handler(req: Requisicao, res: Resposta) {
   if (!chave) return res.status(503).json({ erro: 'Avaliações do Google ainda não configuradas.' });
 
   try {
-    const id = process.env.GOOGLE_PLACE_ID || (await acharLugar(chave));
-    if (!id || !/^[\w-]+$/.test(id)) return res.status(502).json({ erro: 'Perfil do Google não encontrado.' });
+    const busca = process.env.GOOGLE_PLACE_ID ? { id: process.env.GOOGLE_PLACE_ID } : await acharLugar(chave);
+    const id = busca.id;
+    if (!id || !/^[\w-]+$/.test(id)) return res.status(502).json({ erro: 'Perfil do Google não encontrado.', motivo: busca.motivo });
     const r = await fetch(`https://places.googleapis.com/v1/places/${id}?languageCode=pt-BR`, {
       headers: { 'X-Goog-Api-Key': chave, 'X-Goog-FieldMask': 'rating,userRatingCount,googleMapsUri,reviews' },
       signal: AbortSignal.timeout(5000),
     });
-    if (!r.ok) return res.status(502).json({ erro: 'O Google não respondeu agora.' });
+    if (!r.ok) return res.status(502).json({ erro: 'O Google não respondeu agora.', motivo: await motivoGoogle(r) });
     // Cache na borda da Vercel: 1 dia, e até 1 semana servindo a última versão enquanto atualiza.
     res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
     res.setHeader('Vercel-CDN-Cache-Control', 'max-age=86400, stale-while-revalidate=604800');
