@@ -38,7 +38,7 @@ export const HeroScrollConteudo: React.FC<HeroScrollConteudoProps> = ({ onNaviga
           onClick={() => trackWhatsAppClick('hero_cta')}
           className={BOTAO_PRINCIPAL}
         >
-          <MessageSquare className="w-4 h-4" strokeWidth={1.5} />
+          <MessageSquare className="w-[16px] h-[16px]" strokeWidth={1.5} />
           Chamar no WhatsApp
         </a>
       )}

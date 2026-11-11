@@ -173,10 +173,8 @@ export default function App() {
         ambienteInicial={briefingAmbienteInicial}
       />
 
-      {/* Botão flutuante discreto de WhatsApp */}
-      <WhatsAppWidget aguardarHero={currentPath === '/'} />
-
-      {/* Seletor de níveis da vitrine, sempre visível */}
+      {/* Botão flutuante: abre o pedido de orçamento (WhatsApp direto fica no painel) */}
+      <WhatsAppWidget aguardarHero={currentPath === '/'} onAbrirOrcamento={() => handleOpenBriefing()} />
 
       {/* Modal opcional de agendamento de visita */}
       <VisitBookingModal

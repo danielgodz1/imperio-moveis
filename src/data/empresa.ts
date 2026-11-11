@@ -39,6 +39,13 @@ export interface DadosEmpresa {
     fecha: string;
   };
   cidadesAtendidas: string[];
+  /** Seção "Sobre" do Perfil da Empresa no Google. */
+  sobre: {
+    acessibilidade: string[];
+    servicos: string[];
+    atendimento: string[];
+    pagamentos: string[];
+  };
   confirmado: {
     endereco: boolean;
     horarios: boolean;
@@ -105,6 +112,13 @@ export const EMPRESA: DadosEmpresa = {
     'Bariri',
     'Itapuí',
   ],
+  // Igual à aba "Sobre" do Perfil da Empresa no Google (11/11/2026).
+  sobre: {
+    acessibilidade: ['Entrada acessível para cadeira de rodas', 'Estacionamento acessível para cadeira de rodas'],
+    servicos: ['Entrega', 'Montagem', 'Reparos'],
+    atendimento: ['Com agendamento', 'Visita rápida'],
+    pagamentos: ['Cartão de crédito', 'Cartão de débito', 'Pagamento por aproximação (NFC)'],
+  },
   confirmado: {
     endereco: true,
     horarios: true,

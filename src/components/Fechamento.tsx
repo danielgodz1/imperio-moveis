@@ -53,7 +53,7 @@ export const Fechamento: React.FC<FechamentoProps> = ({ onNavigateContact, onOpe
           onClick={() => trackWhatsAppClick('fechamento_cta')}
           className="w-full sm:w-auto inline-flex items-center justify-center gap-8 h-[52px] px-24 rounded-curto border-[1.5px] border-grafite text-grafite hover:bg-grafite hover:text-papel font-semibold transition-colors duration-200"
         >
-          <MessageSquare className="w-4 h-4" strokeWidth={1.5} />
+          <MessageSquare className="w-[16px] h-[16px]" strokeWidth={1.5} />
           Chamar no WhatsApp
         </a>
       </div>

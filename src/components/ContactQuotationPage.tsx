@@ -57,7 +57,7 @@ export const ContactQuotationPage: React.FC<ContactQuotationPageProps> = ({
               <span className="tipo-h3 text-grafite">{EMPRESA.telefone}</span>
             </div>
 
-            <div className="flex items-start gap-12 border-t border-grafite/20 pt-16">
+            <div className="flex items-start gap-16 border-t border-grafite/20 pt-16">
               <MapPin className="w-5 h-5 text-grafite shrink-0 mt-1" strokeWidth={1.5} />
               <div className="flex flex-col gap-4">
                 <span className="tipo-cota text-grafite font-semibold">

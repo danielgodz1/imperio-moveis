@@ -82,11 +82,11 @@ Observações: ${notes || 'Sem observações'}`;
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-24">
-          <div className="grid grid-cols-2 gap-12">
+          <div className="grid grid-cols-2 gap-16">
             <button
               type="button"
               onClick={() => setVisitType('residencia')}
-              className={`p-12 border rounded-curto tipo-cota cursor-pointer transition-colors ${
+              className={`p-16 border rounded-curto tipo-cota cursor-pointer transition-colors ${
                 visitType === 'residencia'
                   ? 'bg-preto text-papel border-preto'
                   : 'bg-papel-2 text-grafite border-grafite/30'
@@ -98,7 +98,7 @@ Observações: ${notes || 'Sem observações'}`;
             <button
               type="button"
               onClick={() => setVisitType('oficina')}
-              className={`p-12 border rounded-curto tipo-cota cursor-pointer transition-colors ${
+              className={`p-16 border rounded-curto tipo-cota cursor-pointer transition-colors ${
                 visitType === 'oficina'
                   ? 'bg-preto text-papel border-preto'
                   : 'bg-papel-2 text-grafite border-grafite/30'

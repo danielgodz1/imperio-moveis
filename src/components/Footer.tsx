@@ -24,7 +24,7 @@ const SITE = [
   { rotulo: 'Quem somos', ancora: '#donos' },
 ];
 
-const LINK = 'text-papel/85 hover:text-dourado transition-colors cursor-pointer text-left link-traco decoration-papel/25';
+const LINK = 'inline-block py-4 text-papel/85 hover:text-dourado transition-colors cursor-pointer text-left link-traco decoration-papel/25';
 const TITULO = 'tipo-cota text-papel/60';
 
 export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing }) => {
@@ -62,9 +62,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
       </div>
 
       <div className="border-t border-papel/15">
-        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-48 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr] gap-x-32 gap-y-48">
-          <div className="flex flex-col items-start gap-16">
-            <button type="button" onClick={() => irParaSecao('#hero')} className="flex items-center gap-16 text-left cursor-pointer group" aria-label="Voltar ao início">
+        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-48 grid grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr] gap-x-16 sm:gap-x-32 gap-y-48">
+          <div className="col-span-2 lg:col-span-1 flex flex-col items-start gap-16">
+            <button type="button" onClick={() => irParaSecao('#hero')} className="flex items-center gap-16 text-left cursor-pointer group" aria-label="Império Móveis Planejados, voltar ao início">
               <img src="/logo-quadrado.jpg" alt="" className="h-48 w-48 object-cover border border-papel/25" />
               <span className="flex flex-col gap-4">
                 <span className="tipo-logo text-[1.75rem] text-papel group-hover:text-dourado transition-colors">{EMPRESA.nomeCurto}</span>
@@ -107,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
             </ul>
           </nav>
 
-          <div className="flex flex-col gap-16">
+          <div className="col-span-2 lg:col-span-1 flex flex-col gap-16">
             <h3 className={TITULO}>Fale com a gente</h3>
             <address className="not-italic flex flex-col gap-16 tipo-cota text-papel/85">
               <a
@@ -119,7 +119,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
               >
                 {EMPRESA.telefone}
               </a>
-              <a href={EMPRESA.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-papel/85 hover:text-dourado transition-colors link-traco decoration-papel/25 self-start">
+              <a href={EMPRESA.instagramUrl} target="_blank" rel="noopener noreferrer" className="py-4 text-papel/85 hover:text-dourado transition-colors link-traco decoration-papel/25 self-start">
                 {EMPRESA.instagram}
               </a>
               <span className="flex flex-col gap-4">
@@ -140,6 +140,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
                     {!EMPRESA.confirmado.horarios && ' [CONFIRMAR]'}
                   </span>
                 )}
+                <span>{EMPRESA.sobre.atendimento[0]}</span>
+              </span>
+              <span className="flex flex-col gap-4 text-papel/70">
+                <span>{EMPRESA.sobre.servicos.join(', ')}</span>
+                <span>Cartão de crédito, débito e aproximação</span>
+                <span>Acessível para cadeira de rodas</span>
               </span>
             </address>
           </div>

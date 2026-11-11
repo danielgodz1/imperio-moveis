@@ -19,7 +19,7 @@ export const WorkshopLocation: React.FC<WorkshopLocationProps> = ({
         </p>
 
         <div className="w-full flex flex-col gap-16 border-t border-grafite/20 pt-16">
-          <div className="flex items-start gap-12">
+          <div className="flex items-start gap-16">
             <MapPin className="w-5 h-5 text-grafite shrink-0 mt-1" strokeWidth={1.5} />
             <div className="flex flex-col gap-4">
               <span className="tipo-h3 text-grafite">Oficina e atendimento</span>
@@ -38,6 +38,27 @@ export const WorkshopLocation: React.FC<WorkshopLocationProps> = ({
               {!EMPRESA.confirmado.horarios && ' [CONFIRMAR]'}
             </span>
           </div>
+
+          {/* Mesmas informações da aba "Sobre" do Perfil da Empresa no Google */}
+          <dl className="grid grid-cols-2 gap-x-16 gap-y-16 pl-32 pt-8">
+            {(
+              [
+                ['Atendimento', EMPRESA.sobre.atendimento],
+                ['Serviços', EMPRESA.sobre.servicos],
+                ['Pagamento', EMPRESA.sobre.pagamentos],
+                ['Acessibilidade', EMPRESA.sobre.acessibilidade],
+              ] as const
+            ).map(([titulo, itens]) => (
+              <div key={titulo} className="flex flex-col gap-4">
+                <dt className="tipo-cota text-grafite font-semibold">{titulo}</dt>
+                {itens.map((item) => (
+                  <dd key={item} className="tipo-cota text-grafite-suave">
+                    {item}
+                  </dd>
+                ))}
+              </div>
+            ))}
+          </dl>
         </div>
 
         <div className="flex flex-wrap items-center gap-16 pt-8">
