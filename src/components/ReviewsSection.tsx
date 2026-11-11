@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { ExternalLink, Star } from 'lucide-react';
-import { LINK_PERFIL_GOOGLE, RESUMO_GOOGLE } from '../data/avaliacoesGoogle';
+import { AVALIACOES_PUBLICADAS, LINK_PERFIL_GOOGLE, RESUMO_GOOGLE } from '../data/avaliacoesGoogle';
 
 interface AvaliacaoGoogle {
   autor: string;
@@ -61,6 +61,8 @@ export const ReviewsSection: React.FC = () => {
   const nota = dados?.nota ?? RESUMO_GOOGLE.nota;
   const total = dados?.total ?? RESUMO_GOOGLE.total;
   const link = dados?.url ?? LINK_PERFIL_GOOGLE;
+  // Ao vivo pela API; sem ela, as avaliações com texto transcritas em avaliacoesGoogle.ts.
+  const avaliacoes: AvaliacaoGoogle[] = dados?.avaliacoes.length ? dados.avaliacoes : AVALIACOES_PUBLICADAS;
 
   return (
     <section id="avaliacoes" className="w-full py-96 md:py-144 bg-papel-2 text-grafite">
@@ -100,9 +102,9 @@ export const ReviewsSection: React.FC = () => {
           </div>
         </div>
 
-        {dados && dados.avaliacoes.length > 0 && (
+        {avaliacoes.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-24">
-            {dados.avaliacoes.slice(0, 6).map((a, i) => (
+            {avaliacoes.slice(0, 6).map((a, i) => (
               <article key={i} className="p-24 rounded-2xl bg-papel border border-grafite/15 flex flex-col justify-between gap-24">
                 <div className="flex flex-col gap-16">
                   <div className="flex items-center justify-between gap-8">
@@ -116,8 +118,8 @@ export const ReviewsSection: React.FC = () => {
                     <img src={a.foto} alt="" width={32} height={32} loading="lazy" referrerPolicy="no-referrer" className="w-8 h-8 rounded-full" />
                   )}
                   <div className="flex flex-col">
-                    {a.autorUrl ? (
-                      <a href={a.autorUrl} target="_blank" rel="noopener noreferrer" className="tipo-cota font-semibold text-grafite link-traco">
+                    {a.autorUrl || !dados ? (
+                      <a href={a.autorUrl ?? link} target="_blank" rel="noopener noreferrer" className="tipo-cota font-semibold text-grafite link-traco">
                         {a.autor}
                       </a>
                     ) : (
