@@ -382,11 +382,8 @@ export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
       postalCode: EMPRESA.endereco.cep,
       addressCountry: EMPRESA.endereco.pais,
     };
-    schema.geo = {
-      '@type': 'GeoCoordinates',
-      latitude: EMPRESA.geo.latitude,
-      longitude: EMPRESA.geo.longitude,
-    };
+    // Coordenadas do arquivo são aproximadas: o ponto exato fica com a ficha do Google (hasMap).
+    if (EMPRESA.googleProfileUrl) schema.hasMap = EMPRESA.googleProfileUrl;
   }
 
   if (EMPRESA.confirmado.horarios) {

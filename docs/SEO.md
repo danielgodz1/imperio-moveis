@@ -15,6 +15,20 @@ Domínio canônico: `https://www.imperiomoveisplanejadosjau.com.br` (definido em
 - `sitemap.xml` gerado no build (`vite.config.ts`) a partir das rotas pré-renderizadas, com a data do último commit e as fotos de obra de cada página (sitemap de imagens); sem `changefreq`/`priority`, que o Google ignora, `robots.txt`, `og:url`, `robots` e geolocalização (BR-SP, Jaú).
 - Desempenho: fontes não usadas removidas e 3D só em aparelhos que aguentam (Core Web Vitals contam no ranking).
 
+## Avaliações do Google no site
+
+A seção "O que dizem os clientes no Google" mostra a nota e o total do Perfil da Empresa. Com a chave da API do Google Places, mostra também até 5 avaliações reais, com foto e nome do autor (como o Google exige). Para ligar:
+
+1. No Google Cloud (console.cloud.google.com), crie um projeto, ative a **Places API (New)** e crie uma **chave de API**. Restrinja a chave a essa API.
+2. Na Vercel do projeto, em Settings > Environment Variables, crie `GOOGLE_PLACES_API_KEY` com a chave (Production). Opcional: `GOOGLE_PLACE_ID` com o Place ID da Império.
+3. Faça um novo deploy. A resposta fica em cache por 1 dia, então são poucas chamadas por dia (dentro da cota gratuita).
+
+Sem a chave, o site mostra o resumo de `src/data/avaliacoesGoogle.ts` (nota e total conferidos à mão) e os botões para ler e escrever avaliações. Avaliações não são copiadas do Google para o código: os termos do Google só permitem exibir pela API.
+
+## Ícone no resultado do Google
+
+Favicons quadrados com lado múltiplo de 48 px (`favicon.ico` 48, `favicon-96.png`, `favicon-192.png`), declarados no `<head>` de todas as páginas. O Google atualiza o ícone quando volta a rastrear a página inicial (dias a semanas); pedir "Solicitar indexação" da home no Search Console acelera.
+
 ## O que mais pesa e depende de você (ordem de impacto)
 
 1. **Perfil da Empresa no Google (Google Meu Negócio).** É o que coloca a loja no mapa e no "pacote local" da busca. Categoria principal: "Loja de móveis planejados" ou "Marceneiro". Endereço, horário, telefone e fotos reais. Depois de criado, coloque o link em `googleProfileUrl` em `empresa.ts`.

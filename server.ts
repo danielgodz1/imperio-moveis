@@ -6,6 +6,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import layoutHandler from './api/layout';
 import leadHandler from './api/lead';
+import avaliacoesHandler from './api/avaliacoes';
 import { injetarSeoNoHtml } from './src/utils/prerenderHtml';
 
 dotenv.config();
@@ -38,6 +39,10 @@ app.all('/api/layout', async (req, res) => {
 
 app.all('/api/lead', async (req, res) => {
   await leadHandler(req, res);
+});
+
+app.all('/api/avaliacoes', async (req, res) => {
+  await avaliacoesHandler(req, res);
 });
 
 async function startServer() {
