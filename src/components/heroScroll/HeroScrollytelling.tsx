@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Foto } from '../Foto';
 import { rebaixarPorDesempenho, tem3D, useNivel } from '../../vitrine/nivel';
 import { HeroScrollFallback } from './HeroScrollFallback';
+import { PosterTraco } from './PosterTraco';
 import { ALT_FOTO_COZINHA, HeroScrollConteudo } from './HeroScrollConteudo';
 import {
   FASES,
@@ -36,6 +37,24 @@ function verificarSuporteWebGL(): boolean {
   }
 }
 
+/**
+ * O 3D do hero (three + cena + texturas) custa segundos de processador no celular.
+ * Ele só é montado na primeira interação: rolar, tocar, teclar ou, no computador,
+ * mover o mouse. Até lá o palco mostra o traço estático (PosterTraco).
+ */
+function useAtivarNaInteracao(): boolean {
+  const [ativo, setAtivo] = useState(() => typeof window !== 'undefined' && window.scrollY > 0);
+  useEffect(() => {
+    if (ativo) return;
+    const eventos = ['scroll', 'wheel', 'touchstart', 'pointerdown', 'keydown'];
+    if (window.matchMedia('(pointer: fine)').matches) eventos.push('pointermove');
+    const ativar = () => setAtivo(true);
+    eventos.forEach((e) => window.addEventListener(e, ativar, { once: true, passive: true }));
+    return () => eventos.forEach((e) => window.removeEventListener(e, ativar));
+  }, [ativo]);
+  return ativo;
+}
+
 function deveAtivarModoEstatico(): boolean {
   if (typeof window === 'undefined') return true;
   const reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,6 +78,7 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
 
   const nivel = useNivel();
   const [modoEstatico] = useState(() => !tem3D(nivel) || deveAtivarModoEstatico());
+  const cenaAtiva = useAtivarNaInteracao();
 
   // Sem âncora, a narrativa sempre abre em 01/05: nada de restaurar o scroll no meio.
   useLayoutEffect(() => {
@@ -159,9 +179,13 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
       <div className="sticky top-0 h-screen h-[100svh] w-full overflow-hidden flex flex-col lg:block">
         {/* Palco: em tela cheia no desktop, acima do texto no celular */}
         <div className="relative flex-1 min-h-0 lg:absolute lg:inset-0" aria-hidden="true">
-          <Suspense fallback={null}>
-            <HeroScrollCena onLento={rebaixarPorDesempenho} />
-          </Suspense>
+          {cenaAtiva ? (
+            <Suspense fallback={<PosterTraco />}>
+              <HeroScrollCena onLento={rebaixarPorDesempenho} />
+            </Suspense>
+          ) : (
+            <PosterTraco />
+          )}
 
           <div ref={fotoRef} className="absolute inset-0 opacity-0 pointer-events-none">
             <Foto

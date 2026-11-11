@@ -68,10 +68,12 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
       </main>`;
   }
 
-  return `<main class="max-w-[1280px] mx-auto px-16 py-64">
-        <h1>${escaparHtml(meta.h1Inicial)}</h1>
-        <p>${escaparHtml(meta.resumoHtmlInicial)}</p>
-        <p>${escaparHtml(EMPRESA.nome)} — ${escaparHtml(
+  // Home: mesmo visual do hero (fundo preto, título tipo-h1 no rodapé da tela). O texto já pinta
+  // no tamanho final antes do JavaScript, e a troca pelo React não muda o maior conteúdo da tela.
+  return `<main class="bg-preto text-papel min-h-[100svh] flex flex-col justify-end px-16 sm:px-32 lg:px-48 pt-96 pb-24 lg:pb-48">
+        <h1 class="tipo-h1 text-papel">${escaparHtml(meta.h1Inicial)}</h1>
+        <p class="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">${escaparHtml(meta.resumoHtmlInicial)}</p>
+        <p class="tipo-cota text-papel/70 mt-16 max-w-[46ch]">${escaparHtml(EMPRESA.nome)} — ${escaparHtml(
           EMPRESA.fundadores
         )}. Marcenaria e arquitetura de interiores em ${escaparHtml(
           EMPRESA.cidadesAtendidas.join(', ')
