@@ -6,6 +6,8 @@ import gsap from 'gsap';
 import { FASES, RECORTE_FOTO, larguraPainel, useHeroScrollStore } from './useHeroScrollStore';
 import { criarMateriais } from './heroMateriais';
 import { CAMERA_FOTO, PESO_ETAPAS, construirCozinha } from './heroModelo';
+import { perfilQualidade } from '../../vitrine/aparelho';
+import { GuardaQuadros } from '../../vitrine/GuardaQuadros';
 
 const PRETO = new THREE.Color('#0A0A0A');
 const ESTUDIO = new THREE.Color('#D3CEC4');
@@ -30,7 +32,7 @@ function janelaFoto(aspecto: number) {
   return { l, r: l + largura * visivel, t: topo, b: base };
 }
 
-function NarrativaCena({ mobile }: { mobile: boolean }) {
+function NarrativaCena({ mobile, sombras }: { mobile: boolean; sombras: boolean }) {
   const { camera, invalidate, scene, gl, size } = useThree();
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const sizeRef = useRef(size);
@@ -231,7 +233,7 @@ function NarrativaCena({ mobile }: { mobile: boolean }) {
         position={[2.2, 6.5, 8]}
         intensity={1.3}
         color="#FFF6E8"
-        castShadow={!mobile}
+        castShadow={sombras}
         shadow-mapSize-width={1536}
         shadow-mapSize-height={1536}
         shadow-camera-left={-5}
@@ -252,17 +254,15 @@ function NarrativaCena({ mobile }: { mobile: boolean }) {
 }
 
 /** Canvas único da narrativa. O R3F só desenha quando o progress muda. */
-export const HeroScrollCena: React.FC = () => {
-  const mobile = useMemo(
-    () => window.matchMedia('(max-width: 767px), (pointer: coarse)').matches,
-    []
-  );
+export const HeroScrollCena: React.FC<{ onLento?: () => void }> = ({ onLento }) => {
+  const perfil = useMemo(() => perfilQualidade(), []);
+  const mobile = perfil.leve;
 
   return (
     <Canvas
       frameloop="demand"
-      dpr={mobile ? [1, 1.5] : [1, 2]}
-      shadows={mobile ? false : { type: THREE.PCFShadowMap }}
+      dpr={perfil.dpr}
+      shadows={perfil.sombras ? { type: THREE.PCFShadowMap } : false}
       camera={{ position: [2.5, 15, 2.45], fov: 28, near: NEAR, far: FAR }}
       gl={{
         antialias: !mobile,
@@ -274,7 +274,8 @@ export const HeroScrollCena: React.FC = () => {
       className="w-full h-full block"
       aria-hidden="true"
     >
-      <NarrativaCena mobile={mobile} />
+      <GuardaQuadros onLento={onLento} />
+      <NarrativaCena mobile={mobile} sombras={perfil.sombras} />
     </Canvas>
   );
 };

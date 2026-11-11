@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } f
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Foto } from '../Foto';
-import { tem3D, useNivel } from '../../vitrine/nivel';
+import { rebaixarPorDesempenho, tem3D, useNivel } from '../../vitrine/nivel';
 import { HeroScrollFallback } from './HeroScrollFallback';
 import { ALT_FOTO_COZINHA, HeroScrollConteudo } from './HeroScrollConteudo';
 import {
@@ -160,7 +160,7 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
         {/* Palco: em tela cheia no desktop, acima do texto no celular */}
         <div className="relative flex-1 min-h-0 lg:absolute lg:inset-0" aria-hidden="true">
           <Suspense fallback={null}>
-            <HeroScrollCena />
+            <HeroScrollCena onLento={rebaixarPorDesempenho} />
           </Suspense>
 
           <div ref={fotoRef} className="absolute inset-0 opacity-0 pointer-events-none">

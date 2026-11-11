@@ -9,7 +9,7 @@ Este documento define as diretrizes obrigatórias para todos os agentes de IA (A
 Este é um produto digital em produção contínua:
 - **Repositório:** `https://github.com/danielgodz1/imperio-moveis`
 - **Produção:** `https://imperio-moveis.vercel.app`
-- **Domínio canônico SEO:** `https://imperiomoveisjau.com.br`
+- **Domínio canônico SEO:** `https://imperiomoveisplanejadosjau.com.br`
 
 **Regras Inegociáveis:**
 1. **Preservação de Funcionalidades:** A prioridade é evoluir o sistema sem comprometer o que já funciona.

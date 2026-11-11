@@ -8,6 +8,8 @@ import { CENARIOS_AMBIENTES } from '../../data/cenarios';
 import { Kit3D, criarKit3D } from './materiais3D';
 import { MOVEIS } from './moveis3D';
 import { Instancia, caixasModulo, moverPara, poseModulo } from './motorGeometrico';
+import { perfilQualidade } from '../../vitrine/aparelho';
+import { GuardaQuadros } from '../../vitrine/GuardaQuadros';
 
 export type VistaCamera = 'perspectiva' | 'planta' | 'frente';
 
@@ -383,7 +385,8 @@ function Palco(props: CenaQuarto3DProps & { mobile: boolean }) {
 }
 
 export const CenaQuarto3D: React.FC<CenaQuarto3DProps> = (props) => {
-  const mobile = useMemo(() => window.matchMedia('(max-width: 767px), (pointer: coarse)').matches, []);
+  const perfil = useMemo(() => perfilQualidade(), []);
+  const mobile = perfil.leve;
   const posInicial = useMemo(() => posicaoVista(props.layout, 'perspectiva'), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -395,14 +398,15 @@ export const CenaQuarto3D: React.FC<CenaQuarto3DProps> = (props) => {
         toneMappingExposure: 1,
         outputColorSpace: THREE.SRGBColorSpace,
       }}
-      shadows={mobile ? false : { type: THREE.PCFShadowMap }}
-      dpr={mobile ? [1, 1.5] : [1, 1.75]}
+      shadows={perfil.sombras ? { type: THREE.PCFShadowMap } : false}
+      dpr={perfil.dpr}
       frameloop="demand"
       camera={{ position: posInicial, fov: 36, near: 0.1, far: 60 }}
       className="w-full h-full block"
       onPointerMissed={() => props.onSelecionar(null)}
     >
       <color attach="background" args={[props.layout.noite ? '#0A0A0A' : '#1A1917']} />
+      <GuardaQuadros />
       <Palco {...props} mobile={mobile} />
       <OrbitControls makeDefault enablePan={false} minPolarAngle={0.02} maxPolarAngle={Math.PI / 2 - 0.03} minDistance={2.2} maxDistance={14} />
     </Canvas>

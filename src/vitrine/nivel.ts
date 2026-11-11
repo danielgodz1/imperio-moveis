@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
+import { FaixaAparelho, detectarAparelho } from './aparelho';
 
 /**
  * Níveis de experiência do site, usados para demonstrar o mesmo projeto em três entregas.
- * O seletor fica sempre visível; sem `?nivel=` na URL o site abre no nível completo.
+ * O seletor fica sempre visível; sem `?nivel=` na URL o nível é escolhido pelo aparelho.
  */
 export type Nivel = 'essencial' | 'profissional' | 'cinematografico';
 
@@ -35,17 +36,28 @@ export const NIVEIS: DefinicaoNivel[] = [
 ];
 
 const PARAMETRO = 'nivel';
-const PADRAO: Nivel = 'cinematografico';
+const PORTE_POR_FAIXA: Record<FaixaAparelho, Nivel> = {
+  0: 'essencial',
+  1: 'profissional',
+  2: 'cinematografico',
+  3: 'cinematografico',
+};
 
 interface Estado {
   nivel: Nivel;
+  /** true quando o nível veio da detecção do aparelho, não de uma escolha. */
+  automatico: boolean;
+}
+
+function nivelDoAparelho(): Nivel {
+  return PORTE_POR_FAIXA[detectarAparelho().faixa];
 }
 
 function lerDaUrl(): Estado {
-  if (typeof window === 'undefined') return { nivel: PADRAO };
+  if (typeof window === 'undefined') return { nivel: 'essencial', automatico: true };
   const valor = new URLSearchParams(window.location.search).get(PARAMETRO);
   const definicao = NIVEIS.find((n) => n.id === valor);
-  return { nivel: definicao?.id ?? PADRAO };
+  return definicao ? { nivel: definicao.id, automatico: false } : { nivel: nivelDoAparelho(), automatico: true };
 }
 
 let estado = lerDaUrl();
@@ -55,7 +67,7 @@ export function definirNivel(nivel: Nivel) {
   const url = new URL(window.location.href);
   url.searchParams.set(PARAMETRO, nivel);
   window.history.replaceState(window.history.state, '', url);
-  estado = { nivel };
+  estado = { nivel, automatico: false };
   window.scrollTo(0, 0);
   ouvintes.forEach((avisar) => avisar());
 }
@@ -69,6 +81,19 @@ const lerEstado = () => estado;
 
 export function useNivel(): Nivel {
   return useSyncExternalStore(assinar, lerEstado, lerEstado).nivel;
+}
+
+export function useNivelAutomatico(): boolean {
+  return useSyncExternalStore(assinar, lerEstado, lerEstado).automatico;
+}
+
+/** Rebaixa o nível quando o próprio aparelho mostra que não aguenta o 3D. */
+export function rebaixarPorDesempenho() {
+  if (estado.nivel !== 'cinematografico') return;
+  estado = { nivel: 'profissional', automatico: true };
+  // O hero estático é mais curto: quem estava no meio da narrativa volta ao início.
+  if (window.scrollY < window.innerHeight * 3) window.scrollTo(0, 0);
+  ouvintes.forEach((avisar) => avisar());
 }
 
 export const tem3D = (nivel: Nivel) => nivel === 'cinematografico';

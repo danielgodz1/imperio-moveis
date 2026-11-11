@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { NIVEIS, definirNivel, useNivel } from './nivel';
+import { NIVEIS, definirNivel, useNivel, useNivelAutomatico } from './nivel';
 
 /** Seletor de demonstração, visível para todo visitante. */
 export const SeletorNivel: React.FC = () => {
   const nivel = useNivel();
+  const automatico = useNivelAutomatico();
   const [aberto, setAberto] = useState(false);
 
   const atual = NIVEIS.find((n) => n.id === nivel) ?? NIVEIS[NIVEIS.length - 1];
@@ -23,7 +24,10 @@ export const SeletorNivel: React.FC = () => {
 
       {aberto && (
         <div className="mt-8 w-full bg-papel text-grafite border-[1.5px] border-grafite p-16 flex flex-col gap-16">
-          <p className="tipo-cota text-grafite-suave">O mesmo site em três níveis de entrega.</p>
+          <p className="tipo-cota text-grafite-suave">
+            O mesmo site em três níveis de entrega.
+            {automatico && ' Este foi escolhido pelo seu aparelho.'}
+          </p>
           <div className="flex flex-col gap-8">
             {NIVEIS.map((n) => {
               const selecionado = n.id === nivel;

@@ -82,7 +82,7 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
 export function injetarSeoNoHtml(htmlBase: string, pathname: string): string {
   const rota = normalizarRotaSeo(pathname);
   const meta = METADADOS_ROTAS_SEO[rota];
-  const jsonLd = JSON.stringify(gerarJsonLdFurnitureStore());
+  const jsonLd = JSON.stringify(gerarJsonLdFurnitureStore()).replace(/</g, '\\u003c');
   const rootHtml = gerarConteudoInicialRoot(rota);
 
   let html = htmlBase;
@@ -110,6 +110,11 @@ export function injetarSeoNoHtml(htmlBase: string, pathname: string): string {
   html = html.replace(
     /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/,
     `<meta property="og:description" content="${escaparHtml(meta.description)}" />`
+  );
+
+  html = html.replace(
+    /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/,
+    `<meta property="og:url" content="${escaparHtml(meta.canonical)}" />`
   );
 
   html = html.replace(

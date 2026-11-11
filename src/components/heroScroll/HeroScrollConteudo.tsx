@@ -21,8 +21,8 @@ export const HeroScrollConteudo: React.FC<HeroScrollConteudoProps> = ({ onNaviga
     <h1 className="tipo-h1 text-papel">Arquitetura e marcenaria na mesma mesa.</h1>
 
     <p className="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">
-      A Tatiane projeta, o Wellington fabrica. Cozinhas, quartos, closets e lojas em Jaú e região
-      com precisão milimétrica desde 2015.
+      A Tatiane projeta, o Wellington fabrica. Móveis planejados para cozinhas, quartos, closets e
+      lojas em Jaú e região, com precisão milimétrica desde 2015.
     </p>
 
     <div className="flex flex-wrap items-center gap-x-16 gap-y-8 mt-24">

@@ -2,8 +2,9 @@ import {
   QuartoLayoutSchema,
   construirLayoutDoCenario,
 } from '../src/components/quarto3d/schema';
+import { criarLimitador, ipDoVisitante, validarOrigem } from './_seguranca';
 
-const REGISTRO_IP = new Map<string, { contagem: number; expiraEm: number }>();
+const permitirLayout = criarLimitador(8, 10 * 60 * 1000);
 
 function removerDadosPessoais(texto: string): string {
   return texto
@@ -24,23 +25,12 @@ interface VercelResponse {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ erro: 'Método não permitido' });
+  const bloqueio = validarOrigem(req);
+  if (bloqueio) {
+    return res.status(bloqueio.status).json({ erro: bloqueio.erro });
   }
-
-  const ipRaw = req.headers['x-forwarded-for'] || 'local';
-  const ip = Array.isArray(ipRaw) ? ipRaw[0] : String(ipRaw).split(',')[0].trim();
-  const agora = Date.now();
-  const janelaMs = 10 * 60 * 1000;
-  const atual = REGISTRO_IP.get(ip);
-
-  if (atual && agora < atual.expiraEm) {
-    if (atual.contagem >= 8) {
-      return res.status(429).json({ erro: 'Muitas tentativas. Aguarde alguns minutos.' });
-    }
-    atual.contagem += 1;
-  } else {
-    REGISTRO_IP.set(ip, { contagem: 1, expiraEm: agora + janelaMs });
+  if (!permitirLayout(ipDoVisitante(req))) {
+    return res.status(429).json({ erro: 'Muitas tentativas. Aguarde alguns minutos.' });
   }
 
   const descricaoBruta =

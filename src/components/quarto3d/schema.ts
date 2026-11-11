@@ -1,4 +1,7 @@
 import { z } from 'zod';
+
+// A CSP do site proíbe eval; o zod roda no modo sem JIT.
+z.config({ jitless: true });
 import {
   Ambiente,
   ModuloId,

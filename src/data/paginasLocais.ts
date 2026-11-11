@@ -276,14 +276,14 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
 export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
   '/': {
     rota: '/',
-    title: 'Império Móveis Planejados e Arquitetura | Jaú/SP — Wellington e Tatiane Cabral',
+    title: 'Móveis Planejados em Jaú/SP | Império Móveis Planejados',
     description:
-      'Marcenaria sob medida e arquitetura de interiores na mesma mesa em Jaú e região. Cozinhas com ilha em ripado, quartos infantis, closets e projetos comerciais desde 2015.',
+      'Móveis planejados em Jaú e região com projeto de arquitetura e fabricação própria: cozinhas, quartos, closets e home office sob medida. Peça seu orçamento pelo WhatsApp.',
     canonical: `${EMPRESA.url}/`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
     h1Inicial: 'Arquitetura e marcenaria na mesma mesa.',
     resumoHtmlInicial:
-      'A Tatiane projeta, o Wellington fabrica. Cozinhas, quartos, closets e lojas em Jaú e região desde 2015.',
+      'Móveis planejados em Jaú e região. A Tatiane projeta, o Wellington fabrica: cozinhas, quartos, closets e lojas desde 2015.',
   },
   '/contato': {
     rota: '/contato',
@@ -301,7 +301,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     title: PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].tituloSeo,
     description: PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].descricaoSeo,
     canonical: `${EMPRESA.url}/cozinhas-planejadas-jau`,
-    ogImage: `${EMPRESA.url}/obras/cozinha-gringa-4k-1280.jpg`,
+    ogImage: `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
     h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].h1,
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].paragrafosReais.join(' '),
@@ -311,7 +311,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     title: PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].tituloSeo,
     description: PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].descricaoSeo,
     canonical: `${EMPRESA.url}/quartos-planejados-jau`,
-    ogImage: `${EMPRESA.url}/obras/quarto-infantil-casinha-1280.jpg`,
+    ogImage: `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
     h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].h1,
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].paragrafosReais.join(' '),
@@ -321,7 +321,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     title: PAGINAS_AMBIENTES_LOCAIS['/closets-sob-medida-jau'].tituloSeo,
     description: PAGINAS_AMBIENTES_LOCAIS['/closets-sob-medida-jau'].descricaoSeo,
     canonical: `${EMPRESA.url}/closets-sob-medida-jau`,
-    ogImage: `${EMPRESA.url}/obras/dormitorio-led-2-1280.jpg`,
+    ogImage: `${EMPRESA.url}/obras/dormitorio-led-2.jpg`,
     h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/closets-sob-medida-jau'].h1,
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/closets-sob-medida-jau'].paragrafosReais.join(' '),
@@ -331,7 +331,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     title: PAGINAS_AMBIENTES_LOCAIS['/home-office-planejado-jau'].tituloSeo,
     description: PAGINAS_AMBIENTES_LOCAIS['/home-office-planejado-jau'].descricaoSeo,
     canonical: `${EMPRESA.url}/home-office-planejado-jau`,
-    ogImage: `${EMPRESA.url}/obras/comercial-expositor-1280.jpg`,
+    ogImage: `${EMPRESA.url}/obras/comercial-expositor.jpg`,
     h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/home-office-planejado-jau'].h1,
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/home-office-planejado-jau'].paragrafosReais.join(' '),
@@ -351,7 +351,12 @@ export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
   const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'FurnitureStore',
+    '@id': `${EMPRESA.url}/#empresa`,
     name: EMPRESA.nome,
+    alternateName: 'Império Móveis Planejados Jaú',
+    logo: `${EMPRESA.url}/logo-imperio.png`,
+    founder: EMPRESA.fundadores.split(' e ').map((nome) => ({ '@type': 'Person', name: nome })),
+    knowsAbout: ['Móveis planejados', 'Cozinhas planejadas', 'Quartos planejados', 'Closets sob medida', 'Marcenaria', 'Arquitetura de interiores'],
     description: EMPRESA.fraseCurta,
     url: EMPRESA.url,
     telephone: EMPRESA.whatsappE164,
@@ -363,8 +368,8 @@ export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
     sameAs,
     image: [
       `${EMPRESA.url}/og-hero.jpg`,
-      `${EMPRESA.url}/obras/cozinha-gringa-4k-1280.jpg`,
-      `${EMPRESA.url}/obras/quarto-infantil-casinha-1280.jpg`,
+      `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
+      `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
     ],
   };
 

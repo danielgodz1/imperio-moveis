@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { criarLimitador, ipDoVisitante, validarOrigem } from './_seguranca';
 
 /**
  * Rota opcional /api/lead para persistência ou encaminhamento a webhook/planilha.
@@ -7,7 +8,7 @@ import { z } from 'zod';
 
 export const SchemaLeadOrcamento = z.object({
   nome: z.string().trim().min(2).max(120),
-  whatsapp: z.string().trim().min(10).max(30),
+  whatsapp: z.string().trim().regex(/^[\d\s()+-]{10,20}$/, 'WhatsApp inválido.'),
   cidade: z.string().trim().min(2).max(120).default('Jaú'),
   ambientes: z.array(z.string().trim().min(1).max(60)).min(1).max(10),
   fase: z.enum(['Só planejando', 'Imóvel em obra', 'Pronto para medir']),
@@ -19,29 +20,14 @@ export const SchemaLeadOrcamento = z.object({
   website: z.string().max(0).optional().default(''),
 });
 
-const JANELA_MS = 60_000;
-const LIMITE_POR_JANELA = 6;
-const mapaRateLimitLead = new Map<string, { cont: number; inicio: number }>();
-
-function verificarRateLimitLead(ip: string): boolean {
-  const agora = Date.now();
-  const atual = mapaRateLimitLead.get(ip);
-  if (!atual || agora - atual.inicio > JANELA_MS) {
-    mapaRateLimitLead.set(ip, { cont: 1, inicio: agora });
-    return true;
-  }
-  if (atual.cont >= LIMITE_POR_JANELA) {
-    return false;
-  }
-  atual.cont += 1;
-  return true;
-}
+const permitirLead = criarLimitador(6, 60_000);
+const TEMPO_WEBHOOK_MS = 5_000;
 
 export async function processarLeadOrcamento(
   body: unknown,
   ip: string
 ): Promise<{ status: number; json: Record<string, unknown> }> {
-  if (!verificarRateLimitLead(ip)) {
+  if (!permitirLead(ip)) {
     return {
       status: 429,
       json: { erro: 'Muitas tentativas em sequência. Aguarde um minuto.' },
@@ -75,6 +61,7 @@ export async function processarLeadOrcamento(
     try {
       await fetch(webhookUrl, {
         method: 'POST',
+        signal: AbortSignal.timeout(TEMPO_WEBHOOK_MS),
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...validado.data,
@@ -93,17 +80,12 @@ export async function processarLeadOrcamento(
 }
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') {
-    res.status(405).json({ erro: 'Método não permitido. Use POST.' });
+  const bloqueio = validarOrigem(req);
+  if (bloqueio) {
+    res.status(bloqueio.status).json({ erro: bloqueio.erro });
     return;
   }
 
-  const ip =
-    (req.headers?.['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-    req.socket?.remoteAddress ||
-    '127.0.0.1';
-
-  const resultado = await processarLeadOrcamento(req.body, ip);
+  const resultado = await processarLeadOrcamento(req.body, ipDoVisitante(req));
   res.status(resultado.status).json(resultado.json);
 }
-
