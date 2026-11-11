@@ -22,6 +22,9 @@ import { encaixar, sugerirCorrecao, validarProjeto } from './regrasProjeto';
 import { Interno, Puxador, TipoPorta, Vao, resolverVaos } from './marcenaria';
 import { COR_TEMPERATURA, NOME_TEMPERATURA, TEMPERATURAS_LED, TEMPERATURA_PADRAO } from './iluminacao';
 import { baixarArquivo, imagemComMarca } from './fotoProjeto';
+import { modelosDo } from './modelosProntos';
+import { DadosLead, PRAZOS, codificarProjeto, decodificarProjeto, estimarPreco, linhasDoProjeto, montarMensagem, reais } from './resumoProjeto';
+import { EMPRESA } from '../../data/empresa';
 import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
 import { getWhatsAppUrl, salvarResumo3DAtivo, trackWhatsAppClick } from '../../utils/helpers';
 
@@ -29,13 +32,18 @@ export interface Quarto3DExperienciaProps {
   onOpenBriefingOutro?: () => void;
 }
 
-type Aba = 'ambiente' | 'moveis' | 'cores';
+type Aba = 'ambiente' | 'modelo' | 'moveis' | 'cores' | 'resumo';
 
+/** Fluxo em etapas: o cliente parte do ambiente real, escolhe um modelo, ajusta e envia. */
 const ABAS: Array<{ id: Aba; rotulo: string }> = [
-  { id: 'moveis', rotulo: 'Móveis' },
-  { id: 'cores', rotulo: 'Cores e luz' },
   { id: 'ambiente', rotulo: 'Ambiente' },
+  { id: 'modelo', rotulo: 'Modelo' },
+  { id: 'moveis', rotulo: 'Móveis' },
+  { id: 'cores', rotulo: 'Cores' },
+  { id: 'resumo', rotulo: 'Enviar' },
 ];
+const CHAVE_PROJETO = 'imperio-3d-projeto';
+const LEAD_VAZIO: DadosLead = { nome: '', cidade: '', prazo: '', temMedidas: '' };
 
 const VISTAS: Array<{ id: VistaCamera; rotulo: string }> = [
   { id: 'perspectiva', rotulo: '3D' },
@@ -114,7 +122,13 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   const modoFoto = useEditor((e) => e.modoFoto);
   const alternarModoFoto = useEditor((e) => e.alternarModoFoto);
   const { aplicar, durante, fimGesto, desfazer, refazer, selecionar: setSelecionado } = useEditor.getState();
-  const [aba, setAba] = useState<Aba>('moveis');
+  const [aba, setAba] = useState<Aba>('ambiente');
+  const [modeloAtivo, setModeloAtivo] = useState<string | null>(null);
+  const [lead, setLead] = useState<DadosLead>(LEAD_VAZIO);
+  const [tentouEnviar, setTentouEnviar] = useState(false);
+  const [miniatura, setMiniatura] = useState<string | null>(null);
+  const [avisoLink, setAvisoLink] = useState<string | null>(null);
+  const restaurado = useRef(false);
   const [vista, setVista] = useState<VistaCamera>('perspectiva');
   const [pedidoVista, setPedidoVista] = useState(0);
   const [paredeElevacao, setParedeElevacao] = useState<Parede>('N');
@@ -181,8 +195,85 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout, cenarioAtual]);
 
+  // Abre o projeto do link (#projeto=...) ou o último salvo neste navegador.
+  useEffect(() => {
+    if (restaurado.current) return;
+    restaurado.current = true;
+    const carregar = (l: QuartoLayout | null) => {
+      if (l) useEditor.setState({ layout: l, passado: [], futuro: [], selecionado: null });
+    };
+    const hash = window.location.hash;
+    if (hash.startsWith('#projeto=')) {
+      decodificarProjeto(hash.slice('#projeto='.length)).then((l) => {
+        carregar(l);
+        if (l) setAba('resumo');
+      });
+      return;
+    }
+    try {
+      const salvo = window.localStorage.getItem(CHAVE_PROJETO);
+      if (!salvo) return;
+      const validado = QuartoLayoutSchema.safeParse(JSON.parse(salvo));
+      if (validado.success) carregar(normalizarLayout(validado.data));
+    } catch {
+      // Navegador sem armazenamento ou projeto antigo inválido: segue com o padrão.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!restaurado.current) return;
+    try {
+      window.localStorage.setItem(CHAVE_PROJETO, JSON.stringify(layout));
+    } catch {
+      // Sem armazenamento (modo privado): o projeto vale só nesta visita.
+    }
+  }, [layout]);
+
+  // Miniatura do projeto ao abrir o resumo.
+  useEffect(() => {
+    if (aba !== 'resumo') return;
+    const canvas = useEditor.getState().capturar?.() ?? canvasRef.current;
+    try {
+      setMiniatura(canvas ? canvas.toDataURL('image/jpeg', 0.82) : null);
+    } catch {
+      setMiniatura(null);
+    }
+    // Só ao entrar no resumo: a captura em alta resolução é pesada para repetir a cada ajuste.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aba]);
+
+  const indiceAba = ABAS.findIndex((a) => a.id === aba);
+  const irPara = (id: Aba) => {
+    setAba(id);
+    setAvisoLink(null);
+  };
+
+  const usarModelo = (id: string) => {
+    const modelo = modelosDo(layout.comodo).find((m) => m.id === id);
+    if (!modelo) return;
+    aplicar(() => modelo.montar());
+    setModeloAtivo(id);
+    setSelecionado(null);
+  };
+
+  const linkDoProjeto = async () => `${window.location.origin}${window.location.pathname}#projeto=${await codificarProjeto(layout)}`;
+
+  const copiarLink = async () => {
+    try {
+      const link = await linkDoProjeto();
+      await navigator.clipboard.writeText(link);
+      setAvisoLink('Link copiado. Quem abrir vê este mesmo projeto.');
+    } catch {
+      setAvisoLink('Não deu para copiar aqui. O link vai junto na mensagem do WhatsApp.');
+    }
+  };
+
+  const leadCompleto = lead.nome.trim().length >= 2 && lead.cidade !== '' && lead.prazo !== '' && lead.temMedidas !== '';
+  const estimativa = useMemo(() => estimarPreco(layout), [layout]);
+
   const trocarAmbiente = (novo: Ambiente) => {
     aplicar(() => construirLayoutDoCenario(novo, 'freijo-ripado'));
+    setModeloAtivo(null);
     setSelecionado(null);
     setAvisoIa(null);
   };
@@ -301,21 +392,6 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     [durante]
   );
 
-  const gerarResumoTexto = () => {
-    const { largura_m: W, profundidade_m: D, pe_direito_m: H } = layout.dimensoes;
-    const linhas = modulos.map((m) => {
-      const acab = ACABAMENTOS_3D.find((a) => a.id === m.acabamento)?.nome ?? m.acabamento;
-      const parede = NOME_PAREDE[m.parede];
-      return `- ${rotuloModulo(m.id)}: ${cm(m.largura_m)} x ${cm(m.altura_m)}, ${acab}, parede: ${parede}`;
-    });
-    return [
-      'Oi! Montei meu projeto no 3D do site da Império e quero um orçamento:',
-      `Ambiente: ${cenarioAtual.rotulo}, ${cm(W)} x ${cm(D)}, pé-direito ${cm(H)}`,
-      ...linhas,
-      `Fita de LED: ${layout.led ? `Sim, ${layout.temperaturaLed ?? TEMPERATURA_PADRAO} K` : 'Não'}`,
-    ].join('\n');
-  };
-
   const baixarFoto = async () => {
     const canvas = useEditor.getState().capturar?.() ?? canvasRef.current;
     if (!canvas) return;
@@ -324,8 +400,16 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   };
 
   const enviarProjeto = async () => {
+    setTentouEnviar(true);
+    if (!leadCompleto) return;
     trackWhatsAppClick('quarto_3d_enviar');
-    const resumo = gerarResumoTexto();
+    let link: string | undefined;
+    try {
+      link = await linkDoProjeto();
+    } catch {
+      link = undefined;
+    }
+    const resumo = montarMensagem(layout, { ...lead, nome: lead.nome.trim().slice(0, 80) }, link);
     const canvas = canvasRef.current;
 
     if (canvas) {
@@ -531,34 +615,171 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               </button>
             )}
           </div>
-          <button
-            type="button"
-            onClick={enviarProjeto}
-            className="shrink-0 px-24 h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel transition-colors font-semibold cursor-pointer"
-          >
-            Enviar projeto para orçamento
-          </button>
+          {aba !== 'resumo' && (
+            <button
+              type="button"
+              onClick={() => irPara('resumo')}
+              className="shrink-0 px-24 h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel transition-colors font-semibold cursor-pointer"
+            >
+              Revisar e enviar para orçamento
+            </button>
+          )}
         </div>
       </div>
 
       {/* Ferramentas */}
       <div className="lg:col-span-4 flex flex-col gap-16">
-        <div role="tablist" aria-label="Ferramentas do projeto" className="grid grid-cols-3 border-b border-papel/20">
-          {ABAS.map((a) => (
+        <div role="tablist" aria-label="Etapas do projeto" className="grid grid-cols-5 border-b border-papel/20">
+          {ABAS.map((a, n) => (
             <button
               key={a.id}
               role="tab"
               type="button"
               aria-selected={aba === a.id}
-              onClick={() => setAba(a.id)}
-              className={`h-[44px] tipo-cota cursor-pointer border-b-2 -mb-px transition-colors ${
+              onClick={() => irPara(a.id)}
+              className={`h-[52px] flex flex-col items-center justify-center gap-[2px] tipo-cota cursor-pointer border-b-2 -mb-px transition-colors ${
                 aba === a.id ? 'border-dourado text-papel font-semibold' : 'border-transparent text-papel/65 hover:text-papel'
               }`}
             >
-              {a.rotulo}
+              <span className="text-[10px] leading-none opacity-70">{n + 1}</span>
+              <span className="leading-none">{a.rotulo}</span>
             </button>
           ))}
         </div>
+
+        {aba === 'modelo' && (
+          <div className="flex flex-col gap-8">
+            <p className="tipo-corpo text-papel/80">Comece de um modelo e ajuste depois. As medidas do seu ambiente continuam valendo nas próximas etapas.</p>
+            {modelosDo(layout.comodo).map((modelo) => {
+              const ativo = modeloAtivo === modelo.id;
+              return (
+                <button
+                  key={modelo.id}
+                  type="button"
+                  aria-pressed={ativo}
+                  onClick={() => usarModelo(modelo.id)}
+                  className={`flex flex-col gap-4 p-16 text-left border cursor-pointer transition-colors ${ativo ? 'border-dourado' : 'border-papel/25 hover:border-papel/60'}`}
+                >
+                  <span className="tipo-cota text-papel font-semibold">{modelo.nome}</span>
+                  <span className="tipo-cota text-papel/75">{modelo.descricao}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {aba === 'resumo' && (
+          <div className="flex flex-col gap-24">
+            {miniatura && <img src={miniatura} alt={`Prévia do projeto de ${cenarioAtual.rotulo.toLowerCase()}`} className="w-full border border-papel/20" />}
+
+            <div className="flex flex-col gap-8">
+              <span className="tipo-cota text-papel/85">
+                {cenarioAtual.rotulo}, {cm(layout.dimensoes.largura_m)} × {cm(layout.dimensoes.profundidade_m)}, pé-direito {cm(layout.dimensoes.pe_direito_m)}
+              </span>
+              <ul className="flex flex-col">
+                {linhasDoProjeto(layout).map((l, i) => (
+                  <li key={i} className="py-8 border-b border-papel/15 flex flex-col gap-[2px]">
+                    <span className="tipo-cota text-papel font-semibold">{l.titulo}</span>
+                    <span className="tipo-cota text-papel/70">{l.detalhe}</span>
+                  </li>
+                ))}
+              </ul>
+              {conflitos.size > 0 && (
+                <p className="tipo-cota text-dourado">
+                  {conflitos.size === 1 ? 'Uma peça está marcada em vermelho.' : `${conflitos.size} peças estão marcadas em vermelho.`} Dá para enviar assim; o projetista ajusta na medição.
+                </p>
+              )}
+              {estimativa && (
+                <p className="tipo-cota text-papel">
+                  A partir de <strong>{reais(estimativa.total)}</strong>
+                  {estimativa.parcial ? ' (sem algumas peças)' : ''}. <span className="text-papel/70">{estimativa.aviso}</span>
+                </p>
+              )}
+            </div>
+
+            <form
+              className="flex flex-col gap-16"
+              noValidate
+              onSubmit={(e) => {
+                e.preventDefault();
+                enviarProjeto();
+              }}
+            >
+              <span className="tipo-cota text-papel/85">Para o orçamento</span>
+              <label className="flex flex-col gap-4 tipo-cota text-papel/85">
+                Seu nome
+                <input
+                  type="text"
+                  autoComplete="given-name"
+                  maxLength={80}
+                  value={lead.nome}
+                  onChange={(e) => setLead({ ...lead, nome: e.target.value })}
+                  aria-invalid={tentouEnviar && lead.nome.trim().length < 2}
+                  className="py-8 bg-transparent text-papel border-b-[1.5px] border-papel/40 focus:border-dourado focus:outline-none"
+                />
+              </label>
+              <label className="flex flex-col gap-4 tipo-cota text-papel/85">
+                Cidade
+                <select
+                  value={lead.cidade}
+                  onChange={(e) => setLead({ ...lead, cidade: e.target.value })}
+                  aria-invalid={tentouEnviar && lead.cidade === ''}
+                  className="py-8 bg-preto text-papel border-b-[1.5px] border-papel/40 focus:border-dourado focus:outline-none"
+                >
+                  <option value="">Escolha</option>
+                  {EMPRESA.cidadesAtendidas.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                  <option value="Outra cidade">Outra cidade</option>
+                </select>
+              </label>
+              <fieldset className="flex flex-col gap-8">
+                <legend className="tipo-cota text-papel/85 pb-8">Quando quer começar?</legend>
+                <div className="grid grid-cols-2 gap-4">
+                  {PRAZOS.map((p) => (
+                    <button key={p} type="button" aria-pressed={lead.prazo === p} onClick={() => setLead({ ...lead, prazo: p })} className={`min-h-[40px] px-4 ${chip(lead.prazo === p)}`}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              <fieldset className="flex flex-col gap-8">
+                <legend className="tipo-cota text-papel/85 pb-8">Já tem as medidas ou a planta?</legend>
+                <div className="grid grid-cols-2 gap-4">
+                  {(
+                    [
+                      ['sim', 'Sim, tenho'],
+                      ['nao', 'Ainda não'],
+                    ] as const
+                  ).map(([v, t]) => (
+                    <button key={v} type="button" aria-pressed={lead.temMedidas === v} onClick={() => setLead({ ...lead, temMedidas: v })} className={`min-h-[40px] px-4 ${chip(lead.temMedidas === v)}`}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              {tentouEnviar && !leadCompleto && (
+                <p className="tipo-cota text-dourado" role="alert">
+                  Preencha nome, cidade, prazo e medidas para a gente preparar o orçamento.
+                </p>
+              )}
+              <button type="submit" className="px-24 h-[52px] rounded-curto bg-dourado text-preto hover:bg-papel transition-colors font-semibold cursor-pointer">
+                Enviar para orçamento no WhatsApp
+              </button>
+              <button type="button" onClick={copiarLink} className="tipo-cota text-papel/85 link-traco cursor-pointer self-start">
+                Copiar link deste projeto
+              </button>
+              {avisoLink && (
+                <p className="tipo-cota text-papel/75" aria-live="polite">
+                  {avisoLink}
+                </p>
+              )}
+              <p className="tipo-cota text-papel/60">O projeto fica salvo neste navegador. Seus dados vão só na mensagem do WhatsApp.</p>
+            </form>
+          </div>
+        )}
 
         {aba === 'moveis' && (
           <div className="flex flex-col gap-16">
@@ -891,6 +1112,21 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             </details>
           </div>
         )}
+        <nav aria-label="Navegar pelas etapas" className="flex items-center justify-between gap-8 pt-8 border-t border-papel/15">
+          <button
+            type="button"
+            onClick={() => irPara(ABAS[indiceAba - 1].id)}
+            disabled={indiceAba === 0}
+            className={`px-16 h-[40px] ${CHIP_BASE} border-papel/40 text-papel disabled:opacity-0 disabled:pointer-events-none`}
+          >
+            Voltar
+          </button>
+          {indiceAba < ABAS.length - 1 && (
+            <button type="button" onClick={() => irPara(ABAS[indiceAba + 1].id)} className={`px-16 h-[40px] ${CHIP_BASE} border-papel text-papel hover:bg-papel hover:text-preto`}>
+              Próximo: {ABAS[indiceAba + 1].rotulo}
+            </button>
+          )}
+        </nav>
       </div>
     </div>
   );

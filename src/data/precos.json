@@ -1,0 +1,31 @@
+{
+  "_leia": "Tabela de preço de referência do configurador 3D. Enquanto 'ativo' for false, o site não mostra valor nenhum. Para ligar: preencha o valor em reais por metro linear de largura de cada módulo e marque 'ativo': true. Módulo com 0 não entra na conta (o site avisa que o valor é parcial).",
+  "ativo": false,
+  "aviso": "Valor de referência. O preço final depende da medição, do projeto e dos acabamentos escolhidos.",
+  "porMetroLinear": {
+    "guarda-roupa": 0,
+    "cabeceira-ripada-led": 0,
+    "painel-tv-ripado": 0,
+    "criado-mudo": 0,
+    "penteadeira-camarim": 0,
+    "bancada-estudo-quarto": 0,
+    "bancada-l": 0,
+    "ilha": 0,
+    "armarios-altos": 0,
+    "torre-forno": 0,
+    "cristaleira-led": 0,
+    "forro-ripado-teto": 0,
+    "nichos-led": 0,
+    "ilha-closet": 0,
+    "prateleiras-closet": 0,
+    "sapateira-espelhada": 0,
+    "bancada-trabalho": 0,
+    "estante-ripada": 0,
+    "gaveteiro": 0,
+    "armario-aereo-office": 0,
+    "sofa-recepcao": 0,
+    "gabinete-banheiro": 0,
+    "espelheira-led": 0,
+    "nicho-geladeira": 0
+  }
+}

@@ -54,7 +54,10 @@ interface Estado {
 }
 
 function nivelDoAparelho(): Nivel {
-  return PORTE_POR_FAIXA[detectarAparelho().faixa];
+  const faixa = detectarAparelho().faixa;
+  // Link de projeto do 3D (#projeto=...): abre com o editor sempre que o aparelho tiver WebGL.
+  if (faixa > 0 && typeof window !== 'undefined' && window.location.hash.startsWith('#projeto=')) return 'cinematografico';
+  return PORTE_POR_FAIXA[faixa];
 }
 
 function lerDaUrl(): Estado {
