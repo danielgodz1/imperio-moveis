@@ -22,7 +22,6 @@ import { VisitBookingModal } from './components/VisitBookingModal';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
 import { FiltroLapis, LinhaLapis } from './components/LinhaLapis';
 import { useScrollytelling } from './hooks/useScrollytelling';
-import { SeletorNivel } from './vitrine/SeletorNivel';
 import { tem3D, useNivel } from './vitrine/nivel';
 import {
   METADADOS_ROTAS_SEO,
@@ -178,7 +177,6 @@ export default function App() {
       <WhatsAppWidget aguardarHero={currentPath === '/'} />
 
       {/* Seletor de níveis da vitrine, sempre visível */}
-      <SeletorNivel />
 
       {/* Modal opcional de agendamento de visita */}
       <VisitBookingModal

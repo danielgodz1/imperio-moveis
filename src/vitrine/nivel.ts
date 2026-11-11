@@ -2,8 +2,10 @@ import { useSyncExternalStore } from 'react';
 import { FaixaAparelho, detectarAparelho } from './aparelho';
 
 /**
- * Níveis de experiência do site, usados para demonstrar o mesmo projeto em três entregas.
- * O seletor fica sempre visível; sem `?nivel=` na URL o nível é escolhido pelo aparelho.
+ * Níveis de experiência do site. O site público é sempre o Cinematográfico (sem seletor).
+ * Os outros dois ficam como rede de segurança automática: Essencial quando o aparelho não tem
+ * WebGL ou pede menos movimento, e Profissional quando o 3D fica lento no próprio aparelho.
+ * `?nivel=` na URL ainda força um nível, para testes.
  */
 export type Nivel = 'essencial' | 'profissional' | 'cinematografico';
 
@@ -37,8 +39,10 @@ export const NIVEIS: DefinicaoNivel[] = [
 
 const PARAMETRO = 'nivel';
 const PORTE_POR_FAIXA: Record<FaixaAparelho, Nivel> = {
+  // Sem WebGL, renderização por software ou "reduzir movimento" no sistema: sem 3D.
   0: 'essencial',
-  1: 'profissional',
+  // Aparelho modesto também abre no Cinematográfico; se travar, rebaixarPorDesempenho cuida.
+  1: 'cinematografico',
   2: 'cinematografico',
   3: 'cinematografico',
 };

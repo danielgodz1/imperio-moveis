@@ -28,7 +28,32 @@ export interface AvaliacaoPublicada {
  * o cliente (ou pedir autorização) antes de publicar o nome dele no site.
  * Com a API ativa, a seção usa as avaliações ao vivo e ignora esta lista.
  */
-export const AVALIACOES_PUBLICADAS: AvaliacaoPublicada[] = [];
+export const AVALIACOES_PUBLICADAS: AvaliacaoPublicada[] = [
+  {
+    autor: 'Lucilena Aparecida',
+    nota: 5,
+    quando: '3 anos atrás',
+    texto: 'Maravilhosa experiência,excelente atendimento,trabalho super indico, muito bom mesmo, no tempo combinado,tudo perfeito',
+  },
+  {
+    autor: 'Camila Camargo',
+    nota: 5,
+    quando: '3 anos atrás',
+    texto: 'Excelente .. desde ao material ao atendimento! Minha mesa ficou maravilhosa … Super indico!',
+  },
+  {
+    autor: 'Nice Nascimento',
+    nota: 5,
+    quando: '3 anos atrás',
+    texto: 'Excelente qualidade , excelente material , atendimento nota 10 ! Eu recomendo! ❤️',
+  },
+  {
+    autor: 'Devolução Sephora',
+    nota: 4,
+    quando: '3 anos atrás',
+    texto: 'Super indico!\n\nMaravilhoso atendimento ! gostei muito do preço, excelente qualidade',
+  },
+];
 
 /** Ficha da Império no Google Maps: ver todas as avaliações e escrever uma. */
 export const LINK_PERFIL_GOOGLE = EMPRESA.googleProfileUrl ?? EMPRESA.mapsUrl;
