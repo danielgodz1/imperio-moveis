@@ -9,17 +9,21 @@ import { Kit3D, criarKit3D } from './materiais3D';
 import { MOVEIS } from './moveis3D';
 import { Caixa2D, Instancia, caixaAbertura, caixasModulo, faixaAbertura, moverPara, poseModulo, xLocalNaParede } from './motorGeometrico';
 import { PREFIXO_ABERTURA, useEditor } from './estadoEditor';
+import { CameraTecnica, Cotas } from './DesenhoTecnico';
+import { Parede } from './cotas';
 import { COR_TEMPERATURA, LENTE_FOTO_MM, TEMPERATURA_PADRAO, cameraFoto, luzDaJanela, manchasDeContato } from './iluminacao';
 import { perfilQualidade } from '../../vitrine/aparelho';
 import { GuardaQuadros } from '../../vitrine/GuardaQuadros';
 
-export type VistaCamera = 'perspectiva' | 'planta' | 'frente';
+export type VistaCamera = 'perspectiva' | 'planta' | 'elevacao';
 
 interface CenaQuarto3DProps {
   layout: QuartoLayout;
   selecionado: string | null;
   conflitos: ReadonlyMap<string, unknown>;
   vista: VistaCamera;
+  /** Parede mostrada na elevação. */
+  paredeElevacao: Parede;
   /** Muda a cada clique na vista, mesmo repetindo a mesma. */
   pedidoVista: number;
   onSelecionar: (uid: string | null) => void;
@@ -46,7 +50,6 @@ function posicaoVista(layout: QuartoLayout, vista: VistaCamera, aspecto = 1.2): 
   const recuo = Math.max(1, 1.15 / aspecto);
   const { largura_m: W, profundidade_m: D, pe_direito_m: H } = layout.dimensoes;
   if (vista === 'planta') return [0, Math.max(W, D) * 1.95 * recuo, 0.01];
-  if (vista === 'frente') return [0, H * 0.58, D / 2 + Math.max(W, D) * 1.4 * recuo];
   return [-W * 0.2, H * 1.42 * recuo, D / 2 + Math.max(W, D) * 1.32 * recuo];
 }
 
@@ -234,7 +237,8 @@ function Ambiente({
   onMover,
   onMoverAbertura,
   onMoverFim,
-}: Omit<CenaQuarto3DProps, 'onCanvasReady' | 'vista' | 'pedidoVista'> & { k: Kit3D }) {
+  planta,
+}: Omit<CenaQuarto3DProps, 'onCanvasReady' | 'vista' | 'pedidoVista' | 'paredeElevacao'> & { k: Kit3D; planta: boolean }) {
   const { camera, gl, controls, invalidate, scene } = useThree();
   const dim = layout.dimensoes;
   const { largura_m: W, profundidade_m: D, pe_direito_m: H } = dim;
@@ -243,6 +247,8 @@ function Ambiente({
   const modulos = layout.modulos as Instancia[];
   const modulosRef = useRef(modulos);
   modulosRef.current = modulos;
+  const plantaRef = useRef(planta);
+  plantaRef.current = planta;
   const aberturasRef = useRef(layout.aberturas);
   aberturasRef.current = layout.aberturas;
   const noite = !!layout.noite;
@@ -309,7 +315,8 @@ function Ambiente({
     });
     modulosRef.current.forEach((m) => {
       const g = refsGrupos.current[m.uid];
-      if (g) g.visible = !(m.parede !== 'centro' && ocultas[m.parede]);
+      // Na planta, o forro do teto esconderia tudo embaixo dele.
+      if (g) g.visible = !(m.parede !== 'centro' && ocultas[m.parede]) && !(plantaRef.current && m.id === 'forro-ripado-teto');
     });
   });
 
@@ -499,7 +506,7 @@ function Ambiente({
 /** Largura mínima da imagem baixada no modo foto. */
 const LARGURA_FOTO = 1920;
 
-function Palco(props: CenaQuarto3DProps & { mobile: boolean }) {
+function Palco(props: CenaQuarto3DProps & { mobile: boolean; tecnica: boolean }) {
   const { gl, invalidate, scene, camera, size } = useThree();
 
   // Captura em alta resolução: aumenta o pixel ratio só durante um quadro e volta ao normal.
@@ -522,7 +529,7 @@ function Palco(props: CenaQuarto3DProps & { mobile: boolean }) {
     useEditor.setState({ capturar });
     return () => useEditor.setState({ capturar: null });
   }, [gl, scene, camera, size, invalidate]);
-  const { mobile, onCanvasReady, ...resto } = props;
+  const { mobile, onCanvasReady, tecnica, vista, pedidoVista, paredeElevacao, ...resto } = props;
   const k = useMemo(() => criarKit3D(mobile), [mobile]);
 
   useEffect(() => () => k.dispose(), [k]);
@@ -533,8 +540,15 @@ function Palco(props: CenaQuarto3DProps & { mobile: boolean }) {
 
   return (
     <>
-      <Camera layout={props.layout} vista={props.vista} pedidoVista={props.pedidoVista} />
-      <Ambiente {...resto} k={k} />
+      {tecnica ? (
+        <>
+          <CameraTecnica layout={props.layout} vista={vista as 'planta' | 'elevacao'} parede={paredeElevacao} pedido={pedidoVista} />
+          <Cotas layout={props.layout} vista={vista as 'planta' | 'elevacao'} parede={paredeElevacao} />
+        </>
+      ) : (
+        <Camera layout={props.layout} vista={vista} pedidoVista={pedidoVista} />
+      )}
+      <Ambiente {...resto} k={k} planta={tecnica && vista === 'planta'} />
     </>
   );
 }
@@ -543,6 +557,9 @@ export const CenaQuarto3D: React.FC<CenaQuarto3DProps> = (props) => {
   const perfil = useMemo(() => perfilQualidade(), []);
   const mobile = perfil.leve;
   const posInicial = useMemo(() => posicaoVista(props.layout, 'perspectiva'), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const modoFoto = useEditor((e) => e.modoFoto);
+  // Planta e elevação: desenho técnico sem perspectiva, com cotas; fora do modo foto.
+  const tecnica = !modoFoto && props.vista !== 'perspectiva';
 
   return (
     <Canvas
@@ -563,8 +580,18 @@ export const CenaQuarto3D: React.FC<CenaQuarto3DProps> = (props) => {
     >
       <color attach="background" args={[props.layout.noite ? '#0A0A0A' : '#1A1917']} />
       <GuardaQuadros />
-      <Palco {...props} mobile={mobile} />
-      <OrbitControls makeDefault enablePan={false} minPolarAngle={0.02} maxPolarAngle={Math.PI / 2 - 0.03} minDistance={2.2} maxDistance={14} />
+      <Palco {...props} mobile={mobile} tecnica={tecnica} />
+      <OrbitControls
+        makeDefault
+        enableRotate={!tecnica}
+        enablePan={tecnica}
+        minPolarAngle={tecnica ? 0 : 0.02}
+        maxPolarAngle={tecnica ? Math.PI : Math.PI / 2 - 0.03}
+        minDistance={2.2}
+        maxDistance={tecnica ? 80 : 14}
+        minZoom={20}
+        maxZoom={400}
+      />
     </Canvas>
   );
 };

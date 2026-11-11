@@ -47,6 +47,14 @@ Medidas internas em metros; a interface mostra centímetros em passos de 5 cm. A
 - **Modo foto:** câmera em pé junto à parede da frente, olhos a 1,60 m, lente de 26 mm, sem contornos. "Baixar imagem" gera PNG de pelo menos 1920 px com a marca "Império Móveis Planejados" no canto. A imagem enviada para orçamento também leva a marca.
 - **Pisos:** vinílico madeirado, porcelanato e cimento queimado.
 
+## Planta e elevação
+
+- **Vistas:** 3D, Planta e Elevação (Fundo, Esquerda, Direita, Frente). Planta e elevação usam câmera sem perspectiva (desenho técnico), sem girar; dá para aproximar e arrastar.
+- **Cotas** (`cotas.ts`, funções puras testadas): calculadas das mesmas caixas do motor, em cm, com traço dourado de lápis e marca inclinada de arquiteto (`DesenhoTecnico.tsx`).
+  - Planta: por parede, corrente das peças (com os vãos livres), corrente de portas e janelas e comprimento total; peça solta (ilha) com largura e profundidade. O forro do teto some na planta.
+  - Elevação: corrente das peças e total embaixo, pé-direito ao lado, altura de cada peça e, nas janelas, peitoril e altura.
+  - Peças sobrepostas na mesma parede (mesa de cabeceira no painel) entram só pela maior na corrente; a corrente sempre soma o comprimento da parede.
+
 ## Regras de projeto
 
 | Regra | Valor |
@@ -77,7 +85,7 @@ Referências de medida (circulação, triângulo) são as usuais de projeto de i
 | 3. Módulos paramétricos e "ver por dentro" | Feito para guarda-roupa, balcão e aéreo. Faltam: torre quente, paneleiro, ilha, cabeceira, painel de TV, home office e closet em L/U |
 | 4. Catálogo de materiais com veio orientado | Feito |
 | 5. Luz, sombras, LED e modo foto | Feito (sem AO em tela; sombra de contato por mancha) |
-| 6. Planta e elevação com cotas | Pendente |
+| 6. Planta e elevação com cotas | Feito |
 | 7. Painel em etapas, resumo, link e envio | Pendente |
 | 8. Celular e acessibilidade | Pendente |
 

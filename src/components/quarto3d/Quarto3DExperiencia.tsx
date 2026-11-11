@@ -4,6 +4,7 @@ import { QuartoLayout, QuartoLayoutSchema, construirLayoutDoCenario, normalizarL
 import { CENARIOS_AMBIENTES, CATALOGO_MODULOS_CENARIO, ParedeCardeal } from '../../data/cenarios';
 import { ACABAMENTOS_3D } from '../../data/acabamentos';
 import { CenaQuarto3D, VistaCamera } from './CenaQuarto3D';
+import { Parede } from './cotas';
 import { OPCOES_PAREDE, OPCOES_PISO, OPCOES_TAMPO } from './materiais3D';
 import {
   COM_TAMPO,
@@ -38,7 +39,7 @@ const ABAS: Array<{ id: Aba; rotulo: string }> = [
 
 const VISTAS: Array<{ id: VistaCamera; rotulo: string }> = [
   { id: 'perspectiva', rotulo: '3D' },
-  { id: 'frente', rotulo: 'Frente' },
+  { id: 'elevacao', rotulo: 'Elevação' },
   { id: 'planta', rotulo: 'Planta' },
 ];
 
@@ -116,6 +117,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   const [aba, setAba] = useState<Aba>('moveis');
   const [vista, setVista] = useState<VistaCamera>('perspectiva');
   const [pedidoVista, setPedidoVista] = useState(0);
+  const [paredeElevacao, setParedeElevacao] = useState<Parede>('N');
   const [descricaoIa, setDescricaoIa] = useState('');
   const [carregandoIa, setCarregandoIa] = useState(false);
   const [avisoIa, setAvisoIa] = useState<string | null>(null);
@@ -388,6 +390,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             conflitos={conflitos}
             vista={vista}
             pedidoVista={pedidoVista}
+            paredeElevacao={paredeElevacao}
             onSelecionar={selecionar}
             onMover={moverPeca}
             onMoverAbertura={moverAbertura}
@@ -413,6 +416,25 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               </button>
             ))}
           </div>
+
+          {vista === 'elevacao' && (
+            <div className="absolute top-[52px] left-8 flex items-center gap-4" role="group" aria-label="Parede da elevação">
+              {(['N', 'O', 'L', 'S'] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  aria-pressed={paredeElevacao === p}
+                  onClick={() => {
+                    setParedeElevacao(p);
+                    setPedidoVista((n) => n + 1);
+                  }}
+                  className={`px-8 h-[32px] ${chip(paredeElevacao === p)} ${paredeElevacao === p ? '' : 'bg-preto/85'}`}
+                >
+                  {NOME_PAREDE_ABERTURA[p]}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="absolute top-8 right-8 flex items-center gap-4">
             <button
