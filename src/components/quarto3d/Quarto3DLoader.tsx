@@ -42,6 +42,13 @@ export const Quarto3DLoader: React.FC<Quarto3DLoaderProps> = ({
     const el = secaoRef.current;
     if (!el) return;
 
+    // Link de projeto compartilhado (#projeto=...): abre o 3D direto e leva o visitante até ele.
+    if (window.location.hash.startsWith('#projeto=')) {
+      setEntrouNaTela(true);
+      el.scrollIntoView({ block: 'start' });
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {

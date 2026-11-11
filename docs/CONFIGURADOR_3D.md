@@ -55,6 +55,17 @@ Medidas internas em metros; a interface mostra centímetros em passos de 5 cm. A
   - Elevação: corrente das peças e total embaixo, pé-direito ao lado, altura de cada peça e, nas janelas, peitoril e altura.
   - Peças sobrepostas na mesma parede (mesa de cabeceira no painel) entram só pela maior na corrente; a corrente sempre soma o comprimento da parede.
 
+## Painel em etapas e envio
+
+- **Etapas:** 1 Ambiente (tipo, medidas, portas e janelas), 2 Modelo, 3 Móveis, 4 Cores, 5 Enviar; abas numeradas e botões Voltar/Próximo. O botão dourado embaixo da cena leva ao resumo.
+- **Modelos prontos** (`modelosProntos.ts`): 3 por ambiente, montados dos módulos do catálogo; peça extra só entra se o motor achar lugar válido (teste garante zero problemas). `[CONFIRMAR]` os donos podem trocar por projetos reais.
+- **Resumo:** miniatura, cada peça com medidas em cm, acabamento, tampo, portas e parede; aviso se houver peça em vermelho.
+- **Perguntas antes de enviar:** nome, cidade (lista de `empresa.ts` + outra), prazo e se já tem medidas ou planta. Sem isso o envio não sai.
+- **WhatsApp:** mensagem montada em `resumoProjeto.ts` com os dados acima, o projeto e o link; a imagem com marca é compartilhada (celular) ou baixada (computador).
+- **Preço de referência** (`src/data/precos.json`): desligado (`ativo: false`). Ligado, mostra "a partir de" = largura × preço por metro linear de cada módulo, com aviso.
+- **Salvar e compartilhar:** o projeto fica salvo no navegador (`localStorage`); "Copiar link deste projeto" gera `#projeto=...` comprimido (cerca de 560 caracteres). O link abre direto no 3D, na etapa Enviar, mesmo em aparelho que entraria no nível sem 3D (desde que tenha WebGL).
+- **Fora desta etapa:** PDF.
+
 ## Regras de projeto
 
 | Regra | Valor |
@@ -86,7 +97,7 @@ Referências de medida (circulação, triângulo) são as usuais de projeto de i
 | 4. Catálogo de materiais com veio orientado | Feito |
 | 5. Luz, sombras, LED e modo foto | Feito (sem AO em tela; sombra de contato por mancha) |
 | 6. Planta e elevação com cotas | Feito |
-| 7. Painel em etapas, resumo, link e envio | Pendente |
+| 7. Painel em etapas, resumo, link e envio | Feito (sem PDF) |
 | 8. Celular e acessibilidade | Pendente |
 
 ## Depende dos donos
