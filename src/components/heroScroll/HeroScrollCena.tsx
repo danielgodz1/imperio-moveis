@@ -69,7 +69,7 @@ function NarrativaCena({ mobile, perfil }: { mobile: boolean; perfil: PerfilQual
     const ambiente = new RoomEnvironment();
     const envRT = pmrem.fromScene(ambiente, 0.04);
     scene.environment = envRT.texture;
-    scene.environmentIntensity = 0.6;
+    scene.environmentIntensity = 0.55;
     ambiente.traverse((o) => {
       const malha = o as THREE.Mesh;
       if (malha.isMesh) {
@@ -228,13 +228,13 @@ function NarrativaCena({ mobile, perfil }: { mobile: boolean; perfil: PerfilQual
 
   return (
     <>
-      <ambientLight intensity={0.22} color="#FFF8EE" />
-      <hemisphereLight args={['#FFFFFF', '#A89F8E', 0.55]} />
+      <ambientLight intensity={0.14} color="#FFF8EE" />
+      <hemisphereLight args={['#FFFFFF', '#9A917F', 0.4]} />
       {/* Luz principal alta e de lado: dá relevo às frentes e faz o armário aéreo sombrear o balcão. */}
       <directionalLight
         position={[-1.5, 7.5, 6.5]}
-        intensity={1.55}
-        color="#FFF3E2"
+        intensity={1.95}
+        color="#FFF1DC"
         castShadow={sombras}
         shadow-mapSize-width={perfil.mapaSombra || 1024}
         shadow-mapSize-height={perfil.mapaSombra || 1024}
@@ -271,7 +271,7 @@ export const HeroScrollCena: React.FC<{ onLento?: () => void }> = ({ onLento }) 
         antialias: perfil.antialias,
         powerPreference: 'high-performance',
         toneMapping: THREE.NeutralToneMapping,
-        toneMappingExposure: 1.0,
+        toneMappingExposure: 0.94,
         outputColorSpace: THREE.SRGBColorSpace,
       }}
       className="w-full h-full block"

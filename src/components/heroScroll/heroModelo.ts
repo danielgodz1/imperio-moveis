@@ -699,12 +699,12 @@ export function construirCozinha(mobile: boolean, m: MateriaisHero, t: TexturasH
     raiz.add(ma);
     oclusoes.push({ etapa, ordem: 0, aplicar: (v) => (mat.opacity = v * forca) });
   }
-  oclusao(ILHA.x0, ILHA.x1, ILHA.z0, ILHA.z1, 0.5, 8);
-  oclusao(0, 2.7, 0, 0.62, 0.42, 1);
-  oclusao(GEL.x0, GEL.x1, 0, GEL.zPorta, 0.5, 7);
+  oclusao(ILHA.x0, ILHA.x1, ILHA.z0, ILHA.z1, 0.68, 8);
+  oclusao(0, 2.7, 0, 0.62, 0.58, 1);
+  oclusao(GEL.x0, GEL.x1, 0, GEL.zPorta, 0.66, 7);
   oclusao(1.92, 2.22, 2.8, 3.1, 0.28, 10);
   oclusao(1.07, 1.37, 2.8, 3.1, 0.28, 10);
-  oclusao(MESA.x0, MESA.x1, MESA.z0, MESA.z1, 0.2, 10);
+  oclusao(MESA.x0, MESA.x1, MESA.z0, MESA.z1, 0.34, 10);
 
   // -------------------------------------------------------------------------
   // Fase 2: piso em placas (instanciado) e paredes que sobem
