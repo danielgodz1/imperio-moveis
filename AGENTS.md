@@ -8,7 +8,7 @@ Este documento define as diretrizes obrigatórias para todos os agentes de IA (A
 
 Este é um produto digital em produção contínua:
 - **Repositório:** `https://github.com/danielgodz1/imperio-moveis`
-- **Produção:** `https://www.imperiomoveisplanejadosjau.com.br` (Vercel; o endereço sem www redireciona para o www)
+- **Produção:** `https://www.imperiomoveisplanejadosjau.com.br` (Vercel, projeto `imperio-moveis-zeta.vercel.app`, que redireciona para o domínio; o endereço sem www redireciona para o www)
 - **Domínio canônico SEO:** `https://www.imperiomoveisplanejadosjau.com.br`
 
 **Regras Inegociáveis:**
