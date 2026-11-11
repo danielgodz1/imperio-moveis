@@ -10,7 +10,8 @@ import { FaixaServicos } from './components/FaixaServicos';
 import { Donos } from './components/Donos';
 import { Obras } from './components/Obras';
 import { ProcessoSection } from './components/ProcessoSection';
-import { Quarto3DLoader } from './components/quarto3d/Quarto3DLoader';
+import { ChamadaProjeto3D } from './components/ChamadaProjeto3D';
+import { PaginaProjetar } from './components/PaginaProjetar';
 import { ReviewsSection } from './components/ReviewsSection';
 import { Fechamento } from './components/Fechamento';
 import { ContactQuotationPage } from './components/ContactQuotationPage';
@@ -22,7 +23,7 @@ import { VisitBookingModal } from './components/VisitBookingModal';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
 import { FiltroLapis, LinhaLapis } from './components/LinhaLapis';
 import { useScrollytelling } from './hooks/useScrollytelling';
-import { tem3D, useNivel } from './vitrine/nivel';
+import { useNivel } from './vitrine/nivel';
 import {
   METADADOS_ROTAS_SEO,
   PAGINAS_AMBIENTES_LOCAIS,
@@ -64,6 +65,14 @@ export default function App() {
       canonEl.setAttribute('href', meta.canonical);
     }
   }, [currentPath]);
+
+  // Links antigos de projeto (/#projeto=...) abrem agora na página do 3D.
+  useEffect(() => {
+    if (window.location.pathname === '/' && window.location.hash.startsWith('#projeto=')) {
+      window.history.replaceState({}, '', `/projetar${window.location.hash}`);
+      setCurrentPath('/projetar');
+    }
+  }, []);
 
   useEffect(() => {
     const onPop = () => {
@@ -119,6 +128,11 @@ export default function App() {
             onBackToHome={() => handleNavigateRoute('/')}
             ambienteInicial={briefingAmbienteInicial}
           />
+        ) : currentPath === '/projetar' ? (
+          <PaginaProjetar
+            onVoltar={() => handleNavigateRoute('/')}
+            onOpenBriefing={() => handleOpenBriefing('Outro')}
+          />
         ) : configAmbienteLocal ? (
           <PaginaAmbienteLocal
             config={configAmbienteLocal}
@@ -139,10 +153,8 @@ export default function App() {
             {/* Momento 3: Do risco à obra em 4 passos */}
             <ProcessoSection />
 
-            {/* Momento 4: Monte seu ambiente em 3D (lazy-loaded em chunk separado) */}
-            {tem3D(nivel) && (
-              <Quarto3DLoader onOpenBriefingOutro={() => handleOpenBriefing('Outro')} />
-            )}
+            {/* Momento 4: convite para o 3D. O editor mora em /projetar e só carrega lá */}
+            <ChamadaProjeto3D onAbrir={() => handleNavigateRoute('/projetar')} />
 
             {/* Avaliações */}
             <ReviewsSection />

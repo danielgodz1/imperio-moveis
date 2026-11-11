@@ -4,6 +4,7 @@ import { Ambiente } from './cenarios';
 export type RotaPublica =
   | '/'
   | '/contato'
+  | '/projetar'
   | '/cozinhas-planejadas-jau'
   | '/quartos-planejados-jau'
   | '/closets-sob-medida-jau'
@@ -45,6 +46,7 @@ export interface MetaRotaSeo {
 
 /** Título e texto do hero da home (usados no componente e no HTML pré-renderizado). */
 export const TEXTO_HERO = {
+  chamada: 'Móveis planejados em Jaú/SP',
   titulo: 'Arquitetura e marcenaria na mesma mesa.',
   texto:
     'A Tatiane projeta, o Wellington fabrica. Móveis planejados para cozinhas, quartos, closets e lojas em Jaú e região, com precisão milimétrica desde 2015.',
@@ -301,6 +303,17 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     h1Inicial: 'Enviar medidas ou pedir orçamento em Jaú',
     resumoHtmlInicial:
       'Responda os 3 passos rápidos de orçamento e fale direto com o Wellington e a Tatiane Cabral pelo WhatsApp (14) 99849-2834.',
+  },
+  '/projetar': {
+    rota: '/projetar',
+    title: 'Projete seus Móveis Planejados em 3D Online e Grátis | Império Jaú',
+    description:
+      'Monte sua cozinha, quarto, closet ou banheiro planejado em 3D direto no navegador: medidas, móveis, cores e LED. Baixe a imagem do projeto e peça o orçamento no WhatsApp.',
+    canonical: `${EMPRESA.url}/projetar`,
+    ogImage: `${EMPRESA.url}/projetar/cozinha-render.jpg`,
+    h1Inicial: 'Projete seu móvel planejado em 3D',
+    resumoHtmlInicial:
+      'Escolha o ambiente, ajuste as medidas, monte os móveis e as cores. No fim, baixe a imagem de frente do projeto e mande para a Império orçar pelo WhatsApp.',
   },
   '/cozinhas-planejadas-jau': {
     rota: '/cozinhas-planejadas-jau',

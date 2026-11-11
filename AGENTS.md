@@ -45,7 +45,7 @@ O projeto segue uma arquitetura modular em React 19 + TypeScript + Vite 8 + Tail
 - **Páginas Locais SEO (`src/components/PaginaAmbienteLocal.tsx`, `src/data/paginasLocais.ts`, `src/utils/prerenderHtml.ts`):** Rotas dedicadas para Jaú e região pré-renderizadas no `vite build`.
 - **Fluxo Comercial & Conversão (`src/components/BriefingOrcamento.tsx`, `src/components/ContactQuotationPage.tsx`, `src/utils/helpers.ts`):** Briefing em 3 etapas integrado ao WhatsApp (`5514998492834`) e ao resumo do configurador 3D.
 - **Configurador 3D & Motor Geométrico (`src/components/quarto3d/`, `src/data/cenarios.ts`, `src/data/acabamentos.ts`):**
-  - Carregado sob demanda via `React.lazy` em `Quarto3DLoader.tsx`.
+  - Página própria `/projetar` (`src/components/PaginaProjetar.tsx`), que carrega o editor via `React.lazy`; a home só mostra a chamada com imagem (`ChamadaProjeto3D.tsx`).
   - Motor geométrico puro e determinístico (`src/components/quarto3d/motorGeometrico.ts`) responsável por validação pré-inserção, compatibilidade por ambiente, bounding boxes 3D, footprints 2D, detecção de colisões (módulo-módulo, módulo-abertura, limites de parede), áreas de circulação, orientação automática e busca de posição alternativa válida.
   - Consistência estrita: todas as dimensões usadas na validação (`motorGeometrico.ts` e `schema.ts`) são exatamente as mesmas dimensões usadas na renderização (`CenaQuarto3D.tsx`).
 - **Laboratório de Experiências Visuais (`src/components/experiencias/`):**

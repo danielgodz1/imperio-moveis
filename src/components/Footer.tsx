@@ -2,7 +2,6 @@ import React from 'react';
 import { EMPRESA } from '../data/empresa';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 import { scrollToTarget } from '../hooks/useScrollytelling';
-import { tem3D, useNivel } from '../vitrine/nivel';
 
 interface FooterProps {
   onNavigateRoute: (path: string) => void;
@@ -19,7 +18,7 @@ const AMBIENTES = [
 const SITE = [
   { rotulo: 'As obras', ancora: '#obras' },
   { rotulo: 'Como trabalhamos', ancora: '#processo' },
-  { rotulo: 'Monte seu ambiente em 3D', ancora: '#quarto-3d' },
+  { rotulo: 'Projete em 3D', ancora: '/projetar' },
   { rotulo: 'Avaliações', ancora: '#avaliacoes' },
   { rotulo: 'Quem somos', ancora: '#donos' },
 ];
@@ -29,9 +28,12 @@ const TITULO = 'tipo-cota text-papel/60';
 
 export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing }) => {
   const anoAtual = new Date().getFullYear();
-  const com3D = tem3D(useNivel());
 
   const irParaSecao = (ancora: string) => {
+    if (ancora.startsWith('/')) {
+      onNavigateRoute(ancora);
+      return;
+    }
     if (window.location.pathname !== '/') {
       onNavigateRoute('/');
       setTimeout(() => scrollToTarget(ancora, -80), 140);
@@ -97,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
           <nav aria-label="Site" className="flex flex-col gap-16">
             <h3 className={TITULO}>No site</h3>
             <ul className="flex flex-col gap-8">
-              {SITE.filter((s) => com3D || s.ancora !== '#quarto-3d').map((s) => (
+              {SITE.map((s) => (
                 <li key={s.ancora}>
                   <button type="button" onClick={() => irParaSecao(s.ancora)} className={LINK}>
                     {s.rotulo}

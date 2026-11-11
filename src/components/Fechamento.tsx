@@ -2,35 +2,12 @@ import React from 'react';
 import { MessageSquare } from 'lucide-react';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 import { WorkshopLocation } from './WorkshopLocation';
+import { perguntasConfirmadas } from '../data/perguntas';
 
 interface FechamentoProps {
   onNavigateContact: () => void;
   onOpenVisitBooking: () => void;
 }
-
-/** Só entram no site as respostas confirmadas; as demais voltam quando a loja definir. */
-const PERGUNTAS_CURTAS = [
-  {
-    pergunta: 'Vocês fazem só os móveis ou o projeto completo?',
-    resposta: 'O completo. A Tatiane assina os interiores e o Wellington fabrica e instala a marcenaria.',
-    confirmado: true,
-  },
-  {
-    pergunta: 'Como eu peço um orçamento?',
-    resposta: 'Conte o que você quer pelo botão ou pelo WhatsApp. Com fotos ou medidas, a conversa anda mais rápido.',
-    confirmado: true,
-  },
-  {
-    pergunta: 'Qual é o prazo médio de fabricação e instalação?',
-    resposta: '[CONFIRMAR prazo médio em dias]',
-    confirmado: false,
-  },
-  {
-    pergunta: 'A medição em Jaú tem algum custo?',
-    resposta: '[CONFIRMAR política de visita e projeto 3D fora de Jaú]',
-    confirmado: false,
-  },
-];
 
 export const Fechamento: React.FC<FechamentoProps> = ({ onNavigateContact, onOpenVisitBooking }) => (
   <section id="fechamento" className="w-full bg-papel text-grafite">
@@ -61,7 +38,7 @@ export const Fechamento: React.FC<FechamentoProps> = ({ onNavigateContact, onOpe
 
     <div className="max-w-[1280px] mx-auto px-16 sm:px-32 pb-96 flex flex-col gap-64">
       <dl className="grid grid-cols-1 md:grid-cols-2 gap-32 border-t-[1.5px] border-grafite pt-32">
-        {PERGUNTAS_CURTAS.filter((p) => p.confirmado).map((item) => (
+        {perguntasConfirmadas().map((item) => (
           <div key={item.pergunta} className="flex flex-col gap-8">
             <dt className="tipo-h3 text-grafite">{item.pergunta}</dt>
             <dd className="tipo-corpo text-grafite-suave">{item.resposta}</dd>

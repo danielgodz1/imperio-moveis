@@ -19,7 +19,11 @@ interface HeroScrollConteudoProps {
 /** H1, texto e CTAs; compartilhado pela narrativa 3D e pelo fallback estático. */
 export const HeroScrollConteudo: React.FC<HeroScrollConteudoProps> = ({ onNavigateContact }) => (
   <>
-    <h1 className="tipo-h1 text-papel">{TEXTO_HERO.titulo}</h1>
+    {/* A linha de cima leva a busca principal ("móveis planejados em Jaú") para dentro do H1. */}
+    <h1 className="tipo-h1 text-papel">
+      <span className="block tipo-cota text-dourado mb-8">{TEXTO_HERO.chamada}</span>
+      {TEXTO_HERO.titulo}
+    </h1>
 
     <p className="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">{TEXTO_HERO.texto}</p>
 

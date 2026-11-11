@@ -11,6 +11,7 @@ import { EMPRESA } from './src/data/empresa';
 const ROTAS_PRERENDER: RotaPublica[] = [
   '/',
   '/contato',
+  '/projetar',
   '/cozinhas-planejadas-jau',
   '/quartos-planejados-jau',
   '/closets-sob-medida-jau',
@@ -38,6 +39,7 @@ export function gerarSitemap(lastmod: string | null): string {
       const todas = Object.values(PAGINAS_AMBIENTES_LOCAIS).flatMap((p) => p.fotos.map((f) => `${f.srcBase}.jpg`));
       return ['/og-hero.jpg', ...new Set(todas)];
     }
+    if (rota === '/projetar') return ['/projetar/cozinha-render.jpg'];
     const pagina = PAGINAS_AMBIENTES_LOCAIS[rota as keyof typeof PAGINAS_AMBIENTES_LOCAIS];
     return pagina ? pagina.fotos.map((f) => `${f.srcBase}.jpg`) : [];
   };

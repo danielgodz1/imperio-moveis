@@ -2,9 +2,11 @@ import {
   METADADOS_ROTAS_SEO,
   PAGINAS_AMBIENTES_LOCAIS,
   RotaPublica,
+  TEXTO_HERO,
   gerarJsonLdFurnitureStore,
 } from '../data/paginasLocais';
 import { EMPRESA } from '../data/empresa';
+import { gerarJsonLdPerguntas } from '../data/perguntas';
 
 function escaparHtml(str: string): string {
   return str
@@ -58,6 +60,16 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
       </main>`;
   }
 
+  if (rota === '/projetar') {
+    return `<main class="bg-preto text-papel min-h-[60svh] px-16 sm:px-32 lg:px-48 pt-144 pb-48">
+        <h1 class="tipo-h1 text-papel">${escaparHtml(meta.h1Inicial)}</h1>
+        <p class="tipo-corpo text-papel/85 mt-16 max-w-[56ch]">${escaparHtml(meta.resumoHtmlInicial)}</p>
+        <p class="tipo-cota text-papel/70 mt-16">Visualização aproximada. O projeto final da ${escaparHtml(
+          EMPRESA.nome
+        )} é detalhado após a medição no local.</p>
+      </main>`;
+  }
+
   if (rota === '/contato') {
     return `<main class="max-w-[1280px] mx-auto px-16 py-64">
         <h1>${escaparHtml(meta.h1Inicial)}</h1>
@@ -71,7 +83,7 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
   // Home: mesmo visual do hero (fundo preto, título tipo-h1 no rodapé da tela). O texto já pinta
   // no tamanho final antes do JavaScript, e a troca pelo React não muda o maior conteúdo da tela.
   return `<main class="bg-preto text-papel min-h-[100svh] flex flex-col justify-end px-16 sm:px-32 lg:px-48 pt-96 pb-24 lg:pb-48">
-        <h1 class="tipo-h1 text-papel">${escaparHtml(meta.h1Inicial)}</h1>
+        <h1 class="tipo-h1 text-papel"><span class="block tipo-cota text-dourado mb-8">${escaparHtml(TEXTO_HERO.chamada)}</span>${escaparHtml(meta.h1Inicial)}</h1>
         <p class="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">${escaparHtml(meta.resumoHtmlInicial)}</p>
         <p class="tipo-cota text-papel/70 mt-16 max-w-[46ch]">${escaparHtml(EMPRESA.nome)} — ${escaparHtml(
           EMPRESA.fundadores
@@ -83,6 +95,10 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
 
 /** Trilha (Início > página) e serviço da página local, ligado à empresa pelo @id. */
 function jsonLdPagina(rota: RotaPublica): string {
+  // Home: perguntas frequentes (ajudam o Google e as respostas de IA a entender o serviço).
+  if (rota === '/') {
+    return `<script type="application/ld+json">${JSON.stringify(gerarJsonLdPerguntas()).replace(/</g, '\\u003c')}</script>`;
+  }
   if (!(rota in PAGINAS_AMBIENTES_LOCAIS)) return '';
   const cfg = PAGINAS_AMBIENTES_LOCAIS[rota as keyof typeof PAGINAS_AMBIENTES_LOCAIS];
   const url = METADADOS_ROTAS_SEO[rota].canonical;

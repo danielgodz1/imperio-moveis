@@ -2,6 +2,14 @@
 
 Prévia comercial para gerar orçamento qualificado. Não substitui o projeto executivo (Promob).
 
+## Onde aparece
+
+- **Página própria `/projetar`** (`src/components/PaginaProjetar.tsx`): o editor (`Quarto3DExperiencia`) só baixa nessa página, via `React.lazy`. Pré-renderizada no build e no sitemap.
+- **Página inicial:** só a chamada com imagem e botão (`src/components/ChamadaProjeto3D.tsx`, imagem em `public/projetar/cozinha-render*`). Nenhum 3D carrega na home além do hero.
+- Primeira visita abre na primeira cozinha pronta; quem já montou algo volta ao projeto salvo. Links antigos `/#projeto=` são levados para `/projetar#projeto=`.
+- **Portas e janelas:** até 2 portas e 3 janelas (`limitesAberturas.ts`); cada linha da lista tem lixeira.
+- **Enviar:** ao abrir a etapa, a cena é fotografada de frente (modo foto, 1920 px, com a marca). Botão "Baixar imagem do projeto". O envio no celular usa o compartilhar do sistema (imagem e texto juntos); no computador baixa a imagem e abre o WhatsApp com a mensagem pronta, pedindo para anexar a imagem. O WhatsApp não aceita imagem por link.
+
 ## Onde fica cada coisa
 
 | Arquivo | Papel |

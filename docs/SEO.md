@@ -13,6 +13,10 @@ Domínio canônico: `https://www.imperiomoveisplanejadosjau.com.br` (definido em
 - Google Tag Manager `GTM-KRTQ85BD` em todas as páginas (GA4 configurado dentro do GTM).
 - JSON-LD `FurnitureStore` com `@id`, logo, fundadores, cidades atendidas, Instagram e imagens reais.
 - `sitemap.xml` gerado no build (`vite.config.ts`) a partir das rotas pré-renderizadas, com a data do último commit e as fotos de obra de cada página (sitemap de imagens); sem `changefreq`/`priority`, que o Google ignora, `robots.txt`, `og:url`, `robots` e geolocalização (BR-SP, Jaú).
+- H1 da home com a busca principal: linha "Móveis planejados em Jaú/SP" dentro do H1, acima do título.
+- `FAQPage` na home com as perguntas confirmadas (`src/data/perguntas.ts`), as mesmas exibidas no fechamento.
+- Página `/projetar` (3D online grátis) pré-renderizada, no sitemap e com imagem própria.
+- Verificação do Search Console por meta tag (`google-site-verification` no `index.html`) e por arquivo (`public/googlef1a68e75a1cb04cf.html`). A Vercel serve o arquivo também sem `.html` (cleanUrls); se a verificação por arquivo falhar por redirecionamento, a meta tag basta.
 - Desempenho: fontes não usadas removidas e 3D só em aparelhos que aguentam (Core Web Vitals contam no ranking).
 
 ## Avaliações do Google no site
@@ -39,8 +43,20 @@ Favicons quadrados com lado múltiplo de 48 px (`favicon.ico` 48, `favicon-96.pn
 6. **Projeto antigo na Vercel:** o `imperio-moveis.vercel.app` da conta anterior continua publicando o mesmo site. O canonical já aponta para o domínio novo, mas o ideal é redirecionar esse endereço para `https://www.imperiomoveisplanejadosjau.com.br` (Settings > Domains do projeto antigo) ou pausar o projeto.
 7. **Redirecionar o domínio antigo:** se algum dia `imperiomoveisjau.com.br` foi divulgado, apontá-lo com redirecionamento 301 para o novo.
 
+## Concorrência em Jaú (pesquisa de 11/11/2026)
+
+Para "móveis planejados Jaú", o topo é ocupado por páginas do Facebook (Be.home, Nova Imperial, MC, Devitte, Bella Casa) e por diretórios (Solutudo, Econodata, Comércio São Paulo). Quase nenhuma marcenaria local tem site próprio bem posicionado. A Império não aparece em nenhum desses diretórios (o "Império Móveis Planejados" do Solutudo é de São José/SC).
+
+O que fazer, em ordem:
+
+1. Perfil da Empresa no Google completo e com avaliações (o pacote de mapa aparece antes dos sites).
+2. Cadastro grátis no Solutudo (Jaú > Móveis planejados), Apontador, Econodata e GetNinjas, com o mesmo nome, endereço, telefone e o link do site.
+3. Página no Facebook com o link do site (os concorrentes ranqueiam pelo Facebook).
+4. Link do site na bio do Instagram e nos destaques.
+5. Pedir a parceiros (lojas de pedra, vidraçarias, arquitetos, construtoras de Jaú) um link para o site.
+
 ## Próximos conteúdos sugeridos
 
 - Uma página por obra real (cidade, ambiente, materiais e fotos), que rende buscas como "cozinha planejada com ilha em Jaú".
-- Perguntas frequentes com respostas confirmadas (prazo, medição, garantia) marcadas com `FAQPage`.
+- Completar as perguntas pendentes (prazo, medição, garantia) em `src/data/perguntas.ts`; entram no `FAQPage` sozinhas ao marcar `confirmado: true`.
 - Páginas por cidade só quando houver obras reais nelas; páginas copiadas trocando o nome da cidade são penalizadas.

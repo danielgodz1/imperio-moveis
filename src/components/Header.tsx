@@ -266,7 +266,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     type="button"
                     role="menuitem"
-                    onClick={() => irParaSecao('quarto-3d')}
+                    onClick={() => irParaRota('/projetar')}
                     className="px-4 py-2.5 rounded-lg text-left text-xs font-bold uppercase tracking-wider text-[#52371c] hover:bg-[#c9a04e]/15 border-t border-[#262624]/10 mt-1 pt-2.5 cursor-pointer"
                   >
                     Projete em 3D →
@@ -295,10 +295,10 @@ export const Header: React.FC<HeaderProps> = ({
           {com3D && (
             <button
               type="button"
-              onClick={() => irParaSecao('quarto-3d')}
-              className={linkClasse(naHome && secaoAtiva === 'quarto-3d')}
+              onClick={() => irParaRota('/projetar')}
+              className={linkClasse(currentPath === '/projetar')}
             >
-              Quarto 3D
+              Projetar 3D
             </button>
           )}
 
@@ -393,10 +393,10 @@ export const Header: React.FC<HeaderProps> = ({
           {com3D && (
             <button
               type="button"
-              onClick={() => irParaSecao('quarto-3d')}
+              onClick={() => irParaRota('/projetar')}
               className="text-left py-4 text-xl font-bold text-[#262624] border-b border-[#262624]/12 hover:text-[#52371c] cursor-pointer"
             >
-              Quarto 3D
+              Projetar 3D
             </button>
           )}
 

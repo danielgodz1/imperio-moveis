@@ -6,6 +6,10 @@
       "destination": "/contato/index.html"
     },
     {
+      "source": "/projetar",
+      "destination": "/projetar/index.html"
+    },
+    {
       "source": "/cozinhas-planejadas-jau",
       "destination": "/cozinhas-planejadas-jau/index.html"
     },

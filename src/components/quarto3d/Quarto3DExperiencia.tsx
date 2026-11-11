@@ -23,6 +23,7 @@ import { Interno, Puxador, TipoPorta, Vao, resolverVaos } from './marcenaria';
 import { COR_TEMPERATURA, NOME_TEMPERATURA, TEMPERATURAS_LED, TEMPERATURA_PADRAO } from './iluminacao';
 import { baixarArquivo, imagemComMarca } from './fotoProjeto';
 import { modelosDo } from './modelosProntos';
+import { LIMITE_ABERTURAS, contarAberturas, podeAdicionarAbertura } from './limitesAberturas';
 import { DadosLead, PRAZOS, codificarProjeto, decodificarProjeto, estimarPreco, linhasDoProjeto, montarMensagem, reais } from './resumoProjeto';
 import { EMPRESA } from '../../data/empresa';
 import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
@@ -137,6 +138,10 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   const [avisoIa, setAvisoIa] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  /** Imagem de frente (PNG com a marca) e link do projeto, preparados ao abrir Enviar. */
+  const fotoRef = useRef<Blob | null>(null);
+  const linkRef = useRef<string | undefined>(undefined);
+  const [baixou, setBaixou] = useState(false);
 
   const cenarioAtual = CENARIOS_AMBIENTES[layout.comodo];
   const modulos = layout.modulos as Instancia[];
@@ -212,7 +217,15 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     }
     try {
       const salvo = window.localStorage.getItem(CHAVE_PROJETO);
-      if (!salvo) return;
+      if (!salvo) {
+        // Primeira visita: abre numa cozinha pronta, a mesma ideia da imagem que convidou o cliente.
+        const cozinha = modelosDo('cozinha')[0];
+        if (cozinha) {
+          carregar(cozinha.montar());
+          setModeloAtivo(cozinha.id);
+        }
+        return;
+      }
       const validado = QuartoLayoutSchema.safeParse(JSON.parse(salvo));
       if (validado.success) carregar(normalizarLayout(validado.data));
     } catch {
@@ -229,16 +242,40 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     }
   }, [layout]);
 
-  // Miniatura do projeto ao abrir o resumo.
+  // Ao entrar em Enviar: imagem de frente do projeto (modo foto, sem contornos) com a marca, e o
+  // link já prontos. Assim o envio abre o WhatsApp na hora, sem bloqueio de pop-up.
   useEffect(() => {
     if (aba !== 'resumo') return;
-    const canvas = useEditor.getState().capturar?.() ?? canvasRef.current;
-    try {
-      setMiniatura(canvas ? canvas.toDataURL('image/jpeg', 0.82) : null);
-    } catch {
-      setMiniatura(null);
-    }
-    // Só ao entrar no resumo: a captura em alta resolução é pesada para repetir a cada ajuste.
+    let cancelado = false;
+    const estavaEmFoto = useEditor.getState().modoFoto;
+    setMiniatura(null);
+    fotoRef.current = null;
+    if (!estavaEmFoto) useEditor.setState({ modoFoto: true, selecionado: null });
+    const espera = window.setTimeout(async () => {
+      if (cancelado) return;
+      const canvas = useEditor.getState().capturar?.() ?? canvasRef.current;
+      if (!estavaEmFoto) useEditor.setState({ modoFoto: false });
+      if (!canvas) return;
+      try {
+        setMiniatura(canvas.toDataURL('image/jpeg', 0.85));
+        fotoRef.current = await imagemComMarca(canvas);
+      } catch {
+        setMiniatura(null);
+      }
+    }, 400);
+    linkDoProjeto()
+      .then((l) => {
+        if (!cancelado) linkRef.current = l;
+      })
+      .catch(() => {
+        linkRef.current = undefined;
+      });
+    return () => {
+      cancelado = true;
+      window.clearTimeout(espera);
+      if (!estavaEmFoto) useEditor.setState({ modoFoto: false });
+    };
+    // Só ao entrar em Enviar: a captura em alta resolução é pesada para repetir a cada ajuste.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aba]);
 
@@ -300,6 +337,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   };
 
   const adicionarAbertura = (tipo: Abertura['tipo']) => {
+    if (!podeAdicionarAbertura(layout.aberturas, tipo)) return;
     const nova: Abertura =
       tipo === 'janela'
         ? { tipo, parede: 'L', largura_m: 1.0, posicaoOffset_m: 0, peitoril_m: 1.0, altura_m: 1.1 }
@@ -399,35 +437,37 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     if (blob) baixarArquivo(blob, `imperio-${layout.comodo}.png`);
   };
 
+  const nomeImagem = `imperio-3d-${layout.comodo}.png`;
+
+  const baixarImagemProjeto = () => {
+    if (!fotoRef.current) return;
+    baixarArquivo(fotoRef.current, nomeImagem);
+    setBaixou(true);
+  };
+
   const enviarProjeto = async () => {
     setTentouEnviar(true);
     if (!leadCompleto) return;
     trackWhatsAppClick('quarto_3d_enviar');
-    let link: string | undefined;
-    try {
-      link = await linkDoProjeto();
-    } catch {
-      link = undefined;
-    }
-    const resumo = montarMensagem(layout, { ...lead, nome: lead.nome.trim().slice(0, 80) }, link);
-    const canvas = canvasRef.current;
-
-    if (canvas) {
-      try {
-        const blob = await imagemComMarca(canvas);
-        if (blob) {
-          const arquivo = new File([blob], `imperio-3d-${layout.comodo}.png`, { type: 'image/png' });
-          if (typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [arquivo] })) {
-            await navigator.share({ title: `Meu ${cenarioAtual.rotulo} 3D`, text: resumo, files: [arquivo] });
-            return;
-          }
-          baixarArquivo(blob, arquivo.name);
+    const resumo = montarMensagem(layout, { ...lead, nome: lead.nome.trim().slice(0, 80) }, linkRef.current);
+    const blob = fotoRef.current;
+    // No celular, o compartilhar do sistema manda imagem e texto juntos para o WhatsApp.
+    const toque = window.matchMedia('(pointer: coarse)').matches;
+    if (blob && toque && typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
+      const arquivo = new File([blob], nomeImagem, { type: 'image/png' });
+      if (navigator.canShare({ files: [arquivo] })) {
+        try {
+          await navigator.share({ title: `Meu ${cenarioAtual.rotulo} 3D`, text: resumo, files: [arquivo] });
+          return;
+        } catch (erro) {
+          // Cancelou: fica na página. Outro erro: segue pelo link do WhatsApp.
+          if ((erro as DOMException)?.name === 'AbortError') return;
         }
-      } catch {
-        // Segue para o WhatsApp com o resumo em texto
       }
     }
-    window.open(getWhatsAppUrl(`${resumo}\n(Salvei a imagem do 3D para anexar aqui.)`), '_blank');
+    // No computador o WhatsApp não recebe imagem por link: a mensagem vai pronta e o cliente anexa a imagem baixada.
+    if (blob && !baixou) baixarImagemProjeto();
+    window.open(getWhatsAppUrl(`${resumo}\n\n(Vou anexar aqui a imagem do projeto que baixei do site.)`), '_blank');
   };
 
   const gerarPorDescricao = async (e: React.FormEvent) => {
@@ -670,7 +710,27 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
 
         {aba === 'resumo' && (
           <div className="flex flex-col gap-24">
-            {miniatura && <img src={miniatura} alt={`Prévia do projeto de ${cenarioAtual.rotulo.toLowerCase()}`} className="w-full border border-papel/20" />}
+            <div className="flex flex-col gap-8">
+              {miniatura ? (
+                <img src={miniatura} alt={`Imagem de frente do projeto de ${cenarioAtual.rotulo.toLowerCase()}`} className="w-full border border-papel/20" />
+              ) : (
+                <div className="w-full aspect-video border border-papel/20 flex items-center justify-center tipo-cota text-papel/60" aria-live="polite">
+                  Gerando a imagem do projeto...
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={baixarImagemProjeto}
+                disabled={!miniatura}
+                className="h-[44px] px-16 flex items-center justify-center gap-8 rounded-curto border border-papel/40 text-papel tipo-cota font-semibold enabled:hover:border-dourado enabled:hover:text-dourado disabled:opacity-40 cursor-pointer"
+              >
+                <Download className="w-[16px] h-[16px]" strokeWidth={1.5} />
+                {baixou ? 'Imagem baixada. Baixar de novo' : 'Baixar imagem do projeto'}
+              </button>
+              <p className="tipo-cota text-papel/70">
+                No celular, o envio já manda a imagem junto. No computador, a mensagem vai pronta e você anexa a imagem baixada na conversa.
+              </p>
+            </div>
 
             <div className="flex flex-col gap-8">
               <span className="tipo-cota text-papel/85">
@@ -1027,28 +1087,50 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
             <div className="flex flex-col gap-8">
               <span className="tipo-cota text-papel/85">Portas e janelas</span>
               <div className="flex flex-col">
-                {layout.aberturas.map((ab, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    aria-pressed={iAbertura === i}
-                    onClick={() => setSelecionado(iAbertura === i ? null : `${PREFIXO_ABERTURA}${i}`)}
-                    className={`flex items-center justify-between gap-8 py-8 border-b border-papel/15 text-left tipo-cota cursor-pointer ${iAbertura === i ? 'text-papel font-semibold' : 'text-papel/85'}`}
-                  >
-                    <span>
-                      {ab.tipo === 'janela' ? 'Janela' : 'Porta'}, parede {NOME_PAREDE_ABERTURA[ab.parede].toLowerCase()}
-                    </span>
-                    <span>{cm(ab.largura_m)}</span>
-                  </button>
-                ))}
+                {layout.aberturas.length === 0 && (
+                  <p className="py-8 tipo-cota text-papel/60">Nenhuma porta ou janela.</p>
+                )}
+                {layout.aberturas.map((ab, i) => {
+                  const nome = `${ab.tipo === 'janela' ? 'Janela' : 'Porta'}, parede ${NOME_PAREDE_ABERTURA[ab.parede].toLowerCase()}`;
+                  return (
+                    <div key={i} className="flex items-center gap-4 border-b border-papel/15">
+                      <button
+                        type="button"
+                        aria-pressed={iAbertura === i}
+                        onClick={() => setSelecionado(iAbertura === i ? null : `${PREFIXO_ABERTURA}${i}`)}
+                        className={`flex-1 flex items-center justify-between gap-8 py-8 text-left tipo-cota cursor-pointer ${iAbertura === i ? 'text-papel font-semibold' : 'text-papel/85'}`}
+                      >
+                        <span>{nome}</span>
+                        <span>{cm(ab.largura_m)}</span>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Remover ${nome.toLowerCase()}`}
+                        title="Remover"
+                        onClick={() => removerAbertura(i)}
+                        className="w-[36px] h-[36px] shrink-0 flex items-center justify-center text-papel/70 hover:text-dourado cursor-pointer"
+                      >
+                        <Trash2 className="w-[16px] h-[16px]" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <button type="button" onClick={() => adicionarAbertura('janela')} className={`h-[36px] ${CHIP_BASE} border-papel/25 text-papel hover:border-papel/60`}>
-                  + Janela
-                </button>
-                <button type="button" onClick={() => adicionarAbertura('porta')} className={`h-[36px] ${CHIP_BASE} border-papel/25 text-papel hover:border-papel/60`}>
-                  + Porta
-                </button>
+                {(['janela', 'porta'] as const).map((tipo) => {
+                  const pode = podeAdicionarAbertura(layout.aberturas, tipo);
+                  return (
+                    <button
+                      key={tipo}
+                      type="button"
+                      disabled={!pode}
+                      onClick={() => adicionarAbertura(tipo)}
+                      className={`h-[36px] ${CHIP_BASE} border-papel/25 text-papel enabled:hover:border-papel/60 disabled:opacity-40 disabled:cursor-not-allowed`}
+                    >
+                      + {tipo === 'janela' ? 'Janela' : 'Porta'} ({contarAberturas(layout.aberturas, tipo)}/{LIMITE_ABERTURAS[tipo]})
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
