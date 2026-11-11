@@ -134,10 +134,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
               </span>
               <span className="flex flex-col gap-4 text-papel/70">
                 <span>{EMPRESA.horarios.semana}</span>
-                <span>
-                  {EMPRESA.horarios.sabado}
-                  {!EMPRESA.confirmado.horarios && ' [CONFIRMAR]'}
-                </span>
+                {(EMPRESA.horarios.sabado || !EMPRESA.confirmado.horarios) && (
+                  <span>
+                    {EMPRESA.horarios.sabado}
+                    {!EMPRESA.confirmado.horarios && ' [CONFIRMAR]'}
+                  </span>
+                )}
               </span>
             </address>
           </div>

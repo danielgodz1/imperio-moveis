@@ -12,5 +12,23 @@ export const RESUMO_GOOGLE = {
   conferidoEm: '11/11/2026',
 };
 
+export interface AvaliacaoPublicada {
+  /** Nome como aparece no Google (pode ser só o primeiro nome e a inicial). */
+  autor: string;
+  /** 1 a 5. */
+  nota: number;
+  texto: string;
+  /** Como aparece no Google, por exemplo "há 2 meses". */
+  quando: string;
+}
+
+/**
+ * Avaliações com texto do Perfil da Empresa no Google, transcritas pela Império enquanto a
+ * API não estiver ativa. Só avaliações reais, com o texto igual ao do Google; o ideal é avisar
+ * o cliente (ou pedir autorização) antes de publicar o nome dele no site.
+ * Com a API ativa, a seção usa as avaliações ao vivo e ignora esta lista.
+ */
+export const AVALIACOES_PUBLICADAS: AvaliacaoPublicada[] = [];
+
 /** Ficha da Império no Google Maps: ver todas as avaliações e escrever uma. */
 export const LINK_PERFIL_GOOGLE = EMPRESA.googleProfileUrl ?? EMPRESA.mapsUrl;

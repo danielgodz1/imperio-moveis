@@ -30,9 +30,13 @@ export interface DadosEmpresa {
   };
   horarios: {
     semana: string;
+    /** Vazio quando não abre no sábado. */
     sabado: string;
     resumo: string;
     observacao: string;
+    /** Para o JSON-LD (openingHoursSpecification), no formato HH:MM. */
+    abre: string;
+    fecha: string;
   };
   cidadesAtendidas: string[];
   confirmado: {
@@ -82,10 +86,13 @@ export const EMPRESA: DadosEmpresa = {
   },
   // CONFIRMAR COM A LOJA (horários vindos do protótipo original)
   horarios: {
-    semana: 'Seg a Sex: 8h às 18h',
-    sabado: 'Sáb: 8h às 12h',
-    resumo: 'Segunda a sexta, 8h às 18h; sábado, 8h às 12h',
+    // Igual ao Perfil da Empresa no Google (confirmado pelo dono em 11/11/2026).
+    semana: 'Seg a Sex: 7h30 às 17h30',
+    sabado: '',
+    resumo: 'Segunda a sexta, 7h30 às 17h30',
     observacao: 'Atendimento e showroom sob agendamento',
+    abre: '07:30',
+    fecha: '17:30',
   },
   // Cidades atendidas por Jaú e região central paulista (Step E)
   cidadesAtendidas: [
@@ -100,7 +107,7 @@ export const EMPRESA: DadosEmpresa = {
   ],
   confirmado: {
     endereco: true,
-    horarios: false,
+    horarios: true,
     garantia: false,
   },
 };

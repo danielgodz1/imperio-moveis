@@ -387,18 +387,13 @@ export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
   }
 
   if (EMPRESA.confirmado.horarios) {
+    // Mesmo horário do Perfil da Empresa no Google; sem sábado.
     schema.openingHoursSpecification = [
       {
         '@type': 'OpeningHoursSpecification',
         dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-        opens: '08:00',
-        closes: '18:00',
-      },
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Saturday'],
-        opens: '08:00',
-        closes: '12:00',
+        opens: EMPRESA.horarios.abre,
+        closes: EMPRESA.horarios.fecha,
       },
     ];
   }
