@@ -122,9 +122,11 @@ export const Donos: React.FC = () => {
     });
   }, [passoAtivo, semMovimento]);
 
-  // Cria os ScrollTriggers para os 3 <article data-passo>
-  // No celular, o texto fica na metade inferior da tela (abaixo da foto sticky z-30),
-  // portanto o gatilho dispara assim que o artigo entra na metade inferior (top 80% -> bottom 55%)!
+  // Marca o passo cujo <article data-passo> cruza uma faixa da tela.
+  // Desktop: faixa entre 45% e 58% da altura. Celular: o texto fica abaixo da foto sticky,
+  // então a faixa vai de 55% a 75%.
+  // IntersectionObserver em vez de ScrollTrigger: criar gatilhos aqui durante o refresh de
+  // outros (ex.: entrada direta por #quarto-3d) quebrava o GSAP e deixava a página em branco.
   useEffect(() => {
     const prefersReduced =
       semMovimento || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -133,34 +135,20 @@ export const Donos: React.FC = () => {
       return;
     }
 
-    const ctx = gsap.context(() => {
-      const isMobile = window.innerWidth < 1024;
-      artigosRef.current.forEach((artigo, index) => {
-        if (!artigo) return;
-        const numeroPasso = (index + 1) as 1 | 2 | 3;
-
-        ScrollTrigger.create({
-          trigger: artigo,
-          start: isMobile ? 'top 75%' : 'top 58%',
-          end: isMobile ? 'bottom 55%' : 'bottom 45%',
-          invalidateOnRefresh: true,
-          onToggle: (self) => {
-            if (self.isActive) {
-              setPassoAtivo(numeroPasso);
-            }
-          },
+    const isMobile = window.innerWidth < 1024;
+    const observador = new IntersectionObserver(
+      (entradas) => {
+        entradas.forEach((entrada) => {
+          if (!entrada.isIntersecting) return;
+          const indice = artigosRef.current.indexOf(entrada.target as HTMLElement);
+          if (indice >= 0) setPassoAtivo((indice + 1) as 1 | 2 | 3);
         });
-      });
-    }, secaoRef);
-
-    if (typeof document !== 'undefined' && 'fonts' in document) {
-      document.fonts.ready.then(() => {
-        ScrollTrigger.refresh();
-      });
-    }
-
-    return () => ctx.revert();
-  }, []);
+      },
+      { rootMargin: isMobile ? '-55% 0px -25% 0px' : '-45% 0px -42% 0px' }
+    );
+    artigosRef.current.forEach((artigo) => artigo && observador.observe(artigo));
+    return () => observador.disconnect();
+  }, [semMovimento]);
 
   const handleImageLoad = () => {
     ScrollTrigger.refresh();
