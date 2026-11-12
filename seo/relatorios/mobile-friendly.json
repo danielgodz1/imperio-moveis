@@ -1,0 +1,10 @@
+{
+  "data": "2026-11-12",
+  "observacao": "O Teste de compatibilidade com dispositivos móveis e a API dele foram desativados pelo Google em dezembro de 2023. Substituto: Lighthouse (Chrome DevTools ou PageSpeed Insights) e o relatório de Core Web Vitals do Search Console.",
+  "verificacoes_locais": {
+    "meta_viewport": "width=device-width, initial-scale=1.0",
+    "conteudo_principal_no_html_inicial": true,
+    "rolagem_horizontal_em_390px": "não (conferido no navegador nas páginas principais)",
+    "projetar": "H1 e texto no HTML inicial; o editor 3D carrega por JavaScript depois, o que é aceitável porque o conteúdo indexável já está no HTML"
+  }
+}
