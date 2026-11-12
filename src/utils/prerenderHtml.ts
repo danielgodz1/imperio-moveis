@@ -95,6 +95,13 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
           <p>${escaparHtml(doc.resumo)}</p>
           <p>Última atualização: <time datetime="${doc.atualizadoEm}">${dataPorExtenso(doc.atualizadoEm)}</time></p>
           ${secoes}
+          ${
+            doc.fontes
+              ? `<section><h2>Fontes oficiais</h2><ul>${doc.fontes
+                  .map((f) => `<li><a href="${escaparHtml(f.url)}" rel="noopener">${escaparHtml(f.rotulo)}</a></li>`)
+                  .join('')}</ul></section>`
+              : ''
+          }
           <p><a href="/contato">Contato e suporte</a> | <a href="/">Voltar ao site</a></p>
         </article>
       </main>`;

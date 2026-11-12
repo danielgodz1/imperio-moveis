@@ -56,6 +56,21 @@ export const PaginaLegal: React.FC<PaginaLegalProps> = ({ documento, onNavegar }
           </section>
         ))}
 
+        {documento.fontes && (
+          <section className="flex flex-col gap-16">
+            <h2 className="tipo-h3 text-grafite">Fontes oficiais</h2>
+            <ul className="flex flex-col gap-8 pl-24 list-disc marker:text-dourado">
+              {documento.fontes.map((f) => (
+                <li key={f.url} className="tipo-corpo">
+                  <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-grafite link-traco">
+                    {f.rotulo}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         <footer className="flex flex-col gap-16 pt-32 border-t border-grafite/20">
           <h2 className="tipo-h3 text-grafite">Contato e suporte</h2>
           <p className="tipo-corpo text-grafite-suave">

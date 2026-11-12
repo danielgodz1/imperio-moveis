@@ -14,6 +14,8 @@ export interface DocumentoLegal {
   /** Data da última revisão do texto (AAAA-MM-DD). Atualizar sempre que o conteúdo mudar. */
   atualizadoEm: string;
   secoes: SecaoLegal[];
+  /** Fontes oficiais citadas no texto (links externos para a lei e a autoridade). */
+  fontes?: { rotulo: string; url: string }[];
 }
 
 const CIDADE = `${EMPRESA.endereco.cidade}/${EMPRESA.endereco.uf}`;
@@ -31,6 +33,10 @@ export const POLITICA_PRIVACIDADE: DocumentoLegal = {
   resumo:
     'Como a Império Móveis Planejados trata os dados de quem visita o site e pede orçamento, conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018).',
   atualizadoEm: '2026-11-12',
+  fontes: [
+    { rotulo: 'Lei Geral de Proteção de Dados (Lei 13.709/2018), no site do Planalto', url: 'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm' },
+    { rotulo: 'Autoridade Nacional de Proteção de Dados (ANPD)', url: 'https://www.gov.br/anpd/pt-br' },
+  ],
   secoes: [
     {
       titulo: '1. Quem cuida dos seus dados',
