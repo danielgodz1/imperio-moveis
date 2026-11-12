@@ -3,12 +3,12 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import { defineConfig, Plugin } from 'vite';
-import { gerarConteudoInicialRoot, gerarHtml404, injetarSeoNoHtml } from './src/utils/prerenderHtml';
+import { gerarHtml404, injetarSeoFoto, injetarSeoNoHtml } from './src/utils/prerenderHtml';
 import { execSync } from 'child_process';
 import { PAGINAS_AMBIENTES_LOCAIS, RotaPublica } from './src/data/paginasLocais';
 import { EMPRESA } from './src/data/empresa';
 import { OBRAS_REAIS } from './src/data/portfolioData';
-import { ROTAS_INTERNAS_V2 } from './src/v2/rotasV2';
+import { caminhoFoto } from './src/v2/rotasV2';
 
 const ROTAS_PRERENDER: RotaPublica[] = [
   '/',
@@ -60,6 +60,14 @@ export function gerarSitemap(lastmod: string | null): string {
     <lastmod>${lastmod}</lastmod>` : ''}${imagens}
   </url>`;
   });
+  // Uma página por foto de obra (/obras/:id), com a própria foto.
+  for (const obra of OBRAS_REAIS) {
+    urls.push(`  <url>
+    <loc>${xml(EMPRESA.url + caminhoFoto(obra))}</loc>${lastmod ? `
+    <lastmod>${lastmod}</lastmod>` : ''}
+    <image:image><image:loc>${xml(`${EMPRESA.url}${obra.arquivo}.jpg`)}</image:loc></image:image>
+  </url>`);
+  }
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls.join(String.fromCharCode(10))}
@@ -78,11 +86,25 @@ function prerenderRotasLocaisPlugin(): Plugin {
       const baseHtml = fs.readFileSync(baseIndexPath, 'utf-8');
       fs.writeFileSync(path.join(distDir, '404.html'), gerarHtml404(baseHtml), 'utf-8');
 
-      // Código de cada página (pedaço sob demanda) pré-carregado no <head>: o navegador baixa junto
-      // com o JavaScript principal, em vez de esperar ele rodar para pedir (uma ida à rede a menos).
+      const gravar = (rota: string, html: string) => {
+        if (rota === '/') {
+          fs.writeFileSync(baseIndexPath, html, 'utf-8');
+          return;
+        }
+        const pasta = path.join(distDir, rota.replace(/^\//, ''));
+        fs.mkdirSync(pasta, { recursive: true });
+        fs.writeFileSync(path.join(pasta, 'index.html'), html, 'utf-8');
+      };
+
+      // Site (V2): HTML inicial em cada endereço oficial e uma página por foto de obra.
+      for (const rota of ROTAS_PRERENDER) gravar(rota, injetarSeoNoHtml(baseHtml, rota));
+      for (const obra of OBRAS_REAIS) gravar(caminhoFoto(obra), injetarSeoFoto(baseHtml, obra));
+
+      // V1 (layout anterior) em /v1: fora do Google, canônico apontando para a página do site,
+      // fonte da V1 pré-carregada e o código dela (AppV1 + página) pedido junto.
       const arquivos = fs.readdirSync(path.join(distDir, 'assets'));
       const pedaco = (nome: string) => arquivos.find((f) => f.startsWith(`${nome}-`) && f.endsWith('.js'));
-      const PEDACO_DA_ROTA: Record<string, string> = {
+      const PEDACO_V1: Record<string, string> = {
         '/projetar': 'PaginaProjetar',
         '/obras': 'PaginaObras',
         '/contato': 'ContactQuotationPage',
@@ -92,45 +114,21 @@ function prerenderRotasLocaisPlugin(): Plugin {
         '/quartos-planejados-jau': 'PaginaAmbienteLocal',
         '/closets-sob-medida-jau': 'PaginaAmbienteLocal',
         '/home-office-planejado-jau': 'PaginaAmbienteLocal',
-        '/v2': 'PaginaV2',
       };
-      const comPreload = (html: string, rota: string) => {
-        const arq = PEDACO_DA_ROTA[rota] ? pedaco(PEDACO_DA_ROTA[rota]) : undefined;
-        return arq ? html.replace('</head>', `  <link rel="modulepreload" crossorigin href="/assets/${arq}">
-  </head>`) : html;
-      };
-
       for (const rota of ROTAS_PRERENDER) {
-        const htmlRota = comPreload(injetarSeoNoHtml(baseHtml, rota), rota);
-        if (rota === '/') {
-          fs.writeFileSync(baseIndexPath, htmlRota, 'utf-8');
-        } else {
-          const subDir = path.join(distDir, rota.replace(/^\//, ''));
-          fs.mkdirSync(subDir, { recursive: true });
-          fs.writeFileSync(path.join(subDir, 'index.html'), htmlRota, 'utf-8');
-        }
+        const extras = [pedaco('AppV1'), PEDACO_V1[rota] ? pedaco(PEDACO_V1[rota]) : undefined]
+          .filter(Boolean)
+          .map((arq) => `<link rel="modulepreload" crossorigin href="/assets/${arq}">`)
+          .concat('<link rel="preload" as="font" type="font/woff2" href="/fontes/archivo-latin.woff2" crossorigin />')
+          .join('\n    ');
+        const html = injetarSeoNoHtml(baseHtml, rota, 'v1')
+          .replace(/<meta\s+name="robots"[^>]*>/, '<meta name="robots" content="noindex, follow" />')
+          .replace(/<link rel="preload" as="font"[^>]*instrument-serif[^>]*>\s*/g, '')
+          .replace(/<link rel="preload" as="font"[^>]*geist[^>]*>\s*/g, '')
+          .replace('</head>', `    ${extras}\n  </head>`);
+        gravar(rota === '/' ? '/v1' : `/v1${rota}`, html);
       }
-      // Prévia da V2: HTML próprio (a Vercel não reescreve para /index.html com cleanUrls),
-      // com noindex e fora do sitemap.
-      // CSS da V2 e fontes dela já no <head>: a abertura pinta com o visual certo antes do JavaScript.
-      const cssV2 = fs.readdirSync(path.join(distDir, 'assets')).find((f) => /^PaginaV2-.*\.css$/.test(f));
-      const cabecaV2 = [
-        cssV2 ? `<link rel="stylesheet" href="/assets/${cssV2}" />` : '',
-        '<link rel="preload" as="font" type="font/woff2" href="/fontes/instrument-serif-latin.woff2" crossorigin />',
-        '<link rel="preload" as="font" type="font/woff2" href="/fontes/geist-latin.woff2" crossorigin />',
-      ].join('\n    ');
-      const htmlV2 = comPreload(injetarSeoNoHtml(baseHtml, '/v2'), '/v2')
-        .replace(/<meta\s+name="robots"[^>]*>/, '<meta name="robots" content="noindex" />')
-        .replace('</head>', `    ${cabecaV2}\n  </head>`);
-      // Páginas internas da V2: sem a réplica da abertura (o React monta a página certa).
-      const htmlV2Interna = htmlV2.replace(gerarConteudoInicialRoot('/v2'), '<div class="v2 v2-claro min-h-screen"></div>');
-      fs.mkdirSync(path.join(distDir, 'v2'), { recursive: true });
-      fs.writeFileSync(path.join(distDir, 'v2', 'index.html'), htmlV2, 'utf-8');
-      for (const rota of ROTAS_INTERNAS_V2) {
-        const pasta = path.join(distDir, rota.replace(/^\//, ''));
-        fs.mkdirSync(pasta, { recursive: true });
-        fs.writeFileSync(path.join(pasta, 'index.html'), htmlV2Interna, 'utf-8');
-      }
+
       fs.writeFileSync(path.join(distDir, 'sitemap.xml'), gerarSitemap(dataUltimoCommit()), 'utf-8');
     },
   };

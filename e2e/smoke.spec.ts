@@ -20,7 +20,7 @@ test.beforeEach(async ({ context }) => {
   await context.route('**/api/avaliacoes', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"total":0,"avaliacoes":[]}' }));
 });
 
-for (const rota of ['/', '/obras', '/projetar', '/contato', '/cozinhas-planejadas-jau', '/privacidade']) {
+for (const rota of ['/', '/obras', '/obras/cozinha-ilha-verde', '/projetar', '/contato', '/cozinhas-planejadas-jau', '/closets-sob-medida-jau', '/privacidade', '/termos']) {
   test(`abre ${rota} com título, H1 e sem erro`, async ({ page }) => {
     const erros = vigiarErros(page);
     const resposta = await page.goto(rota);
@@ -41,7 +41,8 @@ test('endereço inexistente responde 404 com página própria', async ({ page })
 test('/projetar carrega o editor 3D', async ({ page }) => {
   const erros = vigiarErros(page);
   await page.goto('/projetar');
-  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click();
+  // Mexer o mouse já abre o editor (o botão some): clicar só se ele ainda estiver na tela.
+  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click({ timeout: 5000 }).catch(() => undefined);
   await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('button', { name: /Cozinha/ }).first()).toBeVisible();
   expect(erros, erros.join('\n')).toEqual([]);
@@ -76,7 +77,8 @@ test('pedido de orçamento abre o WhatsApp da Império com a mensagem montada', 
 test('etapa Enviar do 3D baixa o PDF e a imagem do projeto @3d', async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto('/projetar');
-  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click();
+  // Mexer o mouse já abre o editor (o botão some): clicar só se ele ainda estiver na tela.
+  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click({ timeout: 5000 }).catch(() => undefined);
   await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
   await page.getByRole('button', { name: /Revisar e enviar/ }).click();
   const pdfBotao = page.getByRole('button', { name: /Baixar PDF/ });
@@ -90,7 +92,8 @@ test('etapa Enviar do 3D baixa o PDF e a imagem do projeto @3d', async ({ page }
 test('salvar o projeto no aparelho e retomar depois @3d', async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto('/projetar');
-  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click();
+  // Mexer o mouse já abre o editor (o botão some): clicar só se ele ainda estiver na tela.
+  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click({ timeout: 5000 }).catch(() => undefined);
   await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
   await page.getByRole('button', { name: /Revisar e enviar/ }).click();
   await page.getByLabel('Nome do projeto').fill('Teste da cozinha');
@@ -101,16 +104,23 @@ test('salvar o projeto no aparelho e retomar depois @3d', async ({ page }) => {
   await expect(page.getByRole('button', { name: /^Teste da cozinha/ })).toBeVisible();
 });
 
-// V2 (prévia): cada página interna abre direto pelo endereço (recarregar não pode dar 404).
-for (const rota of ['/v2', '/v2/obras', '/v2/obras/cozinha-ilha-verde', '/v2/projetar', '/v2/orcamento', '/v2/privacidade']) {
-  test(`V2 abre ${rota} direto pelo endereço`, async ({ page }) => {
+// A versão anterior (V1) continua inteira em /v1, fora do Google.
+for (const rota of ['/v1', '/v1/contato', '/v1/obras', '/v1/cozinhas-planejadas-jau']) {
+  test(`V1 abre ${rota} direto pelo endereço, com noindex`, async ({ page }) => {
     const resposta = await page.goto(rota);
     expect(resposta?.status()).toBe(200);
-    await expect(page.locator('.v2').first()).toBeVisible();
     await expect(page.locator('h1').first()).toBeVisible();
+    await expect(page.locator('.v2')).toHaveCount(0);
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).toContain('noindex');
   });
 }
 
+test('links antigos da prévia /v2 levam ao endereço novo', async ({ page }) => {
+  await page.goto('/v2/obras/cozinha-ilha-verde');
+  await expect(page).toHaveURL(/\/obras\/cozinha-ilha-verde$/);
+  await page.goto('/v2/orcamento');
+  await expect(page).toHaveURL(/\/contato$/);
+});
 
 test('atalho Falar agora no WhatsApp abre a conversa sem preencher nada', async ({ page, context }) => {
   await context.route(/wa\.me|whatsapp\.com/, (r) => r.fulfill({ status: 200, body: 'ok' }));
@@ -125,10 +135,10 @@ test('atalho Falar agora no WhatsApp abre a conversa sem preencher nada', async 
   expect(url).toContain('quero um orçamento');
 });
 
-test('painel de orçamento da home mostra as duas escolhas', async ({ page }) => {
+test('painel de orçamento (botão do cabeçalho) mostra as duas escolhas', async ({ page }) => {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
-  await page.locator('#hero').getByRole('button', { name: 'Pedir orçamento', exact: true }).click();
+  await page.locator('header').getByRole('button', { name: 'Orçamento', exact: true }).click();
   const painel = page.getByRole('dialog', { name: /orçamento/i });
   await expect(painel.getByRole('link', { name: /Falar agora no WhatsApp/ })).toBeVisible();
   await expect(painel.getByRole('button', { name: 'Continuar' })).toBeVisible();

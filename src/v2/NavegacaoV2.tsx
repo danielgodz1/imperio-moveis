@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 
 /** Navegação da V2: troca de página sem sair da prévia e abre o painel de orçamento. */
 export interface NavegacaoV2 {
-  /** Destino com caminho e, se quiser, âncora: '/v2/obras', '/v2#v2-processo'. */
+  /** Destino com caminho e, se quiser, âncora: '/obras', '/#v2-processo'. */
   ir: (destino: string) => void;
   abrirOrcamento: (ambiente?: string) => void;
 }

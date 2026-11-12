@@ -1,6 +1,9 @@
+// O CSS principal vem primeiro: ele declara a ordem das camadas do Tailwind (base, components,
+// utilities). Se o CSS da V2 (importado pelo App) viesse antes, a camada "components" ficaria
+// abaixo da "base" e os títulos perderiam o tamanho.
+import './index.css';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
-import './index.css';
 import { precarregarRota } from './paginasSobDemanda';
 
 // O pôster do notebook do HTML inicial é reaproveitado pela abertura do React (PalcoNotebook):

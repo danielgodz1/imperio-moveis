@@ -31,14 +31,14 @@
   --v2-texto: #17150f;
   --v2-suave: #5c574e;
   --v2-linha: rgba(23, 21, 15, 0.16);
-  --v2-acento: #8a6a38;
+  --v2-acento: #765a2d; /* contraste 5,1:1 sobre o linho (texto pequeno pede 4,5:1) */
 }
 .v2-salvia {
   --v2-fundo: var(--v2-salvia);
   --v2-texto: #f3efe6;
   --v2-suave: rgba(243, 239, 230, 0.78);
   --v2-linha: rgba(243, 239, 230, 0.22);
-  --v2-acento: #e2c48f;
+  --v2-acento: #ecd6aa; /* 5:1 sobre a sálvia */
 }
 /* Areia: um tom abaixo do linho, para separar seções claras vizinhas. */
 .v2-areia {
@@ -46,7 +46,7 @@
   --v2-texto: #17150f;
   --v2-suave: #57524a;
   --v2-linha: rgba(23, 21, 15, 0.16);
-  --v2-acento: #7f6131;
+  --v2-acento: #6c5228; /* 5,3:1 sobre a areia */
 }
 .v2-claro,
 .v2-areia {
@@ -97,6 +97,16 @@
   line-height: 1.4;
   letter-spacing: 0.01em;
   color: var(--v2-suave);
+}
+/* Linha de cima do título (a busca principal dentro do H1): pequena, sem serifa, em latão. */
+.v2-olho {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v2-acento);
 }
 .v2-acento {
   color: var(--v2-acento);

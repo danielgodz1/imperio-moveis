@@ -2,6 +2,12 @@
 
 Sistema visual do site. Toda tela usa os NOMES destes tokens, nunca valores soltos.
 
+> **Site em produção: V2** (desde 12/11/2026). Linho, areia, verde-sálvia e noite; um acento de
+> latão (contraste mínimo 4,5:1 em texto pequeno: `#765a2d` no linho, `#6c5228` na areia, `#ecd6aa`
+> na sálvia); Instrument Serif nos títulos (com uma parte em itálico) e Geist no texto, servidas
+> pelo próprio site; botões em pílula; títulos de página com uma linha pequena acima ("olho") com
+> a busca principal. Tokens em `src/v2/v2.css`. O que vem abaixo descreve a **V1**, guardada em `/v1`.
+
 ## Ideia central: "Do risco à obra"
 A Império projeta (arquitetura e interiores) e fabrica (marcenaria). O site mostra essa passagem: um traço de lápis de marceneiro vira planta, a planta vira ambiente, o ambiente vira foto real. O elemento memorável é UM só: a **linha de lápis**. O resto fica quieto.
 

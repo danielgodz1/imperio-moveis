@@ -12,7 +12,8 @@ import { ChamadaOrcamentoV2, MARGEM } from './CromoV2';
 import { LinkV2, useNavV2 } from './NavegacaoV2';
 import { CartaoObraV2, Titulo } from './SecoesV2';
 import { ComItalico } from './Serif';
-import { ROTULO_AMBIENTE, ambienteDoBriefing, caminhoFoto } from './rotasV2';
+import { NOME_AMBIENTE, ROTAS_AMBIENTE, ROTULO_AMBIENTE, RotaAmbiente, ambienteDoBriefing, caminhoFoto } from './rotasV2';
+import { PAGINAS_AMBIENTES_LOCAIS } from '../data/paginasLocais';
 import { PASSOS_3D_V2 } from './textosV2';
 import { useAtivarNaInteracao } from '../hooks/useAtivarNaInteracao';
 import { temProjetoSalvo } from '../components/quarto3d/projetosSalvos';
@@ -40,27 +41,23 @@ const Trilha: React.FC<{ itens: { rotulo: string; para?: string }[] }> = ({ iten
   </nav>
 );
 
-/** Dados estruturados da página (o Google lê; o visitante não vê). */
-const JsonLd: React.FC<{ dados: object }> = ({ dados }) => (
-  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(dados).replace(/</g, '\\u003c') }} />
-);
 
 const GRUPOS: ObraItem['ambiente'][] = ['cozinhas', 'quartos', 'lojas'];
 
-/** /v2/obras: todas as obras, separadas por ambiente, cada uma levando à própria página. */
+/** /obras: todas as obras, separadas por ambiente, cada uma levando à própria página. */
 export const ObrasPaginaV2: React.FC = () => (
   <>
     <section className={`v2-claro ${MARGEM} pt-[160px] pb-64 flex flex-col gap-32`}>
-      <Trilha itens={[{ rotulo: 'Início', para: '/v2' }, { rotulo: 'Obras' }]} />
+      <Trilha itens={[{ rotulo: 'Início', para: '/' }, { rotulo: 'Obras' }]} />
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24">
-        <Titulo as="h1" texto="Todas as obras, *uma por uma.*" className="max-w-[14ch]" />
+        <Titulo as="h1" olho="Móveis planejados em Jaú e região" texto="Todas as obras, *uma por uma.*" className="max-w-[14ch]" />
         <p className="v2-corpo max-w-[44ch]">
           {OBRAS_REAIS.length} fotos reais de cozinhas, quartos e lojas que a Império projetou e fabricou em Jaú e região. Toque numa foto para ver os acabamentos de cada peça.
         </p>
       </div>
       <nav aria-label="Ambientes" className="flex flex-wrap gap-8">
         {GRUPOS.map((g) => (
-          <LinkV2 key={g} para={`/v2/obras#${g}`} className="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem]">
+          <LinkV2 key={g} para={`/obras#${g}`} className="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem]">
             {ROTULO_AMBIENTE[g]} ({OBRAS_REAIS.filter((o) => o.ambiente === g).length})
           </LinkV2>
         ))}
@@ -79,24 +76,10 @@ export const ObrasPaginaV2: React.FC = () => (
     <section className={`v2-claro ${MARGEM} py-96`}>
       <ChamadaOrcamentoV2 texto="Viu algo parecido *com o que você quer?*" />
     </section>
-    <JsonLd
-      dados={{
-        '@context': 'https://schema.org',
-        '@type': 'CollectionPage',
-        name: 'Obras da Império Móveis Planejados',
-        hasPart: OBRAS_REAIS.map((o) => ({
-          '@type': 'ImageObject',
-          contentUrl: `${EMPRESA.url}${o.arquivo}.jpg`,
-          name: o.titulo,
-          description: o.alt,
-          url: `${EMPRESA.url}${caminhoFoto(o)}`,
-        })),
-      }}
-    />
   </>
 );
 
-/** /v2/obras/:id: uma página para cada foto, com acabamentos, obras vizinhas e convite. */
+/** /obras/:id: uma página para cada foto, com acabamentos, obras vizinhas e convite. */
 export const FotoPaginaV2: React.FC<{ obra: ObraItem }> = ({ obra }) => {
   const { abrirOrcamento } = useNavV2();
   const indice = OBRAS_REAIS.indexOf(obra);
@@ -112,7 +95,7 @@ export const FotoPaginaV2: React.FC<{ obra: ObraItem }> = ({ obra }) => {
     <>
       <article className={`v2-claro ${MARGEM} pt-[136px] pb-96`}>
         <div className="flex flex-col gap-24 mb-48">
-          <Trilha itens={[{ rotulo: 'Início', para: '/v2' }, { rotulo: 'Obras', para: '/v2/obras' }, { rotulo: ROTULO_AMBIENTE[obra.ambiente], para: `/v2/obras#${obra.ambiente}` }, { rotulo: obra.titulo }]} />
+          <Trilha itens={[{ rotulo: 'Início', para: '/' }, { rotulo: 'Obras', para: '/obras' }, { rotulo: ROTULO_AMBIENTE[obra.ambiente], para: `/obras#${obra.ambiente}` }, { rotulo: obra.titulo }]} />
         </div>
         <div className={`grid grid-cols-1 ${deitada ? '' : 'lg:grid-cols-12'} gap-48 items-start`}>
           <figure className={`relative ${deitada ? '' : 'lg:col-span-7'}`} style={{ aspectRatio: obra.proporcao }}>
@@ -143,7 +126,7 @@ export const FotoPaginaV2: React.FC<{ obra: ObraItem }> = ({ obra }) => {
                 <button type="button" onClick={() => abrirOrcamento(ambienteDoBriefing(obra))} className="v2-botao v2-botao-claro">
                   Quero um parecido <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
                 </button>
-                <LinkV2 para="/v2/projetar" className="v2-botao v2-botao-linha">
+                <LinkV2 para="/projetar" className="v2-botao v2-botao-linha">
                   <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Montar em 3D
                 </LinkV2>
               </div>
@@ -173,7 +156,7 @@ export const FotoPaginaV2: React.FC<{ obra: ObraItem }> = ({ obra }) => {
             <h2 className="v2-serif v2-titulo">
               <ComItalico texto={`Mais ${ROTULO_AMBIENTE[obra.ambiente].toLowerCase()} *da Império.*`} />
             </h2>
-            <LinkV2 para="/v2/obras" className="v2-botao v2-botao-linha self-start">
+            <LinkV2 para="/obras" className="v2-botao v2-botao-linha self-start">
               Ver todas as obras
             </LinkV2>
           </div>
@@ -185,31 +168,6 @@ export const FotoPaginaV2: React.FC<{ obra: ObraItem }> = ({ obra }) => {
         </section>
       )}
 
-      <JsonLd
-        dados={{
-          '@context': 'https://schema.org',
-          '@graph': [
-            {
-              '@type': 'ImageObject',
-              contentUrl: `${EMPRESA.url}${obra.arquivo}.jpg`,
-              name: obra.titulo,
-              description: obra.alt,
-              caption: obra.cota,
-              creditText: EMPRESA.nome,
-              creator: { '@type': 'Organization', name: EMPRESA.nome, url: EMPRESA.url },
-              copyrightNotice: EMPRESA.nome,
-            },
-            {
-              '@type': 'BreadcrumbList',
-              itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Início', item: `${EMPRESA.url}/v2` },
-                { '@type': 'ListItem', position: 2, name: 'Obras', item: `${EMPRESA.url}/v2/obras` },
-                { '@type': 'ListItem', position: 3, name: obra.titulo, item: `${EMPRESA.url}${caminhoFoto(obra)}` },
-              ],
-            },
-          ],
-        }}
-      />
     </>
   );
 };
@@ -230,7 +188,7 @@ const Carregando = () => (
   </div>
 );
 
-/** /v2/projetar: o mesmo editor 3D da V1, dentro da moldura da V2. */
+/** /projetar: o mesmo editor 3D da V1, dentro da moldura da V2. */
 export const ProjetarV2: React.FC = () => {
   const { abrirOrcamento } = useNavV2();
   const [webgl, setWebgl] = useState<boolean | null>(null);
@@ -241,9 +199,9 @@ export const ProjetarV2: React.FC = () => {
   }, [interagiu]);
   return (
     <section className={`v2-escuro ${MARGEM} pt-[136px] pb-96 flex flex-col gap-48`}>
-      <Trilha itens={[{ rotulo: 'Início', para: '/v2' }, { rotulo: 'Projetar em 3D' }]} />
+      <Trilha itens={[{ rotulo: 'Início', para: '/' }, { rotulo: 'Projetar em 3D' }]} />
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24">
-        <Titulo as="h1" texto="Projete o seu *em 3D.*" />
+        <Titulo as="h1" olho="Móveis planejados em 3D, grátis" texto="Projete o seu *em 3D.*" />
         <p className="v2-corpo max-w-[44ch]">De graça e sem instalar nada. Visualização aproximada: o projeto final é detalhado pela arquiteta depois da medição no local.</p>
       </div>
       <ol className="grid grid-cols-1 md:grid-cols-3 gap-x-32">
@@ -293,12 +251,12 @@ export const ProjetarV2: React.FC = () => {
   );
 };
 
-/** /v2/orcamento: o formulário em página própria, com todos os contatos ao lado. */
+/** /contato: o formulário em página própria, com todos os contatos ao lado. */
 export const OrcamentoV2: React.FC = () => (
   <section className={`v2-claro ${MARGEM} pt-[136px] pb-96 grid grid-cols-1 lg:grid-cols-12 gap-48`}>
     <div className="lg:col-span-5 flex flex-col gap-32">
-      <Trilha itens={[{ rotulo: 'Início', para: '/v2' }, { rotulo: 'Pedir orçamento' }]} />
-      <Titulo as="h1" texto="Vamos começar *pelo seu sonho.*" />
+      <Trilha itens={[{ rotulo: 'Início', para: '/' }, { rotulo: 'Pedir orçamento' }]} />
+      <Titulo as="h1" olho="Orçamento de móveis planejados em Jaú" texto="Vamos começar *pelo seu sonho.*" />
       <p className="v2-corpo max-w-[40ch]">Conte o ambiente, quando quer começar e o estilo. A gente responde pelo WhatsApp. O projeto de arquitetura vem junto com os móveis.</p>
       <div className="flex flex-col gap-16 v2-cota text-[0.9375rem]">
         <a
@@ -319,7 +277,7 @@ export const OrcamentoV2: React.FC = () => (
         <span>
           {EMPRESA.horarios.semana}. {EMPRESA.horarios.observacao}.
         </span>
-        <LinkV2 para="/v2/projetar" className="underline underline-offset-4 hover:text-[var(--v2-texto)] self-start">
+        <LinkV2 para="/projetar" className="underline underline-offset-4 hover:text-[var(--v2-texto)] self-start">
           Quer montar antes em 3D? Abra o projeto online.
         </LinkV2>
       </div>
@@ -330,15 +288,15 @@ export const OrcamentoV2: React.FC = () => (
   </section>
 );
 
-/** /v2/privacidade e /v2/termos com a tipografia da V2 (texto vindo de data/legal.ts). */
+/** /privacidade e /termos com a tipografia da V2 (texto vindo de data/legal.ts). */
 export const LegalV2: React.FC<{ documento: '/privacidade' | '/termos' }> = ({ documento }) => {
   const doc = DOCUMENTOS_LEGAIS[documento];
-  const outro = documento === '/privacidade' ? { para: '/v2/termos', rotulo: 'Termos de Uso' } : { para: '/v2/privacidade', rotulo: 'Política de Privacidade' };
+  const outro = documento === '/privacidade' ? { para: '/termos', rotulo: 'Termos de Uso' } : { para: '/privacidade', rotulo: 'Política de Privacidade' };
   return (
     <article className={`v2-claro ${MARGEM} pt-[136px] pb-96`}>
       <div className="max-w-[760px] mx-auto flex flex-col gap-48">
         <header className="flex flex-col gap-16 pb-32 border-b v2-linha-forte">
-          <Trilha itens={[{ rotulo: 'Início', para: '/v2' }, { rotulo: doc.titulo }]} />
+          <Trilha itens={[{ rotulo: 'Início', para: '/' }, { rotulo: doc.titulo }]} />
           <h1 className="v2-serif v2-titulo">{doc.titulo}</h1>
           <p className="v2-corpo">{doc.resumo}</p>
           <p className="v2-cota">
@@ -364,12 +322,102 @@ export const LegalV2: React.FC<{ documento: '/privacidade' | '/termos' }> = ({ d
           <LinkV2 para={outro.para} className="v2-botao v2-botao-linha">
             {outro.rotulo}
           </LinkV2>
-          <LinkV2 para="/v2/orcamento" className="v2-botao v2-botao-claro">
+          <LinkV2 para="/contato" className="v2-botao v2-botao-claro">
             Contato e orçamento
           </LinkV2>
         </footer>
       </div>
     </article>
+  );
+};
+
+/**
+ * Páginas de ambiente (cozinhas, quartos, closets, home office): os mesmos textos e fotos reais
+ * que o Google já conhece (data/paginasLocais.ts), no visual do site.
+ */
+export const AmbienteV2: React.FC<{ rota: RotaAmbiente }> = ({ rota }) => {
+  const { abrirOrcamento } = useNavV2();
+  const cfg = PAGINAS_AMBIENTES_LOCAIS[rota];
+  const [principal, ...outras] = cfg.fotos;
+  return (
+    <>
+      <section className={`v2-claro ${MARGEM} pt-[136px] pb-64 flex flex-col gap-32`}>
+        <Trilha itens={[{ rotulo: 'Início', para: '/' }, { rotulo: NOME_AMBIENTE[rota] }]} />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-32 lg:gap-64 items-end">
+          <div className="lg:col-span-7 flex flex-col gap-24">
+            <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Jaú e região</p>
+            <h1 className="v2-serif text-[clamp(2.25rem,4.4vw,4rem)] leading-[1.02] max-w-[20ch]">{cfg.h1}</h1>
+          </div>
+          <div className="lg:col-span-5 flex flex-col gap-24">
+            <p className="v2-corpo max-w-[44ch]">{cfg.subtitulo}</p>
+            <div className="flex flex-wrap gap-[12px]">
+              <button type="button" onClick={() => abrirOrcamento(cfg.ambienteBriefing)} className="v2-botao v2-botao-claro">
+                Pedir orçamento <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+              </button>
+              <LinkV2 para="/projetar" className="v2-botao v2-botao-linha">
+                <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Montar em 3D
+              </LinkV2>
+            </div>
+          </div>
+        </div>
+        {principal && (
+          <figure className="flex flex-col gap-8">
+            <Foto srcBase={principal.srcBase} alt={principal.alt} proporcao={principal.razao} prioridade sizes="100vw" className="w-full max-h-[78vh]" imgStyle={{ objectFit: 'cover' }} />
+            <figcaption className="v2-cota">{principal.legenda}</figcaption>
+          </figure>
+        )}
+      </section>
+
+      <section className={`v2-areia ${MARGEM} py-96 grid grid-cols-1 lg:grid-cols-12 gap-48`}>
+        <div className="lg:col-span-7 flex flex-col gap-24 v2-texto-longo">
+          <h2 className="v2-serif v2-h3">
+            <ComItalico texto="Como fazemos, *obra por obra.*" />
+          </h2>
+          {cfg.paragrafosReais.map((p) => (
+            <p key={p}>{p}</p>
+          ))}
+        </div>
+        <dl className="lg:col-span-5 flex flex-col">
+          {cfg.especificacoesReais.map((e) => (
+            <div key={e.titulo} className="py-24 border-t v2-linha-fina flex flex-col gap-8">
+              <dt className="v2-serif text-[1.4rem] leading-tight">{e.titulo}</dt>
+              <dd className="v2-corpo">{e.detalhe}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      {outras.length > 0 && (
+        <section className={`v2-claro ${MARGEM} py-96 flex flex-col gap-48`}>
+          <h2 className="v2-serif v2-titulo">
+            <ComItalico texto="Mais fotos *de obras reais.*" />
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32 gap-y-48 items-start">
+            {outras.map((f) => (
+              <figure key={f.srcBase} className="flex flex-col gap-8">
+                <Foto srcBase={f.srcBase} alt={f.alt} proporcao={f.razao} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw" className="w-full" />
+                <figcaption className="v2-cota">{f.legenda}</figcaption>
+              </figure>
+            ))}
+          </div>
+          <ChamadaOrcamentoV2 texto="Quer um projeto assim *na sua casa?*" ambiente={cfg.ambienteBriefing} />
+        </section>
+      )}
+
+      <section className={`v2-areia ${MARGEM} py-64 flex flex-col gap-24`}>
+        <h2 className="v2-cota uppercase tracking-[0.08em]">Outros ambientes</h2>
+        <nav aria-label="Outros ambientes" className="flex flex-wrap gap-[12px]">
+          {ROTAS_AMBIENTE.filter((r) => r !== rota).map((r) => (
+            <LinkV2 key={r} para={r} className="v2-botao v2-botao-linha h-[44px]">
+              {NOME_AMBIENTE[r]}
+            </LinkV2>
+          ))}
+          <LinkV2 para="/obras" className="v2-botao v2-botao-linha h-[44px]">
+            Todas as obras
+          </LinkV2>
+        </nav>
+      </section>
+    </>
   );
 };
 
@@ -381,13 +429,13 @@ export const NaoEncontradaV2: React.FC = () => (
     </h1>
     <p className="v2-corpo">O endereço pode ter mudado ou foi digitado errado.</p>
     <div className="flex flex-wrap gap-[12px]">
-      <LinkV2 para="/v2" className="v2-botao v2-botao-claro">
+      <LinkV2 para="/" className="v2-botao v2-botao-claro">
         Página inicial
       </LinkV2>
-      <LinkV2 para="/v2/obras" className="v2-botao v2-botao-linha">
+      <LinkV2 para="/obras" className="v2-botao v2-botao-linha">
         Ver as obras
       </LinkV2>
-      <LinkV2 para="/v2/projetar" className="v2-botao v2-botao-linha">
+      <LinkV2 para="/projetar" className="v2-botao v2-botao-linha">
         Projetar em 3D
       </LinkV2>
     </div>

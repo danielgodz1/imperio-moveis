@@ -7,7 +7,9 @@ import {
 } from '../data/paginasLocais';
 import { EMPRESA } from '../data/empresa';
 import { RESUMO_GOOGLE } from '../data/avaliacoesGoogle';
-import { HERO_V2 } from '../v2/textosV2';
+import { htmlAmbiente, htmlContato, htmlFoto, htmlInicio, htmlLegal, htmlObras, htmlProjetar, html404 } from '../v2/prerenderV2';
+import { NOME_AMBIENTE, metaFoto } from '../v2/rotasV2';
+import type { ObraItem } from '../types';
 import { METADADOS_FASES, PAINEL_DESKTOP } from '../components/heroScroll/useHeroScrollStore';
 import { gerarJsonLdPerguntas } from '../data/perguntas';
 import { DOCUMENTOS_LEGAIS, dataPorExtenso } from '../data/legal';
@@ -43,29 +45,22 @@ export function fotoEstatica(srcBase: string, alt: string, proporcao: string, op
   } decoding="async" style="width:100%;height:auto;display:block" /></picture>`;
 }
 
+/** HTML inicial do site (V2, em produção). */
 export function gerarConteudoInicialRoot(rota: RotaPublica): string {
-  const meta = METADADOS_ROTAS_SEO[rota];
-
-  // V2: réplica estática da abertura (HeroV2 no início da rolagem): título de revista e o
-  // pôster do notebook já no lugar (.poster-notebook-v2 em index.css). Usa o CSS da V2,
-  // que o build liga no <head> das páginas /v2.
-  if (rota === '/v2') {
-    const [antes, italico, depois] = HERO_V2.titulo.split('*');
-    return `<div class="v2 min-h-screen"><section id="hero" class="v2-escuro relative w-full" style="min-height:320vh">
-      <div class="sticky top-0 h-screen h-[100svh] w-full overflow-hidden">
-        <div class="absolute inset-0" aria-hidden="true">
-          <div class="palco-estatico absolute inset-0 overflow-x-clip bg-[#050505]">
-            <img class="poster-notebook-v2" src="/videos/notebook-poster.jpg" alt="" width="1280" height="720" fetchpriority="high" decoding="async" />
-          </div>
-        </div>
-        <div class="absolute inset-x-0 top-0 pt-[12svh] lg:pt-[11vh] px-16 sm:px-32 lg:px-64 lg:text-center lg:flex lg:flex-col lg:items-center">
-          <h1 class="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]">${escaparHtml(antes)}<em class="v2-italico">${escaparHtml(italico)}</em>${escaparHtml(depois ?? '')}</h1>
-          <p class="v2-corpo mt-16 lg:mt-24 max-w-[44ch]">${escaparHtml(HERO_V2.apoio)}</p>
-          <p class="v2-cota mt-16 lg:mt-24">Role a página. A cozinha vai se montar na tela.</p>
-        </div>
-      </div>
-    </section></div>`;
+  if (rota in PAGINAS_AMBIENTES_LOCAIS) {
+    const amb = rota as keyof typeof PAGINAS_AMBIENTES_LOCAIS;
+    return htmlAmbiente(amb, NOME_AMBIENTE[amb]);
   }
+  if (rota === '/obras') return htmlObras();
+  if (rota === '/projetar') return htmlProjetar();
+  if (rota === '/contato') return htmlContato();
+  if (rota === '/privacidade' || rota === '/termos') return htmlLegal(rota);
+  return htmlInicio();
+}
+
+/** HTML inicial da V1 (layout anterior, guardado em /v1). */
+export function gerarConteudoInicialRootV1(rota: RotaPublica): string {
+  const meta = METADADOS_ROTAS_SEO[rota];
 
   if (rota in PAGINAS_AMBIENTES_LOCAIS) {
     const cfg =
@@ -294,12 +289,7 @@ function jsonLdPagina(rota: RotaPublica): string {
  * Sem o JavaScript do site: é só texto e links.
  */
 export function gerarHtml404(htmlBase: string): string {
-  const corpo = `<main class="bg-preto text-papel min-h-[100svh] flex flex-col justify-center items-start gap-24 px-16 sm:px-32 lg:px-48">
-        <p class="tipo-cota text-dourado">Erro 404</p>
-        <h1 class="tipo-h1 text-papel">Esta página não existe.</h1>
-        <p class="tipo-corpo text-papel/85 max-w-[46ch]">O endereço pode ter mudado ou foi digitado errado. Veja os caminhos abaixo.</p>
-        <p class="tipo-corpo"><a class="underline text-dourado" href="/">Página inicial</a> · <a class="underline text-dourado" href="/projetar">Projetar em 3D</a> · <a class="underline text-dourado" href="/contato">Pedir orçamento</a></p>
-      </main>`;
+  const corpo = html404();
   return htmlBase
     .replace(/<title>[\s\S]*?<\/title>/, `<title>Página não encontrada | ${escaparHtml(EMPRESA.nome)}</title>`)
     .replace(/<meta\s+name="robots"[^>]*>/, '<meta name="robots" content="noindex" />')
@@ -310,11 +300,15 @@ export function gerarHtml404(htmlBase: string): string {
     .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${corpo}</div>`);
 }
 
-export function injetarSeoNoHtml(htmlBase: string, pathname: string): string {
+/**
+ * Título, descrição, canônico, Open Graph, dados estruturados e HTML inicial de uma rota.
+ * `versao: 'v1'` gera o HTML do layout anterior (para /v1, fora do Google).
+ */
+export function injetarSeoNoHtml(htmlBase: string, pathname: string, versao: 'v1' | 'v2' = 'v2'): string {
   const rota = normalizarRotaSeo(pathname);
   const meta = METADADOS_ROTAS_SEO[rota];
   const jsonLd = JSON.stringify(gerarJsonLdFurnitureStore()).replace(/</g, '\\u003c');
-  const rootHtml = gerarConteudoInicialRoot(rota);
+  const rootHtml = versao === 'v1' ? gerarConteudoInicialRootV1(rota) : gerarConteudoInicialRoot(rota);
 
   let html = htmlBase;
 
@@ -369,4 +363,46 @@ export function injetarSeoNoHtml(htmlBase: string, pathname: string): string {
   );
 
   return html;
+}
+
+/** Página de uma foto de obra (/obras/:id): meta própria, ImageObject e trilha. */
+export function injetarSeoFoto(htmlBase: string, obra: ObraItem): string {
+  const meta = metaFoto(obra);
+  const imagem = `${EMPRESA.url}${obra.arquivo}.jpg`;
+  const bloco = (d: unknown) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`;
+  const dados =
+    bloco(gerarJsonLdFurnitureStore()) +
+    bloco({
+      '@context': 'https://schema.org',
+      '@type': 'ImageObject',
+      contentUrl: imagem,
+      url: meta.canonico,
+      name: obra.titulo,
+      description: obra.alt,
+      caption: obra.cota,
+      creditText: EMPRESA.nome,
+      creator: { '@id': `${EMPRESA.url}/#empresa` },
+      copyrightHolder: { '@id': `${EMPRESA.url}/#empresa` },
+      copyrightNotice: EMPRESA.nome,
+    }) +
+    bloco({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: `${EMPRESA.url}/` },
+        { '@type': 'ListItem', position: 2, name: 'Obras', item: `${EMPRESA.url}/obras` },
+        { '@type': 'ListItem', position: 3, name: obra.titulo, item: meta.canonico },
+      ],
+    });
+  return htmlBase
+    .replace(/<title>[\s\S]*?<\/title>/, `<title>${escaparHtml(meta.titulo)}</title>`)
+    .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, `<meta name="description" content="${escaparHtml(meta.descricao)}" />`)
+    .replace(/<link\s+rel="canonical"\s+href="[^"]*"[^>]*\/?>/, `<link rel="canonical" href="${escaparHtml(meta.canonico)}" />`)
+    .replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/, `<meta property="og:title" content="${escaparHtml(meta.titulo)}" />`)
+    .replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/, `<meta property="og:description" content="${escaparHtml(meta.descricao)}" />`)
+    .replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/, `<meta property="og:url" content="${escaparHtml(meta.canonico)}" />`)
+    .replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/, `<meta property="og:image" content="${escaparHtml(imagem)}" />`)
+    .replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/, `<meta name="twitter:image" content="${escaparHtml(imagem)}" />`)
+    .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/, dados)
+    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${htmlFoto(obra)}</div>`);
 }

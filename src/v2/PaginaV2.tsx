@@ -4,31 +4,18 @@ import './fontesV2.css';
 import './v2.css';
 import { globalLenis, scrollToTarget } from '../hooks/useScrollytelling';
 import { FiltroLapis } from '../components/LinhaLapis';
-import { EMPRESA } from '../data/empresa';
 import { HeroV2 } from './HeroV2';
-import { AvaliacoesV2, FechamentoV2, HistoriaV2, ManifestoV2, OndeEstamosV2, NumerosV2, ObrasV2, ProcessoV2, Projeto3DV2, ProjetoInclusoV2 } from './SecoesV2';
+import { AvaliacoesV2, FechamentoV2, HistoriaV2, ManifestoV2, OndeEstamosV2, NumerosV2, ObrasV2, PerguntasV2, ProcessoV2, Projeto3DV2, ProjetoInclusoV2 } from './SecoesV2';
 import { BarraAcoesV2, CabecalhoV2, PainelOrcamentoV2, RodapeV2 } from './CromoV2';
-import { FotoPaginaV2, LegalV2, NaoEncontradaV2, ObrasPaginaV2, OrcamentoV2, ProjetarV2 } from './PaginasInternasV2';
+import { AmbienteV2, FotoPaginaV2, LegalV2, NaoEncontradaV2, ObrasPaginaV2, OrcamentoV2, ProjetarV2 } from './PaginasInternasV2';
 import { ContextoNavV2, NavegacaoV2 } from './NavegacaoV2';
 import { RotaV2, lerRotaV2, metaV2 } from './rotasV2';
 
-/** Prévia fora do Google: a V2 não pode competir com o site oficial. */
-function useSemIndexacao() {
-  useEffect(() => {
-    const meta = document.querySelector('meta[name="robots"]');
-    const anterior = meta?.getAttribute('content') ?? null;
-    meta?.setAttribute('content', 'noindex, nofollow');
-    return () => {
-      if (meta && anterior !== null) meta.setAttribute('content', anterior);
-    };
-  }, []);
-}
+const chaveDaRota = (r: RotaV2) =>
+  r.pagina === 'foto' ? `foto:${r.obra.id}` : r.pagina === 'legal' ? `legal:${r.documento}` : r.pagina === 'ambiente' ? `amb:${r.rota}` : r.pagina;
 
-const chaveDaRota = (r: RotaV2) => (r.pagina === 'foto' ? `foto:${r.obra.id}` : r.pagina === 'legal' ? `legal:${r.documento}` : r.pagina);
-
-/** Versão 2 do site (prévia em /v2 e páginas internas em /v2/...). */
+/** Site da Império (V2, em produção na raiz do domínio; a versão anterior fica em /v1). */
 const PaginaV2: React.FC = () => {
-  useSemIndexacao();
   const [rota, setRota] = useState<RotaV2>(() => lerRotaV2(window.location.pathname, window.location.hash));
   const [painel, setPainel] = useState<{ aberto: boolean; ambiente?: string }>({ aberto: false });
   const [barra, setBarra] = useState(false);
@@ -66,7 +53,7 @@ const PaginaV2: React.FC = () => {
     const meta = metaV2(rota);
     document.title = meta.titulo;
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.descricao);
-    document.querySelector('link[rel="canonical"]')?.setAttribute('href', `${EMPRESA.url}${window.location.pathname}`);
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', meta.canonico);
     if (ancora) {
       const t = window.setTimeout(() => {
         // O Lenis guarda a altura da página anterior; sem recalcular, a rolagem para no meio.
@@ -126,6 +113,7 @@ const PaginaV2: React.FC = () => {
           <Projeto3DV2 />
           <AvaliacoesV2 />
           <HistoriaV2 />
+          <PerguntasV2 />
           <OndeEstamosV2 />
           <FechamentoV2 />
         </>
@@ -136,6 +124,9 @@ const PaginaV2: React.FC = () => {
       break;
     case 'foto':
       conteudo = <FotoPaginaV2 obra={rota.obra} />;
+      break;
+    case 'ambiente':
+      conteudo = <AmbienteV2 rota={rota.rota} />;
       break;
     case 'projetar':
       conteudo = <ProjetarV2 />;

@@ -1,90 +1,93 @@
 import { OBRAS_REAIS } from '../data/portfolioData';
 import { EMPRESA } from '../data/empresa';
+import { METADADOS_ROTAS_SEO, PAGINAS_AMBIENTES_LOCAIS } from '../data/paginasLocais';
 import type { ObraItem } from '../types';
 
-/** Rotas da V2. Tudo mora debaixo de /v2 para a prévia não sair do site novo. */
+/**
+ * Rotas do site (V2, em produção na raiz do domínio). Os endereços são os mesmos que o Google
+ * já conhece da V1 (/obras, /contato, páginas de ambiente...), mais uma página por foto de obra.
+ * A versão anterior do site continua em /v1 (ver App.tsx).
+ */
+export type RotaAmbiente = keyof typeof PAGINAS_AMBIENTES_LOCAIS;
+
 export type RotaV2 =
   | { pagina: 'inicio'; ancora?: string }
   | { pagina: 'obras'; ancora?: string }
   | { pagina: 'foto'; obra: ObraItem }
+  | { pagina: 'ambiente'; rota: RotaAmbiente }
   | { pagina: 'projetar' }
   | { pagina: 'orcamento' }
   | { pagina: 'legal'; documento: '/privacidade' | '/termos' }
   | { pagina: 'nao-encontrada' };
 
-export const BASE_V2 = '/v2';
+export const caminhoFoto = (obra: ObraItem) => `/obras/${obra.id}`;
 
-export const caminhoFoto = (obra: ObraItem) => `${BASE_V2}/obras/${obra.id}`;
+export const ROTAS_AMBIENTE = Object.keys(PAGINAS_AMBIENTES_LOCAIS) as RotaAmbiente[];
 
-/**
- * Páginas internas da V2. O build grava um HTML em cada uma (dist/v2/.../index.html) e o
- * vercel.json aponta cada endereço para o próprio arquivo: é o único formato que a Vercel
- * serviu certo com cleanUrls (apontar para /v2/index.html dava 404).
- */
-export const ROTAS_INTERNAS_V2 = [
-  `${BASE_V2}/obras`,
-  `${BASE_V2}/projetar`,
-  `${BASE_V2}/orcamento`,
-  `${BASE_V2}/privacidade`,
-  `${BASE_V2}/termos`,
-  ...OBRAS_REAIS.map(caminhoFoto),
-];
+/** Nome curto de cada página de ambiente (trilha, links e lista de outros ambientes). */
+export const NOME_AMBIENTE: Record<RotaAmbiente, string> = {
+  '/cozinhas-planejadas-jau': 'Cozinhas planejadas',
+  '/quartos-planejados-jau': 'Quartos planejados',
+  '/closets-sob-medida-jau': 'Closets sob medida',
+  '/home-office-planejado-jau': 'Home office e comércio',
+};
+
+/** Páginas de foto: o build grava um HTML em cada uma e o vercel.json aponta cada endereço para ele. */
+export const ROTAS_FOTOS = OBRAS_REAIS.map(caminhoFoto);
 
 /** Lê o endereço (com ou sem barra no fim, com ou sem âncora). */
 export function lerRotaV2(pathname: string, hash = ''): RotaV2 {
   const limpo = pathname.replace(/\/+$/, '') || '/';
   const ancora = hash && hash.length > 1 ? hash : undefined;
-  if (limpo === BASE_V2) return { pagina: 'inicio', ancora };
-  const resto = limpo.startsWith(`${BASE_V2}/`) ? limpo.slice(BASE_V2.length + 1) : null;
-  if (resto === null) return { pagina: 'nao-encontrada' };
-  if (resto === 'obras') return { pagina: 'obras', ancora };
-  if (resto.startsWith('obras/')) {
-    const obra = OBRAS_REAIS.find((o) => o.id === resto.slice('obras/'.length));
+  if (limpo === '/') return { pagina: 'inicio', ancora };
+  if (limpo === '/obras') return { pagina: 'obras', ancora };
+  if (limpo.startsWith('/obras/')) {
+    const obra = OBRAS_REAIS.find((o) => o.id === limpo.slice('/obras/'.length));
     return obra ? { pagina: 'foto', obra } : { pagina: 'nao-encontrada' };
   }
-  if (resto === 'projetar') return { pagina: 'projetar' };
-  if (resto === 'orcamento') return { pagina: 'orcamento' };
-  if (resto === 'privacidade' || resto === 'termos') return { pagina: 'legal', documento: `/${resto}` };
+  if (limpo === '/projetar') return { pagina: 'projetar' };
+  if (limpo === '/contato' || limpo === '/orcamento') return { pagina: 'orcamento' };
+  if (limpo === '/privacidade' || limpo === '/termos') return { pagina: 'legal', documento: limpo };
+  if ((ROTAS_AMBIENTE as string[]).includes(limpo)) return { pagina: 'ambiente', rota: limpo as RotaAmbiente };
   return { pagina: 'nao-encontrada' };
 }
 
 const NOME = EMPRESA.nome;
 
-/** Título e descrição de cada página (aparecem na aba e, quando a V2 for ao ar, no Google). */
-export function metaV2(rota: RotaV2): { titulo: string; descricao: string } {
+/** Título, descrição e endereço canônico de cada página (os mesmos do HTML pré-renderizado). */
+export function metaV2(rota: RotaV2): { titulo: string; descricao: string; canonico: string } {
+  const seo = (r: keyof typeof METADADOS_ROTAS_SEO) => ({
+    titulo: METADADOS_ROTAS_SEO[r].title,
+    descricao: METADADOS_ROTAS_SEO[r].description,
+    canonico: METADADOS_ROTAS_SEO[r].canonical,
+  });
   switch (rota.pagina) {
     case 'obras':
-      return {
-        titulo: `Obras de móveis planejados em Jaú | ${NOME}`,
-        descricao: `Fotos reais de ${OBRAS_REAIS.length} obras da Império em Jaú: cozinhas, quartos e lojas, com o acabamento de cada peça.`,
-      };
+      return seo('/obras');
     case 'foto':
-      return {
-        titulo: `${rota.obra.titulo} | Império Jaú`,
-        descricao: `${rota.obra.cota}. Projeto de arquitetura e marcenaria próprios da Império Móveis Planejados.`,
-      };
+      return metaFoto(rota.obra);
+    case 'ambiente':
+      return seo(rota.rota);
     case 'projetar':
-      return {
-        titulo: `Projete seu móvel planejado em 3D | ${NOME}`,
-        descricao: 'Monte a sua cozinha ou quarto em 3D, de graça, ajuste medidas e acabamentos e mande a imagem para orçar.',
-      };
+      return seo('/projetar');
     case 'orcamento':
-      return {
-        titulo: `Pedir orçamento de móveis planejados | ${NOME}`,
-        descricao: 'Conte o que você quer planejar e receba a resposta pelo WhatsApp. Projeto de arquitetura incluso.',
-      };
+      return seo('/contato');
     case 'legal':
-      return rota.documento === '/privacidade'
-        ? { titulo: `Política de Privacidade | ${NOME}`, descricao: 'Como tratamos os dados de quem visita o site e pede orçamento (LGPD).' }
-        : { titulo: `Termos de Uso | ${NOME}`, descricao: 'Regras de uso do site, do projeto 3D online e do pedido de orçamento.' };
+      return seo(rota.documento);
     case 'nao-encontrada':
-      return { titulo: `Página não encontrada | ${NOME}`, descricao: 'Esta página não existe.' };
+      return { titulo: `Página não encontrada | ${NOME}`, descricao: 'Esta página não existe.', canonico: `${EMPRESA.url}/` };
     default:
-      return {
-        titulo: 'Império Móveis Planejados | Construímos o cenário dos seus melhores dias',
-        descricao: 'Arquitetura e marcenaria sob medida em Jaú e região. Projeto de arquitetura incluso.',
-      };
+      return seo('/');
   }
+}
+
+/** Meta da página de uma foto de obra (título curto, descrição com a cota da obra). */
+export function metaFoto(obra: ObraItem): { titulo: string; descricao: string; canonico: string } {
+  return {
+    titulo: `${obra.titulo} | Império Jaú`,
+    descricao: `${obra.cota}. Projeto de arquitetura e marcenaria próprios da Império Móveis Planejados, em Jaú/SP.`,
+    canonico: `${EMPRESA.url}${caminhoFoto(obra)}`,
+  };
 }
 
 /** Opção do formulário de orçamento que corresponde ao ambiente da obra. */

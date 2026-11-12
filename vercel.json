@@ -1,6 +1,93 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/v2",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/v2/orcamento",
+      "destination": "/contato",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras",
+      "destination": "/obras",
+      "permanent": true
+    },
+    {
+      "source": "/v2/projetar",
+      "destination": "/projetar",
+      "permanent": true
+    },
+    {
+      "source": "/v2/privacidade",
+      "destination": "/privacidade",
+      "permanent": true
+    },
+    {
+      "source": "/v2/termos",
+      "destination": "/termos",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/cozinha-ilha-verde",
+      "destination": "/obras/cozinha-ilha-verde",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/cozinha-ilha-ripado",
+      "destination": "/obras/cozinha-ilha-ripado",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/cozinha-forro-ripado",
+      "destination": "/obras/cozinha-forro-ripado",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/cozinha-cinza-pendentes",
+      "destination": "/obras/cozinha-cinza-pendentes",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/quarto-infantil-casinha",
+      "destination": "/obras/quarto-infantil-casinha",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/quarto-bebe-nichos",
+      "destination": "/obras/quarto-bebe-nichos",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/dormitorio-led-1",
+      "destination": "/obras/dormitorio-led-1",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/dormitorio-led-2",
+      "destination": "/obras/dormitorio-led-2",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/comercial-gocoffee-interior",
+      "destination": "/obras/comercial-gocoffee-interior",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/comercial-expositor",
+      "destination": "/obras/comercial-expositor",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/comercial-gocoffee-fachada",
+      "destination": "/obras/comercial-gocoffee-fachada",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/contato",
@@ -13,74 +100,6 @@
     {
       "source": "/obras",
       "destination": "/obras/index.html"
-    },
-    {
-      "source": "/v2",
-      "destination": "/v2/index.html"
-    },
-    {
-      "source": "/v2/obras",
-      "destination": "/v2/obras/index.html"
-    },
-    {
-      "source": "/v2/projetar",
-      "destination": "/v2/projetar/index.html"
-    },
-    {
-      "source": "/v2/orcamento",
-      "destination": "/v2/orcamento/index.html"
-    },
-    {
-      "source": "/v2/privacidade",
-      "destination": "/v2/privacidade/index.html"
-    },
-    {
-      "source": "/v2/termos",
-      "destination": "/v2/termos/index.html"
-    },
-    {
-      "source": "/v2/obras/cozinha-ilha-verde",
-      "destination": "/v2/obras/cozinha-ilha-verde/index.html"
-    },
-    {
-      "source": "/v2/obras/cozinha-ilha-ripado",
-      "destination": "/v2/obras/cozinha-ilha-ripado/index.html"
-    },
-    {
-      "source": "/v2/obras/cozinha-forro-ripado",
-      "destination": "/v2/obras/cozinha-forro-ripado/index.html"
-    },
-    {
-      "source": "/v2/obras/cozinha-cinza-pendentes",
-      "destination": "/v2/obras/cozinha-cinza-pendentes/index.html"
-    },
-    {
-      "source": "/v2/obras/quarto-infantil-casinha",
-      "destination": "/v2/obras/quarto-infantil-casinha/index.html"
-    },
-    {
-      "source": "/v2/obras/quarto-bebe-nichos",
-      "destination": "/v2/obras/quarto-bebe-nichos/index.html"
-    },
-    {
-      "source": "/v2/obras/dormitorio-led-1",
-      "destination": "/v2/obras/dormitorio-led-1/index.html"
-    },
-    {
-      "source": "/v2/obras/dormitorio-led-2",
-      "destination": "/v2/obras/dormitorio-led-2/index.html"
-    },
-    {
-      "source": "/v2/obras/comercial-gocoffee-interior",
-      "destination": "/v2/obras/comercial-gocoffee-interior/index.html"
-    },
-    {
-      "source": "/v2/obras/comercial-expositor",
-      "destination": "/v2/obras/comercial-expositor/index.html"
-    },
-    {
-      "source": "/v2/obras/comercial-gocoffee-fachada",
-      "destination": "/v2/obras/comercial-gocoffee-fachada/index.html"
     },
     {
       "source": "/privacidade",
@@ -105,6 +124,90 @@
     {
       "source": "/home-office-planejado-jau",
       "destination": "/home-office-planejado-jau/index.html"
+    },
+    {
+      "source": "/obras/cozinha-ilha-verde",
+      "destination": "/obras/cozinha-ilha-verde/index.html"
+    },
+    {
+      "source": "/obras/cozinha-ilha-ripado",
+      "destination": "/obras/cozinha-ilha-ripado/index.html"
+    },
+    {
+      "source": "/obras/cozinha-forro-ripado",
+      "destination": "/obras/cozinha-forro-ripado/index.html"
+    },
+    {
+      "source": "/obras/cozinha-cinza-pendentes",
+      "destination": "/obras/cozinha-cinza-pendentes/index.html"
+    },
+    {
+      "source": "/obras/quarto-infantil-casinha",
+      "destination": "/obras/quarto-infantil-casinha/index.html"
+    },
+    {
+      "source": "/obras/quarto-bebe-nichos",
+      "destination": "/obras/quarto-bebe-nichos/index.html"
+    },
+    {
+      "source": "/obras/dormitorio-led-1",
+      "destination": "/obras/dormitorio-led-1/index.html"
+    },
+    {
+      "source": "/obras/dormitorio-led-2",
+      "destination": "/obras/dormitorio-led-2/index.html"
+    },
+    {
+      "source": "/obras/comercial-gocoffee-interior",
+      "destination": "/obras/comercial-gocoffee-interior/index.html"
+    },
+    {
+      "source": "/obras/comercial-expositor",
+      "destination": "/obras/comercial-expositor/index.html"
+    },
+    {
+      "source": "/obras/comercial-gocoffee-fachada",
+      "destination": "/obras/comercial-gocoffee-fachada/index.html"
+    },
+    {
+      "source": "/v1",
+      "destination": "/v1/index.html"
+    },
+    {
+      "source": "/v1/contato",
+      "destination": "/v1/contato/index.html"
+    },
+    {
+      "source": "/v1/projetar",
+      "destination": "/v1/projetar/index.html"
+    },
+    {
+      "source": "/v1/obras",
+      "destination": "/v1/obras/index.html"
+    },
+    {
+      "source": "/v1/privacidade",
+      "destination": "/v1/privacidade/index.html"
+    },
+    {
+      "source": "/v1/termos",
+      "destination": "/v1/termos/index.html"
+    },
+    {
+      "source": "/v1/cozinhas-planejadas-jau",
+      "destination": "/v1/cozinhas-planejadas-jau/index.html"
+    },
+    {
+      "source": "/v1/quartos-planejados-jau",
+      "destination": "/v1/quartos-planejados-jau/index.html"
+    },
+    {
+      "source": "/v1/closets-sob-medida-jau",
+      "destination": "/v1/closets-sob-medida-jau/index.html"
+    },
+    {
+      "source": "/v1/home-office-planejado-jau",
+      "destination": "/v1/home-office-planejado-jau/index.html"
     }
   ],
   "headers": [
@@ -160,7 +263,7 @@
       ]
     },
     {
-      "source": "/obras/(.*)",
+      "source": "/obras/(.*)\\.(jpg|jpeg|png|webp|avif)",
       "headers": [
         {
           "key": "Cache-Control",

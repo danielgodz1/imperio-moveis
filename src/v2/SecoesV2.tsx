@@ -14,15 +14,18 @@ import { ChamadaOrcamentoV2, MARGEM } from './CromoV2';
 import { LinkV2, useNavV2 } from './NavegacaoV2';
 import { caminhoFoto } from './rotasV2';
 import { MANIFESTO_V2, NUMEROS_V2, PROJETO_INCLUSO_V2, PASSOS_3D_V2 } from './textosV2';
+import { perguntasConfirmadas } from '../data/perguntas';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const reduzido = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export const Titulo: React.FC<{ texto: string; className?: string; as?: 'h1' | 'h2' | 'h3' }> = ({ texto, className = '', as = 'h2' }) => {
+/** Título de seção. `olho`: linha pequena dentro do título com as palavras que o Google procura. */
+export const Titulo: React.FC<{ texto: string; className?: string; as?: 'h1' | 'h2' | 'h3'; olho?: string }> = ({ texto, className = '', as = 'h2', olho }) => {
   const Tag = as;
   return (
     <Tag className={`v2-serif v2-titulo ${className}`}>
+      {olho && <span className="v2-olho block mb-16">{olho}</span>}
       <ComItalico texto={texto} />
     </Tag>
   );
@@ -92,7 +95,7 @@ export const ObrasV2: React.FC = () => {
         <Titulo texto="Obras que *já moram* em Jaú." className="max-w-[12ch]" />
         <div className="flex flex-col gap-16 lg:items-end">
           <p className="v2-corpo max-w-[40ch] lg:text-right">Fotos reais de casas e lojas reais. Os fios dourados mostram o acabamento de cada peça.</p>
-          <LinkV2 para="/v2/obras" className="v2-botao v2-botao-linha">
+          <LinkV2 para="/obras" className="v2-botao v2-botao-linha">
             Ver as {OBRAS_REAIS.length} obras <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
           </LinkV2>
         </div>
@@ -153,7 +156,7 @@ export const ProjetoInclusoV2: React.FC = () => {
             <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
               Pedir orçamento com projeto <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
-            <LinkV2 para="/v2#v2-processo" className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
+            <LinkV2 para="/#v2-processo" className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
               Ver como funciona, passo a passo
             </LinkV2>
           </div>
@@ -265,7 +268,7 @@ export const Projeto3DV2: React.FC = () => {
         <p className="v2-corpo max-w-[40ch]">Monte o ambiente em 3D no navegador, sem instalar nada. Mude medidas, móveis, cores e a luz. Depois mande a imagem para a gente orçar.</p>
       </div>
 
-      <LinkV2 para="/v2/projetar" className="block overflow-hidden group relative" aria-label="Abrir o projeto 3D online">
+      <LinkV2 para="/projetar" className="block overflow-hidden group relative" aria-label="Abrir o projeto 3D online">
         <Foto
           srcBase="/projetar/cozinha-render"
           alt="Projeto 3D de cozinha planejada com ilha verde e armários brancos"
@@ -289,7 +292,7 @@ export const Projeto3DV2: React.FC = () => {
       </ol>
 
       <div className="flex flex-wrap gap-[12px]">
-        <LinkV2 para="/v2/projetar" className="v2-botao v2-botao-claro">
+        <LinkV2 para="/projetar" className="v2-botao v2-botao-claro">
           <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Projetar em 3D agora
         </LinkV2>
         <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-linha">
@@ -496,6 +499,30 @@ export const OndeEstamosV2: React.FC<{ id?: string }> = ({ id = 'v2-onde-estamos
         referrerPolicy="no-referrer-when-downgrade"
         title={`Mapa da ${EMPRESA.nome} em Jaú`}
       />
+    </div>
+  </section>
+);
+
+/**
+ * Perguntas frequentes (só as respostas confirmadas pelos donos). São as mesmas do FAQPage nos
+ * dados estruturados da home: o Google exige que o texto esteja visível na página.
+ */
+export const PerguntasV2: React.FC = () => (
+  <section id="v2-perguntas" className={`v2-areia ${MARGEM} py-[12vh] grid grid-cols-1 lg:grid-cols-12 gap-48`}>
+    <div className="lg:col-span-4 flex flex-col gap-16">
+      <Titulo texto="Perguntas *frequentes.*" />
+      <p className="v2-corpo max-w-[34ch]">O que mais perguntam antes de começar. Ficou outra dúvida? Chame no WhatsApp.</p>
+    </div>
+    <div className="lg:col-span-8 flex flex-col">
+      {perguntasConfirmadas().map((p) => (
+        <details key={p.pergunta} className="group py-24 border-t v2-linha-fina">
+          <summary className="flex items-start justify-between gap-16 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <h3 className="v2-serif text-[1.5rem] leading-tight">{p.pergunta}</h3>
+            <span aria-hidden="true" className="v2-serif v2-acento text-[1.75rem] leading-none transition-transform group-open:rotate-45">+</span>
+          </summary>
+          <p className="v2-corpo mt-16 max-w-[62ch]">{p.resposta}</p>
+        </details>
+      ))}
     </div>
   </section>
 );

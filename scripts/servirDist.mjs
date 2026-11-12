@@ -24,6 +24,13 @@ app.use((_req, res, next) => {
   }
   next();
 });
+// Redirecionamentos fixos do vercel.json (ex.: /v2/... → endereços atuais), com 308 como a Vercel.
+const redirecoes = new Map((config.redirects ?? []).map((r) => [r.source, r.destination]));
+app.use((req, res, next) => {
+  const destino = redirecoes.get(req.path.replace(/\/+$/, '') || '/');
+  if (destino) return res.redirect(308, destino);
+  next();
+});
 app.use((req, _res, next) => {
   const destino = reescritas.get(req.path.replace(/\/+$/, '') || '/');
   if (destino) req.url = destino;
@@ -39,10 +46,12 @@ app.use((req, res, next) => {
   let arquivo = path.join(dist, rel);
   if (!path.extname(arquivo)) arquivo = fs.existsSync(arquivo + '.html') ? arquivo + '.html' : path.join(arquivo, 'index.html');
   if (!arquivo.startsWith(dist) || !COMPRIMIR.test(arquivo) || !fs.existsSync(arquivo)) return next();
-  let corpo = cacheBr.get(arquivo);
+  // Cache por arquivo e data de modificação (um build novo invalida sozinho).
+  const chave = `${arquivo}:${fs.statSync(arquivo).mtimeMs}`;
+  let corpo = cacheBr.get(chave);
   if (!corpo) {
     corpo = zlib.brotliCompressSync(fs.readFileSync(arquivo));
-    cacheBr.set(arquivo, corpo);
+    cacheBr.set(chave, corpo);
   }
   res.setHeader('Content-Encoding', 'br');
   res.setHeader('Vary', 'Accept-Encoding');

@@ -9,12 +9,12 @@ import { ComItalico } from './Serif';
 export const MARGEM = 'px-16 sm:px-32 lg:px-64';
 
 const NAV = [
-  { rotulo: 'Obras', para: '/v2/obras' },
-  { rotulo: 'Projeto incluso', para: '/v2#v2-projeto-incluso' },
-  { rotulo: 'Como trabalhamos', para: '/v2#v2-processo' },
-  { rotulo: 'Avaliações', para: '/v2#v2-avaliacoes' },
-  { rotulo: 'Nossa história', para: '/v2#v2-historia' },
-  { rotulo: 'Onde estamos', para: '/v2#v2-onde-estamos' },
+  { rotulo: 'Obras', para: '/obras' },
+  { rotulo: 'Projeto incluso', para: '/#v2-projeto-incluso' },
+  { rotulo: 'Como trabalhamos', para: '/#v2-processo' },
+  { rotulo: 'Avaliações', para: '/#v2-avaliacoes' },
+  { rotulo: 'Nossa história', para: '/#v2-historia' },
+  { rotulo: 'Onde estamos', para: '/#v2-onde-estamos' },
 ];
 
 /**
@@ -44,7 +44,7 @@ export const CabecalhoV2: React.FC<{ transparenteNoTopo: boolean }> = ({ transpa
       className={`v2-escuro fixed top-0 inset-x-0 z-50 transition-colors duration-500 ${solido ? '!bg-[var(--v2-noite)]/95 backdrop-blur-[2px] border-b v2-linha-fina' : '!bg-transparent'}`}
     >
       <div className={`${MARGEM} h-[68px] flex items-center justify-between gap-16`}>
-        <LinkV2 para="/v2" className="flex items-center gap-[12px] shrink-0" aria-label="Império Móveis Planejados, página inicial">
+        <LinkV2 para="/" className="flex items-center gap-[12px] shrink-0" aria-label="Império Móveis Planejados, página inicial">
           <LogoImperio className="h-[40px]" />
           <span className="flex flex-col leading-none">
             <span className="v2-serif text-[1.45rem]">Império</span>
@@ -61,7 +61,7 @@ export const CabecalhoV2: React.FC<{ transparenteNoTopo: boolean }> = ({ transpa
         </nav>
 
         <div className="flex items-center gap-8">
-          <LinkV2 para="/v2/projetar" className="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem] hidden md:inline-flex">
+          <LinkV2 para="/projetar" className="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem] hidden md:inline-flex">
             <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Projetar em 3D
           </LinkV2>
           <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">
@@ -82,7 +82,7 @@ export const CabecalhoV2: React.FC<{ transparenteNoTopo: boolean }> = ({ transpa
 
       {menu && (
         <nav id="v2-menu" aria-label="Menu" className={`xl:hidden ${MARGEM} pb-32 pt-8 flex flex-col border-t v2-linha-fina`}>
-          {[...NAV, { rotulo: 'Projetar em 3D', para: '/v2/projetar' }, { rotulo: 'Pedir orçamento', para: '/v2/orcamento' }].map((n) => (
+          {[...NAV, { rotulo: 'Projetar em 3D', para: '/projetar' }, { rotulo: 'Pedir orçamento', para: '/contato' }].map((n) => (
             <LinkV2 key={n.para} para={n.para} onClick={() => setMenu(false)} className="v2-serif text-[1.75rem] py-[12px] border-b v2-linha-fina">
               {n.rotulo}
             </LinkV2>
@@ -130,7 +130,7 @@ export const BarraAcoesV2: React.FC<{ visivel: boolean }> = ({ visivel }) => {
       aria-hidden={!visivel}
     >
       <div className="flex gap-8 p-[12px] pb-[max(12px,env(safe-area-inset-bottom))] bg-[var(--v2-noite)]/95 md:bg-transparent md:p-0 border-t v2-linha-fina md:border-0">
-        <LinkV2 para="/v2/projetar" tabIndex={visivel ? 0 : -1} className="v2-botao v2-botao-linha flex-1 justify-center md:flex-none md:bg-[var(--v2-noite)]">
+        <LinkV2 para="/projetar" tabIndex={visivel ? 0 : -1} className="v2-botao v2-botao-linha flex-1 justify-center md:flex-none md:bg-[var(--v2-noite)]">
           <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Projetar em 3D
         </LinkV2>
         <button type="button" tabIndex={visivel ? 0 : -1} onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro flex-1 justify-center md:flex-none md:shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
@@ -179,25 +179,26 @@ export const PainelOrcamentoV2: React.FC<{ aberto: boolean; ambiente?: string; o
 };
 
 const AMBIENTES = [
-  { rotulo: 'Cozinhas', para: '/v2/obras#cozinhas' },
-  { rotulo: 'Quartos e suítes', para: '/v2/obras#quartos' },
-  { rotulo: 'Lojas e comércio', para: '/v2/obras#lojas' },
-  { rotulo: 'Todas as obras', para: '/v2/obras' },
+  { rotulo: 'Cozinhas planejadas', para: '/cozinhas-planejadas-jau' },
+  { rotulo: 'Quartos e suítes', para: '/quartos-planejados-jau' },
+  { rotulo: 'Closets sob medida', para: '/closets-sob-medida-jau' },
+  { rotulo: 'Home office e comércio', para: '/home-office-planejado-jau' },
+  { rotulo: 'Todas as obras', para: '/obras' },
 ];
 
 const SITE = [
-  { rotulo: 'Projeto de arquitetura incluso', para: '/v2#v2-projeto-incluso' },
-  { rotulo: 'Como trabalhamos', para: '/v2#v2-processo' },
-  { rotulo: 'Projetar em 3D', para: '/v2/projetar' },
-  { rotulo: 'Avaliações', para: '/v2#v2-avaliacoes' },
-  { rotulo: 'Nossa história', para: '/v2#v2-historia' },
-  { rotulo: 'Onde estamos', para: '/v2#v2-onde-estamos' },
+  { rotulo: 'Projeto de arquitetura incluso', para: '/#v2-projeto-incluso' },
+  { rotulo: 'Como trabalhamos', para: '/#v2-processo' },
+  { rotulo: 'Projetar em 3D', para: '/projetar' },
+  { rotulo: 'Avaliações', para: '/#v2-avaliacoes' },
+  { rotulo: 'Nossa história', para: '/#v2-historia' },
+  { rotulo: 'Onde estamos', para: '/#v2-onde-estamos' },
 ];
 
 const LEGAL = [
-  { rotulo: 'Política de privacidade (LGPD)', para: '/v2/privacidade' },
-  { rotulo: 'Termos de uso', para: '/v2/termos' },
-  { rotulo: 'Pedir orçamento', para: '/v2/orcamento' },
+  { rotulo: 'Política de privacidade (LGPD)', para: '/privacidade' },
+  { rotulo: 'Termos de uso', para: '/termos' },
+  { rotulo: 'Pedir orçamento', para: '/contato' },
 ];
 
 const LINK = 'inline-block py-4 v2-cota text-[0.9375rem] hover:text-[var(--v2-texto)] transition-colors';
@@ -234,7 +235,7 @@ export const RodapeV2: React.FC = () => {
             <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
               Pedir orçamento <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
-            <LinkV2 para="/v2/projetar" className="v2-botao v2-botao-linha">
+            <LinkV2 para="/projetar" className="v2-botao v2-botao-linha">
               <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Projetar em 3D
             </LinkV2>
           </div>
@@ -243,7 +244,7 @@ export const RodapeV2: React.FC = () => {
 
       <div className={`${MARGEM} py-64 border-t v2-linha-fina grid grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.4fr] gap-x-24 gap-y-48`}>
         <div className="col-span-2 lg:col-span-1 flex flex-col items-start gap-24">
-          <LinkV2 para="/v2" className="flex flex-col items-start gap-16" aria-label="Império Móveis Planejados, página inicial">
+          <LinkV2 para="/" className="flex flex-col items-start gap-16" aria-label="Império Móveis Planejados, página inicial">
             <LogoImperio className="h-[96px]" />
           </LinkV2>
           <p className="v2-cota max-w-[32ch]">Arquitetura de interiores e marcenaria própria, do primeiro traço à montagem.</p>
@@ -292,7 +293,7 @@ export const RodapeV2: React.FC = () => {
         <p>
           © {new Date().getFullYear()} {EMPRESA.nome}
         </p>
-        <p>Versão 2 em prévia</p>
+        <p>Jaú/SP · Marcenaria e arquitetura de interiores</p>
       </div>
     </footer>
   );

@@ -41,7 +41,9 @@ Toda tarefa de manutenção, correção ou nova funcionalidade deve seguir estri
 
 O projeto segue uma arquitetura modular em React 19 + TypeScript + Vite 8 + Tailwind CSS 4, com pré-renderização estática SEO no build e funções serverless em `/api`:
 
-- **Site Institucional & Portfólio (`src/components/`):** `Hero.tsx`, `Donos.tsx`, `Obras.tsx`, `ProcessoSection.tsx`, `ReviewsSection.tsx`, `Fechamento.tsx`.
+- **Site em produção = V2 (`src/v2/`), na raiz do domínio (desde 12/11/2026):** `PaginaV2.tsx` (rotas próprias em `rotasV2.ts`: `/`, `/obras`, `/obras/:id`, `/projetar`, `/contato`, páginas de ambiente, `/privacidade`, `/termos`), seções em `SecoesV2.tsx`, páginas internas em `PaginasInternasV2.tsx`, cabeçalho/rodapé em `CromoV2.tsx`. O HTML inicial de cada página vem de `src/v2/prerenderV2.ts` e precisa repetir a parte de cima da página do React (o teste de navegador compara). Links antigos `/v2/...` redirecionam (308) no `vercel.json`.
+- **V1 guardada em `/v1` (`src/AppV1.tsx` e `src/components/`):** layout anterior, inteiro e navegável, com `noindex`. Para voltar a usar a V1 na raiz, trocar a condição em `src/App.tsx`.
+- **Componentes da V1 (`src/components/`), parte deles reaproveitada pela V2 (formulário, fotos, editor 3D):** `Hero.tsx`, `Donos.tsx`, `Obras.tsx`, `ProcessoSection.tsx`, `ReviewsSection.tsx`, `Fechamento.tsx`.
 - **Páginas Locais SEO (`src/components/PaginaAmbienteLocal.tsx`, `src/data/paginasLocais.ts`, `src/utils/prerenderHtml.ts`):** Rotas dedicadas para Jaú e região pré-renderizadas no `vite build`.
 - **Fluxo Comercial & Conversão (`src/components/BriefingOrcamento.tsx`, `src/components/ContactQuotationPage.tsx`, `src/utils/helpers.ts`):** Briefing em 3 etapas integrado ao WhatsApp (`5514998492834`) e ao resumo do configurador 3D.
 - **Configurador 3D & Motor Geométrico (`src/components/quarto3d/`, `src/data/cenarios.ts`, `src/data/acabamentos.ts`):**
