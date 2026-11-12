@@ -87,6 +87,11 @@ interface HeroScrollState {
   liberado: boolean;
   /** V1: a câmera desvia do painel de texto à esquerda no desktop. V2: cena em tela cheia, sem painel. */
   painelLateral: boolean;
+  /**
+   * Onde a cena aparece dentro do canvas (fração do canvas: u da esquerda, v do topo).
+   * null = canvas inteiro. O palco do notebook usa a tela do notebook, que cresce com o zoom.
+   */
+  tela: { u0: number; u1: number; v0: number; v1: number } | null;
 }
 
 export const useHeroScrollStore = create<HeroScrollState>()((set) => ({
@@ -94,6 +99,7 @@ export const useHeroScrollStore = create<HeroScrollState>()((set) => ({
   setProgress: (p) => set({ progress: Math.min(1, Math.max(0, p)) }),
   liberado: false,
   painelLateral: true,
+  tela: null,
 }));
 
 /** Libera a rolagem além do hero (links do menu, rodapé e botões levam direto à seção). */

@@ -181,8 +181,13 @@ function NarrativaCena({ mobile, perfil }: { mobile: boolean; perfil: PerfilQual
 
     const c = cam.current;
     const { width, height } = sizeRef.current;
-    const aspecto = width / height;
-    const painel = useHeroScrollStore.getState().painelLateral ? larguraPainel(width) / width : 0;
+    const estado = useHeroScrollStore.getState();
+    // Com tela (palco do notebook), a narrativa é enquadrada só nesse retângulo do canvas.
+    const tela = estado.tela;
+    const telaW = tela ? Math.max(1e-3, tela.u1 - tela.u0) : 1;
+    const telaH = tela ? Math.max(1e-3, tela.v1 - tela.v0) : 1;
+    const aspecto = (width * telaW) / (height * telaH);
+    const painel = !tela && estado.painelLateral ? larguraPainel(width) / width : 0;
     const aspectoLivre = aspecto * (1 - painel);
 
     // A distância compensa telas estreitas; some quando a câmera encaixa na foto.
@@ -203,15 +208,24 @@ function NarrativaCena({ mobile, perfil }: { mobile: boolean; perfil: PerfilQual
     const narr = { l: -meia * (1 + painel), r: meia * (1 - painel), t, b: -t };
     const foto = janelaFoto(aspecto);
     const e = c.encaixe;
-    camera.projectionMatrix.makePerspective(
-      NEAR * THREE.MathUtils.lerp(narr.l, foto.l, e),
-      NEAR * THREE.MathUtils.lerp(narr.r, foto.r, e),
-      NEAR * THREE.MathUtils.lerp(narr.t, foto.t, e),
-      NEAR * THREE.MathUtils.lerp(narr.b, foto.b, e),
-      NEAR,
-      FAR,
-      camera.coordinateSystem
-    );
+    let l = THREE.MathUtils.lerp(narr.l, foto.l, e);
+    let r = THREE.MathUtils.lerp(narr.r, foto.r, e);
+    let tp = THREE.MathUtils.lerp(narr.t, foto.t, e);
+    let bs = THREE.MathUtils.lerp(narr.b, foto.b, e);
+    if (tela) {
+      // Estende a janela para o canvas inteiro de modo que o quadro caia exatamente na tela.
+      const fw = r - l;
+      const fh = tp - bs;
+      const l2 = l - (fw * tela.u0) / telaW;
+      const r2 = l + (fw * (1 - tela.u0)) / telaW;
+      const t2 = tp + (fh * tela.v0) / telaH;
+      const b2 = tp - (fh * (1 - tela.v0)) / telaH;
+      l = l2;
+      r = r2;
+      tp = t2;
+      bs = b2;
+    }
+    camera.projectionMatrix.makePerspective(NEAR * l, NEAR * r, NEAR * tp, NEAR * bs, NEAR, FAR, camera.coordinateSystem);
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
   });
 
