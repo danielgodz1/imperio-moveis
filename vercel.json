@@ -10,6 +10,10 @@
       "destination": "/projetar/index.html"
     },
     {
+      "source": "/obras",
+      "destination": "/obras/index.html"
+    },
+    {
       "source": "/privacidade",
       "destination": "/privacidade/index.html"
     },

@@ -1,0 +1,19 @@
+termo,intencao,cluster,prioridade,pagina_alvo
+moveis planejados jau,transacional local,local,1,/
+moveis planejados em jau,transacional local,local,1,/
+marcenaria jau,transacional local,local,1,/
+marceneiro jau,transacional local,local,2,/
+cozinha planejada jau,transacional local,ambientes,1,/cozinhas-planejadas-jau
+quarto planejado jau,transacional local,ambientes,1,/quartos-planejados-jau
+closet planejado jau,transacional local,ambientes,2,/closets-sob-medida-jau
+home office planejado jau,transacional local,ambientes,3,/home-office-planejado-jau
+moveis planejados barra bonita,transacional regional,local,2,/ (mencao em areaServed; pagina so com obra real)
+moveis planejados pederneiras,transacional regional,local,3,/ (idem)
+moveis planejados dois corregos,transacional regional,local,3,/ (idem)
+projeto 3d cozinha online,ferramenta,3d,2,/projetar
+simulador de cozinha planejada,ferramenta,3d,2,/projetar
+quanto custa cozinha planejada,informacional,conteudo,1,[NOVA: artigo com faixa de preco autorizada]
+mdf ou mdp,informacional,conteudo,2,[NOVA: artigo]
+cozinha planejada pequena,informacional,conteudo,2,[NOVA: artigo com obras reais]
+quanto tempo leva moveis planejados,informacional,conteudo,2,[NOVA: artigo com prazo real]
+arquiteto e marceneiro,comercial,diferencial,2,/ (secao projeto incluso)

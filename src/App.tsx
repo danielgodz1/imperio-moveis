@@ -14,6 +14,7 @@ import { ChamadaProjeto3D } from './components/ChamadaProjeto3D';
 import { Diferencial } from './components/Diferencial';
 import { PaginaProjetar } from './components/PaginaProjetar';
 import { PaginaLegal } from './components/PaginaLegal';
+import { PaginaObras } from './components/PaginaObras';
 import { DOCUMENTOS_LEGAIS } from './data/legal';
 import { ReviewsSection } from './components/ReviewsSection';
 import { Fechamento } from './components/Fechamento';
@@ -138,6 +139,8 @@ export default function App() {
             onVoltar={() => handleNavigateRoute('/')}
             onOpenBriefing={() => handleOpenBriefing('Outro')}
           />
+        ) : currentPath === '/obras' ? (
+          <PaginaObras onNavegar={handleNavigateRoute} onOpenBriefing={handleOpenBriefing} />
         ) : currentPath in DOCUMENTOS_LEGAIS ? (
           <PaginaLegal
             documento={DOCUMENTOS_LEGAIS[currentPath as keyof typeof DOCUMENTOS_LEGAIS]}

@@ -16,7 +16,7 @@ const AMBIENTES = [
 ];
 
 const SITE = [
-  { rotulo: 'As obras', ancora: '#obras' },
+  { rotulo: 'Todas as obras', ancora: '/obras' },
   { rotulo: 'Como trabalhamos', ancora: '#processo' },
   { rotulo: 'Projete em 3D', ancora: '/projetar' },
   { rotulo: 'Avaliações', ancora: '#avaliacoes' },
