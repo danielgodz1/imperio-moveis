@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei';
 import { ModuloId } from '../../data/cenarios';
 import { Kit3D } from './materiais3D';
 import { MovelMarcenaria } from './MovelMarcenaria';
+import { ObjetoReal } from './ObjetoReal';
 import { sementeDe } from '../../data/materiais/catalogo';
 import { Puxador, TipoPorta, Vao, gerarAereo, gerarBalcao, gerarGuardaRoupa } from './marcenaria';
 import { CAMA, CENTRO_TELA_TV, Dimensoes, posCooktopIlha, posPia, retornoBancada } from './motorGeometrico';
@@ -230,6 +231,13 @@ const BancadaL: React.FC<PropsMovel> = ({ w, h, d, a, k, tampo, dim, puxador }) 
         </group>
         <Tampo k={k} l={0.64} p={ret + 0.02} y={h - 0.02} z={0} x={0} mat={tampo} />
       </group>
+      {/* Decoração com objetos reais na ponta livre da bancada, encostada na parede. */}
+      {w > 1.4 && (
+        <>
+          <ObjetoReal id="planta" position={[w / 2 - 0.2, h, 0.16]} rotationY={0.6} altura={0.32} />
+          <ObjetoReal id="vaso" position={[w / 2 - 0.46, h, 0.13]} altura={0.24} />
+        </>
+      )}
     </group>
   );
 };

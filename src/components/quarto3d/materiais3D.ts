@@ -181,7 +181,13 @@ export function criarKit3D(mobile: boolean) {
   const oclusao = reg(texturaOclusao());
   const brilho = reg(texturaBrilhoLed());
   const pisos: Record<string, THREE.MeshStandardMaterial> = {
-    'madeira-clara': padrao({ map: reg(textura(tam, 1.2, aniso, 71, desenharAssoalho)), roughness: 0.42 }),
+    // Assoalho com foto real (amostra CC0 de 1,70 m, Poly Haven): veio, emendas e brilho da madeira.
+    'madeira-clara': padrao({
+      map: foto('/materiais/piso-madeira-cor.webp', 1.7, true),
+      normalMap: foto('/materiais/piso-madeira-normal.webp', 1.7, false),
+      roughnessMap: foto('/materiais/piso-madeira-rugosidade.webp', 1.7, false),
+      roughness: 0.9,
+    }),
     'porcelanato-claro': padrao({ map: reg(textura(tam, 0.9, aniso, 31, desenharPorcelanato)), roughness: 0.16 }),
     cimento: padrao({ map: reg(textura(tam, 2, aniso, 37, desenharCimento)), roughness: 0.55 }),
   };

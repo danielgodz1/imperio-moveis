@@ -46,6 +46,20 @@ Medidas internas em metros; a interface mostra centímetros em passos de 5 cm. A
 - **Fita de borda:** as quatro bordas finas de cada chapa usam o mesmo acabamento sem relevo, 10% mais escuro e mais fosco.
 - Os ids antigos (`freijo-ripado`, `branco-neve`, `areia-acetinado`, `cinza-urbano`...) foram mantidos para não quebrar projetos salvos, o hero e a API; só os nomes mudaram para a paleta de referência.
 
+## Texturas de foto e objetos reais
+
+- **Madeirados com foto real:** freijó, carvalho e nogueira usam amostras de lâmina de madeira CC0 do Poly Haven (`oak_veneer_01`, `white_oak_veneer`, `natural_walnut_veneer`, de Jenelle van Heerden), com a cor média ajustada à cor de cada acabamento e o veio girado para correr ao longo de U (o configurador orienta o veio pela maior medida da peça). Arquivos em `public/materiais/<id>-cor|normal|rugosidade.webp`, 1024 px.
+- **Piso de madeira com foto real:** `laminate_floor_02` (Poly Haven, CC0), 1,70 m por repetição.
+- **Pedras, porcelanato e cimento** continuam gerados por código: o acervo livre não tinha mármore claro, granito preto e porcelanato grande sem rejunte aparente.
+- **Objetos reais:** vaso de cerâmica (`ceramic_vase_01`) e suculenta em vaso (`potted_plant_04`), Poly Haven CC0, na ponta livre da bancada em L. Otimizados para a web (texturas 512 px, malha com KHR_mesh_quantization): 228 KB e 315 KB em `public/modelos/`. Carregam em segundo plano (`ObjetoReal.tsx`); a cena não espera por eles.
+- A CSP precisa de `blob:` em `connect-src`: o carregador de GLB lê as texturas internas por `fetch` de um endereço `blob:`.
+- Para trocar pelas chapas reais da Império: salvar as fotos com os mesmos nomes em `public/materiais/` (veio deitado na imagem).
+
+## Imagem renderizada (etapa Enviar)
+
+- A prévia de frente aparece na hora; em seguida `renderRealista.ts` desenha a cena dezenas de vezes no próprio renderer e soma: câmera com deslocamento de subpixel (bordas lisas) e sol espalhado num disco (sombra macia). 4 a 6 s em placa integrada.
+- Path tracing (`three-gpu-pathtracer`) foi testado e descartado: o shader leva minutos para compilar em placa integrada no Windows e derruba o WebGL da página.
+
 ## Luz e modo foto
 
 - **Sol pela janela real** (`iluminacao.ts`, `luzDaJanela`): a luz direcional vem de fora da primeira janela e mira o piso; sem janela, luz difusa da frente.
