@@ -11,7 +11,7 @@
     },
     {
       "source": "/v2",
-      "destination": "/index.html"
+      "destination": "/v2/index.html"
     },
     {
       "source": "/privacidade",
