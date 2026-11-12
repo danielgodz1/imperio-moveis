@@ -236,7 +236,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     arquivo: '/obras/comercial-gocoffee-interior',
     proporcao: '1536 / 2752',
     alt: 'Interior da cafeteria GoCoffee com balcão comercial planejado, vitrine expositora, parede de tijolinho e iluminação em trilho',
-    cota: 'Marcenaria comercial para cafeteria GoCoffee, balcão de atendimento e vitrine, Jaú/SP [CONFIRMAR cidade]',
+    cota: 'Marcenaria comercial para cafeteria GoCoffee, balcão de atendimento e vitrine',
     anotacoes: [
       {
         x: 76,
@@ -286,7 +286,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     arquivo: '/obras/comercial-gocoffee-fachada',
     proporcao: '1632 / 2594',
     alt: 'Fachada da cafeteria GoCoffee no dia de inauguração com balcão interno executado pela Império Móveis Planejados',
-    cota: 'Projeto comercial entregue pela Império Móveis Planejados — GoCoffee [CONFIRMAR detalhes]',
+    cota: 'Projeto comercial entregue pela Império Móveis Planejados — GoCoffee',
     anotacoes: [
       {
         x: 48,

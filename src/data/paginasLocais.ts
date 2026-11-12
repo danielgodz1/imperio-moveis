@@ -20,6 +20,9 @@ export interface FotoAmbienteLocal {
   legenda: string;
 }
 
+// A confirmar com os donos antes de voltar ao texto público (estava como [CONFIRMAR] no site):
+// pedra padrão das cozinhas e marca das dobradiças/corrediças; especificação de bordas e
+// acabamento atóxico nos quartos infantis; portas em vidro refletente e perfil metálico nos closets.
 export interface PaginaAmbienteConfig {
   rota:
     | '/cozinhas-planejadas-jau'
@@ -72,7 +75,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
     ambiente3D: 'cozinha',
     paragrafosReais: [
       'Nas cozinhas executadas pela Império em Jaú, a arquiteta parte da rotina real da família: altura da bancada, posição dos pontos hidráulicos e elétricos, espaço de circulação em torno da ilha e aproveitamento até o teto ou forro amadeirado.',
-      'Na oficina, a equipe de produção executa o mobiliário com corpo da ilha em ripado de madeira, encontro limpo com a bancada de granito preto (São Gabriel ou conforme especificação da obra [CONFIRMAR pedra padrão]), fita de LED quente embutida em perfil de alumínio sob os aéreos e ferragens de fechamento suave [CONFIRMAR marca das dobradiças e corrediças].',
+      'Na oficina, a equipe de produção executa o mobiliário com corpo da ilha em ripado de madeira, encontro limpo com a bancada de granito preto, fita de LED quente embutida em perfil de alumínio sob os aéreos e ferragens de fechamento suave.',
       'Trabalhamos tanto com composições em verde-sálvia e freijó quanto com frentes em grafite fosco e cristaleira iluminada, integrando coifa embutida, lava-louças e torre para forno e micro-ondas sem frestas aparentes.',
     ],
     especificacoesReais: [
@@ -131,7 +134,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
     paragrafosReais: [
       'Cada dormitório pede uma ergonomia diferente. Nos quartos de casal e solteiro que entregamos em Jaú, combinamos guarda-roupas até o teto com painéis ripados de madeira, nichos iluminados por fita de LED embutida e bancada de estudo ou penteadeira integrada.',
       'Nos projetos infantis e de bebê, a arquiteta desenha ambientes lúdicos e seguros: já executamos cama alta em formato de casinha com escorregador, escada lateral em que cada degrau funciona como gaveta, painel estofado em gomos e nichos redondos iluminados em tons pastel e verde-sálvia.',
-      'Toda a estrutura de escadas, guarda-corpo e camas altas é dimensionada na nossa marcenaria para suportar o uso diário com quinas suavizadas e acabamento atóxico [CONFIRMAR especificação de bordas infantis].',
+      'Toda a estrutura de escadas, guarda-corpo e camas altas é dimensionada na nossa marcenaria para suportar o uso diário com quinas suavizadas.',
     ],
     especificacoesReais: [
       {
@@ -188,7 +191,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
     ambiente3D: 'closet',
     paragrafosReais: [
       'Um closet sob medida não é uma sequência de prateleiras iguais: a arquiteta levanta a quantidade de vestidos longos, camisas, ternos, calçados e malas do casal para definir a altura exata de cada cabideiro, colmeia de gaveta e maleiro superior.',
-      'Executamos armários em L ou corredor com iluminação vertical em LED nos montantes, sapateiras corrediças de extração total e penteadeira ou ilha central com tampo organizador [CONFIRMAR opções de portas em vidro refletente e perfil metálico].',
+      'Executamos armários em L ou corredor com iluminação vertical em LED nos montantes, sapateiras corrediças de extração total e penteadeira ou ilha central com tampo organizador.',
       'Mesmo em quartos compactos em Jaú, o projeto integrado de arquitetura e marcenaria permite criar um closet funcional aproveitando cantos em 90 graus e a altura total do pé-direito.',
     ],
     especificacoesReais: [
