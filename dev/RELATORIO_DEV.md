@@ -40,7 +40,15 @@ O que mudou:
 - Título do `/contato` no HTML inicial com o tamanho final; sem pré-carregar a foto da cozinha em todas as páginas.
 - Conferido: nenhuma página com rolagem lateral em 360, 768 e 1024 px.
 
-**O que ainda falta:** a home. O maior elemento dela é o pôster do notebook, que só aparece depois do JavaScript; o tempo de bloqueio (TBT) segue alto em todas as páginas porque React, GSAP e o resto do site carregam juntos. As duas coisas pedem uma etapa própria (pôster no HTML inicial na posição exata do palco e GSAP só onde há animação). Por isso o Lighthouse continua como aviso no CI.
+**Segunda etapa de desempenho (12/11/2026):**
+- Pôster do notebook no HTML inicial (V1 e V2), na posição exata do React (conferido ao pixel no celular, tablet e computador); o React reaproveita o mesmo elemento e só monta depois que ele foi pintado.
+- Teste da placa de vídeo (WebGL) só na primeira interação: criar o contexto ao abrir travava a página por segundos em aparelho sem aceleração e no laboratório do Google.
+- Editor 3D do `/projetar` monta na primeira interação (ou direto com link de projeto ou projeto salvo).
+- Fontes da V2 servidas pelo site; código de cada página pré-carregado no HTML.
+- PageSpeed Insights oficial, home no celular: **96** de desempenho, 100 em acessibilidade, práticas recomendadas e SEO (LCP 1,5 s, CLS 0).
+- Lighthouse local no computador: todas as páginas entre 90 e 98. No celular, as medições locais variam demais (a mesma página entre 57 e 83); a referência é o PageSpeed.
+
+**O que ainda falta:** as páginas internas da V2 (`/v2/obras`, `/v2/orcamento`, `/v2/projetar`) não têm conteúdo no HTML inicial e ficam entre 50 e 70 no celular; resolver quando a V2 for escolhida.
 
 ## Fase 1: configurador 2.0
 
