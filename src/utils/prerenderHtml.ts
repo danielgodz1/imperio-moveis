@@ -8,6 +8,7 @@ import {
 import { EMPRESA } from '../data/empresa';
 import { gerarJsonLdPerguntas } from '../data/perguntas';
 import { DOCUMENTOS_LEGAIS, dataPorExtenso } from '../data/legal';
+import { OBRAS_REAIS } from '../data/portfolioData';
 
 function escaparHtml(str: string): string {
   return str
@@ -58,6 +59,23 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
             EMPRESA.telefone
           )}</a></p>
         </article>
+      </main>`;
+  }
+
+  if (rota === '/obras') {
+    const itens = OBRAS_REAIS.map(
+      (o) =>
+        `<figure><img src="${escaparHtml(o.arquivo)}.jpg" alt="${escaparHtml(o.alt)}" loading="lazy" /><figcaption><strong>${escaparHtml(
+          o.titulo
+        )}</strong>. ${escaparHtml(o.cota)}</figcaption></figure>`
+    ).join('\n          ');
+    return `<main class="max-w-[1280px] mx-auto px-16 py-144">
+        <h1 class="tipo-h1">${escaparHtml(meta.h1Inicial)}</h1>
+        <p>${escaparHtml(meta.resumoHtmlInicial)}</p>
+        <section aria-label="Obras reais executadas pela Império">
+          ${itens}
+        </section>
+        <p><a href="/contato">Pedir orçamento</a> | <a href="/projetar">Montar o ambiente em 3D</a></p>
       </main>`;
   }
 
@@ -130,6 +148,37 @@ function jsonLdPagina(rota: RotaPublica): string {
       publisher: { '@id': `${EMPRESA.url}/#empresa` },
     };
     return bloco(site) + bloco(gerarJsonLdPerguntas());
+  }
+  if (rota === '/obras') {
+    // Portfólio: trilha + lista das obras como imagens com autoria da empresa.
+    const meta = METADADOS_ROTAS_SEO[rota];
+    return (
+      bloco({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Início', item: `${EMPRESA.url}/` },
+          { '@type': 'ListItem', position: 2, name: 'Obras', item: meta.canonical },
+        ],
+      }) +
+      bloco({
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: meta.h1Inicial,
+        itemListElement: OBRAS_REAIS.map((o, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          item: {
+            '@type': 'ImageObject',
+            contentUrl: `${EMPRESA.url}${o.arquivo}.jpg`,
+            name: o.titulo,
+            description: o.cota,
+            creator: { '@id': `${EMPRESA.url}/#empresa` },
+            copyrightHolder: { '@id': `${EMPRESA.url}/#empresa` },
+          },
+        })),
+      })
+    );
   }
   if (!(rota in PAGINAS_AMBIENTES_LOCAIS)) {
     // Demais páginas: trilha Início > página.

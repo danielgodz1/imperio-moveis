@@ -119,6 +119,9 @@ export const Obras: React.FC<ObrasProps> = ({ onOpenBriefing }) => {
             Ver mais {filtradas.length - POR_PAGINA} obras
           </button>
         )}
+        <a href="/obras" className="self-start tipo-cota text-grafite link-traco">
+          Ver todas as obras numa página só
+        </a>
       </div>
 
       {/* Convite logo depois da prova: quem gostou não precisa rolar até o fim */}

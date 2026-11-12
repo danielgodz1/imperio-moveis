@@ -5,6 +5,7 @@ export type RotaPublica =
   | '/'
   | '/contato'
   | '/projetar'
+  | '/obras'
   | '/privacidade'
   | '/termos'
   | '/cozinhas-planejadas-jau'
@@ -61,7 +62,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
   '/cozinhas-planejadas-jau': {
     rota: '/cozinhas-planejadas-jau',
     tituloSeo:
-      'Cozinhas Planejadas em Jaú/SP — Ilha em Ripado, Granito e LED | Império Móveis',
+      'Cozinhas Planejadas em Jaú/SP | Império Móveis Planejados',
     descricaoSeo:
       'Cozinhas sob medida em Jaú e região projetadas pela nossa arquiteta e fabricadas na nossa marcenaria. Ilha em ripado, granito preto e armários até o teto.',
     h1: 'Cozinhas planejadas em Jaú com projeto de arquitetura e fabricação própria',
@@ -119,7 +120,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
   '/quartos-planejados-jau': {
     rota: '/quartos-planejados-jau',
     tituloSeo:
-      'Quartos Planejados e Infantis em Jaú/SP — Casinha, LED e Marcenaria | Império',
+      'Quartos Planejados e Infantis em Jaú/SP | Império Móveis',
     descricaoSeo:
       'Quartos de casal, solteiro, infantil e de bebê sob medida em Jaú/SP. Cabeceira ripada com LED, cama-casinha com escorregador e guarda-roupas até o teto.',
     h1: 'Quartos planejados de casal, solteiro e infantis em Jaú',
@@ -177,7 +178,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
   '/closets-sob-medida-jau': {
     rota: '/closets-sob-medida-jau',
     tituloSeo:
-      'Closets sob Medida e Guarda-Roupas em Jaú/SP — Ele & Ela com LED | Império',
+      'Closets e Guarda-Roupas sob Medida em Jaú/SP | Império',
     descricaoSeo:
       'Closets planejados em L, em U ou integrados ao quarto em Jaú e região. Cabideiros iluminados em LED, sapateiras deslizantes, ilha de acessórios e espelho.',
     h1: 'Closets sob medida e guarda-roupas planejados em Jaú',
@@ -228,7 +229,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
   '/home-office-planejado-jau': {
     rota: '/home-office-planejado-jau',
     tituloSeo:
-      'Home Office e Marcenaria Comercial em Jaú/SP — Escritórios e Lojas | Império',
+      'Home Office e Lojas Planejadas em Jaú/SP | Império Móveis',
     descricaoSeo:
       'Home office sob medida, consultórios e marcenaria comercial em Jaú/SP. Bancadas ergonômicas, estantes com LED, fachadas comerciais e logística completa.',
     h1: 'Home office planejado e marcenaria comercial em Jaú',
@@ -289,7 +290,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     rota: '/',
     title: 'Móveis Planejados em Jaú/SP | Império Móveis Planejados',
     description:
-      'Móveis planejados em Jaú e região com projeto de arquitetura incluso e fabricação própria: cozinhas, quartos, closets e home office. Projete em 3D no site e peça orçamento pelo WhatsApp.',
+      'Móveis planejados em Jaú/SP com projeto de arquitetura incluso e fabricação própria. Cozinhas, quartos e closets. Projete em 3D e peça orçamento.',
     canonical: `${EMPRESA.url}/`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
     h1Inicial: TEXTO_HERO.titulo,
@@ -297,9 +298,9 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
   },
   '/contato': {
     rota: '/contato',
-    title: 'Pedir Orçamento de Móveis Planejados em Jaú/SP | Império Móveis',
+    title: 'Orçamento de Móveis Planejados em Jaú/SP | Império Móveis',
     description:
-      'Conte o que você quer planejar e quando quer começar, ou chame a nossa equipe no WhatsApp (14) 99849-2834. Orçamento rápido para cozinhas, quartos, closets e lojas em Jaú.',
+      'Conte o que quer planejar e quando quer começar, ou chame a equipe da Império no WhatsApp (14) 99849-2834. Orçamento rápido em Jaú e região.',
     canonical: `${EMPRESA.url}/contato`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
     h1Inicial: 'Pedir orçamento de móveis planejados em Jaú',
@@ -308,20 +309,31 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
   },
   '/projetar': {
     rota: '/projetar',
-    title: 'Projete seus Móveis Planejados em 3D Online e Grátis | Império Jaú',
+    title: 'Projete Móveis Planejados em 3D, Grátis | Império Jaú',
     description:
-      'Monte sua cozinha, quarto, closet ou banheiro planejado em 3D direto no navegador: medidas, móveis, cores e LED. Baixe a imagem do projeto e peça o orçamento no WhatsApp.',
+      'Monte sua cozinha, quarto ou closet planejado em 3D no navegador, grátis. Baixe a imagem do projeto e peça o orçamento no WhatsApp.',
     canonical: `${EMPRESA.url}/projetar`,
     ogImage: `${EMPRESA.url}/projetar/cozinha-render.jpg`,
     h1Inicial: 'Projete seu móvel planejado em 3D',
     resumoHtmlInicial:
       'Escolha o ambiente, ajuste as medidas, monte os móveis e as cores. No fim, baixe a imagem de frente do projeto e mande para a Império orçar pelo WhatsApp.',
   },
+  '/obras': {
+    rota: '/obras',
+    title: 'Obras de Móveis Planejados em Jaú/SP | Império Móveis',
+    description:
+      'Cozinhas, quartos e lojas planejados entregues em Jaú e região: fotos reais, materiais e acabamentos de cada obra da Império Móveis Planejados.',
+    canonical: `${EMPRESA.url}/obras`,
+    ogImage: `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
+    h1Inicial: 'Obras de móveis planejados em Jaú e região',
+    resumoHtmlInicial:
+      'Cozinhas, quartos e lojas projetados pela nossa arquiteta e fabricados na nossa marcenaria. Todas as fotos são de obras entregues pela Império Móveis Planejados.',
+  },
   '/privacidade': {
     rota: '/privacidade',
     title: 'Política de Privacidade (LGPD) | Império Móveis Planejados',
     description:
-      'Como a Império Móveis Planejados, de Jaú/SP, trata os dados de quem visita o site e pede orçamento: o que coleta, para que usa, com quem compartilha e como exercer seus direitos pela LGPD.',
+      'Como a Império Móveis Planejados trata os dados de quem visita o site e pede orçamento: o que coleta, para que usa e seus direitos pela LGPD.',
     canonical: `${EMPRESA.url}/privacidade`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
     h1Inicial: 'Política de Privacidade',

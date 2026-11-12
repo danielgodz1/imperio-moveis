@@ -7,11 +7,13 @@ import { gerarHtml404, injetarSeoNoHtml } from './src/utils/prerenderHtml';
 import { execSync } from 'child_process';
 import { PAGINAS_AMBIENTES_LOCAIS, RotaPublica } from './src/data/paginasLocais';
 import { EMPRESA } from './src/data/empresa';
+import { OBRAS_REAIS } from './src/data/portfolioData';
 
 const ROTAS_PRERENDER: RotaPublica[] = [
   '/',
   '/contato',
   '/projetar',
+  '/obras',
   '/cozinhas-planejadas-jau',
   '/quartos-planejados-jau',
   '/closets-sob-medida-jau',
@@ -42,6 +44,7 @@ export function gerarSitemap(lastmod: string | null): string {
       return ['/og-hero.jpg', ...new Set(todas)];
     }
     if (rota === '/projetar') return ['/projetar/cozinha-render.jpg'];
+    if (rota === '/obras') return OBRAS_REAIS.map((o) => `${o.arquivo}.jpg`);
     const pagina = PAGINAS_AMBIENTES_LOCAIS[rota as keyof typeof PAGINAS_AMBIENTES_LOCAIS];
     return pagina ? pagina.fotos.map((f) => `${f.srcBase}.jpg`) : [];
   };
