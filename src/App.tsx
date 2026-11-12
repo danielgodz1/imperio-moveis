@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { Suspense, lazy, useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { HeroScrollytelling } from './components/heroScroll/HeroScrollytelling';
 import { FaixaServicos } from './components/FaixaServicos';
@@ -12,22 +12,17 @@ import { Obras } from './components/Obras';
 import { ProcessoSection } from './components/ProcessoSection';
 import { ChamadaProjeto3D } from './components/ChamadaProjeto3D';
 import { Diferencial } from './components/Diferencial';
-import { PaginaProjetar } from './components/PaginaProjetar';
-import { PaginaLegal } from './components/PaginaLegal';
-import { PaginaObras } from './components/PaginaObras';
 import { DOCUMENTOS_LEGAIS } from './data/legal';
 import { ReviewsSection } from './components/ReviewsSection';
 import { Fechamento } from './components/Fechamento';
-import { ContactQuotationPage } from './components/ContactQuotationPage';
-import { PaginaAmbienteLocal } from './components/PaginaAmbienteLocal';
 import { BriefingOrcamento } from './components/BriefingOrcamento';
 import { JsonLdSchema } from './components/JsonLdSchema';
 import { Footer } from './components/Footer';
-import { VisitBookingModal } from './components/VisitBookingModal';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
 import { AvisoProjeto3D } from './components/AvisoProjeto3D';
 import { FiltroLapis, LinhaLapis } from './components/LinhaLapis';
 import { useScrollytelling } from './hooks/useScrollytelling';
+import { ContactQuotationPage, PaginaAmbienteLocal, PaginaLegal, PaginaObras, PaginaProjetar, PaginaV2, VisitBookingModal } from './paginasSobDemanda';
 import { useNivel } from './vitrine/nivel';
 import {
   METADADOS_ROTAS_SEO,
@@ -35,8 +30,6 @@ import {
   RotaPublica,
 } from './data/paginasLocais';
 
-// V2 (prévia) em pedaço separado: não pesa na V1.
-const PaginaV2 = lazy(() => import('./v2/PaginaV2'));
 
 const emV2 = (pathname: string) => /^\/v2(\/|$)/.test(pathname);
 
@@ -145,6 +138,8 @@ export default function App() {
       {/* Conteúdo principal */}
       {/* Trocar de nível remonta o conteúdo, para cada seção iniciar no modo certo */}
       <main key={nivel} className="flex-1">
+        {/* Páginas internas chegam sob demanda (ver paginasSobDemanda.ts) */}
+        <Suspense fallback={<div className="min-h-screen" />}>
         {currentPath === '/contato' ? (
           <ContactQuotationPage
             onBackToHome={() => handleNavigateRoute('/')}
@@ -201,6 +196,7 @@ export default function App() {
             />
           </>
         )}
+        </Suspense>
       </main>
 
       {/* Rodapé em --preto com 4 colunas vindas de empresa.ts */}
@@ -224,10 +220,11 @@ export default function App() {
       <AvisoProjeto3D rota={currentPath} onAbrir={() => handleNavigateRoute('/projetar')} />
 
       {/* Modal opcional de agendamento de visita */}
-      <VisitBookingModal
-        isOpen={isVisitModalOpen}
-        onClose={() => setIsVisitModalOpen(false)}
-      />
+      {isVisitModalOpen && (
+        <Suspense fallback={null}>
+          <VisitBookingModal isOpen onClose={() => setIsVisitModalOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

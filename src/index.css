@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fontes.css";
 
 :root {
   --papel: #EFEEEA;

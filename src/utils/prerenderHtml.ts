@@ -27,6 +27,19 @@ export function normalizarRotaSeo(pathname: string): RotaPublica {
   return '/';
 }
 
+/**
+ * Foto no HTML inicial igual ao componente Foto: AVIF/WebP em 800 e 1600 px, JPG só de reserva,
+ * largura e altura reais (o navegador reserva o espaço e a página não pula ao carregar).
+ */
+export function fotoEstatica(srcBase: string, alt: string, proporcao: string, opcoes: { prioridade?: boolean; sizes?: string } = {}): string {
+  const [w, h] = proporcao.split('/').map((n) => Math.round(parseFloat(n)) || 1);
+  const sizes = opcoes.sizes ?? '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw';
+  const b = escaparHtml(srcBase);
+  return `<picture style="display:block;aspect-ratio:${w} / ${h}"><source type="image/avif" srcset="${b}-800.avif 800w, ${b}-1600.avif 1600w" sizes="${sizes}" /><source type="image/webp" srcset="${b}-800.webp 800w, ${b}-1600.webp 1600w" sizes="${sizes}" /><img src="${b}.jpg" alt="${escaparHtml(alt)}" width="${w}" height="${h}" ${
+    opcoes.prioridade ? 'fetchpriority="high"' : 'loading="lazy"'
+  } decoding="async" style="width:100%;height:auto;display:block" /></picture>`;
+}
+
 export function gerarConteudoInicialRoot(rota: RotaPublica): string {
   const meta = METADADOS_ROTAS_SEO[rota];
 
@@ -38,12 +51,8 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
       .join('\n          ');
     const fotos = cfg.fotos
       .map(
-        (f) =>
-          `<figure><img src="${escaparHtml(f.srcBase)}.jpg" alt="${escaparHtml(
-            f.alt
-          )}" loading="lazy" /><figcaption>${escaparHtml(
-            f.legenda
-          )}</figcaption></figure>`
+        (f, i) =>
+          `<figure>${fotoEstatica(f.srcBase, f.alt, f.razao, { prioridade: i === 0 })}<figcaption>${escaparHtml(f.legenda)}</figcaption></figure>`
       )
       .join('\n          ');
 
@@ -64,15 +73,15 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
 
   if (rota === '/obras') {
     const itens = OBRAS_REAIS.map(
-      (o) =>
-        `<figure><img src="${escaparHtml(o.arquivo)}.jpg" alt="${escaparHtml(o.alt)}" loading="lazy" /><figcaption><strong>${escaparHtml(
+      (o, i) =>
+        `<figure class="flex flex-col gap-8">${fotoEstatica(o.arquivo, o.alt, o.proporcao, { prioridade: i === 0 })}<figcaption><strong>${escaparHtml(
           o.titulo
         )}</strong>. ${escaparHtml(o.cota)}</figcaption></figure>`
     ).join('\n          ');
     return `<main class="max-w-[1280px] mx-auto px-16 py-144">
         <h1 class="tipo-h1">${escaparHtml(meta.h1Inicial)}</h1>
         <p>${escaparHtml(meta.resumoHtmlInicial)}</p>
-        <section aria-label="Obras reais executadas pela Império">
+        <section aria-label="Obras reais executadas pela Império" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-32 items-start">
           ${itens}
         </section>
         <p><a href="/contato">Pedir orçamento</a> | <a href="/projetar">Montar o ambiente em 3D</a></p>
@@ -118,8 +127,9 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
   }
 
   if (rota === '/contato') {
+    // Título com a mesma classe da página de verdade: pinta no tamanho final antes do JavaScript.
     return `<main class="max-w-[1280px] mx-auto px-16 py-64">
-        <h1>${escaparHtml(meta.h1Inicial)}</h1>
+        <h1 class="tipo-h1 text-grafite">${escaparHtml(meta.h1Inicial)}</h1>
         <p>${escaparHtml(meta.resumoHtmlInicial)}</p>
         <p>Atendimento em ${escaparHtml(
           EMPRESA.cidadesAtendidas.join(', ')

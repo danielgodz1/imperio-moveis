@@ -22,17 +22,25 @@ Ramo `feat/diferenciais-2026`. Adaptado à hospedagem real: **Vercel** (não Git
 | Barra de progresso do orçamento sem nome para leitor de tela | `aria-label` (`src/components/BriefingOrcamento.tsx:275`) |
 | Erro de WebAssembly bloqueado pela CSP no editor 3D (decodificador de modelos que o site não usa) | `useGLTF(url, false, false)` em `src/components/quarto3d/ObjetoReal.tsx` |
 
-### Lighthouse: números de hoje (celular simulado, mediana de 3, medido neste computador)
+### Lighthouse (celular simulado, medido neste computador)
 
-| Página | LCP | CLS | TBT | Nota |
-| :--- | :--- | :--- | :--- | :--- |
-| `/` | 8,2 s | 0,008 | 1.808 ms | 40 |
-| `/obras` | 13,6 s | **0,352** | 2.170 ms | 18 |
-| `/projetar` | 2,7 s | 0,001 | 1.990 ms | 61 |
-| `/cozinhas-planejadas-jau` | 2,7 s | 0,103 | 1.047 ms | 62 |
-| `/contato` | 7,0 s | 0 | 775 ms | 50 |
+| Página | Antes: nota, LCP, CLS | Depois da etapa de desempenho |
+| :--- | :--- | :--- |
+| `/` | 40, 8,2 s, 0,008 | 41, 7,2 s, 0 |
+| `/obras` | 18, 13,6 s, **0,352** | **62**, 3,3 s, 0 |
+| `/projetar` | 61, 2,7 s, 0,001 | **75**, 2,8 s, 0 |
+| `/cozinhas-planejadas-jau` | 62, 2,7 s, 0,103 | 58 a 62, foto como maior elemento, 0 |
+| `/contato` | 50, 7,0 s, 0 | **73**, 3,2 s, 0 |
 
-Nenhuma página cumpre o orçamento pedido (LCP < 2,5 s, CLS < 0,1, TBT < 200 ms). Por isso o Lighthouse está como **aviso** no CI: como bloqueio, todo PR falharia, inclusive este. Os maiores problemas: `/obras` (foto 4K como maior elemento e o conteúdo pré-renderizado sendo trocado pelo React, o que gera o CLS de 0,35) e o JavaScript inicial da home (TBT). Proposta: uma etapa de desempenho antes da Fase 2, e depois disso trocar `warn` por `error` no `lighthouserc.json`. Os números do CI (servidor do GitHub) podem ser um pouco melhores que os deste computador.
+O que mudou:
+- **Fontes servidas pelo próprio site** (`public/fontes`, `src/fontes.css`), em vez do CSS do Google Fonts que travava a primeira pintura. A fonte principal é pré-carregada.
+- **GTM assíncrono:** `gtm-inicio.js` deixou de travar a página e carrega o `gtm.js` sozinho.
+- **Fotos no HTML inicial** (`/obras` e páginas de ambiente) em AVIF/WebP de 800 e 1600 px, com largura e altura reais. Acabou o "pulo" (CLS 0 em todas) e a foto 4K em JPG do HTML inicial.
+- **Página de cada endereço em pedaço próprio** (`src/paginasSobDemanda.ts`); o `main.tsx` espera o pedaço antes de montar o React, então o HTML inicial fica na tela até a página estar pronta.
+- Título do `/contato` no HTML inicial com o tamanho final; sem pré-carregar a foto da cozinha em todas as páginas.
+- Conferido: nenhuma página com rolagem lateral em 360, 768 e 1024 px.
+
+**O que ainda falta:** a home. O maior elemento dela é o pôster do notebook, que só aparece depois do JavaScript; o tempo de bloqueio (TBT) segue alto em todas as páginas porque React, GSAP e o resto do site carregam juntos. As duas coisas pedem uma etapa própria (pôster no HTML inicial na posição exata do palco e GSAP só onde há animação). Por isso o Lighthouse continua como aviso no CI.
 
 ## Fase 1: configurador 2.0
 
