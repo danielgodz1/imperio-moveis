@@ -13,10 +13,19 @@ import { PAGINAS_AMBIENTES_LOCAIS } from '../data/paginasLocais';
 import { DOCUMENTOS_LEGAIS, dataPorExtenso } from '../data/legal';
 import { perguntasConfirmadas } from '../data/perguntas';
 import type { ObraItem } from '../types';
-import { HERO_V2, MANIFESTO_V2, PASSOS_3D_V2, PROJETO_INCLUSO_V2 } from './textosV2';
-import { ROTULO_AMBIENTE, RotaAmbiente, caminhoFoto } from './rotasV2';
+import { HERO_V2, MANIFESTO_V2, PASSOS_3D_V2, PROJETOS_3D_V2, PROJETO_INCLUSO_V2 } from './textosV2';
+import { PROJETOS_3D, TEMAS_PROJETO_3D, linkProjeto3D } from '../data/projetos3d';
+import { CAMINHO_PROJETOS_3D, ROTULO_AMBIENTE, RotaAmbiente, caminhoFoto } from './rotasV2';
 
 const MARGEM = 'px-16 sm:px-32 lg:px-64';
+
+/**
+ * `sizes` da foto principal (página de foto e de ambiente). No celular, 60vw faz o navegador
+ * escolher a versão de 800 px (nítida na tela do celular e 3 a 4 vezes mais leve que a de 1600).
+ * O React (PaginasInternasV2) usa as mesmas constantes, para não baixar a foto duas vezes.
+ */
+export const TAMANHO_FOTO_DEITADA = '(max-width: 767px) 60vw, 100vw';
+export const TAMANHO_FOTO_EM_PE = '(max-width: 767px) 60vw, (min-width: 1024px) 58vw, 100vw';
 
 export function esc(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -35,7 +44,7 @@ const olho = (t: string) => `<span class="v2-olho block mb-16">${esc(t)}</span>`
 /** Foto igual ao componente Foto (AVIF/WebP 800 e 1600, JPG de reserva, tamanho reservado). */
 function foto(srcBase: string, alt: string, proporcao: string, o: { prioridade?: boolean; sizes?: string; classe?: string; estilo?: string } = {}): string {
   const [w, h] = proporcao.split('/').map((n) => Math.round(parseFloat(n)) || 1);
-  const sizes = o.sizes ?? '(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw';
+  const sizes = o.sizes ?? '(max-width: 639px) 60vw, (min-width: 1024px) 30vw, 50vw';
   const b = esc(srcBase);
   return `<picture class="block overflow-hidden ${o.classe ?? ''}" style="aspect-ratio:${w} / ${h}"><source type="image/avif" srcset="${b}-800.avif 800w, ${b}-1600.avif 1600w" sizes="${sizes}" /><source type="image/webp" srcset="${b}-800.webp 800w, ${b}-1600.webp 1600w" sizes="${sizes}" /><img src="${b}.jpg" alt="${esc(alt)}" width="${w}" height="${h}" ${
     o.prioridade ? 'fetchpriority="high" decoding="sync"' : 'loading="lazy" decoding="async"'
@@ -59,12 +68,12 @@ function cabecalho(transparente: boolean): string {
   const fundo = transparente ? '!bg-transparent' : '!bg-[var(--v2-noite)]/95 backdrop-blur-[2px] border-b v2-linha-fina';
   return `<header class="v2-escuro fixed top-0 inset-x-0 z-50 ${fundo}"><div class="${MARGEM} h-[68px] flex items-center justify-between gap-16"><a href="/" class="flex items-center gap-[12px] shrink-0" aria-label="${esc(
     EMPRESA.nome
-  )}, página inicial"><span class="v2-logo inline-block h-[40px]" aria-hidden="true"></span><span class="flex flex-col leading-none"><span class="v2-serif text-[1.45rem]">Império</span><span class="v2-cota text-[0.6875rem] tracking-[0.08em] uppercase">Móveis planejados</span></span></a><nav aria-label="Principal" class="hidden xl:flex items-center gap-24"><a class="v2-cota" href="/obras">Obras</a><a class="v2-cota" href="/#v2-projeto-incluso">Projeto incluso</a><a class="v2-cota" href="/#v2-processo">Como trabalhamos</a><a class="v2-cota" href="/#v2-avaliacoes">Avaliações</a><a class="v2-cota" href="/#v2-historia">Nossa história</a><a class="v2-cota" href="/#v2-onde-estamos">Onde estamos</a></nav><div class="flex items-center gap-8"><a href="/projetar" class="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem] hidden md:inline-flex">Projetar em 3D</a><a href="/contato" class="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">Orçamento</a><span class="xl:hidden w-[40px] h-[40px]" aria-hidden="true"></span></div></div></header>`;
+  )}, página inicial"><span class="v2-logo inline-block h-[40px]" aria-hidden="true"></span><span class="flex flex-col leading-none"><span class="v2-serif text-[1.45rem]">Império</span><span class="v2-cota text-[0.6875rem] tracking-[0.08em] uppercase">Móveis planejados</span></span></a><nav aria-label="Principal" class="hidden xl:flex items-center gap-16 2xl:gap-24 whitespace-nowrap"><a class="v2-cota" href="/obras">Obras</a><a class="v2-cota" href="/projetos-3d">Projetos 3D</a><a class="v2-cota" href="/#v2-projeto-incluso">Projeto incluso</a><a class="v2-cota" href="/#v2-processo">Como trabalhamos</a><a class="v2-cota" href="/#v2-avaliacoes">Avaliações</a><a class="v2-cota" href="/#v2-historia">Nossa história</a><a class="v2-cota" href="/#v2-onde-estamos">Onde estamos</a></nav><div class="flex items-center gap-8"><a href="/projetar" class="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem] hidden md:inline-flex">Projetar em 3D</a><a href="/contato" class="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">Orçamento</a><span class="xl:hidden w-[40px] h-[40px]" aria-hidden="true"></span></div></div></header>`;
 }
 
 /** Rodapé com os links e o contato (para o Google e para quem está sem JavaScript). */
 function rodape(): string {
-  return `<footer class="v2-escuro ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-24 v2-cota"><nav aria-label="Ambientes" class="flex flex-wrap gap-x-24 gap-y-8"><a href="/cozinhas-planejadas-jau">Cozinhas planejadas</a><a href="/quartos-planejados-jau">Quartos planejados</a><a href="/closets-sob-medida-jau">Closets sob medida</a><a href="/home-office-planejado-jau">Home office e comércio</a><a href="/obras">Todas as obras</a><a href="/projetar">Projetar em 3D</a><a href="/contato">Pedir orçamento</a><a href="/privacidade">Privacidade (LGPD)</a><a href="/termos">Termos de uso</a></nav><p>${esc(
+  return `<footer class="v2-escuro ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-24 v2-cota"><nav aria-label="Ambientes" class="flex flex-wrap gap-x-24 gap-y-8"><a href="/cozinhas-planejadas-jau">Cozinhas planejadas</a><a href="/quartos-planejados-jau">Quartos planejados</a><a href="/closets-sob-medida-jau">Closets sob medida</a><a href="/home-office-planejado-jau">Home office e comércio</a><a href="/obras">Todas as obras</a><a href="/projetos-3d">Projetos 3D</a><a href="/projetar">Projetar em 3D</a><a href="/contato">Pedir orçamento</a><a href="/privacidade">Privacidade (LGPD)</a><a href="/termos">Termos de uso</a></nav><p>${esc(
     EMPRESA.nome
   )} · ${esc(EMPRESA.endereco.logradouro)}, ${esc(EMPRESA.endereco.bairro)}, ${esc(EMPRESA.endereco.cidade)}/${esc(EMPRESA.endereco.uf)} · WhatsApp ${esc(EMPRESA.telefone)} · ${esc(
     EMPRESA.horarios.semana
@@ -75,7 +84,7 @@ const pagina = (conteudo: string, transparente = false) => `<div class="v2 min-h
 
 /** Home: réplica da abertura (HeroV2 no começo da rolagem) e o texto das seções seguintes. */
 export function htmlInicio(): string {
-  const obras = OBRAS_REAIS.slice(0, 6)
+  const obras = OBRAS_REAIS.slice(0, 3)
     .map((o) => `<li><a href="${caminhoFoto(o)}">${esc(o.titulo)}</a>: ${esc(o.cota)}</li>`)
     .join('');
   const passos = PROJETO_INCLUSO_V2.itens.map((p) => `<li><strong>${esc(p.titulo)}.</strong> ${esc(p.texto)}</li>`).join('');
@@ -98,7 +107,7 @@ export function htmlInicio(): string {
       </div>
     </section>
     <section class="v2-claro ${MARGEM} py-96"><p class="v2-serif text-[clamp(2rem,4.6vw,4.25rem)] leading-[1.08] max-w-[22ch]">${esc(MANIFESTO_V2)}</p></section>
-    <section class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Obras que <em class="v2-italico">já moram</em> em Jaú.</h2><ul class="v2-corpo">${obras}</ul><a href="/obras">Ver todas as obras</a></section>
+    <section class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Obras que <em class="v2-italico">já moram</em> em Jaú.</h2><ul class="v2-corpo">${obras}</ul><nav aria-label="Ambientes"><a href="/obras#cozinhas">Cozinhas</a> · <a href="/obras#quartos">Quartos</a> · <a href="/obras#lojas">Lojas e comércio</a></nav><a href="/obras">Ver todas as ${OBRAS_REAIS.length} obras</a> · <a href="/projetos-3d">Ver projetos 3D</a></section>
     <section class="v2-areia ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">O projeto de arquitetura <em class="v2-italico">já vem junto.</em></h2><ol class="v2-corpo">${passos}</ol></section>
     <section class="v2-areia ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Perguntas <em class="v2-italico">frequentes.</em></h2>${perguntas}</section>`,
     true
@@ -145,7 +154,7 @@ export function htmlFoto(obra: ObraItem): string {
     { rotulo: obra.titulo },
   ])}</div><div class="grid grid-cols-1 ${deitada ? '' : 'lg:grid-cols-12'} gap-48 items-start"><figure class="relative ${deitada ? '' : 'lg:col-span-7'}" style="aspect-ratio:${esc(obra.proporcao)}">${foto(obra.arquivo, obra.alt, obra.proporcao, {
     prioridade: true,
-    sizes: deitada ? '100vw' : '(min-width: 1024px) 58vw, 100vw',
+    sizes: deitada ? TAMANHO_FOTO_DEITADA : TAMANHO_FOTO_EM_PE,
     classe: 'w-full h-full',
   })}</figure><div class="flex flex-col gap-24 ${deitada ? 'lg:grid lg:grid-cols-12 lg:gap-48' : 'lg:col-span-5 lg:sticky lg:top-[100px]'}"><div class="flex flex-col gap-16 ${deitada ? 'lg:col-span-6' : ''}"><p class="v2-cota uppercase tracking-[0.08em] v2-acento">${esc(
     ROTULO_AMBIENTE[obra.ambiente]
@@ -164,7 +173,7 @@ export function htmlAmbiente(rota: RotaAmbiente, nome: string): string {
     cfg.subtitulo
   )}</p><div class="flex flex-wrap gap-[12px]"><a href="/contato" class="v2-botao v2-botao-claro">Pedir orçamento</a><a href="/projetar" class="v2-botao v2-botao-linha">Montar em 3D</a></div></div></div>${
     principal
-      ? `<figure class="flex flex-col gap-8">${foto(principal.srcBase, principal.alt, principal.razao, { prioridade: true, sizes: '100vw', classe: 'w-full max-h-[78vh]' })}<figcaption class="v2-cota">${esc(principal.legenda)}</figcaption></figure>`
+      ? `<figure class="flex flex-col gap-8">${foto(principal.srcBase, principal.alt, principal.razao, { prioridade: true, sizes: TAMANHO_FOTO_DEITADA, classe: 'w-full max-h-[78vh]' })}<figcaption class="v2-cota">${esc(principal.legenda)}</figcaption></figure>`
       : ''
   }</section><section class="v2-areia ${MARGEM} py-96 grid grid-cols-1 lg:grid-cols-12 gap-48"><div class="lg:col-span-7 flex flex-col gap-24 v2-texto-longo"><h2 class="v2-serif v2-h3">Como fazemos, <em class="v2-italico">obra por obra.</em></h2>${cfg.paragrafosReais
     .map((p) => `<p>${esc(p)}</p>`)
@@ -195,6 +204,38 @@ export function htmlProjetar(): string {
     '16 / 9',
     { prioridade: true, sizes: '100vw', classe: 'w-full h-full' }
   )}<div class="absolute inset-0 bg-[var(--v2-noite)]/40 flex items-center justify-center p-24"><span class="v2-botao v2-botao-claro">Abrir o editor 3D</span></div></div></section>`);
+}
+
+/** /projetos-3d: mesma parte de cima da Projetos3DPaginaV2 e todos os projetos por tema. */
+export function htmlProjetos3D(): string {
+  const temas = TEMAS_PROJETO_3D.filter((t) => PROJETOS_3D.some((p) => p.tema === t.id));
+  const chips = temas
+    .map((t) => `<a href="${CAMINHO_PROJETOS_3D}#${t.id}" class="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem]">${esc(t.rotulo)} (${PROJETOS_3D.filter((p) => p.tema === t.id).length})</a>`)
+    .join('');
+  const secoes = temas
+    .map(
+      (t) => `<section id="${t.id}" class="v2-escuro ${MARGEM} py-96 border-t v2-linha-fina scroll-mt-[80px]"><h2 class="v2-serif v2-titulo mb-48">${esc(
+        t.rotulo
+      )}</h2><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32 gap-y-64 items-start">${PROJETOS_3D.filter((p) => p.tema === t.id)
+        .map(
+          (p) =>
+            `<article class="flex flex-col gap-16"><a href="${esc(linkProjeto3D(p))}" class="group block overflow-hidden" aria-label="Abrir no editor 3D: ${esc(p.nome)}">${foto(
+              p.arquivo,
+              `Projeto 3D: ${p.nome}. ${p.descricao}`,
+              p.proporcao,
+              { classe: 'w-full' }
+            )}</a><div class="flex flex-col gap-4"><h3 class="v2-serif text-[1.5rem] leading-tight">${esc(p.nome)}</h3><p class="v2-cota">${esc(
+              p.descricao
+            )}</p></div><div class="flex flex-wrap gap-8"><a href="${esc(linkProjeto3D(p))}" class="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem]">Abrir no 3D</a><a href="/contato" class="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">Quero orçar</a></div></article>`
+        )
+        .join('')}</div></section>`
+    )
+    .join('');
+  return pagina(`<section class="v2-escuro ${MARGEM} pt-[136px] pb-64 flex flex-col gap-32">${trilha([{ rotulo: 'Início', para: '/' }, { rotulo: 'Projetos 3D' }])}<div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24"><h1 class="v2-serif v2-titulo max-w-[14ch]">${olho(
+    PROJETOS_3D_V2.olho
+  )}${italico(PROJETOS_3D_V2.titulo)}</h1><div class="flex flex-col gap-16 max-w-[44ch]"><p class="v2-corpo">${esc(PROJETOS_3D_V2.apoio)}</p><p class="v2-cota">${esc(
+    PROJETOS_3D_V2.aviso
+  )}</p></div></div><div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-16"><nav aria-label="Temas" class="flex flex-wrap gap-8">${chips}</nav><a href="/projetar" class="v2-botao v2-botao-claro self-start">Criar o meu do zero</a></div></section>${secoes}`);
 }
 
 /** /contato (coluna de texto da OrcamentoV2; o formulário chega com o JavaScript). */

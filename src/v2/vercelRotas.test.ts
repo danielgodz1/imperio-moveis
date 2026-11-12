@@ -13,7 +13,7 @@ const redirecoes = new Map(config.redirects.map((r) => [r.source, r.destination]
 
 describe('vercel.json', () => {
   it('cada página do site e cada foto abrem direto pelo endereço', () => {
-    for (const rota of ['/obras', '/projetar', '/contato', '/privacidade', '/termos', ...ROTAS_AMBIENTE]) expect(fontes.has(rota)).toBe(true);
+    for (const rota of ['/obras', '/projetar', '/projetos-3d', '/contato', '/privacidade', '/termos', ...ROTAS_AMBIENTE]) expect(fontes.has(rota)).toBe(true);
     for (const obra of OBRAS_REAIS) expect(fontes.has(caminhoFoto(obra))).toBe(true);
   });
 

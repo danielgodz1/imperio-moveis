@@ -98,6 +98,10 @@
       "destination": "/projetar/index.html"
     },
     {
+      "source": "/projetos-3d",
+      "destination": "/projetos-3d/index.html"
+    },
+    {
       "source": "/obras",
       "destination": "/obras/index.html"
     },
@@ -263,7 +267,7 @@
       ]
     },
     {
-      "source": "/obras/(.*)\\.(jpg|jpeg|png|webp|avif)",
+      "source": "/(obras|projetos3d)/(.*)\\.(jpg|jpeg|png|webp|avif)",
       "headers": [
         {
           "key": "Cache-Control",

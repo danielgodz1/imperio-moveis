@@ -16,11 +16,15 @@ export type RotaV2 =
   | { pagina: 'foto'; obra: ObraItem }
   | { pagina: 'ambiente'; rota: RotaAmbiente }
   | { pagina: 'projetar' }
+  | { pagina: 'projetos3d' }
   | { pagina: 'orcamento' }
   | { pagina: 'legal'; documento: '/privacidade' | '/termos' }
   | { pagina: 'nao-encontrada' };
 
 export const caminhoFoto = (obra: ObraItem) => `/obras/${obra.id}`;
+
+/** Galeria de projetos 3D (renders de projeto, separados por tema). */
+export const CAMINHO_PROJETOS_3D = '/projetos-3d';
 
 export const ROTAS_AMBIENTE = Object.keys(PAGINAS_AMBIENTES_LOCAIS) as RotaAmbiente[];
 
@@ -46,6 +50,7 @@ export function lerRotaV2(pathname: string, hash = ''): RotaV2 {
     return obra ? { pagina: 'foto', obra } : { pagina: 'nao-encontrada' };
   }
   if (limpo === '/projetar') return { pagina: 'projetar' };
+  if (limpo === CAMINHO_PROJETOS_3D) return { pagina: 'projetos3d' };
   if (limpo === '/contato' || limpo === '/orcamento') return { pagina: 'orcamento' };
   if (limpo === '/privacidade' || limpo === '/termos') return { pagina: 'legal', documento: limpo };
   if ((ROTAS_AMBIENTE as string[]).includes(limpo)) return { pagina: 'ambiente', rota: limpo as RotaAmbiente };
@@ -53,6 +58,13 @@ export function lerRotaV2(pathname: string, hash = ''): RotaV2 {
 }
 
 const NOME = EMPRESA.nome;
+
+export const META_PROJETOS_3D = {
+  titulo: 'Projetos 3D de Móveis Planejados | Império Jaú',
+  descricao:
+    'Projetos 3D de cozinhas, quartos, closets, home office e banheiros planejados pela Império, em Jaú/SP. Abra qualquer um no editor 3D e peça o orçamento.',
+  canonico: `${EMPRESA.url}${CAMINHO_PROJETOS_3D}`,
+};
 
 /** Título, descrição e endereço canônico de cada página (os mesmos do HTML pré-renderizado). */
 export function metaV2(rota: RotaV2): { titulo: string; descricao: string; canonico: string } {
@@ -70,6 +82,8 @@ export function metaV2(rota: RotaV2): { titulo: string; descricao: string; canon
       return seo(rota.rota);
     case 'projetar':
       return seo('/projetar');
+    case 'projetos3d':
+      return META_PROJETOS_3D;
     case 'orcamento':
       return seo('/contato');
     case 'legal':

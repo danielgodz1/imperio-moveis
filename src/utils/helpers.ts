@@ -13,7 +13,7 @@ declare global {
  * Dispara eventos GA4 (whatsapp_click e generate_lead) sem dados pessoais (PII).
  */
 export function trackEvent(
-  eventName: 'whatsapp_click' | 'generate_lead' | 'projeto_3d',
+  eventName: 'whatsapp_click' | 'generate_lead' | 'projeto_3d' | 'conversa_flutuante',
   params: Record<string, string | number | boolean> = {}
 ): void {
   if (typeof window === 'undefined') return;

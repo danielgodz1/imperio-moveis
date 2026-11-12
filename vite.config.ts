@@ -3,12 +3,13 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import { defineConfig, Plugin } from 'vite';
-import { gerarHtml404, injetarSeoFoto, injetarSeoNoHtml } from './src/utils/prerenderHtml';
+import { gerarHtml404, injetarSeoFoto, injetarSeoNoHtml, injetarSeoProjetos3D } from './src/utils/prerenderHtml';
 import { execSync } from 'child_process';
 import { PAGINAS_AMBIENTES_LOCAIS, RotaPublica } from './src/data/paginasLocais';
 import { EMPRESA } from './src/data/empresa';
 import { OBRAS_REAIS } from './src/data/portfolioData';
-import { caminhoFoto } from './src/v2/rotasV2';
+import { CAMINHO_PROJETOS_3D, caminhoFoto } from './src/v2/rotasV2';
+import { PROJETOS_3D } from './src/data/projetos3d';
 
 const ROTAS_PRERENDER: RotaPublica[] = [
   '/',
@@ -60,6 +61,12 @@ export function gerarSitemap(lastmod: string | null): string {
     <lastmod>${lastmod}</lastmod>` : ''}${imagens}
   </url>`;
   });
+  // Projetos 3D (renders de projeto), com todas as imagens.
+  urls.push(`  <url>
+    <loc>${xml(EMPRESA.url + CAMINHO_PROJETOS_3D)}</loc>${lastmod ? `
+    <lastmod>${lastmod}</lastmod>` : ''}${PROJETOS_3D.map((p) => `
+    <image:image><image:loc>${xml(`${EMPRESA.url}${p.arquivo}.jpg`)}</image:loc></image:image>`).join('')}
+  </url>`);
   // Uma página por foto de obra (/obras/:id), com a própria foto.
   for (const obra of OBRAS_REAIS) {
     urls.push(`  <url>
@@ -99,6 +106,7 @@ function prerenderRotasLocaisPlugin(): Plugin {
       // Site (V2): HTML inicial em cada endereço oficial e uma página por foto de obra.
       for (const rota of ROTAS_PRERENDER) gravar(rota, injetarSeoNoHtml(baseHtml, rota));
       for (const obra of OBRAS_REAIS) gravar(caminhoFoto(obra), injetarSeoFoto(baseHtml, obra));
+      gravar(CAMINHO_PROJETOS_3D, injetarSeoProjetos3D(baseHtml));
 
       // V1 (layout anterior) em /v1: fora do Google, canônico apontando para a página do site,
       // fonte da V1 pré-carregada e o código dela (AppV1 + página) pedido junto.

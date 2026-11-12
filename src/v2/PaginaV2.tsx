@@ -6,8 +6,9 @@ import { globalLenis, scrollToTarget } from '../hooks/useScrollytelling';
 import { FiltroLapis } from '../components/LinhaLapis';
 import { HeroV2 } from './HeroV2';
 import { AvaliacoesV2, FechamentoV2, HistoriaV2, ManifestoV2, OndeEstamosV2, NumerosV2, ObrasV2, PerguntasV2, ProcessoV2, Projeto3DV2, ProjetoInclusoV2 } from './SecoesV2';
-import { BarraAcoesV2, CabecalhoV2, PainelOrcamentoV2, RodapeV2 } from './CromoV2';
-import { AmbienteV2, FotoPaginaV2, LegalV2, NaoEncontradaV2, ObrasPaginaV2, OrcamentoV2, ProjetarV2 } from './PaginasInternasV2';
+import { CabecalhoV2, PainelOrcamentoV2, RodapeV2 } from './CromoV2';
+import { ConversaFlutuanteV2 } from './ConversaFlutuanteV2';
+import { AmbienteV2, FotoPaginaV2, LegalV2, NaoEncontradaV2, ObrasPaginaV2, OrcamentoV2, ProjetarV2, Projetos3DPaginaV2 } from './PaginasInternasV2';
 import { ContextoNavV2, NavegacaoV2 } from './NavegacaoV2';
 import { RotaV2, lerRotaV2, metaV2 } from './rotasV2';
 
@@ -18,7 +19,6 @@ const chaveDaRota = (r: RotaV2) =>
 const PaginaV2: React.FC = () => {
   const [rota, setRota] = useState<RotaV2>(() => lerRotaV2(window.location.pathname, window.location.hash));
   const [painel, setPainel] = useState<{ aberto: boolean; ambiente?: string }>({ aberto: false });
-  const [barra, setBarra] = useState(false);
   const fecharPainel = useCallback(() => setPainel({ aberto: false }), []);
 
   const ir = useCallback((destino: string) => {
@@ -73,32 +73,6 @@ const PaginaV2: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chave, ancora]);
 
-  // Barra de orçamento e 3D: na home, só depois da abertura; no editor 3D, escondida.
-  useEffect(() => {
-    if (rota.pagina === 'projetar') {
-      setBarra(false);
-      return;
-    }
-    const medir = () => {
-      const hero = rota.pagina === 'inicio' ? document.getElementById('hero') : null;
-      const depoisDoHero = !hero || hero.getBoundingClientRect().bottom < window.innerHeight * 0.5;
-      // Some quando já há botões de orçamento na parte de baixo da tela (chamadas, fechamento, rodapé).
-      const faixa = window.innerHeight - 160;
-      const temBotaoPerto = Array.from(document.querySelectorAll('[data-sem-barra]')).some((el) => {
-        const r = el.getBoundingClientRect();
-        return r.bottom > faixa && r.top < window.innerHeight;
-      });
-      setBarra(depoisDoHero && !temBotaoPerto);
-    };
-    medir();
-    window.addEventListener('scroll', medir, { passive: true });
-    window.addEventListener('resize', medir);
-    return () => {
-      window.removeEventListener('scroll', medir);
-      window.removeEventListener('resize', medir);
-    };
-  }, [rota.pagina]);
-
   let conteudo: React.ReactNode;
   switch (rota.pagina) {
     case 'inicio':
@@ -131,6 +105,9 @@ const PaginaV2: React.FC = () => {
     case 'projetar':
       conteudo = <ProjetarV2 />;
       break;
+    case 'projetos3d':
+      conteudo = <Projetos3DPaginaV2 />;
+      break;
     case 'orcamento':
       conteudo = (
         <>
@@ -154,7 +131,8 @@ const PaginaV2: React.FC = () => {
         <CabecalhoV2 transparenteNoTopo={rota.pagina === 'inicio'} />
         <main key={chave}>{conteudo}</main>
         <RodapeV2 />
-        <BarraAcoesV2 visivel={barra && !painel.aberto} />
+        {/* Atalho de conversa (WhatsApp, orçamento, 3D) em todas as páginas, menos no editor 3D. */}
+        <ConversaFlutuanteV2 visivel={rota.pagina !== 'projetar' && !painel.aberto} />
         <PainelOrcamentoV2 aberto={painel.aberto} ambiente={painel.ambiente} onFechar={fecharPainel} />
       </div>
     </ContextoNavV2.Provider>

@@ -56,3 +56,12 @@ export const PASSOS_3D_V2 = [
   { titulo: 'Monte do seu jeito', texto: 'Coloque os móveis, troque cores e madeiras e veja a luz do ambiente mudar.' },
   { titulo: 'Mande para orçar', texto: 'Baixe a imagem do projeto e envie pelo WhatsApp. A arquiteta parte dela.' },
 ];
+
+/** Página /projetos-3d (o React e o HTML inicial usam os mesmos textos). */
+export const PROJETOS_3D_V2 = {
+  olho: 'Projetos 3D de móveis planejados',
+  titulo: 'Projetos *em 3D.*',
+  apoio:
+    'Imagens de projeto, não fotos de obra pronta. Abra qualquer um no editor 3D, troque medidas, móveis e cores, e mande para a gente orçar.',
+  aviso: 'Visualização aproximada. O projeto final é detalhado pela arquiteta depois da medição no local.',
+};

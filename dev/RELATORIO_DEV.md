@@ -85,3 +85,27 @@ Testes: `src/components/quarto3d/seguranca.test.ts` (11 casos: link longo, HTML,
 | QR e PDF | Gerados no navegador; o único texto variável é o link do próprio site e o nome do projeto (limpo) |
 | Dependências novas | `jspdf@4.2.1`, `qrcode-generator@2.0.4` (produção, carregadas sob demanda); `@playwright/test`, `@axe-core/playwright` (desenvolvimento). `npm audit --omit=dev`: 0 vulnerabilidades |
 | CSP | Sem mudança; o erro de WebAssembly foi resolvido no código, sem afrouxar a política |
+
+## Projetos 3D, home mais curta e atalho de conversa (12/11/2026)
+
+| O quê | Onde |
+| :--- | :--- |
+| Página `/projetos-3d`: 15 projetos 3D (renders do editor do site, não fotos de obra) separados por tema (cozinhas, quartos, closets, home office, banheiros). Cada um tem "Abrir no 3D" (abre montado no editor) e "Quero orçar" | `src/v2/PaginasInternasV2.tsx` (`Projetos3DPaginaV2`), `src/data/projetos3d.ts`, `public/projetos3d/` |
+| HTML inicial, `CollectionPage` + trilha em JSON-LD, sitemap com as 15 imagens, rewrite e cache de imagem na Vercel | `src/v2/prerenderV2.ts` (`htmlProjetos3D`), `src/utils/prerenderHtml.ts` (`injetarSeoProjetos3D`), `vite.config.ts`, `vercel.json` |
+| Home: a seção de obras ficou com 1 obra em destaque, 3 cartões de ambiente (levam a `/obras#cozinhas`, `#quartos`, `#lojas`) e o botão "Ver todas as 11 obras"; antes eram as 11 fotos em sequência | `ObrasV2` em `src/v2/SecoesV2.tsx` |
+| Atalho de conversa no canto inferior direito (todas as páginas, menos o editor 3D): avatar com a coroa da Império, balão de convite depois de 6 s (uma vez por visita) e cartão com WhatsApp, orçamento em 3 perguntas e 3D. Substitui a barra fixa de baixo | `src/v2/ConversaFlutuanteV2.tsx`; evento de analytics `conversa_flutuante` (`balao_exibido`, `abrir`, `orcamento`); o clique no WhatsApp continua em `whatsapp_click` (`v2_flutuante`) |
+| Menu do topo ganhou "Projetos 3D" | `src/v2/CromoV2.tsx` e `cabecalho()` do pré-render |
+
+### Como a Império adiciona um projeto 3D
+
+1. Exportar a imagem (render do Promob/SketchUp ou captura do editor) em JPG, de preferência com 1600 px de largura.
+2. Gerar as variantes em `public/projetos3d/` com o mesmo nome base (ex.: `cozinha-cliente-x`):
+
+   ```bash
+   python -c "from PIL import Image; import sys; n=sys.argv[1]; im=Image.open(sys.argv[2]).convert('RGB'); b='public/projetos3d/'+n; im.save(b+'.jpg',quality=82,optimize=True,progressive=True); [ (r.save(f'{b}-{s}.webp',quality=78,method=6), r.save(f'{b}-{s}.avif',quality=55)) for w,s in ((800,'800'),(min(1600,im.width),'1600')) for r in [im.resize((w,round(im.height*w/im.width)))] ]" cozinha-cliente-x caminho/da/imagem.jpg
+   ```
+
+3. Acrescentar um item em `PROJETOS_3D` (`src/data/projetos3d.ts`) com tema, nome, descrição curta e a proporção da imagem (largura / altura). O campo `projeto` só existe para modelos montados no editor do site.
+4. `npm run lint && npm test && npm run build`: o teste confere se as 5 variantes existem.
+
+O "mascote" do atalho é a coroa do logo. Para trocar por uma ilustração, basta substituir o `<LogoImperio>` do botão e do cartão em `ConversaFlutuanteV2.tsx` por uma `<img>`.

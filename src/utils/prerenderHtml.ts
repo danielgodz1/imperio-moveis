@@ -7,8 +7,9 @@ import {
 } from '../data/paginasLocais';
 import { EMPRESA } from '../data/empresa';
 import { RESUMO_GOOGLE } from '../data/avaliacoesGoogle';
-import { htmlAmbiente, htmlContato, htmlFoto, htmlInicio, htmlLegal, htmlObras, htmlProjetar, html404 } from '../v2/prerenderV2';
-import { NOME_AMBIENTE, metaFoto } from '../v2/rotasV2';
+import { htmlAmbiente, htmlContato, htmlFoto, htmlInicio, htmlLegal, htmlObras, htmlProjetar, htmlProjetos3D, html404 } from '../v2/prerenderV2';
+import { META_PROJETOS_3D, NOME_AMBIENTE, metaFoto } from '../v2/rotasV2';
+import { PROJETOS_3D } from '../data/projetos3d';
 import type { ObraItem } from '../types';
 import { METADADOS_FASES, PAINEL_DESKTOP } from '../components/heroScroll/useHeroScrollStore';
 import { gerarJsonLdPerguntas } from '../data/perguntas';
@@ -405,4 +406,46 @@ export function injetarSeoFoto(htmlBase: string, obra: ObraItem): string {
     .replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/, `<meta name="twitter:image" content="${escaparHtml(imagem)}" />`)
     .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/, dados)
     .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${htmlFoto(obra)}</div>`);
+}
+
+/** Página dos projetos 3D (/projetos-3d): meta própria, galeria de imagens e trilha. */
+export function injetarSeoProjetos3D(htmlBase: string): string {
+  const meta = META_PROJETOS_3D;
+  const capa = `${EMPRESA.url}${PROJETOS_3D[0]?.arquivo ?? '/projetar/cozinha-render'}.jpg`;
+  const bloco = (d: unknown) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`;
+  const dados =
+    bloco(gerarJsonLdFurnitureStore()) +
+    bloco({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: meta.titulo,
+      description: meta.descricao,
+      url: meta.canonico,
+      hasPart: PROJETOS_3D.map((p) => ({
+        '@type': 'ImageObject',
+        contentUrl: `${EMPRESA.url}${p.arquivo}.jpg`,
+        name: p.nome,
+        description: p.descricao,
+        creditText: EMPRESA.nome,
+      })),
+    }) +
+    bloco({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: `${EMPRESA.url}/` },
+        { '@type': 'ListItem', position: 2, name: 'Projetos 3D', item: meta.canonico },
+      ],
+    });
+  return htmlBase
+    .replace(/<title>[\s\S]*?<\/title>/, `<title>${escaparHtml(meta.titulo)}</title>`)
+    .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, `<meta name="description" content="${escaparHtml(meta.descricao)}" />`)
+    .replace(/<link\s+rel="canonical"\s+href="[^"]*"[^>]*\/?>/, `<link rel="canonical" href="${escaparHtml(meta.canonico)}" />`)
+    .replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/, `<meta property="og:title" content="${escaparHtml(meta.titulo)}" />`)
+    .replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/, `<meta property="og:description" content="${escaparHtml(meta.descricao)}" />`)
+    .replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/, `<meta property="og:url" content="${escaparHtml(meta.canonico)}" />`)
+    .replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/, `<meta property="og:image" content="${escaparHtml(capa)}" />`)
+    .replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/, `<meta name="twitter:image" content="${escaparHtml(capa)}" />`)
+    .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/, dados)
+    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${htmlProjetos3D()}</div>`);
 }

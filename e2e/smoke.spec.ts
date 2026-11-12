@@ -20,7 +20,7 @@ test.beforeEach(async ({ context }) => {
   await context.route('**/api/avaliacoes', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"total":0,"avaliacoes":[]}' }));
 });
 
-for (const rota of ['/', '/obras', '/obras/cozinha-ilha-verde', '/projetar', '/contato', '/cozinhas-planejadas-jau', '/closets-sob-medida-jau', '/privacidade', '/termos']) {
+for (const rota of ['/', '/obras', '/obras/cozinha-ilha-verde', '/projetar', '/projetos-3d', '/contato', '/cozinhas-planejadas-jau', '/closets-sob-medida-jau', '/privacidade', '/termos']) {
   test(`abre ${rota} com título, H1 e sem erro`, async ({ page }) => {
     const erros = vigiarErros(page);
     const resposta = await page.goto(rota);
@@ -142,4 +142,49 @@ test('painel de orçamento (botão do cabeçalho) mostra as duas escolhas', asyn
   const painel = page.getByRole('dialog', { name: /orçamento/i });
   await expect(painel.getByRole('link', { name: /Falar agora no WhatsApp/ })).toBeVisible();
   await expect(painel.getByRole('button', { name: 'Continuar' })).toBeVisible();
+});
+
+test('atalho de conversa no canto: WhatsApp, orçamento e 3D; Escape fecha', async ({ page }) => {
+  await page.goto('/obras');
+  await page.waitForLoadState('networkidle');
+  const botao = page.getByRole('button', { name: /Conversar com a Império/ });
+  await expect(botao).toBeVisible();
+  await botao.click();
+  const cartao = page.getByRole('dialog', { name: 'Fale com a Império' });
+  const whats = cartao.getByRole('link', { name: /Falar agora no WhatsApp/ });
+  await expect(whats).toBeFocused();
+  expect(await whats.getAttribute('href')).toContain('wa.me/5514998492834');
+  await expect(cartao.getByRole('link', { name: /Projetar em 3D/ })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(cartao).toHaveCount(0);
+  await expect(botao).toBeFocused();
+  // "Pedir orçamento" do atalho abre o formulário de 3 perguntas.
+  await botao.click();
+  await cartao.getByRole('button', { name: /Pedir orçamento/ }).click();
+  await expect(page.getByRole('dialog', { name: /orçamento/i }).getByRole('button', { name: 'Continuar' })).toBeVisible();
+});
+
+test('atalho de conversa some no editor 3D', async ({ page }) => {
+  await page.goto('/projetar');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('button', { name: /Conversar com a Império/ })).toBeHidden();
+});
+
+test('projetos 3D separados por tema, cada um com "Abrir no 3D"', async ({ page }) => {
+  await page.goto('/projetos-3d');
+  for (const tema of ['Cozinhas', 'Quartos', 'Closets', 'Home office', 'Banheiros']) {
+    await expect(page.getByRole('heading', { level: 2, name: tema })).toBeVisible();
+  }
+  const links = page.locator('main').getByRole('link', { name: 'Abrir no 3D' });
+  expect(await links.count()).toBeGreaterThanOrEqual(15);
+  expect(await links.first().getAttribute('href')).toMatch(/^\/projetar#projeto=z\./);
+});
+
+test('projeto 3D da galeria abre montado no editor @3d', async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.goto('/projetos-3d');
+  await page.waitForLoadState('networkidle');
+  await page.locator('main').getByRole('link', { name: 'Abrir no 3D' }).first().click();
+  await expect(page).toHaveURL(/\/projetar#projeto=/);
+  await expect(page.locator('canvas').first()).toBeVisible({ timeout: 60_000 });
 });

@@ -12,24 +12,25 @@ const posterInicial = document.querySelector('#root .poster-notebook-estatico, #
 (window as Window & { __posterInicial?: Element | null }).__posterInicial = posterInicial;
 
 /**
- * Espera o pôster do HTML inicial ser pintado antes de montar o React (no máximo 2,5 s).
- * Se o React montasse antes, o navegador contaria o pôster como dependente de todo o
- * JavaScript, e o "maior elemento" (LCP) ficaria segundos mais tarde nas medições.
+ * Espera o HTML inicial ficar pronto na tela antes de montar o React (no máximo 3 s): as fontes
+ * do site, o pôster do notebook e as fotos marcadas como prioridade. Se o React montasse antes,
+ * ele recriaria título e foto que ainda nem tinham sido pintados no tamanho final, e o navegador
+ * contaria o "maior elemento" (LCP) só depois de todo o JavaScript.
  */
 const doisQuadros = () => new Promise<void>((ok) => requestAnimationFrame(() => requestAnimationFrame(() => ok())));
 
-function posterPintado(): Promise<void> {
-  // Sem pôster: só garante que o HTML inicial já foi pintado (dois quadros) antes do React.
-  if (!(posterInicial instanceof HTMLImageElement)) return doisQuadros();
-  const pintado = posterInicial
-    .decode()
-    .catch(() => undefined)
-    .then(doisQuadros);
-  const limite = new Promise<void>((ok) => setTimeout(ok, 2500));
-  return Promise.race([pintado, limite]);
+function paginaInicialPintada(): Promise<void> {
+  const imagens = Array.from(document.querySelectorAll<HTMLImageElement>('#root img[fetchpriority="high"]'));
+  if (posterInicial instanceof HTMLImageElement && !imagens.includes(posterInicial)) imagens.push(posterInicial);
+  const pronto = Promise.all([
+    document.fonts?.ready.catch(() => undefined),
+    ...imagens.map((img) => img.decode().catch(() => undefined)),
+  ]).then(doisQuadros);
+  const limite = new Promise<void>((ok) => setTimeout(ok, 3000));
+  return Promise.race([pronto, limite]);
 }
 
 // Espera também o código da página aberta para não trocar o HTML pré-renderizado por uma tela vazia.
-Promise.all([precarregarRota(window.location.pathname).catch(() => undefined), posterPintado()]).finally(() =>
+Promise.all([precarregarRota(window.location.pathname).catch(() => undefined), paginaInicialPintada()]).finally(() =>
   createRoot(document.getElementById('root')!).render(<App />)
 );

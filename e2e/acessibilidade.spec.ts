@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 // WCAG 2.1 AA: falha em violações sérias ou críticas.
-for (const rota of ['/', '/obras', '/obras/cozinha-ilha-verde', '/projetar', '/contato', '/cozinhas-planejadas-jau', '/privacidade']) {
+for (const rota of ['/', '/obras', '/obras/cozinha-ilha-verde', '/projetar', '/projetos-3d', '/contato', '/cozinhas-planejadas-jau', '/privacidade']) {
   test(`acessibilidade de ${rota}`, async ({ page, context }) => {
     await context.route(/googletagmanager|google-analytics|fonts\.(googleapis|gstatic)/, (r) => r.abort());
     await page.goto(rota);

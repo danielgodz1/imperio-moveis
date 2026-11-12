@@ -10,6 +10,7 @@ export const MARGEM = 'px-16 sm:px-32 lg:px-64';
 
 const NAV = [
   { rotulo: 'Obras', para: '/obras' },
+  { rotulo: 'Projetos 3D', para: '/projetos-3d' },
   { rotulo: 'Projeto incluso', para: '/#v2-projeto-incluso' },
   { rotulo: 'Como trabalhamos', para: '/#v2-processo' },
   { rotulo: 'Avaliações', para: '/#v2-avaliacoes' },
@@ -52,7 +53,7 @@ export const CabecalhoV2: React.FC<{ transparenteNoTopo: boolean }> = ({ transpa
           </span>
         </LinkV2>
 
-        <nav aria-label="Principal" className="hidden xl:flex items-center gap-24">
+        <nav aria-label="Principal" className="hidden xl:flex items-center gap-16 2xl:gap-24 whitespace-nowrap">
           {NAV.map((n) => (
             <LinkV2 key={n.para} para={n.para} className="v2-cota hover:text-[var(--v2-texto)]">
               {n.rotulo}
@@ -119,28 +120,6 @@ export const ChamadaOrcamentoV2: React.FC<{ texto: string; ambiente?: string; cl
   );
 };
 
-/** Barra fixa no celular (e pílula no computador): orçamento e 3D sempre a um toque. */
-export const BarraAcoesV2: React.FC<{ visivel: boolean }> = ({ visivel }) => {
-  const { abrirOrcamento } = useNavV2();
-  return (
-    <div
-      className={`v2-escuro !bg-transparent fixed z-40 inset-x-0 bottom-0 md:inset-x-auto md:right-24 md:bottom-24 transition-[opacity,transform] duration-500 ${
-        visivel ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[120%] pointer-events-none'
-      }`}
-      aria-hidden={!visivel}
-    >
-      <div className="flex gap-8 p-[12px] pb-[max(12px,env(safe-area-inset-bottom))] bg-[var(--v2-noite)]/95 md:bg-transparent md:p-0 border-t v2-linha-fina md:border-0">
-        <LinkV2 para="/projetar" tabIndex={visivel ? 0 : -1} className="v2-botao v2-botao-linha flex-1 justify-center md:flex-none md:bg-[var(--v2-noite)]">
-          <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Projetar em 3D
-        </LinkV2>
-        <button type="button" tabIndex={visivel ? 0 : -1} onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro flex-1 justify-center md:flex-none md:shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-          Pedir orçamento
-        </button>
-      </div>
-    </div>
-  );
-};
-
 /** Painel lateral com o formulário de orçamento (o mesmo da V1, que manda para o WhatsApp). */
 export const PainelOrcamentoV2: React.FC<{ aberto: boolean; ambiente?: string; onFechar: () => void }> = ({ aberto, ambiente, onFechar }) => {
   useEffect(() => {
@@ -189,6 +168,7 @@ const AMBIENTES = [
 const SITE = [
   { rotulo: 'Projeto de arquitetura incluso', para: '/#v2-projeto-incluso' },
   { rotulo: 'Como trabalhamos', para: '/#v2-processo' },
+  { rotulo: 'Projetos 3D prontos', para: '/projetos-3d' },
   { rotulo: 'Projetar em 3D', para: '/projetar' },
   { rotulo: 'Avaliações', para: '/#v2-avaliacoes' },
   { rotulo: 'Nossa história', para: '/#v2-historia' },

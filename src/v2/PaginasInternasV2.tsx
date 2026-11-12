@@ -12,9 +12,11 @@ import { ChamadaOrcamentoV2, MARGEM } from './CromoV2';
 import { LinkV2, useNavV2 } from './NavegacaoV2';
 import { CartaoObraV2, Titulo } from './SecoesV2';
 import { ComItalico } from './Serif';
-import { NOME_AMBIENTE, ROTAS_AMBIENTE, ROTULO_AMBIENTE, RotaAmbiente, ambienteDoBriefing, caminhoFoto } from './rotasV2';
+import { CAMINHO_PROJETOS_3D, NOME_AMBIENTE, ROTAS_AMBIENTE, ROTULO_AMBIENTE, RotaAmbiente, ambienteDoBriefing, caminhoFoto } from './rotasV2';
 import { PAGINAS_AMBIENTES_LOCAIS } from '../data/paginasLocais';
-import { PASSOS_3D_V2 } from './textosV2';
+import { PASSOS_3D_V2, PROJETOS_3D_V2 } from './textosV2';
+import { PROJETOS_3D, TEMAS_PROJETO_3D, linkProjeto3D, type TemaProjeto3D } from '../data/projetos3d';
+import { TAMANHO_FOTO_DEITADA, TAMANHO_FOTO_EM_PE } from './prerenderV2';
 import { useAtivarNaInteracao } from '../hooks/useAtivarNaInteracao';
 import { temProjetoSalvo } from '../components/quarto3d/projetosSalvos';
 
@@ -99,7 +101,7 @@ export const FotoPaginaV2: React.FC<{ obra: ObraItem }> = ({ obra }) => {
         </div>
         <div className={`grid grid-cols-1 ${deitada ? '' : 'lg:grid-cols-12'} gap-48 items-start`}>
           <figure className={`relative ${deitada ? '' : 'lg:col-span-7'}`} style={{ aspectRatio: obra.proporcao }}>
-            <Foto srcBase={obra.arquivo} alt={obra.alt} proporcao={obra.proporcao} prioridade sizes={deitada ? '100vw' : '(min-width: 1024px) 58vw, 100vw'} className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
+            <Foto srcBase={obra.arquivo} alt={obra.alt} proporcao={obra.proporcao} prioridade sizes={deitada ? TAMANHO_FOTO_DEITADA : TAMANHO_FOTO_EM_PE} className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
             <AnotacoesObra anotacoes={obra.anotacoes} />
           </figure>
           <div className={`flex flex-col gap-24 ${deitada ? 'lg:grid lg:grid-cols-12 lg:gap-48' : 'lg:col-span-5 lg:sticky lg:top-[100px]'}`}>
@@ -251,6 +253,82 @@ export const ProjetarV2: React.FC = () => {
   );
 };
 
+/** Opção do formulário de orçamento para cada tema de projeto 3D. */
+const BRIEFING_DO_TEMA: Record<TemaProjeto3D, string> = {
+  cozinhas: 'Cozinha',
+  quartos: 'Quarto',
+  closets: 'Closet',
+  'home-office': 'Home office',
+  banheiros: 'Outro',
+};
+
+/** /projetos-3d: projetos 3D (renders) separados por tema; cada um abre no editor ou vira orçamento. */
+export const Projetos3DPaginaV2: React.FC = () => {
+  const { abrirOrcamento } = useNavV2();
+  const temas = TEMAS_PROJETO_3D.filter((t) => PROJETOS_3D.some((p) => p.tema === t.id));
+  return (
+    <>
+      <section className={`v2-escuro ${MARGEM} pt-[136px] pb-64 flex flex-col gap-32`}>
+        <Trilha itens={[{ rotulo: 'Início', para: '/' }, { rotulo: 'Projetos 3D' }]} />
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24">
+          <Titulo as="h1" olho={PROJETOS_3D_V2.olho} texto={PROJETOS_3D_V2.titulo} className="max-w-[14ch]" />
+          <div className="flex flex-col gap-16 max-w-[44ch]">
+            <p className="v2-corpo">{PROJETOS_3D_V2.apoio}</p>
+            <p className="v2-cota">{PROJETOS_3D_V2.aviso}</p>
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-16">
+          <nav aria-label="Temas" className="flex flex-wrap gap-8">
+            {temas.map((t) => (
+              <LinkV2 key={t.id} para={`${CAMINHO_PROJETOS_3D}#${t.id}`} className="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem]">
+                {t.rotulo} ({PROJETOS_3D.filter((p) => p.tema === t.id).length})
+              </LinkV2>
+            ))}
+          </nav>
+          <LinkV2 para="/projetar" className="v2-botao v2-botao-claro self-start">
+            <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Criar o meu do zero
+          </LinkV2>
+        </div>
+      </section>
+      {temas.map((t) => (
+        <section key={t.id} id={t.id} className={`v2-escuro ${MARGEM} py-96 border-t v2-linha-fina scroll-mt-[80px]`}>
+          <h2 className="v2-serif v2-titulo mb-48">{t.rotulo}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32 gap-y-64 items-start">
+            {PROJETOS_3D.filter((p) => p.tema === t.id).map((p) => (
+              <article key={p.id} className="flex flex-col gap-16">
+                <LinkV2 para={linkProjeto3D(p)} className="group block overflow-hidden" aria-label={`Abrir no editor 3D: ${p.nome}`}>
+                  <Foto
+                    srcBase={p.arquivo}
+                    alt={`Projeto 3D: ${p.nome}. ${p.descricao}`}
+                    proporcao={p.proporcao}
+                    sizes="(max-width: 639px) 60vw, (min-width: 1024px) 30vw, 50vw"
+                    className="w-full transition-transform duration-[1.2s] group-hover:scale-[1.03]"
+                  />
+                </LinkV2>
+                <div className="flex flex-col gap-4">
+                  <h3 className="v2-serif text-[1.5rem] leading-tight">{p.nome}</h3>
+                  <p className="v2-cota">{p.descricao}</p>
+                </div>
+                <div className="flex flex-wrap gap-8">
+                  <LinkV2 para={linkProjeto3D(p)} className="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem]">
+                    <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Abrir no 3D
+                  </LinkV2>
+                  <button type="button" onClick={() => abrirOrcamento(BRIEFING_DO_TEMA[p.tema])} className="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">
+                    Quero orçar
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+      <section className={`v2-escuro ${MARGEM} py-96 border-t v2-linha-fina`}>
+        <ChamadaOrcamentoV2 texto="Quer um projeto *só seu?*" />
+      </section>
+    </>
+  );
+};
+
 /** /contato: o formulário em página própria, com todos os contatos ao lado. */
 export const OrcamentoV2: React.FC = () => (
   <section className={`v2-claro ${MARGEM} pt-[136px] pb-96 grid grid-cols-1 lg:grid-cols-12 gap-48`}>
@@ -362,7 +440,7 @@ export const AmbienteV2: React.FC<{ rota: RotaAmbiente }> = ({ rota }) => {
         </div>
         {principal && (
           <figure className="flex flex-col gap-8">
-            <Foto srcBase={principal.srcBase} alt={principal.alt} proporcao={principal.razao} prioridade sizes="100vw" className="w-full max-h-[78vh]" imgStyle={{ objectFit: 'cover' }} />
+            <Foto srcBase={principal.srcBase} alt={principal.alt} proporcao={principal.razao} prioridade sizes={TAMANHO_FOTO_DEITADA} className="w-full max-h-[78vh]" imgStyle={{ objectFit: 'cover' }} />
             <figcaption className="v2-cota">{principal.legenda}</figcaption>
           </figure>
         )}
@@ -395,7 +473,7 @@ export const AmbienteV2: React.FC<{ rota: RotaAmbiente }> = ({ rota }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32 gap-y-48 items-start">
             {outras.map((f) => (
               <figure key={f.srcBase} className="flex flex-col gap-8">
-                <Foto srcBase={f.srcBase} alt={f.alt} proporcao={f.razao} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw" className="w-full" />
+                <Foto srcBase={f.srcBase} alt={f.alt} proporcao={f.razao} sizes="(max-width: 639px) 60vw, (min-width: 1024px) 30vw, 50vw" className="w-full" />
                 <figcaption className="v2-cota">{f.legenda}</figcaption>
               </figure>
             ))}

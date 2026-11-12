@@ -60,7 +60,7 @@ export const ManifestoV2: React.FC = () => {
 };
 
 /** Cartão de obra da galeria: foto, título e cota; abre a página da foto. */
-export const CartaoObraV2: React.FC<{ obra: (typeof OBRAS_REAIS)[number]; sizes?: string }> = ({ obra, sizes = '(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw' }) => (
+export const CartaoObraV2: React.FC<{ obra: (typeof OBRAS_REAIS)[number]; sizes?: string }> = ({ obra, sizes = '(max-width: 639px) 60vw, (min-width: 1024px) 30vw, 50vw' }) => (
   <LinkV2 para={caminhoFoto(obra)} className="group flex flex-col gap-16" aria-label={`Ver a obra: ${obra.titulo}`}>
     <span className="block overflow-hidden" style={{ aspectRatio: obra.proporcao }}>
       <Foto
@@ -82,57 +82,92 @@ export const CartaoObraV2: React.FC<{ obra: (typeof OBRAS_REAIS)[number]; sizes?
   </LinkV2>
 );
 
+/** Temas de obra mostrados na home (cada um abre a seção dele em /obras). */
+const TEMAS_OBRA_HOME: { id: (typeof OBRAS_REAIS)[number]['ambiente']; rotulo: string; capa: string }[] = [
+  { id: 'cozinhas', rotulo: 'Cozinhas', capa: 'cozinha-ilha-ripado' },
+  { id: 'quartos', rotulo: 'Quartos', capa: 'quarto-infantil-casinha' },
+  { id: 'lojas', rotulo: 'Lojas e comércio', capa: 'comercial-gocoffee-interior' },
+];
+
+/** Obra grande da home: diferente da cozinha que fecha a abertura (cozinha-gringa-4k). */
+const DESTAQUE_HOME = 'cozinha-forro-ripado';
+
 /**
- * Capítulo 3: caderno de obra. As cinco primeiras entram grandes, com os fios dourados do
- * acabamento; as outras vêm logo depois numa galeria. Todas abrem a página da própria foto.
+ * Capítulo 3: caderno de obra, curto. Uma obra grande com os fios dourados do acabamento,
+ * um cartão por ambiente (levando à seção dele em /obras) e o botão para ver todas.
+ * As outras fotos ficam em /obras, para a home não virar uma rolagem só de fotos.
  */
 export const ObrasV2: React.FC = () => {
-  const destaque = OBRAS_REAIS.filter((o) => o.anotacoes && o.anotacoes.length > 0).slice(0, 5);
-  const resto = OBRAS_REAIS.filter((o) => !destaque.includes(o));
+  const destaque = OBRAS_REAIS.find((o) => o.id === DESTAQUE_HOME) ?? OBRAS_REAIS[0];
+  const temas = TEMAS_OBRA_HOME.map((t) => {
+    const doTema = OBRAS_REAIS.filter((o) => o.ambiente === t.id);
+    return { ...t, total: doTema.length, capa: doTema.find((o) => o.id === t.capa) ?? doTema[0] };
+  }).filter((t) => t.capa);
   return (
     <section id="v2-obras" className={`v2-claro ${MARGEM} py-[14vh]`}>
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24 mb-[10vh]">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24 mb-64">
         <Titulo texto="Obras que *já moram* em Jaú." className="max-w-[12ch]" />
-        <div className="flex flex-col gap-16 lg:items-end">
-          <p className="v2-corpo max-w-[40ch] lg:text-right">Fotos reais de casas e lojas reais. Os fios dourados mostram o acabamento de cada peça.</p>
-          <LinkV2 para="/obras" className="v2-botao v2-botao-linha">
-            Ver as {OBRAS_REAIS.length} obras <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+        <p className="v2-corpo max-w-[40ch] lg:text-right">Fotos reais de casas e lojas reais. Os fios dourados mostram o acabamento de cada peça.</p>
+      </div>
+
+      <article className="grid grid-cols-1 lg:grid-cols-12 gap-32 lg:gap-64 items-center">
+        <figure className="lg:col-span-7 relative" style={{ aspectRatio: destaque.proporcao }}>
+          <LinkV2 para={caminhoFoto(destaque)} className="block w-full h-full" aria-label={`Ver a obra: ${destaque.titulo}`}>
+            <Foto srcBase={destaque.arquivo} alt={destaque.alt} proporcao={destaque.proporcao} sizes="(min-width: 1024px) 56vw, 100vw" className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
+          </LinkV2>
+          <AnotacoesObra anotacoes={destaque.anotacoes ?? []} />
+        </figure>
+        <div className="lg:col-span-5 flex flex-col items-start gap-16">
+          <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Obra em destaque</p>
+          <h3 className="v2-serif v2-h3">{destaque.titulo}</h3>
+          <p className="v2-corpo max-w-[40ch]">{destaque.cota}</p>
+          <LinkV2 para={caminhoFoto(destaque)} className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
+            Ver esta obra em detalhe
+          </LinkV2>
+        </div>
+      </article>
+
+      <div className="mt-[12vh] flex flex-col gap-32">
+        <h3 className="v2-serif v2-h3">
+          <ComItalico texto="Escolha o ambiente *e veja as obras.*" />
+        </h3>
+        <ul className="grid grid-cols-1 sm:grid-cols-3 gap-16 lg:gap-32">
+          {temas.map((t) => (
+            <li key={t.id}>
+              <LinkV2 para={`/obras#${t.id}`} className="group relative block overflow-hidden aspect-[4/5] sm:aspect-[3/4]" aria-label={`Ver obras de ${t.rotulo.toLowerCase()} (${t.total})`}>
+                <Foto
+                  srcBase={t.capa!.arquivo}
+                  alt=""
+                  proporcao={t.capa!.proporcao}
+                  sizes="(max-width: 639px) 60vw, 30vw"
+                  className="absolute inset-0 w-full h-full transition-transform duration-[1.2s] group-hover:scale-[1.04]"
+                  imgStyle={{ objectFit: 'cover', aspectRatio: 'auto' }}
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-[#0b0a08]/85 via-[#0b0a08]/10 to-transparent" aria-hidden="true" />
+                <span className="absolute inset-x-0 bottom-0 p-24 flex items-end justify-between gap-16 text-[#F4EFE6]">
+                  <span className="flex flex-col gap-4">
+                    <span className="v2-serif text-[2rem] leading-none">{t.rotulo}</span>
+                    <span className="text-[0.875rem] opacity-85">
+                      {t.total} {t.total === 1 ? 'obra' : 'obras'}
+                    </span>
+                  </span>
+                  <span className="w-[44px] h-[44px] shrink-0 rounded-full bg-[#F4EFE6] text-[#1B1915] flex items-center justify-center transition-transform group-hover:-translate-y-[2px] group-hover:translate-x-[2px]" aria-hidden="true">
+                    <ArrowUpRight className="w-[20px] h-[20px]" strokeWidth={1.5} />
+                  </span>
+                </span>
+              </LinkV2>
+            </li>
+          ))}
+        </ul>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-16 pt-16">
+          <LinkV2 para="/obras" className="v2-botao v2-botao-claro h-[56px] px-32 text-[1.0625rem] justify-center">
+            Ver todas as {OBRAS_REAIS.length} obras <ArrowUpRight className="w-[20px] h-[20px]" strokeWidth={1.5} />
+          </LinkV2>
+          <LinkV2 para="/projetos-3d" className="v2-botao v2-botao-linha h-[56px] px-24 justify-center">
+            <Box className="w-[18px] h-[18px]" strokeWidth={1.5} /> Ver projetos 3D
           </LinkV2>
         </div>
       </div>
-      <div className="flex flex-col gap-[14vh]">
-        {destaque.map((o, i) => (
-          <article key={o.id} className="grid grid-cols-1 lg:grid-cols-12 gap-32 lg:gap-64 items-center">
-            <figure className={`lg:col-span-7 relative ${i % 2 ? 'lg:order-2' : ''}`} style={{ aspectRatio: o.proporcao }}>
-              <LinkV2 para={caminhoFoto(o)} className="block w-full h-full" aria-label={`Ver a obra: ${o.titulo}`}>
-                <Foto srcBase={o.arquivo} alt={o.alt} proporcao={o.proporcao} sizes="(min-width: 1024px) 56vw, 100vw" className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
-              </LinkV2>
-              <AnotacoesObra anotacoes={o.anotacoes ?? []} />
-            </figure>
-            <div className={`lg:col-span-5 flex flex-col items-start gap-16 ${i % 2 ? 'lg:order-1' : ''}`}>
-              <span className="v2-serif v2-italico v2-acento text-[2.5rem] leading-none">{String(i + 1).padStart(2, '0')}</span>
-              <h3 className="v2-serif v2-h3">{o.titulo}</h3>
-              <p className="v2-corpo max-w-[40ch]">{o.cota}</p>
-              <LinkV2 para={caminhoFoto(o)} className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
-                Ver esta obra em detalhe
-              </LinkV2>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div className="mt-[14vh] flex flex-col gap-48">
-        <h3 className="v2-serif v2-h3">
-          <ComItalico texto="E tem *mais obra* para ver." />
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32 gap-y-64 items-start">
-          {resto.map((o) => (
-            <CartaoObraV2 key={o.id} obra={o} />
-          ))}
-        </div>
-      </div>
-
-      <ChamadaOrcamentoV2 texto="Gostou de alguma? *A gente faz a sua.*" className="mt-[10vh]" />
     </section>
   );
 };
@@ -294,6 +329,9 @@ export const Projeto3DV2: React.FC = () => {
       <div className="flex flex-wrap gap-[12px]">
         <LinkV2 para="/projetar" className="v2-botao v2-botao-claro">
           <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Projetar em 3D agora
+        </LinkV2>
+        <LinkV2 para="/projetos-3d" className="v2-botao v2-botao-linha">
+          Ver projetos 3D prontos <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
         </LinkV2>
         <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-linha">
           Prefiro que a arquiteta desenhe

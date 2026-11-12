@@ -16,6 +16,7 @@ Domínio canônico: `https://www.imperiomoveisplanejadosjau.com.br` (definido em
 - H1 da home com a busca principal: linha "Móveis planejados em Jaú/SP" dentro do H1, acima do título.
 - `FAQPage` na home com as perguntas confirmadas (`src/data/perguntas.ts`), as mesmas exibidas no fechamento.
 - Página `/projetar` (3D online grátis) pré-renderizada, no sitemap e com imagem própria.
+- Página `/projetos-3d` (projetos 3D por tema) pré-renderizada, com `CollectionPage` + trilha em JSON-LD e as 15 imagens no sitemap. As imagens são renders de projeto, nunca apresentadas como obra entregue.
 - Verificação do Search Console por meta tag (`google-site-verification` no `index.html`) e por arquivo (`public/googlef1a68e75a1cb04cf.html`). A Vercel serve o arquivo também sem `.html` (cleanUrls); se a verificação por arquivo falhar por redirecionamento, a meta tag basta.
 - `WebSite` no JSON-LD da home (nome do site que o Google mostra ao lado do ícone) e `BreadcrumbList` em `/projetar`, `/contato`, `/privacidade` e `/termos`.
 - Página 404 de verdade (`dist/404.html`, gerada no build): endereço inexistente responde 404. O rewrite geral para a home foi removido do `vercel.json`, porque devolvia a home com status 200 (soft 404). Toda rota nova precisa entrar em `ROTAS_PRERENDER` e nos rewrites.
