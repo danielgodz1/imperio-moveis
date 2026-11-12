@@ -445,6 +445,7 @@ function Ambiente({
           position={[s.x, 0.003, s.z]}
           rotation={[-Math.PI / 2, 0, 0]}
           renderOrder={1}
+          userData={{ apenasEditor: true }}
         />
       ))}
 
@@ -529,6 +530,22 @@ function Palco(props: CenaQuarto3DProps & { mobile: boolean; tecnica: boolean })
     useEditor.setState({ capturar });
     return () => useEditor.setState({ capturar: null });
   }, [gl, scene, camera, size, invalidate]);
+
+  // Imagem final: o código do render só é baixado quando o cliente pede a imagem.
+  useEffect(() => {
+    const renderizarRealista: NonNullable<ReturnType<typeof useEditor.getState>['renderizarRealista']> = async (op) => {
+      // Cópia síncrona: congela o enquadramento e as paredes visíveis agora (o modo foto pode sair depois).
+      const cena = scene.clone(true);
+      // clone() também copia a textura de ambiente (PMREM), e a cópia perde o render target: reaproveita a original.
+      cena.environment = scene.environment;
+      cena.background = scene.background;
+      const cam = (camera as THREE.PerspectiveCamera).clone();
+      const { renderizarRealista: render } = await import('./renderRealista');
+      return render({ ...op, renderer: gl, cena, camera: cam });
+    };
+    useEditor.setState({ renderizarRealista });
+    return () => useEditor.setState({ renderizarRealista: null });
+  }, [gl, scene, camera]);
   const { mobile, onCanvasReady, tecnica, vista, pedidoVista, paredeElevacao, ...resto } = props;
   const k = useMemo(() => criarKit3D(mobile), [mobile]);
 

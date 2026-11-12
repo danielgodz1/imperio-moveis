@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Camera, Copy, DoorClosed, DoorOpen, Download, Moon, Redo2, RotateCw, Sun, Trash2, Undo2 } from 'lucide-react';
+import { Camera, Copy, DoorClosed, DoorOpen, Download, Moon, Redo2, RotateCw, Sparkles, Sun, Trash2, Undo2 } from 'lucide-react';
 import { QuartoLayout, QuartoLayoutSchema, construirLayoutDoCenario, normalizarLayout, Ambiente, ModuloId } from './schema';
 import { CENARIOS_AMBIENTES, CATALOGO_MODULOS_CENARIO, ParedeCardeal } from '../../data/cenarios';
 import { ACABAMENTOS_3D } from '../../data/acabamentos';
@@ -24,6 +24,7 @@ import { COR_TEMPERATURA, NOME_TEMPERATURA, TEMPERATURAS_LED, TEMPERATURA_PADRAO
 import { baixarArquivo, imagemComMarca } from './fotoProjeto';
 import { modelosDo } from './modelosProntos';
 import { LIMITE_ABERTURAS, contarAberturas, podeAdicionarAbertura } from './limitesAberturas';
+import { detectarAparelho } from '../../vitrine/aparelho';
 import { DadosLead, PRAZOS, codificarProjeto, decodificarProjeto, estimarPreco, linhasDoProjeto, montarMensagem, reais } from './resumoProjeto';
 import { EMPRESA } from '../../data/empresa';
 import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
@@ -142,6 +143,68 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   const fotoRef = useRef<Blob | null>(null);
   const linkRef = useRef<string | undefined>(undefined);
   const [baixou, setBaixou] = useState(false);
+  /** Andamento da imagem realista (0..1); null quando não está calculando. */
+  const [progressoRender, setProgressoRender] = useState<number | null>(null);
+  const [realistaPronta, setRealistaPronta] = useState(false);
+  const [faseRender, setFaseRender] = useState<'preparando' | 'calculando'>('preparando');
+  const [avisoRender, setAvisoRender] = useState<string | null>(null);
+  const renderRef = useRef<AbortController | null>(null);
+  const gerarRef = useRef<() => void>(() => undefined);
+
+  /**
+   * Imagem renderizada (dezenas de passadas somadas: bordas lisas e sombras suaves). Começa sozinha
+   * depois da prévia rápida, que já fica pronta para baixar enquanto isso.
+   */
+  const gerarRealista = () => {
+    const { renderizarRealista, modoFoto: estavaEmFoto } = useEditor.getState();
+    if (!renderizarRealista || progressoRender !== null) return;
+    if (!estavaEmFoto) useEditor.setState({ modoFoto: true, selecionado: null });
+    const controle = new AbortController();
+    renderRef.current = controle;
+    setAvisoRender(null);
+    setFaseRender('preparando');
+    setProgressoRender(0);
+    window.setTimeout(async () => {
+      const canvas = canvasRef.current;
+      const celular = window.matchMedia('(pointer: coarse)').matches;
+      const forte = detectarAparelho().faixa >= 3;
+      const largura = celular ? 1280 : forte ? 1920 : 1600;
+      const proporcao = canvas && canvas.width ? canvas.height / canvas.width : 9 / 16;
+      let promessa: Promise<HTMLCanvasElement>;
+      try {
+        // A cena é copiada nesta chamada, ainda de frente; depois o editor volta ao normal.
+        promessa = renderizarRealista({
+          largura,
+          altura: Math.round(largura * proporcao),
+          passadas: celular ? 48 : forte ? 128 : 64,
+          mapaSombra: celular ? 2048 : 4096,
+          aoProgresso: (f, fase) => {
+            if (controle.signal.aborted) return;
+            setFaseRender(fase);
+            setProgressoRender(f);
+          },
+          sinal: controle.signal,
+        });
+      } finally {
+        if (!estavaEmFoto) useEditor.setState({ modoFoto: false });
+      }
+      try {
+        const final = await promessa;
+        if (controle.signal.aborted) return;
+        setMiniatura(final.toDataURL('image/jpeg', 0.9));
+        fotoRef.current = await imagemComMarca(final);
+        setRealistaPronta(true);
+        setBaixou(false);
+      } catch (erro) {
+        if (controle.signal.aborted) return;
+        console.warn('Imagem renderizada indisponível:', erro);
+        setAvisoRender('Não deu para renderizar neste aparelho. A imagem acima já está pronta para baixar.');
+      } finally {
+        if (!controle.signal.aborted) setProgressoRender(null);
+      }
+    }, 350);
+  };
+  gerarRef.current = gerarRealista;
 
   const cenarioAtual = CENARIOS_AMBIENTES[layout.comodo];
   const modulos = layout.modulos as Instancia[];
@@ -237,18 +300,28 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     setMiniatura(null);
     fotoRef.current = null;
     if (!estavaEmFoto) useEditor.setState({ modoFoto: true, selecionado: null });
-    const espera = window.setTimeout(async () => {
+    let espera = 0;
+    // A cena pode ainda estar montando (entrada rápida em Enviar): tenta de novo por alguns segundos.
+    const tentar = async (restantes: number) => {
       if (cancelado) return;
-      const canvas = useEditor.getState().capturar?.() ?? canvasRef.current;
+      const canvas = useEditor.getState().capturar?.() ?? (restantes === 0 ? canvasRef.current : null);
+      if (!canvas) {
+        if (restantes > 0) espera = window.setTimeout(() => tentar(restantes - 1), 400);
+        else if (!estavaEmFoto) useEditor.setState({ modoFoto: false });
+        return;
+      }
       if (!estavaEmFoto) useEditor.setState({ modoFoto: false });
-      if (!canvas) return;
       try {
         setMiniatura(canvas.toDataURL('image/jpeg', 0.85));
         fotoRef.current = await imagemComMarca(canvas);
       } catch {
         setMiniatura(null);
+        return;
       }
-    }, 400);
+      // Em seguida, a imagem renderizada (substitui a prévia quando termina).
+      if (!cancelado) espera = window.setTimeout(() => gerarRef.current(), 150);
+    };
+    espera = window.setTimeout(() => tentar(40), 400);
     linkDoProjeto()
       .then((l) => {
         if (!cancelado) linkRef.current = l;
@@ -256,8 +329,12 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
       .catch(() => {
         linkRef.current = undefined;
       });
+    setRealistaPronta(false);
+    setProgressoRender(null);
+    setAvisoRender(null);
     return () => {
       cancelado = true;
+      renderRef.current?.abort();
       window.clearTimeout(espera);
       if (!estavaEmFoto) useEditor.setState({ modoFoto: false });
     };
@@ -698,11 +775,44 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
           <div className="flex flex-col gap-24">
             <div className="flex flex-col gap-8">
               {miniatura ? (
-                <img src={miniatura} alt={`Imagem de frente do projeto de ${cenarioAtual.rotulo.toLowerCase()}`} className="w-full border border-papel/20" />
+                <div className="relative">
+                  <img src={miniatura} alt={`Imagem de frente do projeto de ${cenarioAtual.rotulo.toLowerCase()}`} className="w-full border border-papel/20" />
+                  {progressoRender !== null && (
+                    <div className="absolute inset-x-0 bottom-0 p-8 bg-preto/80 flex flex-col gap-4" aria-live="polite">
+                      <span className="tipo-cota text-papel">
+                        {faseRender === 'preparando'
+                          ? 'Preparando a renderização...'
+                          : `Renderizando com sombras suaves... ${Math.round(progressoRender * 100)}%`}
+                      </span>
+                      <span className="h-[3px] bg-papel/20 overflow-hidden">
+                        <span className="block h-full bg-dourado transition-[width] duration-300" style={{ width: `${Math.round(progressoRender * 100)}%` }} />
+                      </span>
+                    </div>
+                  )}
+                  {realistaPronta && (
+                    <span className="absolute left-8 top-8 px-8 py-4 bg-preto/80 tipo-cota text-dourado">Imagem renderizada</span>
+                  )}
+                </div>
               ) : (
                 <div className="w-full aspect-video border border-papel/20 flex items-center justify-center tipo-cota text-papel/60" aria-live="polite">
                   Gerando a imagem do projeto...
                 </div>
+              )}
+              {!realistaPronta && progressoRender === null && avisoRender && (
+                <button
+                  type="button"
+                  onClick={gerarRealista}
+                  disabled={!miniatura || progressoRender !== null}
+                  className="h-[44px] px-16 flex items-center justify-center gap-8 rounded-curto bg-dourado text-preto tipo-cota font-semibold enabled:hover:bg-papel disabled:opacity-50 cursor-pointer"
+                >
+                  <Sparkles className="w-[16px] h-[16px]" strokeWidth={1.75} />
+                  Tentar renderizar de novo
+                </button>
+              )}
+              {avisoRender && (
+                <p className="tipo-cota text-dourado" role="status">
+                  {avisoRender}
+                </p>
               )}
               <button
                 type="button"

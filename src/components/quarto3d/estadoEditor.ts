@@ -25,6 +25,11 @@ export interface EstadoEditor {
   alternarModoFoto: () => void;
   /** Registrada pela cena: renderiza uma cópia em alta resolução (largura mínima de 1920 px). */
   capturar: (() => HTMLCanvasElement | null) | null;
+  /**
+   * Registrada pela cena: imagem final (várias passadas somadas: bordas lisas e sombras suaves).
+   * Copia a cena na hora da chamada; depois disso o editor pode mudar à vontade.
+   */
+  renderizarRealista: ((op: { largura: number; altura: number; passadas: number; mapaSombra: number; aoProgresso?: (f: number, fase: 'preparando' | 'calculando') => void; sinal?: AbortSignal }) => Promise<HTMLCanvasElement>) | null;
   /** Ação pontual: entra no histórico na hora. */
   aplicar: (fn: (prev: QuartoLayout) => QuartoLayout) => void;
   /** Gesto contínuo: vira um único passo de histórico em fimGesto. */
@@ -48,6 +53,7 @@ export const criarEstadoEditor = (inicial: QuartoLayout) =>
     alternarVerDentro: () => set({ verDentro: !get().verDentro }),
     modoFoto: false,
     capturar: null,
+    renderizarRealista: null,
     alternarModoFoto: () => set({ modoFoto: !get().modoFoto, selecionado: null }),
     aplicar: (fn) => {
       const { layout, passado, baseGesto } = get();
