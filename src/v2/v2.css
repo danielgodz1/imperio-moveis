@@ -4,6 +4,7 @@
  * Um único acento metálico: latão. Serifa editorial grande com itálico; o resto pequeno e quieto.
  * Tudo escopado em .v2 para não vazar para a V1.
  */
+@layer components {
 .v2 {
   --v2-noite: #0b0a08;
   --v2-linho: #eee8de;
@@ -39,8 +40,21 @@
   --v2-linha: rgba(243, 239, 230, 0.22);
   --v2-acento: #e2c48f;
 }
+/* Areia: um tom abaixo do linho, para separar seções claras vizinhas. */
+.v2-areia {
+  --v2-fundo: var(--v2-linho-2);
+  --v2-texto: #17150f;
+  --v2-suave: #57524a;
+  --v2-linha: rgba(23, 21, 15, 0.16);
+  --v2-acento: #7f6131;
+}
+.v2-claro,
+.v2-areia {
+  --v2-cartao: #f7f3ec;
+}
 .v2-escuro,
 .v2-claro,
+.v2-areia,
 .v2-salvia {
   background-color: var(--v2-fundo);
   color: var(--v2-texto);
@@ -134,9 +148,29 @@
 .v2-linha-fina {
   border-color: var(--v2-linha);
 }
+.v2-linha-forte {
+  border-color: color-mix(in srgb, var(--v2-texto) 55%, transparent);
+}
+
+/* Logo da Império na cor do texto da seção: o PNG (transparente) vira máscara. */
+.v2-logo {
+  aspect-ratio: 229 / 240;
+  background-color: currentColor;
+  -webkit-mask: url('/logo-imperio.png') center / contain no-repeat;
+  mask: url('/logo-imperio.png') center / contain no-repeat;
+}
+
+/* Texto corrido de páginas internas (legal, foto). */
+.v2-texto-longo p,
+.v2-texto-longo li {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--v2-suave);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .v2 * {
     transition: none !important;
   }
+}
 }

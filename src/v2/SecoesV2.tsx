@@ -1,7 +1,7 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowUpRight, Star } from 'lucide-react';
+import { ArrowUpRight, Box, Check, ExternalLink, Minus, Star } from 'lucide-react';
 import { Foto } from '../components/Foto';
 import { AnotacoesObra } from '../components/AnotacoesObra';
 import { BriefingOrcamento } from '../components/BriefingOrcamento';
@@ -10,14 +10,16 @@ import { AVALIACOES_PUBLICADAS, LINK_PERFIL_GOOGLE, RESUMO_GOOGLE } from '../dat
 import { EMPRESA } from '../data/empresa';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/helpers';
 import { ComItalico } from './Serif';
-import { MANIFESTO_V2, NUMEROS_V2, PROCESSO_V2 } from './textosV2';
+import { ChamadaOrcamentoV2, MARGEM } from './CromoV2';
+import { LinkV2, useNavV2 } from './NavegacaoV2';
+import { caminhoFoto } from './rotasV2';
+import { MANIFESTO_V2, NUMEROS_V2, PROCESSO_V2, PROJETO_INCLUSO_V2, PASSOS_3D_V2 } from './textosV2';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const reduzido = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const MARGEM = 'px-16 sm:px-32 lg:px-64';
 
-const Titulo: React.FC<{ texto: string; className?: string; as?: 'h2' | 'h3' }> = ({ texto, className = '', as = 'h2' }) => {
+export const Titulo: React.FC<{ texto: string; className?: string; as?: 'h1' | 'h2' | 'h3' }> = ({ texto, className = '', as = 'h2' }) => {
   const Tag = as;
   return (
     <Tag className={`v2-serif v2-titulo ${className}`}>
@@ -54,32 +56,145 @@ export const ManifestoV2: React.FC = () => {
   );
 };
 
+/** Cartão de obra da galeria: foto, título e cota; abre a página da foto. */
+export const CartaoObraV2: React.FC<{ obra: (typeof OBRAS_REAIS)[number]; sizes?: string }> = ({ obra, sizes = '(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw' }) => (
+  <LinkV2 para={caminhoFoto(obra)} className="group flex flex-col gap-16" aria-label={`Ver a obra: ${obra.titulo}`}>
+    <span className="block overflow-hidden" style={{ aspectRatio: obra.proporcao }}>
+      <Foto
+        srcBase={obra.arquivo}
+        alt={obra.alt}
+        proporcao={obra.proporcao}
+        sizes={sizes}
+        className="w-full h-full transition-transform duration-[1.2s] group-hover:scale-[1.03]"
+        imgStyle={{ objectFit: 'cover' }}
+      />
+    </span>
+    <span className="flex items-start justify-between gap-16">
+      <span className="flex flex-col gap-4">
+        <span className="v2-serif text-[1.5rem] leading-tight">{obra.titulo}</span>
+        <span className="v2-cota">{obra.cota}</span>
+      </span>
+      <ArrowUpRight className="w-[20px] h-[20px] shrink-0 mt-4 v2-acento transition-transform group-hover:-translate-y-[2px] group-hover:translate-x-[2px]" strokeWidth={1.5} />
+    </span>
+  </LinkV2>
+);
+
 /**
- * Capítulo 3: caderno de obra. Cada foto entra e os fios dourados saem de cada peça até o
- * acabamento usado nela (mesmas anotações da V1). Vertical: igual no celular e no computador.
+ * Capítulo 3: caderno de obra. As cinco primeiras entram grandes, com os fios dourados do
+ * acabamento; as outras vêm logo depois numa galeria. Todas abrem a página da própria foto.
  */
 export const ObrasV2: React.FC = () => {
-  const obras = OBRAS_REAIS.filter((o) => o.anotacoes && o.anotacoes.length > 0).slice(0, 5);
+  const destaque = OBRAS_REAIS.filter((o) => o.anotacoes && o.anotacoes.length > 0).slice(0, 5);
+  const resto = OBRAS_REAIS.filter((o) => !destaque.includes(o));
   return (
     <section id="v2-obras" className={`v2-claro ${MARGEM} py-[14vh]`}>
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24 mb-[10vh]">
         <Titulo texto="Obras que *já moram* em Jaú." className="max-w-[12ch]" />
-        <p className="v2-corpo max-w-[40ch]">Fotos reais de casas e lojas reais. Os fios dourados mostram o acabamento de cada peça.</p>
+        <div className="flex flex-col gap-16 lg:items-end">
+          <p className="v2-corpo max-w-[40ch] lg:text-right">Fotos reais de casas e lojas reais. Os fios dourados mostram o acabamento de cada peça.</p>
+          <LinkV2 para="/v2/obras" className="v2-botao v2-botao-linha">
+            Ver as {OBRAS_REAIS.length} obras <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+          </LinkV2>
+        </div>
       </div>
       <div className="flex flex-col gap-[14vh]">
-        {obras.map((o, i) => (
-          <article key={o.id} className={`grid grid-cols-1 lg:grid-cols-12 gap-32 lg:gap-64 items-center`}>
+        {destaque.map((o, i) => (
+          <article key={o.id} className="grid grid-cols-1 lg:grid-cols-12 gap-32 lg:gap-64 items-center">
             <figure className={`lg:col-span-7 relative ${i % 2 ? 'lg:order-2' : ''}`} style={{ aspectRatio: o.proporcao }}>
-              <Foto srcBase={o.arquivo} alt={o.alt} proporcao={o.proporcao} sizes="(min-width: 1024px) 56vw, 100vw" className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
+              <LinkV2 para={caminhoFoto(o)} className="block w-full h-full" aria-label={`Ver a obra: ${o.titulo}`}>
+                <Foto srcBase={o.arquivo} alt={o.alt} proporcao={o.proporcao} sizes="(min-width: 1024px) 56vw, 100vw" className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
+              </LinkV2>
               <AnotacoesObra anotacoes={o.anotacoes ?? []} />
             </figure>
-            <div className={`lg:col-span-5 flex flex-col gap-16 ${i % 2 ? 'lg:order-1' : ''}`}>
+            <div className={`lg:col-span-5 flex flex-col items-start gap-16 ${i % 2 ? 'lg:order-1' : ''}`}>
               <span className="v2-serif v2-italico v2-acento text-[2.5rem] leading-none">{String(i + 1).padStart(2, '0')}</span>
               <h3 className="v2-serif v2-h3">{o.titulo}</h3>
               <p className="v2-corpo max-w-[40ch]">{o.cota}</p>
+              <LinkV2 para={caminhoFoto(o)} className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
+                Ver esta obra em detalhe
+              </LinkV2>
             </div>
           </article>
         ))}
+      </div>
+
+      <div className="mt-[14vh] flex flex-col gap-48">
+        <h3 className="v2-serif v2-h3">
+          <ComItalico texto="E tem *mais obra* para ver." />
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32 gap-y-64 items-start">
+          {resto.map((o) => (
+            <CartaoObraV2 key={o.id} obra={o} />
+          ))}
+        </div>
+      </div>
+
+      <ChamadaOrcamentoV2 texto="Gostou de alguma? *A gente faz a sua.*" className="mt-[10vh]" />
+    </section>
+  );
+};
+
+/**
+ * O diferencial dito com todas as letras: o projeto de arquitetura vem junto. Primeiro a
+ * comparação com o jeito comum; depois, item por item, o que o projeto inclui.
+ */
+export const ProjetoInclusoV2: React.FC = () => {
+  const { abrirOrcamento } = useNavV2();
+  return (
+    <section id="v2-projeto-incluso" className={`v2-areia ${MARGEM} py-[14vh] flex flex-col gap-[10vh]`}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-48">
+        <div className="lg:col-span-5 flex flex-col items-start gap-24">
+          <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Sem custo à parte</p>
+          <Titulo texto="O projeto de arquitetura *já vem junto.*" />
+          <p className="v2-corpo max-w-[38ch]">
+            Na maioria dos lugares você paga um profissional para projetar e outro para fabricar. Aqui é uma coisa só: a arquiteta desenha e a nossa oficina fabrica, na mesma conversa.
+          </p>
+          <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
+            Pedir orçamento com projeto <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+          </button>
+        </div>
+
+        <div className="lg:col-span-7">
+          <div className="hidden sm:grid grid-cols-2 gap-32 pb-16 border-b v2-linha-forte">
+            <span className="v2-cota">Do jeito comum</span>
+            <span className="v2-cota text-[var(--v2-texto)]">Na Império</span>
+          </div>
+          <ul className="flex flex-col">
+            {PROJETO_INCLUSO_V2.comparacao.map((l) => (
+              <li key={l.imperio} className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-32 py-24 border-b v2-linha-fina">
+                <p className="flex items-start gap-8 v2-corpo">
+                  <Minus className="w-[18px] h-[18px] mt-[4px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                  <span>
+                    <span className="sr-only">Do jeito comum: </span>
+                    {l.comum}
+                  </span>
+                </p>
+                <p className="flex items-start gap-8 text-[1rem] leading-[1.6] text-[var(--v2-texto)] font-[450]">
+                  <Check className="w-[18px] h-[18px] mt-[4px] shrink-0 v2-acento" strokeWidth={2} aria-hidden="true" />
+                  <span>
+                    <span className="sr-only">Na Império: </span>
+                    {l.imperio}
+                  </span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-32">
+        <h3 className="v2-serif v2-h3">
+          <ComItalico texto="O que vem *no projeto*, passo a passo." />
+        </h3>
+        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32">
+          {PROJETO_INCLUSO_V2.itens.map((item, i) => (
+            <li key={item.titulo} className="py-32 border-t v2-linha-forte flex flex-col gap-8">
+              <span className="v2-serif v2-italico v2-acento text-[2rem] leading-none">{String(i + 1).padStart(2, '0')}</span>
+              <h4 className="v2-serif text-[1.5rem] leading-tight">{item.titulo}</h4>
+              <p className="v2-corpo">{item.texto}</p>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );
@@ -121,67 +236,166 @@ export const ProcessoV2: React.FC = () => (
   </section>
 );
 
-/** Convite para o 3D online (abre a página /projetar, que já existe). */
-export const Projeto3DV2: React.FC<{ onAbrir: () => void }> = ({ onAbrir }) => (
-  <section className={`v2-escuro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48 items-center`}>
-    <div className="lg:col-span-5 flex flex-col gap-24 lg:order-2">
-      <Titulo texto="Veja a sua cozinha *antes de ela existir.*" />
-      <p className="v2-corpo max-w-[40ch]">Monte o ambiente em 3D aqui no site, de graça. Mude medidas, cores e a luz. Depois mande a imagem para a gente orçar.</p>
-      <div>
-        <a
-          href="/projetar"
-          onClick={(e) => {
-            e.preventDefault();
-            onAbrir();
-          }}
-          className="v2-botao v2-botao-claro"
-        >
-          Projetar em 3D <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
-        </a>
+/** Convite forte para o 3D online: imagem grande, três passos e dois caminhos. */
+export const Projeto3DV2: React.FC = () => {
+  const { abrirOrcamento } = useNavV2();
+  return (
+    <section id="v2-3d" className={`v2-escuro ${MARGEM} py-[14vh] flex flex-col gap-64`}>
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24">
+        <div className="flex flex-col gap-24">
+          <p className="v2-cota uppercase tracking-[0.08em] v2-acento flex items-center gap-8">
+            <Box className="w-[14px] h-[14px]" strokeWidth={1.5} /> Grátis, aqui no site
+          </p>
+          <Titulo texto="Veja a sua cozinha *antes de ela existir.*" className="max-w-[16ch]" />
+        </div>
+        <p className="v2-corpo max-w-[40ch]">Monte o ambiente em 3D no navegador, sem instalar nada. Mude medidas, móveis, cores e a luz. Depois mande a imagem para a gente orçar.</p>
       </div>
-    </div>
-    <a
-      href="/projetar"
-      onClick={(e) => {
-        e.preventDefault();
-        onAbrir();
-      }}
-      className="lg:col-span-7 lg:order-1 block overflow-hidden group"
-      aria-label="Abrir o projeto 3D online"
-    >
-      <Foto
-        srcBase="/projetar/cozinha-render"
-        alt="Projeto 3D de cozinha planejada com ilha verde e armários brancos"
-        proporcao="16 / 9"
-        sizes="(min-width: 1024px) 58vw, 100vw"
-        className="w-full transition-transform duration-[1.2s] group-hover:scale-[1.02]"
+
+      <LinkV2 para="/v2/projetar" className="block overflow-hidden group relative" aria-label="Abrir o projeto 3D online">
+        <Foto
+          srcBase="/projetar/cozinha-render"
+          alt="Projeto 3D de cozinha planejada com ilha verde e armários brancos"
+          proporcao="16 / 9"
+          sizes="100vw"
+          className="w-full transition-transform duration-[1.2s] group-hover:scale-[1.02]"
+        />
+        <span className="absolute left-16 bottom-16 sm:left-32 sm:bottom-32 v2-botao v2-botao-claro">
+          Começar meu projeto 3D <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+        </span>
+      </LinkV2>
+
+      <ol className="grid grid-cols-1 md:grid-cols-3 gap-x-32">
+        {PASSOS_3D_V2.map((p, i) => (
+          <li key={p.titulo} className="py-32 border-t v2-linha-fina flex flex-col gap-8">
+            <span className="v2-serif v2-italico v2-acento text-[2rem] leading-none">{String(i + 1).padStart(2, '0')}</span>
+            <h3 className="v2-serif text-[1.5rem] leading-tight">{p.titulo}</h3>
+            <p className="v2-corpo">{p.texto}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div className="flex flex-wrap gap-[12px]">
+        <LinkV2 para="/v2/projetar" className="v2-botao v2-botao-claro">
+          <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Projetar em 3D agora
+        </LinkV2>
+        <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-linha">
+          Prefiro que a arquiteta desenhe
+        </button>
+      </div>
+    </section>
+  );
+};
+
+interface AvaliacaoV2 {
+  autor: string;
+  autorUrl?: string;
+  foto?: string;
+  nota: number;
+  texto: string;
+  quando: string;
+}
+
+const decimal = (n: number) => n.toFixed(1).replace('.', ',');
+
+const Estrelas: React.FC<{ nota: number; tamanho?: number }> = ({ nota, tamanho = 16 }) => (
+  <span role="img" className="flex items-center gap-[2px]" aria-label={`${decimal(nota)} de 5 estrelas`}>
+    {[1, 2, 3, 4, 5].map((i) => (
+      <Star
+        key={i}
+        aria-hidden="true"
+        style={{ width: tamanho, height: tamanho }}
+        className={i <= Math.round(nota) ? 'fill-[#d4a548] text-[#d4a548]' : 'text-[var(--v2-linha)]'}
+        strokeWidth={1.5}
       />
-    </a>
-  </section>
+    ))}
+  </span>
 );
 
-/** Avaliações reais do Google, como citações grandes. */
-export const AvaliacoesV2: React.FC = () => (
-  <section className={`v2-claro ${MARGEM} py-[14vh]`}>
-    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24">
-      <Titulo texto="Quem já mora *numa Império.*" className="max-w-[12ch]" />
-      <a href={LINK_PERFIL_GOOGLE} target="_blank" rel="noopener noreferrer" className="v2-cota flex items-center gap-8 hover:text-[var(--v2-texto)]">
-        <Star className="w-[14px] h-[14px] fill-[var(--v2-acento)] text-[var(--v2-acento)]" />
-        {String(RESUMO_GOOGLE.nota).replace('.', ',')} no Google, {RESUMO_GOOGLE.total} avaliações
-      </a>
-    </div>
-    <ul className="mt-64 grid grid-cols-1 lg:grid-cols-2 gap-x-64">
-      {AVALIACOES_PUBLICADAS.map((a, i) => (
-        <li key={i} className="py-32 border-t v2-linha-fina flex flex-col gap-16">
-          <blockquote className="v2-serif text-[clamp(1.4rem,2.2vw,1.9rem)] leading-[1.2]">“{a.texto.trim()}”</blockquote>
-          <p className="v2-cota">
-            {a.autor}, avaliação no Google
-          </p>
-        </li>
-      ))}
-    </ul>
-  </section>
-);
+/**
+ * Avaliações reais do Google em cartões lado a lado, com estrelas (ao vivo pela API quando a
+ * chave está configurada; senão, as transcritas). No celular, os cartões deslizam de lado.
+ */
+export const AvaliacoesV2: React.FC = () => {
+  const [ao, setAo] = useState<{ nota: number; total: number; url?: string; avaliacoes: AvaliacaoV2[] } | null>(null);
+  useEffect(() => {
+    let ativo = true;
+    fetch('/api/avaliacoes')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (ativo && d && d.total > 0) setAo(d);
+      })
+      .catch(() => undefined);
+    return () => {
+      ativo = false;
+    };
+  }, []);
+  const nota = ao?.nota ?? RESUMO_GOOGLE.nota;
+  const total = ao?.total ?? RESUMO_GOOGLE.total;
+  const link = ao?.url ?? LINK_PERFIL_GOOGLE;
+  const lista: AvaliacaoV2[] = ao?.avaliacoes.length ? ao.avaliacoes : AVALIACOES_PUBLICADAS;
+
+  return (
+    <section id="v2-avaliacoes" className={`v2-areia ${MARGEM} py-[14vh] flex flex-col gap-48`}>
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-32">
+        <Titulo texto="Quem já mora *numa Império.*" className="max-w-[12ch]" />
+        <div className="flex flex-col gap-16 lg:items-end">
+          <div className="flex items-center gap-16">
+            <span className="v2-serif text-[4.5rem] leading-none">{decimal(nota)}</span>
+            <span className="flex flex-col gap-4">
+              <Estrelas nota={nota} tamanho={20} />
+              <span className="v2-cota">
+                {total} avaliações no Google{!ao && ` (em ${RESUMO_GOOGLE.conferidoEm})`}
+              </span>
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-[12px]">
+            <a href={link} target="_blank" rel="noopener noreferrer" className="v2-botao v2-botao-linha h-[44px]">
+              Ver no Google <ExternalLink className="w-[16px] h-[16px]" strokeWidth={1.5} />
+            </a>
+            <a href={link} target="_blank" rel="noopener noreferrer" className="v2-botao h-[44px] underline underline-offset-4">
+              Avaliar a Império
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`flex gap-16 overflow-x-auto snap-x snap-mandatory -mx-16 px-16 sm:-mx-32 sm:px-32 pb-8 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 md:gap-24 md:overflow-visible ${
+          lista.length === 4 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'
+        }`}
+      >
+        {lista.slice(0, 6).map((a, i) => (
+          <article key={i} className="min-w-[85%] snap-start md:min-w-0 p-24 rounded-[20px] bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col justify-between gap-24">
+            <div className="flex flex-col gap-16">
+              <div className="flex items-center justify-between gap-8">
+                <Estrelas nota={a.nota} />
+                <span className="v2-cota">{a.quando}</span>
+              </div>
+              <p className="text-[1rem] leading-[1.65] font-[350] text-[var(--v2-texto)] line-clamp-[8] whitespace-pre-line">“{a.texto.trim()}”</p>
+            </div>
+            <div className="pt-16 border-t v2-linha-fina flex items-center gap-[12px]">
+              {a.foto ? (
+                <img src={a.foto} alt="" width={36} height={36} loading="lazy" referrerPolicy="no-referrer" className="w-[36px] h-[36px] rounded-full" />
+              ) : (
+                <span aria-hidden="true" className="w-[36px] h-[36px] rounded-full bg-[var(--v2-salvia)] text-[#f3efe6] flex items-center justify-center v2-serif text-[1.1rem]">
+                  {a.autor.trim().charAt(0)}
+                </span>
+              )}
+              <span className="flex flex-col">
+                <a href={a.autorUrl ?? link} target="_blank" rel="noopener noreferrer" className="text-[0.9375rem] font-[500] text-[var(--v2-texto)] hover:underline underline-offset-4">
+                  {a.autor}
+                </a>
+                <span className="v2-cota">Avaliação publicada no Google</span>
+              </span>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <ChamadaOrcamentoV2 texto="Quer ser *a próxima casa* desta lista?" />
+    </section>
+  );
+};
 
 /** Nossa história: aqui (e só aqui) os nomes dos donos. */
 export const HistoriaV2: React.FC = () => (
@@ -202,7 +416,7 @@ export const HistoriaV2: React.FC = () => (
 
 /** Fechamento: frase grande, formulário num cartão marfim e o contato direto. */
 export const FechamentoV2: React.FC = () => (
-  <section id="v2-orcamento" className={`v2-escuro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48`}>
+  <section id="v2-orcamento" data-sem-barra className={`v2-escuro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48`}>
     <div className="lg:col-span-5 flex flex-col gap-24">
       <h2 className="v2-serif v2-display">
         <ComItalico texto="Vamos construir *o seu?*" />
@@ -223,39 +437,3 @@ export const FechamentoV2: React.FC = () => (
     </div>
   </section>
 );
-
-/** Rodapé enxuto. */
-export const RodapeV2: React.FC<{ onRota: (r: string) => void }> = ({ onRota }) => {
-  const link = (rota: string, rotulo: string) => (
-    <a
-      href={rota}
-      onClick={(e) => {
-        e.preventDefault();
-        onRota(rota);
-      }}
-      className="v2-cota hover:text-[var(--v2-texto)]"
-    >
-      {rotulo}
-    </a>
-  );
-  return (
-    <footer className={`v2-escuro ${MARGEM} pt-96 pb-48 border-t v2-linha-fina`}>
-      <p className="v2-serif text-[clamp(4rem,14vw,12rem)] leading-[0.85] tracking-[-0.02em]">Império</p>
-      <div className="mt-48 flex flex-col sm:flex-row sm:flex-wrap gap-x-32 gap-y-16 justify-between">
-        <p className="v2-cota max-w-[44ch]">
-          {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}. WhatsApp {EMPRESA.telefone}.
-        </p>
-        <nav aria-label="Rodapé" className="flex flex-wrap gap-x-24 gap-y-8">
-          {link('/projetar', 'Projetar em 3D')}
-          {link('/contato', 'Contato e suporte')}
-          {link('/privacidade', 'Privacidade (LGPD)')}
-          {link('/termos', 'Termos de uso')}
-          <a href={EMPRESA.instagramUrl} target="_blank" rel="noopener noreferrer" className="v2-cota hover:text-[var(--v2-texto)]">
-            {EMPRESA.instagram}
-          </a>
-        </nav>
-      </div>
-      <p className="v2-cota mt-32 text-[var(--v2-suave)]/70">© {new Date().getFullYear()} {EMPRESA.nome}. Versão 2, em prévia.</p>
-    </footer>
-  );
-};

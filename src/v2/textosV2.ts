@@ -33,3 +33,32 @@ export const PROCESSO_V2 = [
   { numero: '03', titulo: 'A fabricação', texto: 'Na nossa oficina, cada peça é cortada para a sua parede, não para a média.' },
   { numero: '04', titulo: 'A chave', texto: 'Nossa equipe monta, regula e limpa. Você só abre as portas.' },
 ];
+
+/**
+ * Projeto de arquitetura incluso. A comparação repete a da V1 (Diferencial.tsx); os itens só
+ * descrevem o que o site já afirma (medição no local, 3D antes de fabricar, oficina própria,
+ * acompanhamento até a instalação). Confirmar com os donos antes de publicar.
+ */
+export const PROJETO_INCLUSO_V2 = {
+  comparacao: [
+    { comum: 'Você contrata o arquiteto e a marcenaria em lugares separados.', imperio: 'Arquiteta e marceneiro na mesma empresa, na mesma conversa.' },
+    { comum: 'O projeto de interiores é cobrado à parte.', imperio: 'O projeto de arquitetura de interiores já vem incluso, sem custo extra.' },
+    { comum: 'O desenho chega pronto e a fábrica adapta como dá.', imperio: 'Quem projeta e quem fabrica trabalham lado a lado, do traço à instalação.' },
+    { comum: 'Você só vê o móvel no dia da entrega.', imperio: 'Você vê o ambiente em 3D antes de fabricar.' },
+  ],
+  itens: [
+    { titulo: 'A conversa e a medição', texto: 'Você conta como usa o ambiente e a gente mede no local. É dessa medida que o projeto nasce.' },
+    { titulo: 'O desenho do ambiente', texto: 'A arquiteta distribui os móveis pela sua rotina: circulação, alturas e o que precisa ficar à mão.' },
+    { titulo: 'O 3D antes do corte', texto: 'Você vê o ambiente em 3D e ajusta o que quiser antes de qualquer peça ser fabricada.' },
+    { titulo: 'Materiais e acabamentos', texto: 'Cores, madeiras, pedras e iluminação escolhidas junto com a arquiteta, olhando amostras.' },
+    { titulo: 'O detalhamento para a oficina', texto: 'Cada peça sai desenhada com a medida da sua parede para a nossa oficina, não para a média.' },
+    { titulo: 'Do traço à instalação', texto: 'Quem projetou acompanha a fabricação e a montagem até a entrega da chave.' },
+  ],
+};
+
+/** Os três passos do 3D online (iguais ao que o editor faz em /projetar). */
+export const PASSOS_3D_V2 = [
+  { titulo: 'Escolha o ambiente', texto: 'Coloque as medidas do seu espaço, com portas e janelas no lugar.' },
+  { titulo: 'Monte do seu jeito', texto: 'Coloque os móveis, troque cores e madeiras e veja a luz do ambiente mudar.' },
+  { titulo: 'Mande para orçar', texto: 'Baixe a imagem do projeto e envie pelo WhatsApp. A arquiteta parte dela.' },
+];

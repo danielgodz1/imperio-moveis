@@ -6,6 +6,7 @@ import { useNarrativaScroll } from '../components/heroScroll/useNarrativaScroll'
 import { ALT_FOTO_COZINHA } from '../components/heroScroll/HeroScrollConteudo';
 import { scrollToTarget } from '../hooks/useScrollytelling';
 import { ComItalico } from './Serif';
+import { LinkV2, useNavV2 } from './NavegacaoV2';
 import { FASES_V2, HERO_V2 } from './textosV2';
 
 
@@ -34,16 +35,13 @@ function useAtivarNaInteracao(): boolean {
   return ativo;
 }
 
-interface HeroV2Props {
-  onOrcamento: () => void;
-}
-
 /**
  * Capítulo 1: a cozinha se monta em tela cheia enquanto a pessoa rola.
  * O título se dissolve quando as paredes sobem; as fases correm numa faixa embaixo;
  * no fim entra a foto da obra real e o fechamento do capítulo.
  */
-export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
+export const HeroV2: React.FC = () => {
+  const { abrirOrcamento } = useNavV2();
   const secaoRef = useRef<HTMLElement>(null);
   const tituloRef = useRef<HTMLDivElement>(null);
   const fotoRef = useRef<HTMLDivElement>(null);
@@ -91,9 +89,12 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
 
   const botoes = (
     <div className="flex flex-wrap items-center gap-16">
-      <button type="button" onClick={onOrcamento} className="v2-botao v2-botao-claro">
+      <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
         Quero o meu projeto
       </button>
+      <LinkV2 para="/v2/projetar" className="v2-botao v2-botao-linha">
+        Montar em 3D
+      </LinkV2>
       <button type="button" onClick={() => scrollToTarget('#v2-obras', 0)} className="v2-botao v2-botao-linha">
         Ver as obras
       </button>

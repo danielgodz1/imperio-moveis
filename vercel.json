@@ -14,6 +14,10 @@
       "destination": "/v2/index.html"
     },
     {
+      "source": "/v2/:caminho*",
+      "destination": "/v2/index.html"
+    },
+    {
       "source": "/privacidade",
       "destination": "/privacidade/index.html"
     },
