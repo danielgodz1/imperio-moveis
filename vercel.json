@@ -20,71 +20,67 @@
     },
     {
       "source": "/v2/obras",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/index.html"
     },
     {
       "source": "/v2/projetar",
-      "destination": "/v2/index.html"
+      "destination": "/v2/projetar/index.html"
     },
     {
       "source": "/v2/orcamento",
-      "destination": "/v2/index.html"
+      "destination": "/v2/orcamento/index.html"
     },
     {
       "source": "/v2/privacidade",
-      "destination": "/v2/index.html"
+      "destination": "/v2/privacidade/index.html"
     },
     {
       "source": "/v2/termos",
-      "destination": "/v2/index.html"
+      "destination": "/v2/termos/index.html"
     },
     {
       "source": "/v2/obras/cozinha-ilha-verde",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/cozinha-ilha-verde/index.html"
     },
     {
       "source": "/v2/obras/cozinha-ilha-ripado",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/cozinha-ilha-ripado/index.html"
     },
     {
       "source": "/v2/obras/cozinha-forro-ripado",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/cozinha-forro-ripado/index.html"
     },
     {
       "source": "/v2/obras/cozinha-cinza-pendentes",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/cozinha-cinza-pendentes/index.html"
     },
     {
       "source": "/v2/obras/quarto-infantil-casinha",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/quarto-infantil-casinha/index.html"
     },
     {
       "source": "/v2/obras/quarto-bebe-nichos",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/quarto-bebe-nichos/index.html"
     },
     {
       "source": "/v2/obras/dormitorio-led-1",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/dormitorio-led-1/index.html"
     },
     {
       "source": "/v2/obras/dormitorio-led-2",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/dormitorio-led-2/index.html"
     },
     {
       "source": "/v2/obras/comercial-gocoffee-interior",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/comercial-gocoffee-interior/index.html"
     },
     {
       "source": "/v2/obras/comercial-expositor",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/comercial-expositor/index.html"
     },
     {
       "source": "/v2/obras/comercial-gocoffee-fachada",
-      "destination": "/v2/index.html"
-    },
-    {
-      "source": "/v2/(.*)",
-      "destination": "/v2/index.html"
+      "destination": "/v2/obras/comercial-gocoffee-fachada/index.html"
     },
     {
       "source": "/privacidade",

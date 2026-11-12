@@ -8,6 +8,7 @@ import { execSync } from 'child_process';
 import { PAGINAS_AMBIENTES_LOCAIS, RotaPublica } from './src/data/paginasLocais';
 import { EMPRESA } from './src/data/empresa';
 import { OBRAS_REAIS } from './src/data/portfolioData';
+import { ROTAS_INTERNAS_V2 } from './src/v2/rotasV2';
 
 const ROTAS_PRERENDER: RotaPublica[] = [
   '/',
@@ -95,6 +96,11 @@ function prerenderRotasLocaisPlugin(): Plugin {
       );
       fs.mkdirSync(path.join(distDir, 'v2'), { recursive: true });
       fs.writeFileSync(path.join(distDir, 'v2', 'index.html'), htmlV2, 'utf-8');
+      for (const rota of ROTAS_INTERNAS_V2) {
+        const pasta = path.join(distDir, rota.replace(/^\//, ''));
+        fs.mkdirSync(pasta, { recursive: true });
+        fs.writeFileSync(path.join(pasta, 'index.html'), htmlV2, 'utf-8');
+      }
       fs.writeFileSync(path.join(distDir, 'sitemap.xml'), gerarSitemap(dataUltimoCommit()), 'utf-8');
     },
   };

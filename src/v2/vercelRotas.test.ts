@@ -4,7 +4,8 @@ import { OBRAS_REAIS } from '../data/portfolioData';
 import { caminhoFoto } from './rotasV2';
 
 const config = JSON.parse(readFileSync('vercel.json', 'utf-8')) as { rewrites: { source: string; destination: string }[] };
-const fontes = new Set(config.rewrites.filter((r) => r.destination === '/v2/index.html').map((r) => r.source));
+// Cada endereço aponta para o próprio index.html (gerado no build); /v2 também.
+const fontes = new Set(config.rewrites.filter((r) => r.destination === `${r.source}/index.html`).map((r) => r.source));
 
 describe('vercel.json da V2', () => {
   it('abre cada página interna da V2 direto pelo endereço (sem 404 ao recarregar)', () => {

@@ -16,6 +16,20 @@ export const BASE_V2 = '/v2';
 
 export const caminhoFoto = (obra: ObraItem) => `${BASE_V2}/obras/${obra.id}`;
 
+/**
+ * Páginas internas da V2. O build grava um HTML em cada uma (dist/v2/.../index.html) e o
+ * vercel.json aponta cada endereço para o próprio arquivo: é o único formato que a Vercel
+ * serviu certo com cleanUrls (apontar para /v2/index.html dava 404).
+ */
+export const ROTAS_INTERNAS_V2 = [
+  `${BASE_V2}/obras`,
+  `${BASE_V2}/projetar`,
+  `${BASE_V2}/orcamento`,
+  `${BASE_V2}/privacidade`,
+  `${BASE_V2}/termos`,
+  ...OBRAS_REAIS.map(caminhoFoto),
+];
+
 /** Lê o endereço (com ou sem barra no fim, com ou sem âncora). */
 export function lerRotaV2(pathname: string, hash = ''): RotaV2 {
   const limpo = pathname.replace(/\/+$/, '') || '/';
