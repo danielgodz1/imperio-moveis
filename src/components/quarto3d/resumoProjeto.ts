@@ -107,9 +107,32 @@ const deBase64url = (t: string) => {
   return Uint8Array.from(s, (c) => c.charCodeAt(0));
 };
 
-async function transformar(bytes: Uint8Array, fluxo: CompressionStream | DecompressionStream): Promise<Uint8Array> {
-  const saida = new Blob([bytes as BlobPart]).stream().pipeThrough(fluxo);
-  return new Uint8Array(await new Response(saida).arrayBuffer());
+/** Link maior que isso não é de um projeto do site (os reais ficam em torno de 600 caracteres). */
+export const MAX_LINK_PROJETO = 6000;
+/** Teto do JSON descompactado: barra "bomba de compressão" (texto curto que vira megabytes). */
+export const MAX_JSON_PROJETO = 64 * 1024;
+
+async function transformar(bytes: Uint8Array, fluxo: CompressionStream | DecompressionStream, limite = Infinity): Promise<Uint8Array> {
+  const leitor = new Blob([bytes as BlobPart]).stream().pipeThrough(fluxo).getReader();
+  const partes: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await leitor.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > limite) {
+      await leitor.cancel();
+      throw new Error('projeto grande demais');
+    }
+    partes.push(value);
+  }
+  const junto = new Uint8Array(total);
+  let pos = 0;
+  for (const p of partes) {
+    junto.set(p, pos);
+    pos += p.byteLength;
+  }
+  return junto;
 }
 
 /** Projeto → texto curto para a URL (#projeto=...). Sem os uids, que o site recria. */
@@ -125,10 +148,12 @@ export async function codificarProjeto(layout: QuartoLayout): Promise<string> {
 /** Texto da URL → projeto validado, ou null se estiver corrompido ou fora do formato. */
 export async function decodificarProjeto(texto: string): Promise<QuartoLayout | null> {
   try {
+    if (texto.length > MAX_LINK_PROJETO || !/^[a-z]\.[A-Za-z0-9_-]+$/.test(texto)) return null;
     let bytes: Uint8Array;
-    if (texto.startsWith(PREFIXO_COMPACTO)) bytes = await transformar(deBase64url(texto.slice(2)), new DecompressionStream('deflate-raw'));
+    if (texto.startsWith(PREFIXO_COMPACTO)) bytes = await transformar(deBase64url(texto.slice(2)), new DecompressionStream('deflate-raw'), MAX_JSON_PROJETO);
     else if (texto.startsWith(PREFIXO_TEXTO)) bytes = deBase64url(texto.slice(2));
     else return null;
+    if (bytes.byteLength > MAX_JSON_PROJETO) return null;
     const dados = JSON.parse(new TextDecoder().decode(bytes));
     const validado = QuartoLayoutSchema.safeParse(dados);
     return validado.success ? normalizarLayout(validado.data) : null;

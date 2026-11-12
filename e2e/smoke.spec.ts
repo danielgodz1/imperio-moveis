@@ -15,6 +15,8 @@ function vigiarErros(page: import('@playwright/test').Page) {
 test.beforeEach(async ({ context }) => {
   // Nada sai para terceiros durante o teste.
   await context.route(/googletagmanager|google-analytics|fonts\.(googleapis|gstatic)/, (r) => r.abort());
+  // As funções de /api rodam na Vercel; aqui respondem vazio (avaliações caem no texto local).
+  await context.route('**/api/avaliacoes', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"total":0,"avaliacoes":[]}' }));
 });
 
 for (const rota of ['/', '/obras', '/projetar', '/contato', '/cozinhas-planejadas-jau', '/privacidade']) {
@@ -46,8 +48,14 @@ test('/projetar carrega o editor 3D', async ({ page }) => {
 test('pedido de orçamento abre o WhatsApp da Império com a mensagem montada', async ({ page, context }) => {
   await context.route(/wa\.me|whatsapp\.com/, (r) => r.fulfill({ status: 200, body: 'ok' }));
   await page.goto('/contato');
-  const form = page.locator('form').filter({ has: page.locator('#briefing-nome') }).first();
-  await form.getByRole('button', { name: 'Cozinha', exact: true }).click();
+  await page.waitForLoadState('networkidle');
+  const form = page.locator('main form').first();
+  // O HTML pré-renderizado aparece antes do React assumir a página: repete o clique até valer.
+  const cozinha = form.getByRole('button', { name: 'Cozinha', exact: true });
+  await expect(async () => {
+    if ((await cozinha.getAttribute('aria-pressed')) !== 'true') await cozinha.click();
+    await expect(cozinha).toHaveAttribute('aria-pressed', 'true', { timeout: 1000 });
+  }).toPass({ timeout: 15_000 });
   await form.getByRole('button', { name: /O quanto antes/ }).click();
   await form.getByRole('button', { name: 'Continuar' }).click();
   await form.getByRole('button', { name: 'Continuar' }).click();
@@ -55,8 +63,35 @@ test('pedido de orçamento abre o WhatsApp da Império com a mensagem montada', 
   await form.locator('#briefing-whatsapp').fill('14999990000');
   await form.getByRole('checkbox').check();
   const [popup] = await Promise.all([page.waitForEvent('popup'), form.getByRole('button', { name: /Abrir conversa no WhatsApp/ }).click()]);
-  const url = decodeURIComponent(popup.url());
+  await popup.waitForURL(/wa\.me|whatsapp\.com/);
+  const url = decodeURIComponent(popup.url()).replace(/\+/g, ' ');
   expect(url).toContain('5514998492834');
   expect(url).toContain('Cozinha');
   expect(url).toContain('Teste Automático');
+});
+
+test('etapa Enviar do 3D baixa o PDF e a imagem do projeto', async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.goto('/projetar');
+  await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: /Revisar e enviar/ }).click();
+  const pdfBotao = page.getByRole('button', { name: /Baixar PDF/ });
+  await expect(pdfBotao).toBeEnabled({ timeout: 60_000 });
+  const [pdf] = await Promise.all([page.waitForEvent('download'), pdfBotao.click()]);
+  expect(pdf.suggestedFilename()).toMatch(/\.pdf$/);
+  const [img] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: /Baixar imagem do projeto/ }).click()]);
+  expect(img.suggestedFilename()).toMatch(/\.png$/);
+});
+
+test('salvar o projeto no aparelho e retomar depois', async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.goto('/projetar');
+  await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: /Revisar e enviar/ }).click();
+  await page.getByLabel('Nome do projeto').fill('Teste da cozinha');
+  await page.getByRole('button', { name: 'Salvar', exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Salvo neste aparelho' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('Retomar um projeto salvo')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('button', { name: /^Teste da cozinha/ })).toBeVisible();
 });

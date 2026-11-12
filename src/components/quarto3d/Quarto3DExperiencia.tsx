@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Camera, Copy, DoorClosed, DoorOpen, Download, Moon, Redo2, RotateCw, Sparkles, Sun, Trash2, Undo2 } from 'lucide-react';
+import { Camera, Copy, DoorClosed, DoorOpen, Download, FileText, Moon, Redo2, RotateCw, Sparkles, Sun, Trash2, Undo2 } from 'lucide-react';
 import { QuartoLayout, QuartoLayoutSchema, construirLayoutDoCenario, normalizarLayout, Ambiente, ModuloId } from './schema';
 import { CENARIOS_AMBIENTES, CATALOGO_MODULOS_CENARIO, ParedeCardeal } from '../../data/cenarios';
 import { ACABAMENTOS_3D } from '../../data/acabamentos';
@@ -28,7 +28,8 @@ import { detectarAparelho } from '../../vitrine/aparelho';
 import { DadosLead, PRAZOS, codificarProjeto, decodificarProjeto, estimarPreco, linhasDoProjeto, montarMensagem, reais } from './resumoProjeto';
 import { EMPRESA } from '../../data/empresa';
 import { PREFIXO_ABERTURA, indiceAbertura, useEditor } from './estadoEditor';
-import { getWhatsAppUrl, trackWhatsAppClick } from '../../utils/helpers';
+import { getWhatsAppUrl, trackProjeto3D, trackWhatsAppClick } from '../../utils/helpers';
+import { MeusProjetos } from './MeusProjetos';
 
 export interface Quarto3DExperienciaProps {
   onOpenBriefingOutro?: () => void;
@@ -192,7 +193,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
         const final = await promessa;
         if (controle.signal.aborted) return;
         setMiniatura(final.toDataURL('image/jpeg', 0.9));
-        fotoRef.current = await imagemComMarca(final);
+        fotoRef.current = await imagemComMarca(final, linkRef.current);
         setRealistaPronta(true);
         setBaixou(false);
       } catch (erro) {
@@ -257,6 +258,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
       if (l) useEditor.setState({ layout: l, passado: [], futuro: [], selecionado: null });
     };
     const hash = window.location.hash;
+    trackProjeto3D('iniciar', { origem: hash.startsWith('#projeto=') ? 'link' : 'novo' });
     if (hash.startsWith('#projeto=')) {
       decodificarProjeto(hash.slice('#projeto='.length)).then((l) => {
         carregar(l);
@@ -299,6 +301,8 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     const estavaEmFoto = useEditor.getState().modoFoto;
     setMiniatura(null);
     fotoRef.current = null;
+    // Link do projeto atual (o anterior pode ser de outra versão do desenho).
+    linkRef.current = undefined;
     if (!estavaEmFoto) useEditor.setState({ modoFoto: true, selecionado: null });
     let espera = 0;
     // A cena pode ainda estar montando (entrada rápida em Enviar): tenta de novo por alguns segundos.
@@ -313,7 +317,10 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
       if (!estavaEmFoto) useEditor.setState({ modoFoto: false });
       try {
         setMiniatura(canvas.toDataURL('image/jpeg', 0.85));
-        fotoRef.current = await imagemComMarca(canvas);
+        // O QR da imagem leva ao link do projeto: espera o link (rápido) antes de montar a imagem.
+        if (!linkRef.current) linkRef.current = await linkDoProjeto().catch(() => undefined);
+        if (cancelado) return;
+        fotoRef.current = await imagemComMarca(canvas, linkRef.current);
       } catch {
         setMiniatura(null);
         return;
@@ -362,6 +369,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
     try {
       const link = await linkDoProjeto();
       await navigator.clipboard.writeText(link);
+      trackProjeto3D('copiar_link', { ambiente: layout.comodo });
       setAvisoLink('Link copiado. Quem abrir vê este mesmo projeto.');
     } catch {
       setAvisoLink('Não deu para copiar aqui. O link vai junto na mensagem do WhatsApp.');
@@ -496,22 +504,53 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
   const baixarFoto = async () => {
     const canvas = useEditor.getState().capturar?.() ?? canvasRef.current;
     if (!canvas) return;
-    const blob = await imagemComMarca(canvas);
+    const link = await linkDoProjeto().catch(() => undefined);
+    const blob = await imagemComMarca(canvas, link);
     if (blob) baixarArquivo(blob, `imperio-${layout.comodo}.png`);
+    trackProjeto3D('baixar_imagem', { ambiente: layout.comodo, origem: 'barra' });
   };
 
   const nomeImagem = `imperio-3d-${layout.comodo}.png`;
 
-  const baixarImagemProjeto = () => {
-    if (!fotoRef.current) return;
+  const baixarImagemProjeto = (tentativas = 24) => {
+    // A prévia aparece antes da imagem final (com marca e QR) ficar pronta: espera um pouco.
+    if (!fotoRef.current) {
+      if (tentativas > 0) window.setTimeout(() => baixarImagemProjeto(tentativas - 1), 250);
+      return;
+    }
     baixarArquivo(fotoRef.current, nomeImagem);
     setBaixou(true);
+    trackProjeto3D('baixar_imagem', { ambiente: layout.comodo, origem: 'enviar' });
+  };
+
+  const [gerandoPdf, setGerandoPdf] = useState(false);
+  const baixarPdf = async () => {
+    setGerandoPdf(true);
+    try {
+      const { gerarPdfProjeto } = await import('./pdfProjeto');
+      const link = linkRef.current ?? (await linkDoProjeto().catch(() => undefined));
+      // A prévia (sem a faixa do QR): no PDF o QR fica no rodapé.
+      const pdf = await gerarPdfProjeto({ layout, imagem: miniatura ?? fotoRef.current, link });
+      baixarArquivo(pdf, `imperio-3d-${layout.comodo}.pdf`);
+      trackProjeto3D('baixar_pdf', { ambiente: layout.comodo });
+    } catch (erro) {
+      console.warn('PDF indisponível:', erro);
+    } finally {
+      setGerandoPdf(false);
+    }
+  };
+
+  const abrirProjetoSalvo = (l: QuartoLayout) => {
+    useEditor.setState({ layout: l, passado: [], futuro: [], selecionado: null });
+    setModeloAtivo(null);
+    setAba('ambiente');
   };
 
   const enviarProjeto = async () => {
     setTentouEnviar(true);
     if (!leadCompleto) return;
     trackWhatsAppClick('quarto_3d_enviar');
+    trackProjeto3D('enviar', { ambiente: layout.comodo, pecas: layout.modulos.length });
     const resumo = montarMensagem(layout, { ...lead, nome: lead.nome.trim().slice(0, 80) }, linkRef.current);
     const blob = fotoRef.current;
     // No celular, o compartilhar do sistema manda imagem e texto juntos para o WhatsApp.
@@ -816,12 +855,21 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
               )}
               <button
                 type="button"
-                onClick={baixarImagemProjeto}
+                onClick={() => baixarImagemProjeto()}
                 disabled={!miniatura}
                 className="h-[44px] px-16 flex items-center justify-center gap-8 rounded-curto border border-papel/40 text-papel tipo-cota font-semibold enabled:hover:border-dourado enabled:hover:text-dourado disabled:opacity-40 cursor-pointer"
               >
                 <Download className="w-[16px] h-[16px]" strokeWidth={1.5} />
                 {baixou ? 'Imagem baixada. Baixar de novo' : 'Baixar imagem do projeto'}
+              </button>
+              <button
+                type="button"
+                onClick={baixarPdf}
+                disabled={!miniatura || gerandoPdf}
+                className="h-[44px] px-16 flex items-center justify-center gap-8 rounded-curto border border-papel/40 text-papel tipo-cota font-semibold enabled:hover:border-dourado enabled:hover:text-dourado disabled:opacity-40 cursor-pointer"
+              >
+                <FileText className="w-[16px] h-[16px]" strokeWidth={1.5} />
+                {gerandoPdf ? 'Gerando o PDF...' : 'Baixar PDF com medidas e peças'}
               </button>
               <p className="tipo-cota text-papel/70">
                 No celular, o envio já manda a imagem junto. No computador, a mensagem vai pronta e você anexa a imagem baixada na conversa.
@@ -852,6 +900,8 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
                 </p>
               )}
             </div>
+
+            <MeusProjetos modo="salvar" layout={layout} onAbrir={abrirProjetoSalvo} />
 
             <form
               className="flex flex-col gap-16"
@@ -1166,6 +1216,7 @@ export const Quarto3DExperiencia: React.FC<Quarto3DExperienciaProps> = ({ onOpen
 
         {aba === 'ambiente' && (
           <div className="flex flex-col gap-24">
+            <MeusProjetos modo="retomar" layout={layout} onAbrir={abrirProjetoSalvo} />
             <div className="grid grid-cols-2 gap-4">
               {(Object.keys(CENARIOS_AMBIENTES) as Ambiente[]).map((id) => (
                 <button key={id} type="button" aria-pressed={layout.comodo === id} onClick={() => trocarAmbiente(id)} className={`h-[44px] ${chip(layout.comodo === id)}`}>
