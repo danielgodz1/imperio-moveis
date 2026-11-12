@@ -1,6 +1,6 @@
-import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Foto } from '../components/Foto';
-import { PosterTraco } from '../components/heroScroll/PosterTraco';
+import { PalcoNotebook } from '../components/heroScroll/PalcoNotebook';
 import { FASES, RECORTE_FOTO, faseAtual, progressoNaFaixa, useHeroScrollStore } from '../components/heroScroll/useHeroScrollStore';
 import { useNarrativaScroll } from '../components/heroScroll/useNarrativaScroll';
 import { ALT_FOTO_COZINHA } from '../components/heroScroll/HeroScrollConteudo';
@@ -8,7 +8,6 @@ import { scrollToTarget } from '../hooks/useScrollytelling';
 import { ComItalico } from './Serif';
 import { FASES_V2, HERO_V2 } from './textosV2';
 
-const HeroScrollCena = lazy(() => import('../components/heroScroll/HeroScrollCena').then((m) => ({ default: m.HeroScrollCena })));
 
 function podeAnimar(): boolean {
   if (typeof window === 'undefined') return false;
@@ -54,13 +53,8 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
   const faseRef = useRef<HTMLSpanElement>(null);
   const fraseRef = useRef<HTMLSpanElement>(null);
   const [animado] = useState(podeAnimar);
+  const [computador] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024);
   const cenaAtiva = useAtivarNaInteracao();
-
-  // Cena em tela cheia: a câmera não desvia de painel lateral (opção da cena compartilhada com a V1).
-  useEffect(() => {
-    useHeroScrollStore.setState({ painelLateral: false });
-    return () => useHeroScrollStore.setState({ painelLateral: true });
-  }, []);
 
   useNarrativaScroll(secaoRef, !animado);
 
@@ -70,7 +64,7 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
     const aplicar = (p: number) => {
       const obra = progressoNaFaixa(p, FASES.obra.inicio, FASES.obra.fim);
       if (tituloRef.current) {
-        const sai = progressoNaFaixa(p, 0.1, 0.24);
+        const sai = progressoNaFaixa(p, 0.15, 0.27);
         tituloRef.current.style.opacity = (1 - sai).toFixed(3);
         tituloRef.current.style.transform = `translateY(${(-sai * 40).toFixed(1)}px)`;
       }
@@ -108,7 +102,7 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
 
   if (!animado) {
     return (
-      <section id="hero" className="relative w-full min-h-[100svh] flex items-end">
+      <section id="hero" className="v2-escuro relative w-full min-h-[100svh] flex items-end">
         <div className="absolute inset-0">
           <Foto srcBase="/obras/cozinha-gringa-4k" alt={ALT_FOTO_COZINHA} prioridade sizes="100vw" className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
           <div className="absolute inset-0 bg-[var(--v2-noite)]/55" />
@@ -117,7 +111,7 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
           <h1 className="v2-serif v2-display">
             <ComItalico texto={HERO_V2.titulo} />
           </h1>
-          <p className="v2-corpo max-w-[46ch] text-[var(--v2-marfim)]/85">{HERO_V2.apoio}</p>
+          <p className="v2-corpo max-w-[46ch] text-[var(--v2-texto)]/85">{HERO_V2.apoio}</p>
           {botoes}
         </div>
       </section>
@@ -126,17 +120,11 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
 
   const inicial = FASES_V2.traco;
   return (
-    <section ref={secaoRef} id="hero" className="relative w-full" style={{ minHeight: '320vh' }}>
+    <section ref={secaoRef} id="hero" className="v2-escuro relative w-full" style={{ minHeight: '320vh' }}>
       <div className="sticky top-0 h-screen h-[100svh] w-full overflow-hidden">
-        {/* Palco: a cena ocupa a tela toda */}
+        {/* Palco: o notebook abre, a cozinha se monta na tela e a câmera entra nela */}
         <div className="absolute inset-0" aria-hidden="true">
-          {cenaAtiva ? (
-            <Suspense fallback={<PosterTraco />}>
-              <HeroScrollCena />
-            </Suspense>
-          ) : (
-            <PosterTraco />
-          )}
+          <PalcoNotebook ativo={cenaAtiva} deslocY={0.17} escalaInicial={computador ? 0.7 : 0.98} />
           <div ref={fotoRef} className="absolute inset-0 opacity-0">
             <Foto
               srcBase="/obras/cozinha-gringa-4k"
@@ -150,12 +138,12 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
         </div>
 
         {/* Abertura: o título fica sobre o traço escuro e se dissolve quando as paredes sobem */}
-        <div ref={tituloRef} className="absolute inset-x-0 top-0 pt-[18svh] lg:pt-[20vh] px-16 sm:px-32 lg:px-64 will-change-transform">
-          <h1 className="v2-serif v2-display max-w-[13ch]">
+        <div ref={tituloRef} className="absolute inset-x-0 top-0 pt-[12svh] lg:pt-[11vh] px-16 sm:px-32 lg:px-64 lg:text-center lg:flex lg:flex-col lg:items-center will-change-transform">
+          <h1 className="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]">
             <ComItalico texto={HERO_V2.titulo} />
           </h1>
-          <p className="v2-corpo mt-24 max-w-[44ch]">{HERO_V2.apoio}</p>
-          <p className="v2-cota mt-32 text-[var(--v2-marfim)]/70">Role devagar. A cozinha vai se montar.</p>
+          <p className="v2-corpo mt-16 lg:mt-24 max-w-[44ch]">{HERO_V2.apoio}</p>
+          <p className="v2-cota mt-16 lg:mt-24">Role a página. A cozinha vai se montar na tela.</p>
         </div>
 
         {/* Fechamento do capítulo, sobre a foto da obra real */}
@@ -173,7 +161,7 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
         {/* Faixa das fases: sempre sobre fundo sólido (legível sobre qualquer quadro da cena) */}
         <div className="absolute inset-x-0 bottom-0 bg-[var(--v2-noite)] px-16 sm:px-32 lg:px-64 pt-16 pb-[max(16px,env(safe-area-inset-bottom))]" aria-hidden="true">
           <div className="flex items-baseline gap-16">
-            <span ref={numeroRef} className="v2-serif v2-italico text-[1.75rem] leading-none text-[var(--v2-latao)] w-[44px]">
+            <span ref={numeroRef} className="v2-serif v2-italico text-[1.75rem] leading-none text-[var(--v2-acento)] w-[44px]">
               {inicial.numero}
             </span>
             <span ref={faseRef} className="v2-serif text-[1.375rem] leading-none">
@@ -183,8 +171,8 @@ export const HeroV2: React.FC<HeroV2Props> = ({ onOrcamento }) => {
               {inicial.frase}
             </span>
           </div>
-          <div className="relative h-px mt-16 bg-[var(--v2-marfim)]/15">
-            <div ref={linhaRef} className="absolute inset-0 bg-[var(--v2-latao)] origin-left will-change-transform" style={{ transform: 'scaleX(0)' }} />
+          <div className="relative h-px mt-16 bg-[var(--v2-texto)]/15">
+            <div ref={linhaRef} className="absolute inset-0 bg-[var(--v2-acento)] origin-left will-change-transform" style={{ transform: 'scaleX(0)' }} />
           </div>
         </div>
       </div>

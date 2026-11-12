@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import './v2.css';
 import { scrollToTarget } from '../hooks/useScrollytelling';
 import { BriefingOrcamento } from '../components/BriefingOrcamento';
+import { FiltroLapis } from '../components/LinhaLapis';
 import { HeroV2 } from './HeroV2';
 import { AvaliacoesV2, FechamentoV2, HistoriaV2, ManifestoV2, NumerosV2, ObrasV2, ProcessoV2, Projeto3DV2, RodapeV2 } from './SecoesV2';
 
@@ -45,16 +46,16 @@ const CabecalhoV2: React.FC<{ onOrcamento: () => void; onRota: (r: string) => vo
   }, []);
   const ir = (id: string) => scrollToTarget(id, 0);
   return (
-    <header className={`fixed top-0 inset-x-0 z-50 px-16 sm:px-32 lg:px-64 h-[64px] flex items-center justify-between transition-colors duration-500 ${rolou ? 'bg-[var(--v2-noite)]/90 backdrop-blur-[2px]' : ''}`}>
+    <header className={`v2-escuro !bg-transparent fixed top-0 inset-x-0 z-50 px-16 sm:px-32 lg:px-64 h-[64px] flex items-center justify-between transition-colors duration-500 ${rolou ? '!bg-[var(--v2-noite)]/90 backdrop-blur-[2px]' : ''}`}>
       <button type="button" onClick={() => window.scrollTo({ top: 0 })} className="flex items-baseline gap-8 cursor-pointer" aria-label="Império Móveis Planejados, voltar ao início">
         <span className="v2-serif text-[1.6rem] leading-none">Império</span>
         <span className="v2-cota hidden sm:inline">móveis planejados</span>
       </button>
       <nav aria-label="Principal" className="hidden lg:flex items-center gap-32">
-        <button type="button" onClick={() => ir('#v2-obras')} className="v2-cota hover:text-[var(--v2-marfim)] cursor-pointer">Obras</button>
-        <button type="button" onClick={() => ir('#v2-processo')} className="v2-cota hover:text-[var(--v2-marfim)] cursor-pointer">Como trabalhamos</button>
-        <button type="button" onClick={() => onRota('/projetar')} className="v2-cota hover:text-[var(--v2-marfim)] cursor-pointer">Projetar em 3D</button>
-        <button type="button" onClick={() => ir('#v2-historia')} className="v2-cota hover:text-[var(--v2-marfim)] cursor-pointer">Nossa história</button>
+        <button type="button" onClick={() => ir('#v2-obras')} className="v2-cota hover:text-[var(--v2-texto)] cursor-pointer">Obras</button>
+        <button type="button" onClick={() => ir('#v2-processo')} className="v2-cota hover:text-[var(--v2-texto)] cursor-pointer">Como trabalhamos</button>
+        <button type="button" onClick={() => onRota('/projetar')} className="v2-cota hover:text-[var(--v2-texto)] cursor-pointer">Projetar em 3D</button>
+        <button type="button" onClick={() => ir('#v2-historia')} className="v2-cota hover:text-[var(--v2-texto)] cursor-pointer">Nossa história</button>
       </nav>
       <button type="button" onClick={onOrcamento} className="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem]">
         Orçamento
@@ -73,6 +74,7 @@ const PaginaV2: React.FC<PaginaV2Props> = ({ onRota }) => {
   return (
     <div className="v2 min-h-screen">
       <div className="v2-grao" aria-hidden="true" />
+      <FiltroLapis />
       <CabecalhoV2 onOrcamento={abrirOrcamento} onRota={onRota} />
       <main>
         <HeroV2 onOrcamento={abrirOrcamento} />
