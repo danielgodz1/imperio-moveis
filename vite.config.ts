@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import { defineConfig, Plugin } from 'vite';
-import { gerarHtml404, injetarSeoNoHtml } from './src/utils/prerenderHtml';
+import { gerarConteudoInicialRoot, gerarHtml404, injetarSeoNoHtml } from './src/utils/prerenderHtml';
 import { execSync } from 'child_process';
 import { PAGINAS_AMBIENTES_LOCAIS, RotaPublica } from './src/data/paginasLocais';
 import { EMPRESA } from './src/data/empresa';
@@ -90,16 +90,24 @@ function prerenderRotasLocaisPlugin(): Plugin {
       }
       // Prévia da V2: HTML próprio (a Vercel não reescreve para /index.html com cleanUrls),
       // com noindex e fora do sitemap.
-      const htmlV2 = injetarSeoNoHtml(baseHtml, '/v2').replace(
-        /<meta\s+name="robots"[^>]*>/,
-        '<meta name="robots" content="noindex" />',
-      );
+      // CSS da V2 e fontes dela já no <head>: a abertura pinta com o visual certo antes do JavaScript.
+      const cssV2 = fs.readdirSync(path.join(distDir, 'assets')).find((f) => /^PaginaV2-.*\.css$/.test(f));
+      const cabecaV2 = [
+        cssV2 ? `<link rel="stylesheet" href="/assets/${cssV2}" />` : '',
+        '<link rel="preload" as="font" type="font/woff2" href="/fontes/instrument-serif-latin.woff2" crossorigin />',
+        '<link rel="preload" as="font" type="font/woff2" href="/fontes/geist-latin.woff2" crossorigin />',
+      ].join('\n    ');
+      const htmlV2 = injetarSeoNoHtml(baseHtml, '/v2')
+        .replace(/<meta\s+name="robots"[^>]*>/, '<meta name="robots" content="noindex" />')
+        .replace('</head>', `    ${cabecaV2}\n  </head>`);
+      // Páginas internas da V2: sem a réplica da abertura (o React monta a página certa).
+      const htmlV2Interna = htmlV2.replace(gerarConteudoInicialRoot('/v2'), '<div class="v2 v2-claro min-h-screen"></div>');
       fs.mkdirSync(path.join(distDir, 'v2'), { recursive: true });
       fs.writeFileSync(path.join(distDir, 'v2', 'index.html'), htmlV2, 'utf-8');
       for (const rota of ROTAS_INTERNAS_V2) {
         const pasta = path.join(distDir, rota.replace(/^\//, ''));
         fs.mkdirSync(pasta, { recursive: true });
-        fs.writeFileSync(path.join(pasta, 'index.html'), htmlV2, 'utf-8');
+        fs.writeFileSync(path.join(pasta, 'index.html'), htmlV2Interna, 'utf-8');
       }
       fs.writeFileSync(path.join(distDir, 'sitemap.xml'), gerarSitemap(dataUltimoCommit()), 'utf-8');
     },

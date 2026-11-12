@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import './fontesV2.css';
 import './v2.css';
 import { globalLenis, scrollToTarget } from '../hooks/useScrollytelling';
 import { FiltroLapis } from '../components/LinhaLapis';
@@ -10,19 +11,6 @@ import { BarraAcoesV2, CabecalhoV2, PainelOrcamentoV2, RodapeV2 } from './CromoV
 import { FotoPaginaV2, LegalV2, NaoEncontradaV2, ObrasPaginaV2, OrcamentoV2, ProjetarV2 } from './PaginasInternasV2';
 import { ContextoNavV2, NavegacaoV2 } from './NavegacaoV2';
 import { RotaV2, lerRotaV2, metaV2 } from './rotasV2';
-
-const FONTES = 'https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Instrument+Serif:ital@0;1&display=swap';
-
-/** Fontes da V2 só nestas páginas (a V1 não paga por elas). */
-function useFontesV2() {
-  useEffect(() => {
-    if (document.querySelector(`link[href="${FONTES}"]`)) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = FONTES;
-    document.head.appendChild(link);
-  }, []);
-}
 
 /** Prévia fora do Google: a V2 não pode competir com o site oficial. */
 function useSemIndexacao() {
@@ -40,7 +28,6 @@ const chaveDaRota = (r: RotaV2) => (r.pagina === 'foto' ? `foto:${r.obra.id}` : 
 
 /** Versão 2 do site (prévia em /v2 e páginas internas em /v2/...). */
 const PaginaV2: React.FC = () => {
-  useFontesV2();
   useSemIndexacao();
   const [rota, setRota] = useState<RotaV2>(() => lerRotaV2(window.location.pathname, window.location.hash));
   const [painel, setPainel] = useState<{ aberto: boolean; ambiente?: string }>({ aberto: false });

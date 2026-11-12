@@ -14,6 +14,8 @@ import { CartaoObraV2, Titulo } from './SecoesV2';
 import { ComItalico } from './Serif';
 import { ROTULO_AMBIENTE, ambienteDoBriefing, caminhoFoto } from './rotasV2';
 import { PASSOS_3D_V2 } from './textosV2';
+import { useAtivarNaInteracao } from '../hooks/useAtivarNaInteracao';
+import { temProjetoSalvo } from '../components/quarto3d/projetosSalvos';
 
 const Quarto3DExperiencia = React.lazy(() => import('../components/quarto3d/Quarto3DExperiencia'));
 
@@ -233,6 +235,7 @@ export const ProjetarV2: React.FC = () => {
   const { abrirOrcamento } = useNavV2();
   const [webgl, setWebgl] = useState<boolean | null>(null);
   useEffect(() => setWebgl(temWebGL()), []);
+  const [interagiu, abrirEditor] = useAtivarNaInteracao(typeof window !== 'undefined' && (window.location.hash.startsWith('#projeto=') || temProjetoSalvo()));
   return (
     <section className={`v2-escuro ${MARGEM} pt-[136px] pb-96 flex flex-col gap-48`}>
       <Trilha itens={[{ rotulo: 'Início', para: '/v2' }, { rotulo: 'Projetar em 3D' }]} />
@@ -254,6 +257,15 @@ export const ProjetarV2: React.FC = () => {
 
       {webgl === null ? (
         <Carregando />
+      ) : webgl && !interagiu ? (
+        <div className="relative w-full h-[70svh] min-h-[420px] border v2-linha-fina overflow-hidden">
+          <Foto srcBase="/projetar/cozinha-render" alt="Exemplo de projeto 3D de cozinha planejada feito no editor" proporcao="16 / 9" prioridade sizes="100vw" className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
+          <div className="absolute inset-0 bg-[var(--v2-noite)]/40 flex items-center justify-center p-24">
+            <button type="button" onClick={abrirEditor} className="v2-botao v2-botao-claro">
+              Abrir o editor 3D
+            </button>
+          </div>
+        </div>
       ) : webgl ? (
         <Suspense fallback={<Carregando />}>
           <Quarto3DExperiencia onOpenBriefingOutro={() => abrirOrcamento('Outro')} />

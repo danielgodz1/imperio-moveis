@@ -12,6 +12,7 @@ function vigiarErros(page: import('@playwright/test').Page) {
   return erros;
 }
 
+
 test.beforeEach(async ({ context }) => {
   // Nada sai para terceiros durante o teste.
   await context.route(/googletagmanager|google-analytics|fonts\.(googleapis|gstatic)/, (r) => r.abort());
@@ -40,6 +41,7 @@ test('endereço inexistente responde 404 com página própria', async ({ page })
 test('/projetar carrega o editor 3D', async ({ page }) => {
   const erros = vigiarErros(page);
   await page.goto('/projetar');
+  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click();
   await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('button', { name: /Cozinha/ }).first()).toBeVisible();
   expect(erros, erros.join('\n')).toEqual([]);
@@ -74,6 +76,7 @@ test('pedido de orçamento abre o WhatsApp da Império com a mensagem montada', 
 test('etapa Enviar do 3D baixa o PDF e a imagem do projeto @3d', async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto('/projetar');
+  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click();
   await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
   await page.getByRole('button', { name: /Revisar e enviar/ }).click();
   const pdfBotao = page.getByRole('button', { name: /Baixar PDF/ });
@@ -87,6 +90,7 @@ test('etapa Enviar do 3D baixa o PDF e a imagem do projeto @3d', async ({ page }
 test('salvar o projeto no aparelho e retomar depois @3d', async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto('/projetar');
+  await page.getByRole('button', { name: 'Abrir o editor 3D' }).click();
   await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
   await page.getByRole('button', { name: /Revisar e enviar/ }).click();
   await page.getByLabel('Nome do projeto').fill('Teste da cozinha');

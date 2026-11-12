@@ -6,6 +6,9 @@ import {
   gerarJsonLdFurnitureStore,
 } from '../data/paginasLocais';
 import { EMPRESA } from '../data/empresa';
+import { RESUMO_GOOGLE } from '../data/avaliacoesGoogle';
+import { HERO_V2 } from '../v2/textosV2';
+import { METADADOS_FASES, PAINEL_DESKTOP } from '../components/heroScroll/useHeroScrollStore';
 import { gerarJsonLdPerguntas } from '../data/perguntas';
 import { DOCUMENTOS_LEGAIS, dataPorExtenso } from '../data/legal';
 import { OBRAS_REAIS } from '../data/portfolioData';
@@ -42,6 +45,27 @@ export function fotoEstatica(srcBase: string, alt: string, proporcao: string, op
 
 export function gerarConteudoInicialRoot(rota: RotaPublica): string {
   const meta = METADADOS_ROTAS_SEO[rota];
+
+  // V2: réplica estática da abertura (HeroV2 no início da rolagem): título de revista e o
+  // pôster do notebook já no lugar (.poster-notebook-v2 em index.css). Usa o CSS da V2,
+  // que o build liga no <head> das páginas /v2.
+  if (rota === '/v2') {
+    const [antes, italico, depois] = HERO_V2.titulo.split('*');
+    return `<div class="v2 min-h-screen"><section id="hero" class="v2-escuro relative w-full" style="min-height:320vh">
+      <div class="sticky top-0 h-screen h-[100svh] w-full overflow-hidden">
+        <div class="absolute inset-0" aria-hidden="true">
+          <div class="palco-estatico absolute inset-0 overflow-hidden bg-[#050505]">
+            <img class="poster-notebook-v2" src="/videos/notebook-poster.jpg" alt="" width="1280" height="720" fetchpriority="high" decoding="async" />
+          </div>
+        </div>
+        <div class="absolute inset-x-0 top-0 pt-[12svh] lg:pt-[11vh] px-16 sm:px-32 lg:px-64 lg:text-center lg:flex lg:flex-col lg:items-center">
+          <h1 class="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]">${escaparHtml(antes)}<em class="v2-italico">${escaparHtml(italico)}</em>${escaparHtml(depois ?? '')}</h1>
+          <p class="v2-corpo mt-16 lg:mt-24 max-w-[44ch]">${escaparHtml(HERO_V2.apoio)}</p>
+          <p class="v2-cota mt-16 lg:mt-24">Role a página. A cozinha vai se montar na tela.</p>
+        </div>
+      </div>
+    </section></div>`;
+  }
 
   if (rota in PAGINAS_AMBIENTES_LOCAIS) {
     const cfg =
@@ -137,15 +161,43 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
       </main>`;
   }
 
-  // Home: mesmo visual do hero (fundo preto, título tipo-h1 no rodapé da tela). O texto já pinta
-  // no tamanho final antes do JavaScript, e a troca pelo React não muda o maior conteúdo da tela.
-  return `<main class="bg-preto text-papel min-h-[100svh] flex flex-col justify-end px-16 sm:px-32 lg:px-48 pt-96 pb-24 lg:pb-48">
-        <h1 class="tipo-h1 text-papel"><span class="block tipo-cota text-dourado mb-8">${escaparHtml(TEXTO_HERO.chamada)}</span>${escaparHtml(meta.h1Inicial)}</h1>
-        <p class="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">${escaparHtml(meta.resumoHtmlInicial)}</p>
-        <p class="tipo-cota text-papel/70 mt-16 max-w-[46ch]">${escaparHtml(EMPRESA.nome)}. Arquiteta, produção e montagem próprias. Marcenaria e arquitetura de interiores em ${escaparHtml(
-          EMPRESA.cidadesAtendidas.join(', ')
-        )}.</p>
-      </main>`;
+  // Home: réplica estática da abertura (mesma estrutura e classes do HeroScrollytelling no início
+  // da rolagem). O pôster do notebook pinta antes do JavaScript, na mesma posição em que o React o
+  // coloca (conta de calcularLayout feita em CSS, ver .poster-notebook-estatico em index.css); a troca
+  // pelo React não muda nada na tela.
+  const fase = METADADOS_FASES.traco;
+  const painel = `clamp(${PAINEL_DESKTOP.min}px, ${PAINEL_DESKTOP.vw * 100}vw, ${PAINEL_DESKTOP.max}px)`;
+  const nota = String(RESUMO_GOOGLE.nota).replace('.', ',');
+  return `<section id="hero" class="relative w-full bg-preto text-papel" style="min-height:300vh">
+      <div class="sticky top-0 h-screen h-[100svh] w-full overflow-hidden flex flex-col lg:block">
+        <div class="relative flex-1 min-h-0 lg:absolute lg:inset-0" aria-hidden="true">
+          <div class="palco-estatico absolute inset-0 overflow-hidden bg-[#050505]">
+            <img class="poster-notebook-estatico" src="/videos/notebook-poster.jpg" alt="" width="1280" height="720" fetchpriority="high" decoding="async" />
+          </div>
+        </div>
+        <div class="relative shrink-0 flex flex-col justify-end lg:absolute lg:inset-y-0 lg:left-0 lg:w-[var(--painel)]" style="--painel: ${painel}">
+          <div class="absolute inset-0 bg-preto"></div>
+          <div class="relative px-16 sm:px-32 lg:px-48 pt-24 lg:pt-48 pb-24 lg:pb-48">
+            <div aria-hidden="true" class="mb-16 lg:mb-24">
+              <p class="tipo-cota text-papel flex items-baseline gap-8"><span class="text-dourado">${fase.numero}/05</span><span>${escaparHtml(fase.titulo)}</span></p>
+              <p class="tipo-cota text-papel/70 mt-4 hidden sm:block">${escaparHtml(fase.detalhe)}</p>
+              <div class="relative h-[2px] mt-8 bg-papel/20"></div>
+              <span class="tipo-cota text-papel/70 inline-block mt-8">Role para construir a cozinha</span>
+            </div>
+            <h1 class="tipo-h1 text-papel"><span class="block tipo-cota text-dourado mb-8">${escaparHtml(TEXTO_HERO.chamada)}</span>${escaparHtml(meta.h1Inicial)}</h1>
+            <p class="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">${escaparHtml(meta.resumoHtmlInicial)}</p>
+            <div class="flex flex-wrap items-center gap-x-16 gap-y-8 mt-24">
+              <a href="/contato" class="inline-flex items-center justify-center gap-2 h-[52px] px-6 rounded-curto bg-dourado text-preto font-semibold">Pedir orçamento</a>
+              <a href="/obras" class="inline-flex items-center justify-center h-[52px] px-6 rounded-curto border-[1.5px] border-papel text-papel font-semibold">Ver as obras</a>
+            </div>
+            <a href="#avaliacoes" class="inline-flex items-center gap-8 mt-16 tipo-cota text-papel underline underline-offset-4 decoration-1">${nota} no Google, ${RESUMO_GOOGLE.total} avaliações</a>
+            <p class="sr-only">${escaparHtml(EMPRESA.nome)}. Arquiteta, produção e montagem próprias. Marcenaria e arquitetura de interiores em ${escaparHtml(
+              EMPRESA.cidadesAtendidas.join(', ')
+            )}.</p>
+          </div>
+        </div>
+      </div>
+    </section>`;
 }
 
 /** Trilha (Início > página) e serviço da página local, ligado à empresa pelo @id. */

@@ -99,3 +99,13 @@ export function removerProjeto(id: string, armazem: Armazem | null = armazemPadr
   gravar(lista, armazem);
   return lista;
 }
+
+/** Há projeto salvo neste aparelho? (quem volta para continuar vê o editor direto). Sem ler o conteúdo. */
+export function temProjetoSalvo(armazem: Armazem | null = armazemPadrao()): boolean {
+  try {
+    const bruto = armazem?.getItem(CHAVE_PROJETOS);
+    return !!bruto && bruto.length > 2;
+  } catch {
+    return false;
+  }
+}

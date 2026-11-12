@@ -212,3 +212,55 @@
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
+
+/*
+ * Pôster do notebook no HTML inicial da home (antes do JavaScript). Mesma conta de
+ * calcularLayout (geometriaNotebook.ts) no início da rolagem: largura do vídeo =
+ * min(max(L, A x 16/9), 1,48 L) do palco (retrato: 1,45 L); no computador, x 0,78 e
+ * deslocado meio painel para a direita.
+ */
+.palco-estatico {
+  container-type: size;
+}
+.poster-notebook-estatico {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  max-width: none;
+  height: auto;
+  width: min(max(100cqw, calc(100cqh * 16 / 9)), 148cqw);
+  transform: translate(-50%, -50%);
+}
+@container (orientation: portrait) {
+  .poster-notebook-estatico {
+    width: 145cqw;
+  }
+}
+@media (min-width: 1024px) {
+  .poster-notebook-estatico {
+    width: calc(min(max(100cqw, calc(100cqh * 16 / 9)), 148cqw) * 0.78);
+    left: calc(50% + clamp(440px, 38vw, 600px) / 2);
+  }
+}
+
+/* Mesmo pôster na abertura da V2 (HeroV2): palco em tela cheia, notebook 17% abaixo do centro,
+ * escala 0,98 no celular e 0,7 no computador (deslocY e escalaInicial do PalcoNotebook). */
+.poster-notebook-v2 {
+  position: absolute;
+  left: 50%;
+  top: 67%;
+  max-width: none;
+  height: auto;
+  width: calc(min(max(100cqw, calc(100cqh * 16 / 9)), 148cqw) * 0.98);
+  transform: translate(-50%, -50%);
+}
+@container (orientation: portrait) {
+  .poster-notebook-v2 {
+    width: calc(145cqw * 0.98);
+  }
+}
+@media (min-width: 1024px) {
+  .poster-notebook-v2 {
+    width: calc(min(max(100cqw, calc(100cqh * 16 / 9)), 148cqw) * 0.7);
+  }
+}
