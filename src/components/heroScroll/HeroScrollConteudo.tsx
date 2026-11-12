@@ -1,8 +1,9 @@
 import React from 'react';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Star } from 'lucide-react';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../../utils/helpers';
 import { scrollToTarget } from '../../hooks/useScrollytelling';
 import { TEXTO_HERO } from '../../data/paginasLocais';
+import { RESUMO_GOOGLE } from '../../data/avaliacoesGoogle';
 
 export const ALT_FOTO_COZINHA =
   'Cozinha planejada com ilha verde-sálvia, tampo de pedra clara, armários brancos e verdes, geladeira inox e fita de LED, executada pela Império em Jaú';
@@ -50,13 +51,19 @@ export const HeroScrollConteudo: React.FC<HeroScrollConteudoProps> = ({ onNaviga
       </button>
     </div>
 
-    <a
-      href="https://www.instagram.com/imperio.moveis.jau"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-block mt-16 tipo-cota text-papel underline underline-offset-4 decoration-1"
+    {/* Prova social ao lado do pedido de orçamento; leva às avaliações desta página (não tira o
+        visitante do site no momento de decisão; o Instagram fica no rodapé). */}
+    <button
+      type="button"
+      onClick={() => scrollToTarget('#avaliacoes', -80)}
+      className="inline-flex items-center gap-8 mt-16 tipo-cota text-papel underline underline-offset-4 decoration-1 cursor-pointer"
     >
-      @imperio.moveis.jau
-    </a>
+      <span className="flex items-center gap-[2px]" aria-hidden="true">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Star key={i} className="w-[14px] h-[14px] fill-dourado text-dourado" strokeWidth={1.5} />
+        ))}
+      </span>
+      {String(RESUMO_GOOGLE.nota).replace('.', ',')} no Google, {RESUMO_GOOGLE.total} avaliações
+    </button>
   </>
 );
