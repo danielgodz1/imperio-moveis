@@ -15,6 +15,78 @@
       "destination": "/obras/index.html"
     },
     {
+      "source": "/v2",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/projetar",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/orcamento",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/privacidade",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/termos",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/cozinha-ilha-verde",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/cozinha-ilha-ripado",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/cozinha-forro-ripado",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/cozinha-cinza-pendentes",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/quarto-infantil-casinha",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/quarto-bebe-nichos",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/dormitorio-led-1",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/dormitorio-led-2",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/comercial-gocoffee-interior",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/comercial-expositor",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/obras/comercial-gocoffee-fachada",
+      "destination": "/v2/index.html"
+    },
+    {
+      "source": "/v2/(.*)",
+      "destination": "/v2/index.html"
+    },
+    {
       "source": "/privacidade",
       "destination": "/privacidade/index.html"
     },

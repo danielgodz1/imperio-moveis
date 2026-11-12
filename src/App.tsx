@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { HeroScrollytelling } from './components/heroScroll/HeroScrollytelling';
 import { FaixaServicos } from './components/FaixaServicos';
@@ -35,6 +35,11 @@ import {
   RotaPublica,
 } from './data/paginasLocais';
 
+// V2 (prévia) em pedaço separado: não pesa na V1.
+const PaginaV2 = lazy(() => import('./v2/PaginaV2'));
+
+const emV2 = (pathname: string) => /^\/v2(\/|$)/.test(pathname);
+
 function normalizarRota(pathname: string): RotaPublica {
   const limpa = pathname.replace(/\/+$/, '') || '/';
   if (limpa in METADADOS_ROTAS_SEO) {
@@ -57,6 +62,8 @@ export default function App() {
   const nivel = useNivel();
 
   useEffect(() => {
+    // Na V2 o título e a descrição vêm de cada página dela.
+    if (emV2(window.location.pathname)) return;
     const meta = METADADOS_ROTAS_SEO[currentPath] ?? METADADOS_ROTAS_SEO['/'];
     document.title = meta.title;
 
@@ -106,6 +113,15 @@ export default function App() {
           currentPath as keyof typeof PAGINAS_AMBIENTES_LOCAIS
         ]
       : null;
+
+  // A V2 (prévia) cuida das próprias páginas em /v2 e /v2/...; sai dela só pela barra de endereço.
+  if (emV2(window.location.pathname)) {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0b0a08]" />}>
+        <PaginaV2 />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-papel text-grafite flex flex-col">

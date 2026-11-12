@@ -87,6 +87,14 @@ function prerenderRotasLocaisPlugin(): Plugin {
           fs.writeFileSync(path.join(subDir, 'index.html'), htmlRota, 'utf-8');
         }
       }
+      // Prévia da V2: HTML próprio (a Vercel não reescreve para /index.html com cleanUrls),
+      // com noindex e fora do sitemap.
+      const htmlV2 = injetarSeoNoHtml(baseHtml, '/v2').replace(
+        /<meta\s+name="robots"[^>]*>/,
+        '<meta name="robots" content="noindex" />',
+      );
+      fs.mkdirSync(path.join(distDir, 'v2'), { recursive: true });
+      fs.writeFileSync(path.join(distDir, 'v2', 'index.html'), htmlV2, 'utf-8');
       fs.writeFileSync(path.join(distDir, 'sitemap.xml'), gerarSitemap(dataUltimoCommit()), 'utf-8');
     },
   };

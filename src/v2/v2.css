@@ -1,0 +1,176 @@
+/*
+ * Versão 2 (prévia em /v2). Direção: galeria de interiores, clara de dia e escura à noite.
+ * Seções alternam entre linho (claro), sálvia (a cor das obras) e noite (abertura e fechamento).
+ * Um único acento metálico: latão. Serifa editorial grande com itálico; o resto pequeno e quieto.
+ * Tudo escopado em .v2 para não vazar para a V1.
+ */
+@layer components {
+.v2 {
+  --v2-noite: #0b0a08;
+  --v2-linho: #eee8de;
+  --v2-linho-2: #e4ddd0;
+  --v2-salvia: #4f5b46;
+  --v2-marfim: #f1ece2;
+  --v2-latao: #b48c52;
+  font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--v2-linho);
+}
+
+/* Temas de seção: cada um define fundo, texto, texto suave e linhas. */
+.v2-escuro {
+  --v2-fundo: var(--v2-noite);
+  --v2-texto: var(--v2-marfim);
+  --v2-suave: #a8a39a;
+  --v2-linha: rgba(241, 236, 226, 0.14);
+  --v2-acento: #c9a46c;
+}
+.v2-claro {
+  --v2-fundo: var(--v2-linho);
+  --v2-texto: #17150f;
+  --v2-suave: #5c574e;
+  --v2-linha: rgba(23, 21, 15, 0.16);
+  --v2-acento: #8a6a38;
+}
+.v2-salvia {
+  --v2-fundo: var(--v2-salvia);
+  --v2-texto: #f3efe6;
+  --v2-suave: rgba(243, 239, 230, 0.78);
+  --v2-linha: rgba(243, 239, 230, 0.22);
+  --v2-acento: #e2c48f;
+}
+/* Areia: um tom abaixo do linho, para separar seções claras vizinhas. */
+.v2-areia {
+  --v2-fundo: var(--v2-linho-2);
+  --v2-texto: #17150f;
+  --v2-suave: #57524a;
+  --v2-linha: rgba(23, 21, 15, 0.16);
+  --v2-acento: #7f6131;
+}
+.v2-claro,
+.v2-areia {
+  --v2-cartao: #f7f3ec;
+}
+.v2-escuro,
+.v2-claro,
+.v2-areia,
+.v2-salvia {
+  background-color: var(--v2-fundo);
+  color: var(--v2-texto);
+}
+
+.v2 ::selection {
+  background: var(--v2-noite);
+  color: var(--v2-marfim);
+}
+
+.v2-serif {
+  font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+.v2-serif em,
+.v2-italico {
+  font-style: italic;
+}
+
+.v2-display {
+  font-size: clamp(3rem, 8.4vw, 8.25rem);
+  line-height: 0.92;
+}
+.v2-titulo {
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  line-height: 0.96;
+}
+.v2-h3 {
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  line-height: 1.04;
+}
+.v2-corpo {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--v2-suave);
+}
+.v2-cota {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--v2-suave);
+}
+.v2-acento {
+  color: var(--v2-acento);
+}
+
+/* Botões em pílula. O cheio usa a cor do texto da seção como fundo (contraste em qualquer tema). */
+.v2-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  font-size: 0.9375rem;
+  font-weight: 450;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  cursor: pointer;
+}
+.v2-botao-claro {
+  background: var(--v2-texto);
+  color: var(--v2-fundo);
+}
+.v2-botao-claro:hover {
+  background: var(--v2-acento);
+  color: var(--v2-noite);
+}
+.v2-botao-linha {
+  border: 1px solid color-mix(in srgb, var(--v2-texto) 40%, transparent);
+  color: var(--v2-texto);
+}
+.v2-botao-linha:hover {
+  border-color: var(--v2-texto);
+}
+.v2 :focus-visible {
+  outline: 2px solid var(--v2-acento);
+  outline-offset: 3px;
+}
+
+/* Grão de filme por cima de tudo: tira o "liso de tela". */
+.v2-grao {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+}
+
+.v2-linha-fina {
+  border-color: var(--v2-linha);
+}
+.v2-linha-forte {
+  border-color: color-mix(in srgb, var(--v2-texto) 55%, transparent);
+}
+
+/* Logo da Império na cor do texto da seção: o PNG (transparente) vira máscara. */
+.v2-logo {
+  aspect-ratio: 229 / 240;
+  background-color: currentColor;
+  -webkit-mask: url('/logo-imperio.png') center / contain no-repeat;
+  mask: url('/logo-imperio.png') center / contain no-repeat;
+}
+
+/* Texto corrido de páginas internas (legal, foto). */
+.v2-texto-longo p,
+.v2-texto-longo li {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--v2-suave);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2 * {
+    transition: none !important;
+  }
+}
+}
