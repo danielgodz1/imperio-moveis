@@ -14,6 +14,7 @@ const NAV = [
   { rotulo: 'Como trabalhamos', para: '/v2#v2-processo' },
   { rotulo: 'Avaliações', para: '/v2#v2-avaliacoes' },
   { rotulo: 'Nossa história', para: '/v2#v2-historia' },
+  { rotulo: 'Onde estamos', para: '/v2#v2-onde-estamos' },
 ];
 
 /**
@@ -190,6 +191,7 @@ const SITE = [
   { rotulo: 'Projetar em 3D', para: '/v2/projetar' },
   { rotulo: 'Avaliações', para: '/v2#v2-avaliacoes' },
   { rotulo: 'Nossa história', para: '/v2#v2-historia' },
+  { rotulo: 'Onde estamos', para: '/v2#v2-onde-estamos' },
 ];
 
 const LEGAL = [

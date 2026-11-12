@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowUpRight, Box, Check, ExternalLink, Minus, Star } from 'lucide-react';
+import { ArrowUpRight, Box, Check, ExternalLink, MapPin, Minus, Star } from 'lucide-react';
 import { Foto } from '../components/Foto';
 import { AnotacoesObra } from '../components/AnotacoesObra';
 import { BriefingOrcamento } from '../components/BriefingOrcamento';
@@ -410,6 +410,78 @@ export const HistoriaV2: React.FC = () => (
       </p>
       <p className="v2-corpo">Hoje, quem desenha e quem fabrica trabalham lado a lado. É por isso que o projeto de arquitetura vem junto, sem custo à parte.</p>
       <p className="v2-serif v2-italico text-[1.6rem] leading-tight">“Cada detalhe com a cara de quem vai morar ali.”</p>
+    </div>
+  </section>
+);
+
+/**
+ * Onde estamos: endereço, horário, as mesmas informações do Perfil da Empresa no Google e o
+ * mapa incorporado (o mesmo da V1).
+ */
+export const OndeEstamosV2: React.FC<{ id?: string }> = ({ id = 'v2-onde-estamos' }) => (
+  <section id={id} className={`v2-claro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48 items-start`}>
+    <div className="lg:col-span-5 flex flex-col items-start gap-32">
+      <Titulo texto="Onde estamos *em Jaú.*" />
+      <p className="v2-corpo max-w-[42ch]">
+        Atendemos residências e comércios em {EMPRESA.cidadesAtendidas.join(', ')} e região. Venha conhecer a oficina com hora marcada, ou a gente vai até a sua obra.
+      </p>
+      <div className="w-full flex flex-col gap-24 border-t v2-linha-fina pt-24">
+        <div className="flex items-start gap-16">
+          <MapPin className="w-[20px] h-[20px] shrink-0 mt-4 v2-acento" strokeWidth={1.5} aria-hidden="true" />
+          <div className="flex flex-col gap-4">
+            <span className="v2-serif text-[1.5rem] leading-tight">Oficina e atendimento</span>
+            <span className="v2-corpo">
+              {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
+            </span>
+            <span className="v2-cota">
+              {EMPRESA.horarios.resumo}. {EMPRESA.horarios.observacao}.
+            </span>
+          </div>
+        </div>
+        <dl className="grid grid-cols-2 gap-x-24 gap-y-24 pl-[36px]">
+          {(
+            [
+              ['Atendimento', EMPRESA.sobre.atendimento],
+              ['Serviços', EMPRESA.sobre.servicos],
+              ['Pagamento', EMPRESA.sobre.pagamentos],
+              ['Acessibilidade', EMPRESA.sobre.acessibilidade],
+            ] as const
+          ).map(([titulo, itens]) => (
+            <div key={titulo} className="flex flex-col gap-4">
+              <dt className="v2-cota uppercase tracking-[0.08em] text-[0.6875rem] v2-acento">{titulo}</dt>
+              {itens.map((item) => (
+                <dd key={item} className="v2-cota text-[0.9375rem]">
+                  {item}
+                </dd>
+              ))}
+            </div>
+          ))}
+        </dl>
+      </div>
+      <div className="flex flex-wrap gap-[12px]">
+        <a href={EMPRESA.mapsUrl} target="_blank" rel="noopener noreferrer" className="v2-botao v2-botao-claro">
+          Ver no Google Maps <ExternalLink className="w-[16px] h-[16px]" strokeWidth={1.5} />
+        </a>
+        <a
+          href={getWhatsAppUrl('Olá! Quero agendar uma visita técnica da Império.')}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackWhatsAppClick('v2_visita_tecnica')}
+          className="v2-botao v2-botao-linha"
+        >
+          Agendar visita técnica
+        </a>
+      </div>
+    </div>
+    <div className="lg:col-span-7 w-full border v2-linha-fina bg-[var(--v2-linho-2)]">
+      <iframe
+        className="w-full h-[360px] lg:h-[520px] border-0 block"
+        src={EMPRESA.mapsEmbedUrl}
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title={`Mapa da ${EMPRESA.nome} em Jaú`}
+      />
     </div>
   </section>
 );

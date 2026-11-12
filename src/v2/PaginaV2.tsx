@@ -5,7 +5,7 @@ import { globalLenis, scrollToTarget } from '../hooks/useScrollytelling';
 import { FiltroLapis } from '../components/LinhaLapis';
 import { EMPRESA } from '../data/empresa';
 import { HeroV2 } from './HeroV2';
-import { AvaliacoesV2, FechamentoV2, HistoriaV2, ManifestoV2, NumerosV2, ObrasV2, ProcessoV2, Projeto3DV2, ProjetoInclusoV2 } from './SecoesV2';
+import { AvaliacoesV2, FechamentoV2, HistoriaV2, ManifestoV2, OndeEstamosV2, NumerosV2, ObrasV2, ProcessoV2, Projeto3DV2, ProjetoInclusoV2 } from './SecoesV2';
 import { BarraAcoesV2, CabecalhoV2, PainelOrcamentoV2, RodapeV2 } from './CromoV2';
 import { FotoPaginaV2, LegalV2, NaoEncontradaV2, ObrasPaginaV2, OrcamentoV2, ProjetarV2 } from './PaginasInternasV2';
 import { ContextoNavV2, NavegacaoV2 } from './NavegacaoV2';
@@ -139,6 +139,7 @@ const PaginaV2: React.FC = () => {
           <Projeto3DV2 />
           <AvaliacoesV2 />
           <HistoriaV2 />
+          <OndeEstamosV2 />
           <FechamentoV2 />
         </>
       );
@@ -153,7 +154,12 @@ const PaginaV2: React.FC = () => {
       conteudo = <ProjetarV2 />;
       break;
     case 'orcamento':
-      conteudo = <OrcamentoV2 />;
+      conteudo = (
+        <>
+          <OrcamentoV2 />
+          <OndeEstamosV2 />
+        </>
+      );
       break;
     case 'legal':
       conteudo = <LegalV2 documento={rota.documento} />;
