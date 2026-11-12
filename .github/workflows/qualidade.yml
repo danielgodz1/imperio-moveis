@@ -14,10 +14,11 @@ concurrency:
   group: qualidade-${{ github.ref }}
   cancel-in-progress: true
 
+# Ubuntu fixo: o ubuntu-latest (26.04) ainda não é suportado pelo Playwright 1.56.
 jobs:
   verificar:
     name: Tipos, testes e build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,7 +38,7 @@ jobs:
   navegador:
     name: Navegador (fumaça, acessibilidade, visual)
     needs: verificar
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -73,7 +74,7 @@ jobs:
   lighthouse:
     name: Lighthouse (orçamento de desempenho)
     needs: verificar
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -96,7 +97,7 @@ jobs:
   links:
     name: Links quebrados
     needs: verificar
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
         with:
