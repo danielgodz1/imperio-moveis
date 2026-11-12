@@ -27,12 +27,6 @@ export const NUMEROS_V2 = [
   { valor: '4,9', rotulo: 'de nota no Google, dada por quem já mora numa Império.' },
 ];
 
-export const PROCESSO_V2 = [
-  { numero: '01', titulo: 'A conversa', texto: 'Você conta como vive a casa. A gente escuta antes de medir.' },
-  { numero: '02', titulo: 'O projeto', texto: 'A arquiteta desenha e você vê tudo em 3D, antes de existir.' },
-  { numero: '03', titulo: 'A fabricação', texto: 'Na nossa oficina, cada peça é cortada para a sua parede, não para a média.' },
-  { numero: '04', titulo: 'A chave', texto: 'Nossa equipe monta, regula e limpa. Você só abre as portas.' },
-];
 
 /**
  * Projeto de arquitetura incluso. A comparação repete a da V1 (Diferencial.tsx); os itens só
@@ -47,12 +41,12 @@ export const PROJETO_INCLUSO_V2 = {
     { comum: 'Você só vê o móvel no dia da entrega.', imperio: 'Você vê o ambiente em 3D antes de fabricar.' },
   ],
   itens: [
-    { titulo: 'A conversa e a medição', texto: 'Você conta como usa o ambiente e a gente mede no local. É dessa medida que o projeto nasce.' },
+    { titulo: 'A conversa e a medição', texto: 'Você conta como usa o ambiente e a gente mede a sua casa como ela está hoje. É dessa medida que o projeto nasce.' },
     { titulo: 'O desenho do ambiente', texto: 'A arquiteta distribui os móveis pela sua rotina: circulação, alturas e o que precisa ficar à mão.' },
     { titulo: 'O 3D antes do corte', texto: 'Você vê o ambiente em 3D e ajusta o que quiser antes de qualquer peça ser fabricada.' },
     { titulo: 'Materiais e acabamentos', texto: 'Cores, madeiras, pedras e iluminação escolhidas junto com a arquiteta, olhando amostras.' },
     { titulo: 'O detalhamento para a oficina', texto: 'Cada peça sai desenhada com a medida da sua parede para a nossa oficina, não para a média.' },
-    { titulo: 'Do traço à instalação', texto: 'Quem projetou acompanha a fabricação e a montagem até a entrega da chave.' },
+    { titulo: 'Do traço à montagem', texto: 'Quem projetou acompanha a fabricação e a montagem na sua casa, até o último ajuste de porta.' },
   ],
 };
 

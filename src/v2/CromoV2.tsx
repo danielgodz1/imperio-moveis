@@ -224,7 +224,7 @@ export const RodapeV2: React.FC = () => {
     <footer data-sem-barra className="v2-escuro">
       <div className={`${MARGEM} py-[12vh] border-t v2-linha-fina grid grid-cols-1 lg:grid-cols-12 gap-32 items-end`}>
         <p className="lg:col-span-7 v2-serif v2-display">
-          <ComItalico texto="Do risco *à chave na mão.*" />
+          <ComItalico texto="Do primeiro traço *à montagem na sua casa.*" />
         </p>
         <div className="lg:col-span-5 flex flex-col gap-24 lg:items-end">
           <p className="v2-corpo max-w-[36ch] lg:text-right">

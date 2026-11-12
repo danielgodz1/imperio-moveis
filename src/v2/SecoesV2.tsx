@@ -13,7 +13,7 @@ import { ComItalico } from './Serif';
 import { ChamadaOrcamentoV2, MARGEM } from './CromoV2';
 import { LinkV2, useNavV2 } from './NavegacaoV2';
 import { caminhoFoto } from './rotasV2';
-import { MANIFESTO_V2, NUMEROS_V2, PROCESSO_V2, PROJETO_INCLUSO_V2, PASSOS_3D_V2 } from './textosV2';
+import { MANIFESTO_V2, NUMEROS_V2, PROJETO_INCLUSO_V2, PASSOS_3D_V2 } from './textosV2';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -141,7 +141,7 @@ export const ObrasV2: React.FC = () => {
 export const ProjetoInclusoV2: React.FC = () => {
   const { abrirOrcamento } = useNavV2();
   return (
-    <section id="v2-projeto-incluso" className={`v2-areia ${MARGEM} py-[14vh] flex flex-col gap-[10vh]`}>
+    <section id="v2-projeto-incluso" className={`v2-areia ${MARGEM} py-[14vh]`}>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-48">
         <div className="lg:col-span-5 flex flex-col items-start gap-24">
           <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Sem custo à parte</p>
@@ -149,9 +149,14 @@ export const ProjetoInclusoV2: React.FC = () => {
           <p className="v2-corpo max-w-[38ch]">
             Na maioria dos lugares você paga um profissional para projetar e outro para fabricar. Aqui é uma coisa só: a arquiteta desenha e a nossa oficina fabrica, na mesma conversa.
           </p>
-          <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
-            Pedir orçamento com projeto <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
-          </button>
+          <div className="flex flex-wrap items-center gap-x-24 gap-y-16">
+            <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
+              Pedir orçamento com projeto <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+            </button>
+            <LinkV2 para="/v2#v2-processo" className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
+              Ver como funciona, passo a passo
+            </LinkV2>
+          </div>
         </div>
 
         <div className="lg:col-span-7">
@@ -182,20 +187,6 @@ export const ProjetoInclusoV2: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-32">
-        <h3 className="v2-serif v2-h3">
-          <ComItalico texto="O que vem *no projeto*, passo a passo." />
-        </h3>
-        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32">
-          {PROJETO_INCLUSO_V2.itens.map((item, i) => (
-            <li key={item.titulo} className="py-32 border-t v2-linha-forte flex flex-col gap-8">
-              <span className="v2-serif v2-italico v2-acento text-[2rem] leading-none">{String(i + 1).padStart(2, '0')}</span>
-              <h4 className="v2-serif text-[1.5rem] leading-tight">{item.titulo}</h4>
-              <p className="v2-corpo">{item.texto}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
     </section>
   );
 };
@@ -215,26 +206,49 @@ export const NumerosV2: React.FC = () => (
   </section>
 );
 
-/** Do risco à chave: quatro passos em lista editorial, numerais grandes em serifa. */
-export const ProcessoV2: React.FC = () => (
-  <section id="v2-processo" className={`v2-claro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48`}>
-    <div className="lg:col-span-5 lg:sticky lg:top-[18vh] self-start flex flex-col gap-24">
-      <Titulo texto="Do risco *à chave na mão.*" />
-      <p className="v2-corpo max-w-[36ch]">Uma equipe só cuida de tudo. Você não precisa coordenar arquiteto, marceneiro e montador.</p>
-    </div>
-    <ol className="lg:col-span-7 flex flex-col">
-      {PROCESSO_V2.map((p) => (
-        <li key={p.numero} className="grid grid-cols-[72px_1fr] sm:grid-cols-[120px_1fr] gap-16 py-48 border-t v2-linha-fina">
-          <span className="v2-serif v2-italico v2-acento text-[clamp(2.5rem,5vw,4rem)] leading-none">{p.numero}</span>
-          <div className="flex flex-col gap-8">
-            <h3 className="v2-serif v2-h3">{p.titulo}</h3>
-            <p className="v2-corpo max-w-[40ch]">{p.texto}</p>
-          </div>
-        </li>
-      ))}
-    </ol>
-  </section>
-);
+/**
+ * Como trabalhamos: os seis passos, uma lista só (antes havia duas parecidas na página).
+ * Título fixo à esquerda; à direita, numerais grandes e um fio de latão que desce com a rolagem.
+ */
+export const ProcessoV2: React.FC = () => {
+  const listaRef = useRef<HTMLOListElement>(null);
+  const fioRef = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    if (!listaRef.current || !fioRef.current || reduzido()) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        fioRef.current,
+        { scaleY: 0 },
+        { scaleY: 1, ease: 'none', scrollTrigger: { trigger: listaRef.current, start: 'top 70%', end: 'bottom 60%', scrub: 0.4 } }
+      );
+    });
+    return () => ctx.revert();
+  }, []);
+  return (
+    <section id="v2-processo" className={`v2-claro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48`}>
+      <div className="lg:col-span-5 lg:sticky lg:top-[18vh] self-start flex flex-col gap-24">
+        <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Como trabalhamos</p>
+        <Titulo texto="Da primeira conversa *à montagem na sua casa.*" />
+        <p className="v2-corpo max-w-[38ch]">
+          Uma equipe só cuida de tudo. A gente mede a sua casa como ela está hoje, e o projeto se encaixa nela. Você não precisa coordenar arquiteto, marceneiro e montador.
+        </p>
+      </div>
+      <ol ref={listaRef} className="lg:col-span-7 relative flex flex-col pl-24 sm:pl-32">
+        <span aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-px bg-[var(--v2-linha)]" />
+        <span ref={fioRef} aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-[2px] -ml-[0.5px] bg-[var(--v2-acento)] origin-top" />
+        {PROJETO_INCLUSO_V2.itens.map((p, i) => (
+          <li key={p.titulo} className={`grid grid-cols-[64px_1fr] sm:grid-cols-[112px_1fr] gap-16 py-[40px] ${i ? 'border-t v2-linha-fina' : ''}`}>
+            <span className="v2-serif v2-italico v2-acento text-[clamp(2.5rem,5vw,4rem)] leading-none">{String(i + 1).padStart(2, '0')}</span>
+            <div className="flex flex-col gap-8">
+              <h3 className="v2-serif v2-h3">{p.titulo}</h3>
+              <p className="v2-corpo max-w-[42ch]">{p.texto}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+};
 
 /** Convite forte para o 3D online: imagem grande, três passos e dois caminhos. */
 export const Projeto3DV2: React.FC = () => {
