@@ -1,0 +1,109 @@
+/*
+ * Versão 2 (prévia em /v2). Direção: galeria de alto padrão à noite.
+ * Preto quente, marfim e um único latão; serifa editorial grande com itálico; o resto pequeno e quieto.
+ * Tudo escopado em .v2 para não vazar para a V1.
+ */
+.v2 {
+  --v2-noite: #0b0a08;
+  --v2-noite-2: #14120e;
+  --v2-marfim: #efe9de;
+  --v2-cinza: #a8a39a;
+  --v2-latao: #c9a46c;
+  --v2-linha: rgba(239, 233, 222, 0.14);
+  background-color: var(--v2-noite);
+  color: var(--v2-marfim);
+  font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
+.v2 ::selection {
+  background: var(--v2-marfim);
+  color: var(--v2-noite);
+}
+
+.v2-serif {
+  font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+.v2-serif em,
+.v2-italico {
+  font-style: italic;
+}
+
+.v2-display {
+  font-size: clamp(3rem, 8.4vw, 8.25rem);
+  line-height: 0.92;
+}
+.v2-titulo {
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  line-height: 0.96;
+}
+.v2-h3 {
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  line-height: 1.04;
+}
+.v2-corpo {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--v2-cinza);
+}
+.v2-cota {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--v2-cinza);
+}
+
+/* Botões em pílula, como etiquetas de joalheria. */
+.v2-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  font-size: 0.9375rem;
+  font-weight: 450;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  cursor: pointer;
+}
+.v2-botao-claro {
+  background: var(--v2-marfim);
+  color: var(--v2-noite);
+}
+.v2-botao-claro:hover {
+  background: var(--v2-latao);
+}
+.v2-botao-linha {
+  border: 1px solid rgba(239, 233, 222, 0.4);
+  color: var(--v2-marfim);
+}
+.v2-botao-linha:hover {
+  border-color: var(--v2-marfim);
+}
+.v2 :focus-visible {
+  outline: 2px solid var(--v2-latao);
+  outline-offset: 3px;
+}
+
+/* Grão de filme por cima de tudo: tira o "liso de tela" do preto. */
+.v2-grao {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+}
+
+.v2-linha-fina {
+  border-color: var(--v2-linha);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2 * {
+    transition: none !important;
+  }
+}

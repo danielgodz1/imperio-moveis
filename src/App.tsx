@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { HeroScrollytelling } from './components/heroScroll/HeroScrollytelling';
 import { FaixaServicos } from './components/FaixaServicos';
@@ -33,6 +33,9 @@ import {
   PAGINAS_AMBIENTES_LOCAIS,
   RotaPublica,
 } from './data/paginasLocais';
+
+// V2 (prévia) em pedaço separado: não pesa na V1.
+const PaginaV2 = lazy(() => import('./v2/PaginaV2'));
 
 function normalizarRota(pathname: string): RotaPublica {
   const limpa = pathname.replace(/\/+$/, '') || '/';
@@ -105,6 +108,14 @@ export default function App() {
           currentPath as keyof typeof PAGINAS_AMBIENTES_LOCAIS
         ]
       : null;
+
+  if (currentPath === '/v2') {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0b0a08]" />}>
+        <PaginaV2 onRota={handleNavigateRoute} />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-papel text-grafite flex flex-col">

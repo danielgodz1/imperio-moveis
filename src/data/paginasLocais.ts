@@ -7,6 +7,7 @@ export type RotaPublica =
   | '/projetar'
   | '/privacidade'
   | '/termos'
+  | '/v2'
   | '/cozinhas-planejadas-jau'
   | '/quartos-planejados-jau'
   | '/closets-sob-medida-jau'
@@ -337,6 +338,16 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
     h1Inicial: 'Termos de Uso',
     resumoHtmlInicial: 'Regras de uso do site da Império Móveis Planejados, do projeto 3D online e do pedido de orçamento.',
+  },
+  // Prévia da versão 2 (fora do sitemap e com noindex).
+  '/v2': {
+    rota: '/v2',
+    title: 'Império Móveis Planejados | Construímos o cenário dos seus melhores dias',
+    description: 'Prévia da nova versão do site da Império Móveis Planejados, em Jaú/SP.',
+    canonical: `${EMPRESA.url}/`,
+    ogImage: `${EMPRESA.url}/og-hero.jpg`,
+    h1Inicial: 'Construímos o cenário dos seus melhores dias.',
+    resumoHtmlInicial: 'Arquitetura e marcenaria sob medida em Jaú e região. Projeto de arquitetura incluso.',
   },
   '/cozinhas-planejadas-jau': {
     rota: '/cozinhas-planejadas-jau',
