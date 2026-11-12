@@ -182,7 +182,7 @@ function NarrativaCena({ mobile, perfil }: { mobile: boolean; perfil: PerfilQual
     const c = cam.current;
     const { width, height } = sizeRef.current;
     const aspecto = width / height;
-    const painel = larguraPainel(width) / width;
+    const painel = useHeroScrollStore.getState().painelLateral ? larguraPainel(width) / width : 0;
     const aspectoLivre = aspecto * (1 - painel);
 
     // A distância compensa telas estreitas; some quando a câmera encaixa na foto.
