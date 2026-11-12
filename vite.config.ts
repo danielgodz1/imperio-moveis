@@ -78,8 +78,30 @@ function prerenderRotasLocaisPlugin(): Plugin {
       const baseHtml = fs.readFileSync(baseIndexPath, 'utf-8');
       fs.writeFileSync(path.join(distDir, '404.html'), gerarHtml404(baseHtml), 'utf-8');
 
+      // Código de cada página (pedaço sob demanda) pré-carregado no <head>: o navegador baixa junto
+      // com o JavaScript principal, em vez de esperar ele rodar para pedir (uma ida à rede a menos).
+      const arquivos = fs.readdirSync(path.join(distDir, 'assets'));
+      const pedaco = (nome: string) => arquivos.find((f) => f.startsWith(`${nome}-`) && f.endsWith('.js'));
+      const PEDACO_DA_ROTA: Record<string, string> = {
+        '/projetar': 'PaginaProjetar',
+        '/obras': 'PaginaObras',
+        '/contato': 'ContactQuotationPage',
+        '/privacidade': 'PaginaLegal',
+        '/termos': 'PaginaLegal',
+        '/cozinhas-planejadas-jau': 'PaginaAmbienteLocal',
+        '/quartos-planejados-jau': 'PaginaAmbienteLocal',
+        '/closets-sob-medida-jau': 'PaginaAmbienteLocal',
+        '/home-office-planejado-jau': 'PaginaAmbienteLocal',
+        '/v2': 'PaginaV2',
+      };
+      const comPreload = (html: string, rota: string) => {
+        const arq = PEDACO_DA_ROTA[rota] ? pedaco(PEDACO_DA_ROTA[rota]) : undefined;
+        return arq ? html.replace('</head>', `  <link rel="modulepreload" crossorigin href="/assets/${arq}">
+  </head>`) : html;
+      };
+
       for (const rota of ROTAS_PRERENDER) {
-        const htmlRota = injetarSeoNoHtml(baseHtml, rota);
+        const htmlRota = comPreload(injetarSeoNoHtml(baseHtml, rota), rota);
         if (rota === '/') {
           fs.writeFileSync(baseIndexPath, htmlRota, 'utf-8');
         } else {
@@ -97,7 +119,7 @@ function prerenderRotasLocaisPlugin(): Plugin {
         '<link rel="preload" as="font" type="font/woff2" href="/fontes/instrument-serif-latin.woff2" crossorigin />',
         '<link rel="preload" as="font" type="font/woff2" href="/fontes/geist-latin.woff2" crossorigin />',
       ].join('\n    ');
-      const htmlV2 = injetarSeoNoHtml(baseHtml, '/v2')
+      const htmlV2 = comPreload(injetarSeoNoHtml(baseHtml, '/v2'), '/v2')
         .replace(/<meta\s+name="robots"[^>]*>/, '<meta name="robots" content="noindex" />')
         .replace('</head>', `    ${cabecaV2}\n  </head>`);
       // Páginas internas da V2: sem a réplica da abertura (o React monta a página certa).

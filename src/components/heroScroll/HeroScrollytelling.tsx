@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNarrativaScroll } from './useNarrativaScroll';
 import { Foto } from '../Foto';
-import { rebaixarPorDesempenho, tem3D, useNivel } from '../../vitrine/nivel';
+import { confirmar3D, rebaixarPorDesempenho, tem3D, useNivel } from '../../vitrine/nivel';
 import { HeroScrollFallback } from './HeroScrollFallback';
 import { PalcoNotebook } from './PalcoNotebook';
 import { ALT_FOTO_COZINHA, HeroScrollConteudo } from './HeroScrollConteudo';
@@ -21,17 +21,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 const LARGURA_PAINEL_CSS = `clamp(${PAINEL_DESKTOP.min}px, ${PAINEL_DESKTOP.vw * 100}vw, ${PAINEL_DESKTOP.max}px)`;
 
-function verificarSuporteWebGL(): boolean {
-  try {
-    const canvas = document.createElement('canvas');
-    return !!(
-      window.WebGLRenderingContext &&
-      (canvas.getContext('webgl2') || canvas.getContext('webgl'))
-    );
-  } catch {
-    return false;
-  }
-}
 
 /**
  * O 3D do hero (three + cena + texturas) custa segundos de processador no celular.
@@ -44,7 +33,10 @@ function useAtivarNaInteracao(): boolean {
     if (ativo) return;
     const eventos = ['scroll', 'wheel', 'touchstart', 'pointerdown', 'keydown'];
     if (window.matchMedia('(pointer: fine)').matches) eventos.push('pointermove');
-    const ativar = () => setAtivo(true);
+    // O teste da placa de vídeo roda aqui, não ao abrir a página (ver confirmar3D).
+    const ativar = () => {
+      if (confirmar3D()) setAtivo(true);
+    };
     eventos.forEach((e) => window.addEventListener(e, ativar, { once: true, passive: true }));
     return () => eventos.forEach((e) => window.removeEventListener(e, ativar));
   }, [ativo]);
@@ -54,7 +46,7 @@ function useAtivarNaInteracao(): boolean {
 function deveAtivarModoEstatico(): boolean {
   if (typeof window === 'undefined') return true;
   const reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  return reduzido || !verificarSuporteWebGL();
+  return reduzido;
 }
 
 interface HeroScrollytellingProps {

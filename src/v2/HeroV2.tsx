@@ -8,29 +8,29 @@ import { scrollToTarget } from '../hooks/useScrollytelling';
 import { ComItalico } from './Serif';
 import { LinkV2, useNavV2 } from './NavegacaoV2';
 import { FASES_V2, HERO_V2 } from './textosV2';
+import { confirmar3D } from '../vitrine/nivel';
 
 
+/** Sem testar a placa de vídeo ao abrir (custa segundos sem aceleração): ver confirmar3D. */
 function podeAnimar(): boolean {
   if (typeof window === 'undefined') return false;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  try {
-    const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
-  } catch {
-    return false;
-  }
+  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 /** Monta o 3D só na primeira interação (o custo fica fora do carregamento inicial). */
-function useAtivarNaInteracao(): boolean {
+function useAtivarNaInteracao(aoFaltar3D: () => void): boolean {
   const [ativo, setAtivo] = useState(() => typeof window !== 'undefined' && window.scrollY > 0);
   useEffect(() => {
     if (ativo) return;
     const eventos = ['scroll', 'wheel', 'touchstart', 'pointerdown', 'keydown'];
     if (window.matchMedia('(pointer: fine)').matches) eventos.push('pointermove');
-    const ativar = () => setAtivo(true);
+    const ativar = () => {
+      if (confirmar3D()) setAtivo(true);
+      else aoFaltar3D();
+    };
     eventos.forEach((e) => window.addEventListener(e, ativar, { once: true, passive: true }));
     return () => eventos.forEach((e) => window.removeEventListener(e, ativar));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ativo]);
   return ativo;
 }
@@ -50,9 +50,9 @@ export const HeroV2: React.FC = () => {
   const numeroRef = useRef<HTMLSpanElement>(null);
   const faseRef = useRef<HTMLSpanElement>(null);
   const fraseRef = useRef<HTMLSpanElement>(null);
-  const [animado] = useState(podeAnimar);
+  const [animado, setAnimado] = useState(podeAnimar);
   const [computador] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024);
-  const cenaAtiva = useAtivarNaInteracao();
+  const cenaAtiva = useAtivarNaInteracao(() => setAnimado(false));
 
   useNarrativaScroll(secaoRef, !animado);
 

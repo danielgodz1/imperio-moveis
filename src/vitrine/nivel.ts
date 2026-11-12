@@ -53,11 +53,28 @@ interface Estado {
   automatico: boolean;
 }
 
+/**
+ * Nível ao abrir a página, sem testar a placa de vídeo: criar um contexto WebGL só para isso
+ * custa segundos em aparelho sem aceleração (e no laboratório do Google). O teste de verdade
+ * (confirmar3D) roda quando o 3D vai montar, na primeira interação.
+ */
 function nivelDoAparelho(): Nivel {
+  if (typeof window === 'undefined') return 'essencial';
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'essencial';
+  return 'cinematografico';
+}
+
+/**
+ * Testa a placa de vídeo (uma vez) antes de montar o 3D. Sem WebGL ou com 3D por software, o
+ * site passa para o nível Essencial (estático) e devolve false.
+ */
+export function confirmar3D(): boolean {
   const faixa = detectarAparelho().faixa;
-  // Link de projeto do 3D (#projeto=...): abre com o editor sempre que o aparelho tiver WebGL.
-  if (faixa > 0 && typeof window !== 'undefined' && window.location.hash.startsWith('#projeto=')) return 'cinematografico';
-  return PORTE_POR_FAIXA[faixa];
+  if (PORTE_POR_FAIXA[faixa] === 'essencial' && estado.automatico && estado.nivel !== 'essencial') {
+    estado = { nivel: 'essencial', automatico: true };
+    ouvintes.forEach((avisar) => avisar());
+  }
+  return faixa > 0;
 }
 
 function lerDaUrl(): Estado {

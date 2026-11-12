@@ -31,9 +31,12 @@ const Carregando = () => (
 /** Página própria do configurador 3D (/projetar). */
 export const PaginaProjetar: React.FC<PaginaProjetarProps> = ({ onVoltar, onOpenBriefing }) => {
   const [webgl, setWebgl] = useState<boolean | null>(null);
-  useEffect(() => setWebgl(temWebGL()), []);
   // O editor (three.js) custa segundos de processador: monta na primeira interação.
   const [interagiu, abrirEditor] = useAtivarNaInteracao(typeof window !== 'undefined' && (window.location.hash.startsWith('#projeto=') || temProjetoSalvo()));
+  // WebGL testado só quando o editor vai abrir (o teste custa segundos sem aceleração).
+  useEffect(() => {
+    if (interagiu) setWebgl(temWebGL());
+  }, [interagiu]);
 
   return (
     <section data-tema="noite" className="w-full min-h-screen bg-preto text-papel pt-96 pb-64">
@@ -63,9 +66,7 @@ export const PaginaProjetar: React.FC<PaginaProjetarProps> = ({ onVoltar, onOpen
           </div>
         </div>
 
-        {webgl === null ? (
-          <Carregando />
-        ) : webgl && !interagiu ? (
+        {!interagiu ? (
           <div className="relative w-full h-[70svh] min-h-[420px] border border-papel/20 overflow-hidden">
             <Foto srcBase="/projetar/cozinha-render" alt="Exemplo de projeto 3D de cozinha planejada feito no editor" proporcao="16 / 9" prioridade sizes="100vw" className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
             <div className="absolute inset-0 bg-preto/40 flex items-center justify-center p-24">
@@ -78,6 +79,8 @@ export const PaginaProjetar: React.FC<PaginaProjetarProps> = ({ onVoltar, onOpen
               </button>
             </div>
           </div>
+        ) : webgl === null ? (
+          <Carregando />
         ) : webgl ? (
           <Suspense fallback={<Carregando />}>
             <Quarto3DExperiencia onOpenBriefingOutro={onOpenBriefing} />

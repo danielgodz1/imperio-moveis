@@ -234,8 +234,11 @@ const Carregando = () => (
 export const ProjetarV2: React.FC = () => {
   const { abrirOrcamento } = useNavV2();
   const [webgl, setWebgl] = useState<boolean | null>(null);
-  useEffect(() => setWebgl(temWebGL()), []);
   const [interagiu, abrirEditor] = useAtivarNaInteracao(typeof window !== 'undefined' && (window.location.hash.startsWith('#projeto=') || temProjetoSalvo()));
+  // WebGL testado só quando o editor vai abrir (o teste custa segundos sem aceleração).
+  useEffect(() => {
+    if (interagiu) setWebgl(temWebGL());
+  }, [interagiu]);
   return (
     <section className={`v2-escuro ${MARGEM} pt-[136px] pb-96 flex flex-col gap-48`}>
       <Trilha itens={[{ rotulo: 'Início', para: '/v2' }, { rotulo: 'Projetar em 3D' }]} />
@@ -255,9 +258,7 @@ export const ProjetarV2: React.FC = () => {
         ))}
       </ol>
 
-      {webgl === null ? (
-        <Carregando />
-      ) : webgl && !interagiu ? (
+      {!interagiu ? (
         <div className="relative w-full h-[70svh] min-h-[420px] border v2-linha-fina overflow-hidden">
           <Foto srcBase="/projetar/cozinha-render" alt="Exemplo de projeto 3D de cozinha planejada feito no editor" proporcao="16 / 9" prioridade sizes="100vw" className="w-full h-full" imgStyle={{ objectFit: 'cover' }} />
           <div className="absolute inset-0 bg-[var(--v2-noite)]/40 flex items-center justify-center p-24">
@@ -266,6 +267,8 @@ export const ProjetarV2: React.FC = () => {
             </button>
           </div>
         </div>
+      ) : webgl === null ? (
+        <Carregando />
       ) : webgl ? (
         <Suspense fallback={<Carregando />}>
           <Quarto3DExperiencia onOpenBriefingOutro={() => abrirOrcamento('Outro')} />
