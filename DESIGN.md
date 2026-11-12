@@ -64,6 +64,7 @@ Escala de 8: `4 8 16 24 32 48 64 96 144`. Seção: 96 (mobile) e 144 (desktop) d
 
 ## Movimento
 - Só 3 momentos orquestrados: o desenho do hero, o holofote nos donos, o "acender o LED" no 3D. Fora isso, nada de entrada com fade-subindo em cada seção, nada de hover com zoom, nada de objetos flutuando.
+- Hero (abertura cinematográfica, `PalcoNotebook.tsx`): um notebook abre com a rolagem (vídeo `public/videos/notebook-*.mp4`, 0 a 5 s, scrub), a tela acende com a cozinha montando em 3D e a câmera entra na tela até ela tomar o palco; no fim, a foto real. O canvas 3D tem o tamanho do palco e só a tela fica visível (clip-path); a câmera encaixa o quadro na tela (`tela` no store, `geometriaNotebook.ts`).
 - Hero (montagem da cozinha): o andamento persegue a rolagem com velocidade máxima (no mínimo 4,2 s do traço à obra real, `ritmoNarrativa.ts`). Enquanto a montagem não termina, a página fica presa no fim do hero; links do menu, rodapé e botões (`scrollToTarget`) liberam a trava, e depois de vista uma vez a rolagem fica livre.
 - Duração 0.6 a 1.2s. Easing `power3.out` e `expo.out`. Rolagem suave Lenis mantida no desktop; desligada em toque.
 - `prefers-reduced-motion`: estado final estático, sem pin, sem scrub.

@@ -1,11 +1,11 @@
-import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNarrativaScroll } from './useNarrativaScroll';
 import { Foto } from '../Foto';
 import { rebaixarPorDesempenho, tem3D, useNivel } from '../../vitrine/nivel';
 import { HeroScrollFallback } from './HeroScrollFallback';
-import { PosterTraco } from './PosterTraco';
+import { PalcoNotebook } from './PalcoNotebook';
 import { ALT_FOTO_COZINHA, HeroScrollConteudo } from './HeroScrollConteudo';
 import {
   FASES,
@@ -18,11 +18,6 @@ import {
 } from './useHeroScrollStore';
 
 gsap.registerPlugin(ScrollTrigger);
-
-// Canvas sob demanda: three e R3F ficam fora do bundle inicial
-const HeroScrollCena = lazy(() =>
-  import('./HeroScrollCena').then((mod) => ({ default: mod.HeroScrollCena }))
-);
 
 const LARGURA_PAINEL_CSS = `clamp(${PAINEL_DESKTOP.min}px, ${PAINEL_DESKTOP.vw * 100}vw, ${PAINEL_DESKTOP.max}px)`;
 
@@ -155,13 +150,8 @@ export const HeroScrollytelling: React.FC<HeroScrollytellingProps> = ({ onNaviga
       <div className="sticky top-0 h-screen h-[100svh] w-full overflow-hidden flex flex-col lg:block">
         {/* Palco: em tela cheia no desktop, acima do texto no celular */}
         <div className="relative flex-1 min-h-0 lg:absolute lg:inset-0" aria-hidden="true">
-          {cenaAtiva ? (
-            <Suspense fallback={<PosterTraco />}>
-              <HeroScrollCena onLento={rebaixarPorDesempenho} />
-            </Suspense>
-          ) : (
-            <PosterTraco />
-          )}
+          {/* Abertura: o notebook abre, a cozinha se monta na tela e a câmera entra nela */}
+          <PalcoNotebook ativo={cenaAtiva} fugirDoPainel onLento={rebaixarPorDesempenho} />
 
           <div ref={fotoRef} className="absolute inset-0 opacity-0 pointer-events-none">
             <Foto

@@ -1,0 +1,147 @@
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { larguraPainel, useHeroScrollStore } from './useHeroScrollStore';
+import { FAIXAS_NOTEBOOK, calcularLayout, naFaixa, tempoNotebook } from './geometriaNotebook';
+
+const HeroScrollCena = lazy(() => import('./HeroScrollCena').then((m) => ({ default: m.HeroScrollCena })));
+
+interface PalcoNotebookProps {
+  /** O 3D e o vídeo só carregam depois da primeira interação. */
+  ativo: boolean;
+  /** Deslocamento do notebook no começo, em fração da largura do palco (V1: foge do painel de texto). */
+  deslocX?: number;
+  /** Deslocamento vertical no começo, em fração da altura (V2: espaço para o título). */
+  deslocY?: number;
+  /** Escala do notebook no começo (1 = cobre o palco no computador). */
+  escalaInicial?: number;
+  /** V1 no computador: começa no espaço à direita do painel de texto. */
+  fugirDoPainel?: boolean;
+  onLento?: () => void;
+}
+
+const POSTER = '/videos/notebook-poster.jpg';
+
+function escolherVideo(): string {
+  const px = window.innerWidth * Math.min(2, window.devicePixelRatio || 1);
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } };
+  const lenta = nav.connection?.saveData || /(^|-)2g|3g/.test(nav.connection?.effectiveType ?? '');
+  return !lenta && px >= 1500 ? '/videos/notebook-1080.mp4' : '/videos/notebook-720.mp4';
+}
+
+/**
+ * Abertura cinematográfica do hero: o notebook abre com a rolagem, a tela acende com a cozinha
+ * sendo montada em 3D e a câmera entra na tela até ela tomar o palco inteiro. Quem decide o
+ * momento é o progress do hero (o mesmo da montagem); a foto real entra por cima, no componente pai.
+ *
+ * O canvas 3D tem sempre o tamanho do palco (nítido em qualquer zoom); só a área da tela fica
+ * visível (clip-path) e a câmera encaixa o quadro nessa área (tela no store).
+ */
+export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0, deslocY = 0, escalaInicial = 1, fugirDoPainel = false, onLento }) => {
+  const palcoRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cenaRef = useRef<HTMLDivElement>(null);
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (ativo && !src) setSrc(escolherVideo());
+  }, [ativo, src]);
+
+  useEffect(() => {
+    const palco = palcoRef.current;
+    const video = videoRef.current;
+    if (!palco || !video) return;
+    let tamanho = { w: palco.clientWidth, h: palco.clientHeight };
+    let ultimoP = -1;
+    let quadro = 0;
+
+    const aplicar = (p: number, forcar = false) => {
+      if (!forcar && Math.abs(p - ultimoP) < 1e-5) return;
+      ultimoP = p;
+      const zoom = naFaixa(p, FAIXAS_NOTEBOOK.aproximar);
+      const l = calcularLayout({
+        largura: tamanho.w,
+        altura: tamanho.h,
+        zoom,
+        deslocX: deslocX * tamanho.w + (fugirDoPainel ? larguraPainel(tamanho.w) / 2 : 0),
+        deslocY: deslocY * tamanho.h,
+        escalaInicial: fugirDoPainel && larguraPainel(tamanho.w) > 0 ? escalaInicial * 0.78 : escalaInicial,
+      });
+      video.style.width = `${l.videoW}px`;
+      video.style.height = `${l.videoH}px`;
+      video.style.transform = `translate3d(${l.tx.toFixed(2)}px, ${l.ty.toFixed(2)}px, 0) scale(${l.escala.toFixed(5)})`;
+      if (cenaRef.current) {
+        const r = l.recorte;
+        cenaRef.current.style.clipPath = `inset(${r.topo.toFixed(1)}px ${r.direita.toFixed(1)}px ${r.base.toFixed(1)}px ${r.esquerda.toFixed(1)}px)`;
+        cenaRef.current.style.opacity = naFaixa(p, FAIXAS_NOTEBOOK.acender).toFixed(3);
+      }
+      useHeroScrollStore.setState({ tela: l.telaCamera });
+
+      // Tampa: o tempo do vídeo acompanha o começo da rolagem (seek só quando o anterior terminou).
+      if (video.readyState >= 1 && !video.seeking) {
+        const alvo = Math.min(tempoNotebook(p), (video.duration || 5.2) - 0.05);
+        if (Math.abs(video.currentTime - alvo) > 0.02) video.currentTime = alvo;
+      }
+    };
+
+    const agendar = (p: number) => {
+      cancelAnimationFrame(quadro);
+      quadro = requestAnimationFrame(() => aplicar(p));
+    };
+    const aoRedimensionar = () => {
+      tamanho = { w: palco.clientWidth, h: palco.clientHeight };
+      aplicar(useHeroScrollStore.getState().progress, true);
+    };
+    const aoBuscar = () => aplicar(useHeroScrollStore.getState().progress, true);
+
+    aoRedimensionar();
+    const obs = new ResizeObserver(aoRedimensionar);
+    obs.observe(palco);
+    video.addEventListener('seeked', aoBuscar);
+    video.addEventListener('loadedmetadata', aoBuscar);
+    let anterior = useHeroScrollStore.getState().progress;
+    const parar = useHeroScrollStore.subscribe((s) => {
+      if (s.progress === anterior) return;
+      anterior = s.progress;
+      agendar(s.progress);
+    });
+    return () => {
+      parar();
+      obs.disconnect();
+      cancelAnimationFrame(quadro);
+      video.removeEventListener('seeked', aoBuscar);
+      video.removeEventListener('loadedmetadata', aoBuscar);
+      useHeroScrollStore.setState({ tela: null });
+    };
+  }, [deslocX, deslocY, escalaInicial, fugirDoPainel]);
+
+  // iOS só libera o seek depois de um play/pause iniciado por gesto (vídeo mudo).
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !src) return;
+    const liberar = () => v.play().then(() => v.pause()).catch(() => undefined);
+    v.addEventListener('loadedmetadata', liberar, { once: true });
+    return () => v.removeEventListener('loadedmetadata', liberar);
+  }, [src]);
+
+  return (
+    <div ref={palcoRef} className="absolute inset-0 overflow-hidden bg-[#050505]" aria-hidden="true">
+      <video
+        ref={videoRef}
+        src={src ?? undefined}
+        poster={POSTER}
+        muted
+        playsInline
+        preload={src ? 'auto' : 'none'}
+        disablePictureInPicture
+        disableRemotePlayback
+        className="absolute left-0 top-0 max-w-none origin-top-left will-change-transform object-cover"
+      />
+      <div ref={cenaRef} className="absolute inset-0 will-change-[clip-path]" style={{ opacity: 0 }}>
+        {ativo && (
+          <Suspense fallback={null}>
+            <HeroScrollCena onLento={onLento} />
+          </Suspense>
+        )}
+      </div>
+    </div>
+  );
+};
