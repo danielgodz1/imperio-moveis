@@ -83,9 +83,15 @@ export function progressoNaFaixa(p: number, inicio: number, fim: number): number
 interface HeroScrollState {
   progress: number;
   setProgress: (p: number) => void;
+  /** true quando o cliente navegou por um link (ou abriu numa âncora): a montagem não segura a página. */
+  liberado: boolean;
 }
 
 export const useHeroScrollStore = create<HeroScrollState>()((set) => ({
   progress: 0,
   setProgress: (p) => set({ progress: Math.min(1, Math.max(0, p)) }),
+  liberado: false,
 }));
+
+/** Libera a rolagem além do hero (links do menu, rodapé e botões levam direto à seção). */
+export const liberarNarrativa = () => useHeroScrollStore.setState({ liberado: true });

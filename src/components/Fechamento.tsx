@@ -14,7 +14,7 @@ export const Fechamento: React.FC<FechamentoProps> = ({ onNavigateContact, onOpe
     {/* Único bloco centralizado permitido pelo DESIGN.md */}
     <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-96 md:py-144 flex flex-col items-center text-center gap-32">
       <h2 className="tipo-display text-grafite max-w-[15ch]">Vamos desenhar o seu projeto?</h2>
-      <p className="tipo-corpo text-grafite-suave">Fale direto com o Wellington e a Tatiane.</p>
+      <p className="tipo-corpo text-grafite-suave">Fale direto com a arquiteta e a equipe de produção.</p>
       <div className="flex flex-col sm:flex-row items-center justify-center gap-16">
         <button
           type="button"

@@ -79,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
                 <span className="tipo-cota text-papel/70">{EMPRESA.subtitulo}</span>
               </span>
             </button>
-            <p className="tipo-cota text-papel/70 max-w-[32ch]">{EMPRESA.fundadores}.</p>
+            <p className="tipo-cota text-papel/70 max-w-[32ch]">Arquitetura de interiores e marcenaria própria, do projeto à montagem.</p>
           </div>
 
           <nav aria-label="Ambientes" className="flex flex-col gap-16">

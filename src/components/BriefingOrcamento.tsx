@@ -539,7 +539,7 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
                 <div className="p-16 bg-papel-2 border border-grafite/25 rounded-curto tipo-cota text-grafite-suave flex flex-col gap-4">
                   <strong className="text-grafite">Política de Privacidade (LGPD):</strong>
                   <p>
-                    Os dados informados (nome, telefone, cidade e preferências de projeto) são utilizados exclusivamente pelo Wellington e pela Tatiane Cabral para atendimento comercial e elaboração do seu orçamento na {EMPRESA.nome}. Não compartilhamos seus dados com terceiros.
+                    Os dados informados (nome, telefone, cidade e preferências de projeto) são utilizados exclusivamente pela equipe da Império para atendimento comercial e elaboração do seu orçamento na {EMPRESA.nome}. Não compartilhamos seus dados com terceiros.
                   </p>
                   <a href="/privacidade" target="_blank" rel="noopener" className="underline text-grafite font-semibold self-start">
                     Ler a política completa
@@ -652,7 +652,7 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
                 Orçamento rápido
               </span>
               <h2 className="tipo-h2 text-grafite">
-                Fale com o Wellington e a Tatiane
+                Fale com a arquiteta e a equipe
               </h2>
             </div>
 

@@ -23,7 +23,7 @@ export const ChamadaProjeto3D: React.FC<ChamadaProjeto3DProps> = ({ onAbrir }) =
         <p className="tipo-cota text-dourado">Grátis, direto no navegador</p>
         <h2 className="tipo-display text-papel">Projete seu planejado em 3D.</h2>
         <p className="tipo-corpo text-papel/80">
-          Monte o seu ambiente antes de falar com a gente. Você vê como fica, baixa a imagem e manda para a Tatiane e o Wellington orçarem.
+          Monte o seu ambiente antes de falar com a gente. Você vê como fica, baixa a imagem e manda para a nossa equipe orçar.
         </p>
         <ol className="flex flex-col gap-16 w-full">
           {PASSOS.map(([titulo, texto], i) => (

@@ -172,7 +172,7 @@ export const PaginaAmbienteLocal: React.FC<PaginaAmbienteLocalProps> = ({
               Solicite seu projeto de {config.ambienteBriefing.toLowerCase()} em Jaú
             </h2>
             <p className="tipo-corpo text-grafite-suave">
-              Preencha os 3 passos ao lado e abriremos a conversa no WhatsApp com a Tatiane (arquitetura) e o Wellington (marcenaria).
+              Preencha os 3 passos ao lado e abriremos a conversa no WhatsApp com a arquiteta e a equipe de marcenaria.
             </p>
           </div>
 

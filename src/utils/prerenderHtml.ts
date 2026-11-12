@@ -107,9 +107,7 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
   return `<main class="bg-preto text-papel min-h-[100svh] flex flex-col justify-end px-16 sm:px-32 lg:px-48 pt-96 pb-24 lg:pb-48">
         <h1 class="tipo-h1 text-papel"><span class="block tipo-cota text-dourado mb-8">${escaparHtml(TEXTO_HERO.chamada)}</span>${escaparHtml(meta.h1Inicial)}</h1>
         <p class="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">${escaparHtml(meta.resumoHtmlInicial)}</p>
-        <p class="tipo-cota text-papel/70 mt-16 max-w-[46ch]">${escaparHtml(EMPRESA.nome)} — ${escaparHtml(
-          EMPRESA.fundadores
-        )}. Marcenaria e arquitetura de interiores em ${escaparHtml(
+        <p class="tipo-cota text-papel/70 mt-16 max-w-[46ch]">${escaparHtml(EMPRESA.nome)}. Arquiteta, produção e montagem próprias. Marcenaria e arquitetura de interiores em ${escaparHtml(
           EMPRESA.cidadesAtendidas.join(', ')
         )}.</p>
       </main>`;

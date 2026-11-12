@@ -70,7 +70,7 @@ export const PaginaProjetar: React.FC<PaginaProjetarProps> = ({ onVoltar, onOpen
             <div className="lg:col-span-5 flex flex-col items-start gap-16">
               <h2 className="tipo-h2 text-papel">O 3D está desligado neste navegador</h2>
               <p className="tipo-corpo text-papel/80">
-                Tente pelo Chrome ou Safari atualizados, ou mande as medidas que a Tatiane monta o projeto para você.
+                Tente pelo Chrome ou Safari atualizados, ou mande as medidas que a nossa arquiteta monta o projeto para você.
               </p>
               <button
                 type="button"

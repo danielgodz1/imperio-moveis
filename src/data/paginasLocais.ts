@@ -51,7 +51,7 @@ export const TEXTO_HERO = {
   chamada: 'Móveis planejados em Jaú/SP',
   titulo: 'Arquitetura e marcenaria na mesma mesa.',
   texto:
-    'A Tatiane projeta, o Wellington fabrica. Projeto de arquitetura incluso e móveis planejados para cozinhas, quartos, closets e lojas em Jaú e região, desde 2015.',
+    'Nossa arquiteta projeta, nossa equipe fabrica e monta. Projeto de arquitetura incluso e móveis planejados para cozinhas, quartos, closets e lojas em Jaú e região, desde 2015.',
 };
 
 export const PAGINAS_AMBIENTES_LOCAIS: Record<
@@ -63,15 +63,15 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
     tituloSeo:
       'Cozinhas Planejadas em Jaú/SP — Ilha em Ripado, Granito e LED | Império Móveis',
     descricaoSeo:
-      'Cozinhas sob medida em Jaú e região projetadas pela arquiteta Tatiane Cabral e fabricadas pelo marceneiro Wellington Cabral. Ilha em ripado, granito preto e armários até o teto.',
+      'Cozinhas sob medida em Jaú e região projetadas pela nossa arquiteta e fabricadas na nossa marcenaria. Ilha em ripado, granito preto e armários até o teto.',
     h1: 'Cozinhas planejadas em Jaú com projeto de arquitetura e fabricação própria',
     subtitulo:
       'Desenhamos o fluxo entre pia, fogão, torre quente e ilha antes do primeiro corte de chapa na oficina.',
     ambienteBriefing: 'Cozinha',
     ambiente3D: 'cozinha',
     paragrafosReais: [
-      'Nas cozinhas executadas pela Império em Jaú, a arquiteta Tatiane Cabral parte da rotina real da família: altura da bancada, posição dos pontos hidráulicos e elétricos, espaço de circulação em torno da ilha e aproveitamento até o teto ou forro amadeirado.',
-      'Na oficina, o Wellington Cabral executa o mobiliário com corpo da ilha em ripado de madeira, encontro limpo com a bancada de granito preto (São Gabriel ou conforme especificação da obra [CONFIRMAR pedra padrão]), fita de LED quente embutida em perfil de alumínio sob os aéreos e ferragens de fechamento suave [CONFIRMAR marca das dobradiças e corrediças].',
+      'Nas cozinhas executadas pela Império em Jaú, a arquiteta parte da rotina real da família: altura da bancada, posição dos pontos hidráulicos e elétricos, espaço de circulação em torno da ilha e aproveitamento até o teto ou forro amadeirado.',
+      'Na oficina, a equipe de produção executa o mobiliário com corpo da ilha em ripado de madeira, encontro limpo com a bancada de granito preto (São Gabriel ou conforme especificação da obra [CONFIRMAR pedra padrão]), fita de LED quente embutida em perfil de alumínio sob os aéreos e ferragens de fechamento suave [CONFIRMAR marca das dobradiças e corrediças].',
       'Trabalhamos tanto com composições em verde-sálvia e freijó quanto com frentes em grafite fosco e cristaleira iluminada, integrando coifa embutida, lava-louças e torre para forno e micro-ondas sem frestas aparentes.',
     ],
     especificacoesReais: [
@@ -129,8 +129,8 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
     ambiente3D: 'quarto',
     paragrafosReais: [
       'Cada dormitório pede uma ergonomia diferente. Nos quartos de casal e solteiro que entregamos em Jaú, combinamos guarda-roupas até o teto com painéis ripados de madeira, nichos iluminados por fita de LED embutida e bancada de estudo ou penteadeira integrada.',
-      'Nos projetos infantis e de bebê, a Tatiane desenha ambientes lúdicos e seguros: já executamos cama alta em formato de casinha com escorregador, escada lateral em que cada degrau funciona como gaveta, painel estofado em gomos e nichos redondos iluminados em tons pastel e verde-sálvia.',
-      'Toda a estrutura de escadas, guarda-corpo e camas altas é dimensionada na marcenaria pelo Wellington para suportar o uso diário com quinas suavizadas e acabamento atóxico [CONFIRMAR especificação de bordas infantis].',
+      'Nos projetos infantis e de bebê, a arquiteta desenha ambientes lúdicos e seguros: já executamos cama alta em formato de casinha com escorregador, escada lateral em que cada degrau funciona como gaveta, painel estofado em gomos e nichos redondos iluminados em tons pastel e verde-sálvia.',
+      'Toda a estrutura de escadas, guarda-corpo e camas altas é dimensionada na nossa marcenaria para suportar o uso diário com quinas suavizadas e acabamento atóxico [CONFIRMAR especificação de bordas infantis].',
     ],
     especificacoesReais: [
       {
@@ -186,7 +186,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
     ambienteBriefing: 'Closet',
     ambiente3D: 'closet',
     paragrafosReais: [
-      'Um closet sob medida não é uma sequência de prateleiras iguais: a Tatiane levanta a quantidade de vestidos longos, camisas, ternos, calçados e malas do casal para definir a altura exata de cada cabideiro, colmeia de gaveta e maleiro superior.',
+      'Um closet sob medida não é uma sequência de prateleiras iguais: a arquiteta levanta a quantidade de vestidos longos, camisas, ternos, calçados e malas do casal para definir a altura exata de cada cabideiro, colmeia de gaveta e maleiro superior.',
       'Executamos armários em L ou corredor com iluminação vertical em LED nos montantes, sapateiras corrediças de extração total e penteadeira ou ilha central com tampo organizador [CONFIRMAR opções de portas em vidro refletente e perfil metálico].',
       'Mesmo em quartos compactos em Jaú, o projeto integrado de arquitetura e marcenaria permite criar um closet funcional aproveitando cantos em 90 graus e a altura total do pé-direito.',
     ],
@@ -239,7 +239,7 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
     paragrafosReais: [
       'Para quem trabalha em casa ou recebe clientes em Jaú, projetamos bancadas de home office com passagem oculta de cabos, gaveteiros de apoio, estantes até o teto com iluminação em LED e painéis acústicos/ripados que valorizam o fundo de chamadas de vídeo.',
       'Na linha comercial, a Império executa desde expositores em madeira e estrutura metálica com prateleiras iluminadas até lojas inteiras — como a unidade GoCoffee em Jaú, onde fizemos o pórtico ripado de fachada, o balcão curvo e os nichos internos.',
-      'A formação da Tatiane em arquitetura e logística, somada à experiência de campo do Wellington, garante entregas pontuais inclusive em obras complexas com içamento por caminhão-guindaste.',
+      'A formação da nossa arquiteta em arquitetura e logística, somada à experiência de campo da equipe de produção e montagem, garante entregas pontuais inclusive em obras complexas com içamento por caminhão-guindaste.',
     ],
     especificacoesReais: [
       {
@@ -299,12 +299,12 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     rota: '/contato',
     title: 'Pedir Orçamento de Móveis Planejados em Jaú/SP | Império Móveis',
     description:
-      'Conte o que você quer planejar e quando quer começar, ou chame o Wellington e a Tatiane Cabral no WhatsApp (14) 99849-2834. Orçamento rápido para cozinhas, quartos, closets e lojas em Jaú.',
+      'Conte o que você quer planejar e quando quer começar, ou chame a nossa equipe no WhatsApp (14) 99849-2834. Orçamento rápido para cozinhas, quartos, closets e lojas em Jaú.',
     canonical: `${EMPRESA.url}/contato`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
     h1Inicial: 'Pedir orçamento de móveis planejados em Jaú',
     resumoHtmlInicial:
-      'Responda os 3 passos rápidos de orçamento e fale direto com o Wellington e a Tatiane Cabral pelo WhatsApp (14) 99849-2834.',
+      'Responda os 3 passos rápidos de orçamento e fale direto com a nossa equipe pelo WhatsApp (14) 99849-2834.',
   },
   '/projetar': {
     rota: '/projetar',

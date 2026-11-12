@@ -2,12 +2,15 @@ import { useEffect, useRef } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { liberarNarrativa } from '../components/heroScroll/useHeroScrollStore';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export let globalLenis: Lenis | null = null;
 
 export function scrollToTarget(target: string | HTMLElement, offset = -72) {
+  // Navegação pedida pelo cliente: a montagem do hero não segura a página.
+  liberarNarrativa();
   if (globalLenis) {
     globalLenis.scrollTo(target, { offset, duration: 1.0 });
   } else {

@@ -516,7 +516,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateContact }) => {
 
             {/* Subtítulo */}
             <p className="hero-desc text-base sm:text-lg text-[#f2e8d8]/85 leading-relaxed max-w-xl font-light">
-              A Tatiane projeta, o Wellington fabrica. Cozinhas, quartos, closets e lojas em Jaú e região com precisão milimétrica desde 2015.
+              Nossa arquiteta projeta, nossa equipe fabrica e monta. Cozinhas, quartos, closets e lojas em Jaú e região com precisão milimétrica desde 2015.
             </p>
 
             {/* CTAs: Orçamento + Ver as Obras + Instagram Oficial */}

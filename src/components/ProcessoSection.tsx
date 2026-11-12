@@ -4,7 +4,7 @@ import { Foto } from './Foto';
 const ETAPAS_PROCESSO = [
   { numero: '1', titulo: 'Você conta o que quer', texto: 'Pelo WhatsApp: ambiente, estilo e o quanto quer investir.' },
   { numero: '2', titulo: 'A gente mede', texto: 'Vamos até a obra conferir paredes, elétrica e hidráulica.' },
-  { numero: '3', titulo: 'Você vê em 3D', texto: 'A Tatiane desenha o projeto e fechamos o orçamento.' },
+  { numero: '3', titulo: 'Você vê em 3D', texto: 'A arquiteta desenha o projeto e fechamos o orçamento.' },
   { numero: '4', titulo: 'Fabricamos e instalamos', texto: 'Oficina própria e equipe própria até o ajuste da última porta.' },
 ];
 

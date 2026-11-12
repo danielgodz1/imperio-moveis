@@ -11,12 +11,12 @@ export interface PerguntaFrequente {
 export const PERGUNTAS_FREQUENTES: PerguntaFrequente[] = [
   {
     pergunta: 'Vocês fazem só os móveis ou o projeto completo?',
-    resposta: 'O completo. A Tatiane assina os interiores e o Wellington fabrica e instala a marcenaria.',
+    resposta: 'O completo. Nossa arquiteta assina os interiores e nossa equipe fabrica e instala a marcenaria.',
     confirmado: true,
   },
   {
     pergunta: 'O projeto de arquitetura é cobrado à parte?',
-    resposta: 'Não. O projeto de interiores da Tatiane já vem incluso com os móveis, sem custo extra.',
+    resposta: 'Não. O projeto de interiores da nossa arquiteta já vem incluso com os móveis, sem custo extra.',
     confirmado: true,
   },
   {

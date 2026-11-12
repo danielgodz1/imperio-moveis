@@ -64,6 +64,7 @@ Escala de 8: `4 8 16 24 32 48 64 96 144`. Seção: 96 (mobile) e 144 (desktop) d
 
 ## Movimento
 - Só 3 momentos orquestrados: o desenho do hero, o holofote nos donos, o "acender o LED" no 3D. Fora isso, nada de entrada com fade-subindo em cada seção, nada de hover com zoom, nada de objetos flutuando.
+- Hero (montagem da cozinha): o andamento persegue a rolagem com velocidade máxima (no mínimo 4,2 s do traço à obra real, `ritmoNarrativa.ts`). Enquanto a montagem não termina, a página fica presa no fim do hero; links do menu, rodapé e botões (`scrollToTarget`) liberam a trava, e depois de vista uma vez a rolagem fica livre.
 - Duração 0.6 a 1.2s. Easing `power3.out` e `expo.out`. Rolagem suave Lenis mantida no desktop; desligada em toque.
 - `prefers-reduced-motion`: estado final estático, sem pin, sem scrub.
 - Animar só `transform`, `opacity` e `clip-path`. Meta: 60fps em celular intermediário.
@@ -89,6 +90,8 @@ Escala de 8: `4 8 16 24 32 48 64 96 144`. Seção: 96 (mobile) e 144 (desktop) d
 - Donos: foto em escala de cinza com "holofote" colorido sobre quem está sendo apresentado.
 
 ## Voz do texto
+Nomes dos donos (Wellington e Tatiane) só na seção de quem faz a Império (`Donos.tsx`) e nos dados estruturados. No resto do site: "a arquiteta", "nossa equipe", "a equipe de produção e montagem".
+
 Frases curtas, concretas, em primeira pessoa do plural. Números reais no lugar de adjetivos. "Sob medida" e "alto padrão" no máximo 2 vezes em todo o site. Botões dizem o que acontece: "Chamar no WhatsApp", "Ver as obras", "Enviar meu quarto".
 
 ## Proibições (lista de "cara de IA")
