@@ -228,7 +228,10 @@
   top: 50%;
   max-width: none;
   height: auto;
-  width: min(max(100cqw, calc(100cqh * 16 / 9)), 148cqw);
+  /* abaixo de 1024 px só a largura conta (LARGURA_COMPUTADOR em geometriaNotebook.ts) */
+  width: 148cqw;
+  /* nunca acima do topo do palco (meia altura do pôster = 148 x 9/16 / 2 = 41,625cqw) */
+  top: max(50%, calc(41.625cqw + 1px));
   transform: translate(-50%, -50%);
 }
 @container (orientation: portrait) {
@@ -240,6 +243,7 @@
   .poster-notebook-estatico {
     width: calc(min(max(100cqw, calc(100cqh * 16 / 9)), 148cqw) * 0.78);
     left: calc(50% + clamp(440px, 38vw, 600px) / 2);
+    top: 50%;
   }
 }
 
@@ -251,7 +255,7 @@
   top: 67%;
   max-width: none;
   height: auto;
-  width: calc(min(max(100cqw, calc(100cqh * 16 / 9)), 148cqw) * 0.98);
+  width: calc(148cqw * 0.98);
   transform: translate(-50%, -50%);
 }
 @container (orientation: portrait) {

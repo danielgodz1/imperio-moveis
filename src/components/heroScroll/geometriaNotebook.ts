@@ -86,12 +86,18 @@ export function tempoNotebook(p: number): number {
   return naFaixa(p, FAIXAS_NOTEBOOK.abrir) * TEMPO_ABERTO_S;
 }
 
+/** A partir desta largura de palco vale a conta do computador (mesmo ponto do painel lateral). */
+export const LARGURA_COMPUTADOR = 1024;
+
 export function calcularLayout(o: OpcoesLayout): LayoutNotebook {
   const { largura: W, altura: H } = o;
   const retrato = W < H;
   // Computador: o vídeo cobre o palco. Celular em pé: o notebook ocupa a largura com folga.
   // O corpo do notebook ocupa ~64% da largura do vídeo: limita para ele caber inteiro em palcos estreitos.
-  const base = retrato ? W * 1.45 : Math.min(Math.max(W, H * ASPECTO_VIDEO), W * 1.48);
+  // Palco estreito (celular e tablet, abaixo de 1024 px): só a largura decide o tamanho. A altura do
+  // palco muda alguns pixels quando a fonte do site termina de carregar, e o notebook não pode
+  // mudar junto (o HTML inicial e o React precisam pintar o pôster igual).
+  const base = retrato ? W * 1.45 : W < LARGURA_COMPUTADOR ? W * 1.48 : Math.min(Math.max(W, H * ASPECTO_VIDEO), W * 1.48);
   const videoW = base * (o.escalaInicial ?? 1);
   const videoH = videoW / ASPECTO_VIDEO;
 
@@ -103,7 +109,9 @@ export function calcularLayout(o: OpcoesLayout): LayoutNotebook {
   };
 
   // Começo: vídeo centrado no palco (mais o deslocamento); fim: centro da tela no centro do palco.
-  const inicioVideo = { x: (W - videoW) / 2 + (o.deslocX ?? 0), y: (H - videoH) / 2 + (o.deslocY ?? 0) };
+  // Palco estreito: o vídeo nunca começa acima do topo do palco (igual ao pôster em CSS).
+  const yCentro = W < LARGURA_COMPUTADOR && !retrato ? Math.max((H - videoH) / 2, 1) : (H - videoH) / 2;
+  const inicioVideo = { x: (W - videoW) / 2 + (o.deslocX ?? 0), y: yCentro + (o.deslocY ?? 0) };
   const centroInicial = { x: inicioVideo.x + centroTelaVideo.x, y: inicioVideo.y + centroTelaVideo.y };
   const z = suavizarZoom(o.zoom);
   const escalaFinal = Math.max(W / telaW0, H / telaH0) * 1.02;

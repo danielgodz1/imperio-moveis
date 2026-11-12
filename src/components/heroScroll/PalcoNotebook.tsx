@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { larguraPainel, useHeroScrollStore } from './useHeroScrollStore';
 import { FAIXAS_NOTEBOOK, calcularLayout, naFaixa, tempoNotebook } from './geometriaNotebook';
 
@@ -16,6 +16,11 @@ interface PalcoNotebookProps {
   /** V1 no computador: começa no espaço à direita do painel de texto. */
   fugirDoPainel?: boolean;
   onLento?: () => void;
+  /**
+   * Classe CSS que posiciona o pôster (index.css): a mesma do HTML inicial, para o pôster do React
+   * ficar no mesmo lugar e do mesmo tamanho (sem pulo e sem "roubar" o LCP do HTML inicial).
+   */
+  classePoster?: 'poster-notebook-estatico' | 'poster-notebook-v2';
 }
 
 const POSTER = '/videos/notebook-poster.jpg';
@@ -35,7 +40,37 @@ function escolherVideo(): string {
  * O canvas 3D tem sempre o tamanho do palco (nítido em qualquer zoom); só a área da tela fica
  * visível (clip-path) e a câmera encaixa o quadro nessa área (tela no store).
  */
-export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0, deslocY = 0, escalaInicial = 1, fugirDoPainel = false, onLento }) => {
+export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0, deslocY = 0, escalaInicial = 1, fugirDoPainel = false, onLento, classePoster = 'poster-notebook-estatico' }) => {
+  // Até o vídeo ter o primeiro quadro, o pôster é uma <img> posicionada por CSS (igual ao HTML inicial).
+  const [temQuadro, setTemQuadro] = useState(false);
+  const posterRef = useRef<HTMLImageElement | null>(null);
+
+  // Antes da primeira pintura: reaproveita o <img> do HTML inicial (se for o mesmo pôster) ou cria um.
+  useLayoutEffect(() => {
+    const palco = palcoRef.current;
+    if (!palco || temQuadro) return;
+    const global = window as Window & { __posterInicial?: Element | null };
+    const inicial = global.__posterInicial;
+    let img: HTMLImageElement;
+    if (inicial instanceof HTMLImageElement && inicial.classList.contains(classePoster)) {
+      img = inicial;
+      global.__posterInicial = null;
+    } else {
+      img = document.createElement('img');
+      img.className = classePoster;
+      img.src = POSTER;
+      img.alt = '';
+      img.width = 1280;
+      img.height = 720;
+      img.decoding = 'async';
+    }
+    palco.insertBefore(img, palco.firstChild);
+    posterRef.current = img;
+    return () => {
+      img.remove();
+      posterRef.current = null;
+    };
+  }, [classePoster, temQuadro]);
   const palcoRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const cenaRef = useRef<HTMLDivElement>(null);
@@ -123,11 +158,11 @@ export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0
   }, [src]);
 
   return (
-    <div ref={palcoRef} className="absolute inset-0 overflow-hidden bg-[#050505]" aria-hidden="true">
+    <div ref={palcoRef} className="palco-estatico absolute inset-0 overflow-hidden bg-[#050505]" aria-hidden="true">
       <video
         ref={videoRef}
         src={src ?? undefined}
-        poster={POSTER}
+        onLoadedData={() => setTemQuadro(true)}
         muted
         playsInline
         preload={src ? 'auto' : 'none'}

@@ -54,7 +54,7 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
     return `<div class="v2 min-h-screen"><section id="hero" class="v2-escuro relative w-full" style="min-height:320vh">
       <div class="sticky top-0 h-screen h-[100svh] w-full overflow-hidden">
         <div class="absolute inset-0" aria-hidden="true">
-          <div class="palco-estatico absolute inset-0 overflow-hidden bg-[#050505]">
+          <div class="palco-estatico absolute inset-0 overflow-x-clip bg-[#050505]">
             <img class="poster-notebook-v2" src="/videos/notebook-poster.jpg" alt="" width="1280" height="720" fetchpriority="high" decoding="async" />
           </div>
         </div>
@@ -171,7 +171,7 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
   return `<section id="hero" class="relative w-full bg-preto text-papel" style="min-height:300vh">
       <div class="sticky top-0 h-screen h-[100svh] w-full overflow-hidden flex flex-col lg:block">
         <div class="relative flex-1 min-h-0 lg:absolute lg:inset-0" aria-hidden="true">
-          <div class="palco-estatico absolute inset-0 overflow-hidden bg-[#050505]">
+          <div class="palco-estatico absolute inset-0 overflow-x-clip bg-[#050505]">
             <img class="poster-notebook-estatico" src="/videos/notebook-poster.jpg" alt="" width="1280" height="720" fetchpriority="high" decoding="async" />
           </div>
         </div>
@@ -190,7 +190,7 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
               <a href="/contato" class="inline-flex items-center justify-center gap-2 h-[52px] px-6 rounded-curto bg-dourado text-preto font-semibold">Pedir orçamento</a>
               <a href="/obras" class="inline-flex items-center justify-center h-[52px] px-6 rounded-curto border-[1.5px] border-papel text-papel font-semibold">Ver as obras</a>
             </div>
-            <a href="#avaliacoes" class="inline-flex items-center gap-8 mt-16 tipo-cota text-papel underline underline-offset-4 decoration-1">${nota} no Google, ${RESUMO_GOOGLE.total} avaliações</a>
+            <button type="button" class="inline-flex items-center gap-8 mt-16 tipo-cota text-papel underline underline-offset-4 decoration-1 cursor-pointer"><span class="flex items-center gap-[2px]" aria-hidden="true">${'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-[14px] h-[14px] fill-dourado text-dourado" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'.repeat(5)}</span>${nota} no Google, ${RESUMO_GOOGLE.total} avaliações</button>
             <p class="sr-only">${escaparHtml(EMPRESA.nome)}. Arquiteta, produção e montagem próprias. Marcenaria e arquitetura de interiores em ${escaparHtml(
               EMPRESA.cidadesAtendidas.join(', ')
             )}.</p>

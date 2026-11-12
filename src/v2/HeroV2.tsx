@@ -125,7 +125,7 @@ export const HeroV2: React.FC = () => {
       <div className="sticky top-0 h-screen h-[100svh] w-full overflow-hidden">
         {/* Palco: o notebook abre, a cozinha se monta na tela e a câmera entra nela */}
         <div className="absolute inset-0" aria-hidden="true">
-          <PalcoNotebook ativo={cenaAtiva} deslocY={0.17} escalaInicial={computador ? 0.7 : 0.98} />
+          <PalcoNotebook ativo={cenaAtiva} deslocY={0.17} escalaInicial={computador ? 0.7 : 0.98} classePoster="poster-notebook-v2" />
           <div ref={fotoRef} className="absolute inset-0 opacity-0">
             <Foto
               srcBase="/obras/cozinha-gringa-4k"
