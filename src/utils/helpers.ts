@@ -13,7 +13,7 @@ declare global {
  * Dispara eventos GA4 (whatsapp_click e generate_lead) sem dados pessoais (PII).
  */
 export function trackEvent(
-  eventName: 'whatsapp_click' | 'generate_lead',
+  eventName: 'whatsapp_click' | 'generate_lead' | 'projeto_3d',
   params: Record<string, string | number | boolean> = {}
 ): void {
   if (typeof window === 'undefined') return;
@@ -26,6 +26,11 @@ export function trackEvent(
   } catch {
     // Ignora caso bloqueadores de anúncio interceptem o analytics
   }
+}
+
+/** Ações no projeto 3D (sem dados pessoais): iniciar, salvar, abrir_salvo, baixar_imagem, baixar_pdf, copiar_link, enviar. */
+export function trackProjeto3D(acao: string, params: Record<string, string | number | boolean> = {}): void {
+  trackEvent('projeto_3d', { acao, ...params });
 }
 
 export function trackWhatsAppClick(origem: string): void {

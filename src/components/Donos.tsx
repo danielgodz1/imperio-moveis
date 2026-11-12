@@ -156,7 +156,8 @@ export const Donos: React.FC = () => {
 
   const classeOpacidadePasso = (passo: 1 | 2 | 3) => {
     if (reducedMotion || passoAtivo === passo) return 'opacity-100';
-    return 'opacity-50';
+    // 75%: o passo fora de foco continua legível (contraste AA sobre o preto); 50% reprovava.
+    return 'opacity-75';
   };
 
   return (

@@ -272,6 +272,7 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
         <div
           className="w-full h-1.5 bg-grafite/15 overflow-hidden rounded-curto"
           role="progressbar"
+          aria-label="Andamento do pedido de orçamento"
           aria-valuenow={percentualProgresso}
           aria-valuemin={0}
           aria-valuemax={100}

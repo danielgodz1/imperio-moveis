@@ -39,13 +39,22 @@ export const ModuloIdEnum = z.enum([
   'nicho-geladeira',
 ]);
 
+/**
+ * Limites para o que entra no estado. O link do projeto (#projeto=...) e o armazenamento do
+ * navegador são entrada não confiável: tudo tem tipo, tamanho e formato fixos. Os textos são
+ * ids do catálogo (letras, números e hífen), nunca HTML.
+ */
+export const MAX_MODULOS = 40;
+export const MAX_ABERTURAS = 12;
+const ID_TEXTO = z.string().max(48).regex(/^[a-z0-9][a-z0-9-]*$/i);
+
 export const AmbienteEnum = z.enum(['quarto', 'cozinha', 'closet', 'home-office', 'banheiro']);
 
 export const AberturaSchema = z.object({
   tipo: z.enum(['porta', 'janela']),
   parede: z.enum(['N', 'S', 'L', 'O']),
   largura_m: z.number().min(0.4).max(2.6),
-  posicaoOffset_m: z.number().default(0),
+  posicaoOffset_m: z.number().min(-10).max(10).default(0),
   peitoril_m: z.number().min(0).max(3).optional(),
   altura_m: z.number().min(0.3).max(3).optional(),
 });
@@ -55,13 +64,13 @@ export const ModuloInstanciaSchema = z.object({
   parede: z.enum(['N', 'S', 'L', 'O', 'centro']),
   largura_m: z.number().min(0.4).max(5.5),
   altura_m: z.number().min(0.05).max(3.5),
-  acabamento: z.string(),
-  uid: z.string().optional(),
+  acabamento: ID_TEXTO,
+  uid: z.string().max(64).optional(),
   profundidade_m: z.number().min(0.03).max(2.5).optional(),
-  offset_m: z.number().optional(),
-  z_m: z.number().optional(),
-  rotacao: z.number().optional(),
-  tampo: z.string().optional(),
+  offset_m: z.number().min(-10).max(10).optional(),
+  z_m: z.number().min(-10).max(10).optional(),
+  rotacao: z.number().min(-720).max(720).optional(),
+  tampo: ID_TEXTO.optional(),
   portas: z.enum(['abrir', 'correr', 'sem']).optional(),
   puxador: z.enum(['cava', 'perfil', 'alca', 'toque']).optional(),
   maleiro: z.boolean().optional(),
@@ -81,11 +90,11 @@ export const QuartoLayoutSchema = z
       profundidade_m: z.number().min(1.5).max(6.0),
       pe_direito_m: z.number().min(2.4).max(3.5),
     }),
-    aberturas: z.array(AberturaSchema),
-    modulos: z.array(ModuloInstanciaSchema),
+    aberturas: z.array(AberturaSchema).max(MAX_ABERTURAS),
+    modulos: z.array(ModuloInstanciaSchema).max(MAX_MODULOS),
     led: z.boolean(),
-    piso: z.string().optional(),
-    corParede: z.string().optional(),
+    piso: ID_TEXTO.optional(),
+    corParede: ID_TEXTO.optional(),
     noite: z.boolean().optional(),
     /** Temperatura da fita de LED em kelvin. */
     temperaturaLed: z.union([z.literal(2700), z.literal(3000), z.literal(4000)]).optional(),

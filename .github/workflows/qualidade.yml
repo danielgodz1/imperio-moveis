@@ -1,0 +1,115 @@
+# Rede de segurança: nada vai para a main sem passar por aqui.
+name: Qualidade
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qualidade-${{ github.ref }}
+  cancel-in-progress: true
+
+# Ubuntu fixo: o ubuntu-latest (26.04) ainda não é suportado pelo Playwright 1.56.
+jobs:
+  verificar:
+    name: Tipos, testes e build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 3
+
+  navegador:
+    name: Navegador (fumaça, acessibilidade, visual)
+    needs: verificar
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - run: npx playwright install --with-deps chromium
+      - name: Fumaça e acessibilidade (axe, WCAG AA)
+        run: npx playwright test e2e/smoke.spec.ts e2e/acessibilidade.spec.ts
+      - name: Regressão visual
+        # Sem referência ainda, grava a primeira (baixe o artefato "capturas" e commite em e2e/__capturas__/linux).
+        run: npx playwright test e2e/visual.spec.ts --update-snapshots=missing
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capturas
+          path: e2e/__capturas__
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: relatorio-playwright
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  lighthouse:
+    name: Lighthouse (orçamento de desempenho)
+    needs: verificar
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - run: npx -y @lhci/cli@0.15.1 autorun
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: .lighthouseci
+          retention-days: 14
+
+  links:
+    name: Links quebrados
+    needs: verificar
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Links internos (bloqueia)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress --root-dir ${{ github.workspace }}/dist 'dist/**/*.html'
+          fail: true
+      - name: Links externos (só avisa)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --max-concurrency 2 --exclude 'wa\.me|instagram\.com|google\.com/maps|maps\.google|googletagmanager' 'dist/**/*.html'
+          fail: false
