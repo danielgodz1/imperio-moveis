@@ -43,5 +43,5 @@ O fluxo `.github/workflows/qualidade.yml` roda quatro etapas:
 Elas precisam ser geradas no Linux do CI (fonte e anti-aliasing mudam entre sistemas):
 
 1. Abra a execução do fluxo no GitHub (Actions), baixe o artefato **capturas**.
-2. Copie a pasta `linux` para `e2e/__capturas__/linux` e faça commit.
+2. Copie a pasta `linux` (uma subpasta por aparelho: computador e celular) para `e2e/__capturas__/linux` e faça commit.
 3. Daí em diante, qualquer mudança visual nas páginas principais faz o teste falhar. Se a mudança for intencional, rode `npx playwright test e2e/visual.spec.ts --update-snapshots` no CI (ou apague a captura antiga e repita o passo 1).

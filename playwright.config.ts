@@ -12,7 +12,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   // Capturas de referência separadas por sistema (as do CI são as que valem).
-  snapshotPathTemplate: '{testDir}/__capturas__/{platform}/{testFilePath}/{arg}{ext}',
+  snapshotPathTemplate: '{testDir}/__capturas__/{platform}/{projectName}/{arg}{ext}',
   use: {
     baseURL: 'http://localhost:4174',
     trace: 'retain-on-failure',
