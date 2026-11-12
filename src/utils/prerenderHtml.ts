@@ -7,6 +7,7 @@ import {
 } from '../data/paginasLocais';
 import { EMPRESA } from '../data/empresa';
 import { gerarJsonLdPerguntas } from '../data/perguntas';
+import { DOCUMENTOS_LEGAIS, dataPorExtenso } from '../data/legal';
 
 function escaparHtml(str: string): string {
   return str
@@ -60,6 +61,27 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
       </main>`;
   }
 
+  if (rota in DOCUMENTOS_LEGAIS) {
+    const doc = DOCUMENTOS_LEGAIS[rota as keyof typeof DOCUMENTOS_LEGAIS];
+    const secoes = doc.secoes
+      .map(
+        (s) =>
+          `<section><h2>${escaparHtml(s.titulo)}</h2>${s.paragrafos.map((p) => `<p>${escaparHtml(p)}</p>`).join('')}${
+            s.itens ? `<ul>${s.itens.map((i) => `<li>${escaparHtml(i)}</li>`).join('')}</ul>` : ''
+          }</section>`
+      )
+      .join('\n          ');
+    return `<main class="max-w-[760px] mx-auto px-16 py-144">
+        <article>
+          <h1 class="tipo-h1">${escaparHtml(doc.titulo)}</h1>
+          <p>${escaparHtml(doc.resumo)}</p>
+          <p>Última atualização: <time datetime="${doc.atualizadoEm}">${dataPorExtenso(doc.atualizadoEm)}</time></p>
+          ${secoes}
+          <p><a href="/contato">Contato e suporte</a> | <a href="/">Voltar ao site</a></p>
+        </article>
+      </main>`;
+  }
+
   if (rota === '/projetar') {
     return `<main class="bg-preto text-papel min-h-[60svh] px-16 sm:px-32 lg:px-48 pt-144 pb-48">
         <h1 class="tipo-h1 text-papel">${escaparHtml(meta.h1Inicial)}</h1>
@@ -96,10 +118,33 @@ export function gerarConteudoInicialRoot(rota: RotaPublica): string {
 /** Trilha (Início > página) e serviço da página local, ligado à empresa pelo @id. */
 function jsonLdPagina(rota: RotaPublica): string {
   // Home: perguntas frequentes (ajudam o Google e as respostas de IA a entender o serviço).
+  const bloco = (d: unknown) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`;
   if (rota === '/') {
-    return `<script type="application/ld+json">${JSON.stringify(gerarJsonLdPerguntas()).replace(/</g, '\\u003c')}</script>`;
+    // WebSite: é de onde o Google tira o nome do site mostrado no resultado, ao lado do ícone.
+    const site = {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': `${EMPRESA.url}/#site`,
+      name: EMPRESA.nome,
+      alternateName: [EMPRESA.nomeCurto, 'Império Móveis Planejados Jaú'],
+      url: `${EMPRESA.url}/`,
+      inLanguage: 'pt-BR',
+      publisher: { '@id': `${EMPRESA.url}/#empresa` },
+    };
+    return bloco(site) + bloco(gerarJsonLdPerguntas());
   }
-  if (!(rota in PAGINAS_AMBIENTES_LOCAIS)) return '';
+  if (!(rota in PAGINAS_AMBIENTES_LOCAIS)) {
+    // Demais páginas: trilha Início > página.
+    const meta = METADADOS_ROTAS_SEO[rota];
+    return bloco({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: `${EMPRESA.url}/` },
+        { '@type': 'ListItem', position: 2, name: meta.h1Inicial, item: meta.canonical },
+      ],
+    });
+  }
   const cfg = PAGINAS_AMBIENTES_LOCAIS[rota as keyof typeof PAGINAS_AMBIENTES_LOCAIS];
   const url = METADADOS_ROTAS_SEO[rota].canonical;
   const dados = [
@@ -125,6 +170,28 @@ function jsonLdPagina(rota: RotaPublica): string {
   return dados
     .map((d) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`)
     .join('');
+}
+
+/**
+ * Página 404 de verdade: endereço que não existe responde com status 404 (a Vercel serve este
+ * arquivo), em vez de devolver a home com status 200 ("soft 404", que o Google desaconselha).
+ * Sem o JavaScript do site: é só texto e links.
+ */
+export function gerarHtml404(htmlBase: string): string {
+  const corpo = `<main class="bg-preto text-papel min-h-[100svh] flex flex-col justify-center items-start gap-24 px-16 sm:px-32 lg:px-48">
+        <p class="tipo-cota text-dourado">Erro 404</p>
+        <h1 class="tipo-h1 text-papel">Esta página não existe.</h1>
+        <p class="tipo-corpo text-papel/85 max-w-[46ch]">O endereço pode ter mudado ou foi digitado errado. Veja os caminhos abaixo.</p>
+        <p class="tipo-corpo"><a class="underline text-dourado" href="/">Página inicial</a> · <a class="underline text-dourado" href="/projetar">Projetar em 3D</a> · <a class="underline text-dourado" href="/contato">Pedir orçamento</a></p>
+      </main>`;
+  return htmlBase
+    .replace(/<title>[\s\S]*?<\/title>/, `<title>Página não encontrada | ${escaparHtml(EMPRESA.nome)}</title>`)
+    .replace(/<meta\s+name="robots"[^>]*>/, '<meta name="robots" content="noindex" />')
+    .replace(/<link\s+rel="canonical"[^>]*>/, '')
+    .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/g, '')
+    .replace(/<script\s+type="module"[^>]*><\/script>/g, '')
+    .replace(/<link\s+rel="modulepreload"[^>]*>/g, '')
+    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${corpo}</div>`);
 }
 
 export function injetarSeoNoHtml(htmlBase: string, pathname: string): string {

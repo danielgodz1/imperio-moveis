@@ -5,6 +5,8 @@ export type RotaPublica =
   | '/'
   | '/contato'
   | '/projetar'
+  | '/privacidade'
+  | '/termos'
   | '/cozinhas-planejadas-jau'
   | '/quartos-planejados-jau'
   | '/closets-sob-medida-jau'
@@ -49,7 +51,7 @@ export const TEXTO_HERO = {
   chamada: 'Móveis planejados em Jaú/SP',
   titulo: 'Arquitetura e marcenaria na mesma mesa.',
   texto:
-    'A Tatiane projeta, o Wellington fabrica. Móveis planejados para cozinhas, quartos, closets e lojas em Jaú e região, com precisão milimétrica desde 2015.',
+    'A Tatiane projeta, o Wellington fabrica. Projeto de arquitetura incluso e móveis planejados para cozinhas, quartos, closets e lojas em Jaú e região, desde 2015.',
 };
 
 export const PAGINAS_AMBIENTES_LOCAIS: Record<
@@ -287,7 +289,7 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     rota: '/',
     title: 'Móveis Planejados em Jaú/SP | Império Móveis Planejados',
     description:
-      'Móveis planejados em Jaú e região com projeto de arquitetura e fabricação própria: cozinhas, quartos, closets e home office sob medida. Peça seu orçamento pelo WhatsApp.',
+      'Móveis planejados em Jaú e região com projeto de arquitetura incluso e fabricação própria: cozinhas, quartos, closets e home office. Projete em 3D no site e peça orçamento pelo WhatsApp.',
     canonical: `${EMPRESA.url}/`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
     h1Inicial: TEXTO_HERO.titulo,
@@ -314,6 +316,27 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     h1Inicial: 'Projete seu móvel planejado em 3D',
     resumoHtmlInicial:
       'Escolha o ambiente, ajuste as medidas, monte os móveis e as cores. No fim, baixe a imagem de frente do projeto e mande para a Império orçar pelo WhatsApp.',
+  },
+  '/privacidade': {
+    rota: '/privacidade',
+    title: 'Política de Privacidade (LGPD) | Império Móveis Planejados',
+    description:
+      'Como a Império Móveis Planejados, de Jaú/SP, trata os dados de quem visita o site e pede orçamento: o que coleta, para que usa, com quem compartilha e como exercer seus direitos pela LGPD.',
+    canonical: `${EMPRESA.url}/privacidade`,
+    ogImage: `${EMPRESA.url}/og-hero.jpg`,
+    h1Inicial: 'Política de Privacidade',
+    resumoHtmlInicial:
+      'Como a Império Móveis Planejados trata os dados de quem visita o site e pede orçamento, conforme a Lei Geral de Proteção de Dados.',
+  },
+  '/termos': {
+    rota: '/termos',
+    title: 'Termos de Uso | Império Móveis Planejados',
+    description:
+      'Regras de uso do site da Império Móveis Planejados, de Jaú/SP: projeto 3D online, pedidos de orçamento, fotos e conteúdo, contato e suporte.',
+    canonical: `${EMPRESA.url}/termos`,
+    ogImage: `${EMPRESA.url}/og-hero.jpg`,
+    h1Inicial: 'Termos de Uso',
+    resumoHtmlInicial: 'Regras de uso do site da Império Móveis Planejados, do projeto 3D online e do pedido de orçamento.',
   },
   '/cozinhas-planejadas-jau': {
     rota: '/cozinhas-planejadas-jau',

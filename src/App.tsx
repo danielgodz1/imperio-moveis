@@ -11,7 +11,10 @@ import { Donos } from './components/Donos';
 import { Obras } from './components/Obras';
 import { ProcessoSection } from './components/ProcessoSection';
 import { ChamadaProjeto3D } from './components/ChamadaProjeto3D';
+import { Diferencial } from './components/Diferencial';
 import { PaginaProjetar } from './components/PaginaProjetar';
+import { PaginaLegal } from './components/PaginaLegal';
+import { DOCUMENTOS_LEGAIS } from './data/legal';
 import { ReviewsSection } from './components/ReviewsSection';
 import { Fechamento } from './components/Fechamento';
 import { ContactQuotationPage } from './components/ContactQuotationPage';
@@ -87,7 +90,8 @@ export default function App() {
     const rota = normalizarRota(path);
     setCurrentPath(rota);
     window.history.pushState({}, '', rota);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Troca de página vai direto ao topo (rolagem suave do rodapé até o início levava segundos).
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const handleOpenBriefing = (ambienteInicial?: string) => {
@@ -134,6 +138,11 @@ export default function App() {
             onVoltar={() => handleNavigateRoute('/')}
             onOpenBriefing={() => handleOpenBriefing('Outro')}
           />
+        ) : currentPath in DOCUMENTOS_LEGAIS ? (
+          <PaginaLegal
+            documento={DOCUMENTOS_LEGAIS[currentPath as keyof typeof DOCUMENTOS_LEGAIS]}
+            onNavegar={handleNavigateRoute}
+          />
         ) : configAmbienteLocal ? (
           <PaginaAmbienteLocal
             config={configAmbienteLocal}
@@ -150,6 +159,9 @@ export default function App() {
 
             {/* Momento 2: a prova primeiro, com convite para orçamento logo depois */}
             <Obras onOpenBriefing={handleOpenBriefing} />
+
+            {/* O diferencial dito com todas as letras: projeto de arquitetura incluso */}
+            <Diferencial onOpenBriefing={() => handleOpenBriefing()} />
 
             {/* Momento 3: Do risco à obra em 4 passos */}
             <ProcessoSection />

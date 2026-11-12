@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import { defineConfig, Plugin } from 'vite';
-import { injetarSeoNoHtml } from './src/utils/prerenderHtml';
+import { gerarHtml404, injetarSeoNoHtml } from './src/utils/prerenderHtml';
 import { execSync } from 'child_process';
 import { PAGINAS_AMBIENTES_LOCAIS, RotaPublica } from './src/data/paginasLocais';
 import { EMPRESA } from './src/data/empresa';
@@ -16,6 +16,8 @@ const ROTAS_PRERENDER: RotaPublica[] = [
   '/quartos-planejados-jau',
   '/closets-sob-medida-jau',
   '/home-office-planejado-jau',
+  '/privacidade',
+  '/termos',
 ];
 
 const xml = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -70,6 +72,7 @@ function prerenderRotasLocaisPlugin(): Plugin {
       if (!fs.existsSync(baseIndexPath)) return;
 
       const baseHtml = fs.readFileSync(baseIndexPath, 'utf-8');
+      fs.writeFileSync(path.join(distDir, '404.html'), gerarHtml404(baseHtml), 'utf-8');
 
       for (const rota of ROTAS_PRERENDER) {
         const htmlRota = injetarSeoNoHtml(baseHtml, rota);

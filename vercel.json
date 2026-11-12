@@ -10,6 +10,14 @@
       "destination": "/projetar/index.html"
     },
     {
+      "source": "/privacidade",
+      "destination": "/privacidade/index.html"
+    },
+    {
+      "source": "/termos",
+      "destination": "/termos/index.html"
+    },
+    {
       "source": "/cozinhas-planejadas-jau",
       "destination": "/cozinhas-planejadas-jau/index.html"
     },
@@ -24,10 +32,6 @@
     {
       "source": "/home-office-planejado-jau",
       "destination": "/home-office-planejado-jau/index.html"
-    },
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
     }
   ],
   "headers": [

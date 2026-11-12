@@ -23,6 +23,12 @@ const SITE = [
   { rotulo: 'Quem somos', ancora: '#donos' },
 ];
 
+const LEGAL = [
+  { rotulo: 'Política de privacidade (LGPD)', rota: '/privacidade' },
+  { rotulo: 'Termos de uso', rota: '/termos' },
+  { rotulo: 'Contato e suporte', rota: '/contato' },
+];
+
 const LINK = 'inline-block py-4 text-papel/85 hover:text-dourado transition-colors cursor-pointer text-left link-traco decoration-papel/25';
 const TITULO = 'tipo-cota text-papel/60';
 
@@ -64,7 +70,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
       </div>
 
       <div className="border-t border-papel/15">
-        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-48 grid grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr] gap-x-16 sm:gap-x-32 gap-y-48">
+        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-48 grid grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1.3fr] gap-x-16 sm:gap-x-32 gap-y-48">
           <div className="col-span-2 lg:col-span-1 flex flex-col items-start gap-16">
             <button type="button" onClick={() => irParaSecao('#hero')} className="flex items-center gap-16 text-left cursor-pointer group" aria-label="Império Móveis Planejados, voltar ao início">
               <img src="/logo-quadrado.jpg" alt="" className="h-48 w-48 object-cover border border-papel/25" />
@@ -104,6 +110,26 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
                   <button type="button" onClick={() => irParaSecao(s.ancora)} className={LINK}>
                     {s.rotulo}
                   </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-label="Legal e transparência" className="flex flex-col gap-16">
+            <h3 className={TITULO}>Legal e transparência</h3>
+            <ul className="flex flex-col gap-8">
+              {LEGAL.map((l) => (
+                <li key={l.rota}>
+                  <a
+                    href={l.rota}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNavigateRoute(l.rota);
+                    }}
+                    className={LINK}
+                  >
+                    {l.rotulo}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -159,9 +185,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
           <p>
             © {anoAtual} {EMPRESA.nome}
           </p>
-          <button type="button" onClick={() => onNavigateRoute('/contato')} className="text-left sm:text-right hover:text-papel transition-colors cursor-pointer link-traco decoration-papel/25">
+          <a
+            href="/privacidade"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigateRoute('/privacidade');
+            }}
+            className="text-left sm:text-right hover:text-papel transition-colors link-traco decoration-papel/25"
+          >
             Privacidade e LGPD
-          </button>
+          </a>
         </div>
       </div>
     </footer>

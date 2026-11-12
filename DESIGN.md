@@ -78,6 +78,9 @@ Escala de 8: `4 8 16 24 32 48 64 96 144`. Seção: 96 (mobile) e 144 (desktop) d
 - **Faixa em movimento**: no máximo UMA, 48px de altura, texto Archivo condensado em `--grafite`, com os serviços reais (cozinhas, quartos, closets, lojas, projeto 3D).
 - **Ícones**: lucide-react, traço 1.5, só funcionais (menu, fechar, WhatsApp, local). Sem emoji e sem "✳".
 
+- **Comparação (diferencial)**: duas colunas de texto separadas por linhas, sem cartões; a coluna "do jeito comum" em `--grafite-suave`, a "Na Império" em `--grafite` com peso maior. Só fatos do jeito de trabalhar.
+- **Página de texto (legal)**: coluna única de até 760px sobre `--papel`, títulos `tipo-h3`, marcadores de lista em `--dourado`.
+
 ## Imagem
 - Só fotos reais dos projetos da Império. Zero banco de imagem, zero imagem gerada por IA no portfólio.
 - Sem moldura, sem borda arredondada, sem sombra. Foto de borda a borda ou na largura da coluna.

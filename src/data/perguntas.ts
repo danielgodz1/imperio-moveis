@@ -15,6 +15,11 @@ export const PERGUNTAS_FREQUENTES: PerguntaFrequente[] = [
     confirmado: true,
   },
   {
+    pergunta: 'O projeto de arquitetura é cobrado à parte?',
+    resposta: 'Não. O projeto de interiores da Tatiane já vem incluso com os móveis, sem custo extra.',
+    confirmado: true,
+  },
+  {
     pergunta: 'Quais ambientes vocês fazem?',
     resposta: 'Cozinhas, quartos, closets, banheiros, home office e lojas, todos sob medida e com fabricação própria.',
     confirmado: true,

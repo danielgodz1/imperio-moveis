@@ -541,6 +541,9 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
                   <p>
                     Os dados informados (nome, telefone, cidade e preferências de projeto) são utilizados exclusivamente pelo Wellington e pela Tatiane Cabral para atendimento comercial e elaboração do seu orçamento na {EMPRESA.nome}. Não compartilhamos seus dados com terceiros.
                   </p>
+                  <a href="/privacidade" target="_blank" rel="noopener" className="underline text-grafite font-semibold self-start">
+                    Ler a política completa
+                  </a>
                 </div>
               )}
             </div>

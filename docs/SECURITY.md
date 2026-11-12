@@ -45,3 +45,9 @@ A maior parte das "invasões" e alterações de sites pequenos acontece por cont
 
 - O limite por IP vive na memória de cada instância serverless. Contra um ataque distribuído grande, use o firewall da Vercel (Attack Challenge Mode) ou um limitador externo.
 - O mapa do Google é um iframe de terceiro, permitido na CSP.
+
+## LGPD e textos legais
+
+- Política de Privacidade em `/privacidade` e Termos de Uso em `/termos` (`src/data/legal.ts`). O texto descreve o que o site faz hoje: formulário que abre o WhatsApp, projeto 3D salvo só no navegador, medição pelo Google Tag Manager/Analytics.
+- Se o site passar a coletar ou guardar algo novo (por exemplo, ligar `VITE_SALVAR_LEADS`), atualizar o texto e a data `atualizadoEm`.
+- Pendente dos donos: razão social, CNPJ e um e-mail de contato para constar na política; revisão do texto por um advogado.
