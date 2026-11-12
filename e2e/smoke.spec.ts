@@ -95,3 +95,14 @@ test('salvar o projeto no aparelho e retomar depois', async ({ page }) => {
   await expect(page.getByText('Retomar um projeto salvo')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('button', { name: /^Teste da cozinha/ })).toBeVisible();
 });
+
+// V2 (prévia): cada página interna abre direto pelo endereço (recarregar não pode dar 404).
+for (const rota of ['/v2', '/v2/obras', '/v2/obras/cozinha-ilha-verde', '/v2/projetar', '/v2/orcamento', '/v2/privacidade']) {
+  test(`V2 abre ${rota} direto pelo endereço`, async ({ page }) => {
+    const resposta = await page.goto(rota);
+    expect(resposta?.status()).toBe(200);
+    await expect(page.locator('.v2').first()).toBeVisible();
+    await expect(page.locator('h1').first()).toBeVisible();
+  });
+}
+
