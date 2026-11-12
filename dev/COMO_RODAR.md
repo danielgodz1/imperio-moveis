@@ -15,7 +15,8 @@ Testes de navegador (Playwright). Na primeira vez, instale o Chromium do Playwri
 
 ```bash
 npx playwright install chromium
-npm run test:e2e      # fumaça (páginas, 404, 3D, PDF, salvar projeto, WhatsApp) + acessibilidade (axe, WCAG AA)
+npm run test:e2e      # inclui os testes @3d (imagem e PDF do editor), que o CI pula por não ter placa de vídeo
+# fumaça (páginas, 404, 3D, PDF, salvar projeto, WhatsApp) + acessibilidade (axe, WCAG AA)
 npm run test:visual   # regressão visual (compara com as capturas de referência)
 ```
 

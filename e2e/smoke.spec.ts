@@ -70,7 +70,8 @@ test('pedido de orçamento abre o WhatsApp da Império com a mensagem montada', 
   expect(url).toContain('Teste Automático');
 });
 
-test('etapa Enviar do 3D baixa o PDF e a imagem do projeto', async ({ page }) => {
+// @3d: precisa de placa de vídeo (no CI o 3D roda em software e passa do tempo); roda no computador.
+test('etapa Enviar do 3D baixa o PDF e a imagem do projeto @3d', async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto('/projetar');
   await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
@@ -83,7 +84,7 @@ test('etapa Enviar do 3D baixa o PDF e a imagem do projeto', async ({ page }) =>
   expect(img.suggestedFilename()).toMatch(/\.png$/);
 });
 
-test('salvar o projeto no aparelho e retomar depois', async ({ page }) => {
+test('salvar o projeto no aparelho e retomar depois @3d', async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto('/projetar');
   await expect(page.locator('canvas').first()).toBeVisible({ timeout: 30_000 });
@@ -106,3 +107,25 @@ for (const rota of ['/v2', '/v2/obras', '/v2/obras/cozinha-ilha-verde', '/v2/pro
   });
 }
 
+
+test('atalho Falar agora no WhatsApp abre a conversa sem preencher nada', async ({ page, context }) => {
+  await context.route(/wa\.me|whatsapp\.com/, (r) => r.fulfill({ status: 200, body: 'ok' }));
+  await page.goto('/contato');
+  await page.waitForLoadState('networkidle');
+  const atalho = page.locator('main').getByRole('link', { name: /Falar agora no WhatsApp/ });
+  await expect(atalho).toBeVisible();
+  const [popup] = await Promise.all([page.waitForEvent('popup'), atalho.click()]);
+  await popup.waitForURL(/wa\.me|whatsapp\.com/);
+  const url = decodeURIComponent(popup.url()).replace(/\+/g, ' ');
+  expect(url).toContain('5514998492834');
+  expect(url).toContain('quero um orçamento');
+});
+
+test('painel de orçamento da home mostra as duas escolhas', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  await page.locator('#hero').getByRole('button', { name: 'Pedir orçamento', exact: true }).click();
+  const painel = page.getByRole('dialog', { name: /orçamento/i });
+  await expect(painel.getByRole('link', { name: /Falar agora no WhatsApp/ })).toBeVisible();
+  await expect(painel.getByRole('button', { name: 'Continuar' })).toBeVisible();
+});

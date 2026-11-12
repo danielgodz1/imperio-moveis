@@ -8,6 +8,15 @@ import {
 import { EMPRESA } from '../data/empresa';
 import { MAX_FOTOS, compartilharComFotos, filtrarFotos, podeCompartilharArquivos } from '../utils/enviarComFotos';
 
+/**
+ * Mensagem do atalho "Falar agora no WhatsApp": curta e já com o ambiente de onde a pessoa veio
+ * (página de cozinha, obra, 3D), para a equipe responder sem precisar perguntar o básico.
+ */
+export function mensagemWhatsAppDireto(ambiente?: string): string {
+  const amb = ambiente && ambiente !== 'Outro' ? ` de ${ambiente.toLowerCase()}` : '';
+  return `Oi! Vi o site da Império e quero um orçamento${amb}.`;
+}
+
 /** Miniatura de uma foto escolhida (libera a memória ao sair). */
 const Miniatura: React.FC<{ arquivo: File }> = ({ arquivo }) => {
   const [url, setUrl] = useState<string | null>(null);
@@ -253,6 +262,28 @@ export const BriefingOrcamento: React.FC<BriefingOrcamentoProps> = ({
 
   const conteudoFormulario = (
     <div className="w-full flex flex-col gap-24">
+      {/* Duas portas lado a lado: quem tem pressa fala direto; quem quer, responde 3 perguntas. */}
+      <div className="flex flex-col gap-16">
+        <a
+          href={getWhatsAppUrl(mensagemWhatsAppDireto(ambienteInicial))}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackWhatsAppClick(modo === 'painel' ? 'orcamento_painel_whatsapp_direto' : 'orcamento_pagina_whatsapp_direto')}
+          className="w-full min-h-[56px] px-24 py-[12px] flex items-center justify-center gap-[12px] rounded-curto bg-preto text-papel hover:bg-dourado hover:text-preto transition-colors font-semibold text-center"
+        >
+          <MessageSquare className="w-[20px] h-[20px] shrink-0" strokeWidth={1.75} aria-hidden="true" />
+          <span className="flex flex-col items-start leading-tight text-left">
+            <span>Falar agora no WhatsApp</span>
+            <span className="tipo-cota font-normal opacity-80">Abre a conversa com a mensagem pronta</span>
+          </span>
+        </a>
+        <div className="flex items-center gap-16" aria-hidden="true">
+          <span className="h-px flex-1 bg-grafite/20" />
+          <span className="tipo-cota text-grafite-suave">ou responda 3 perguntas rápidas</span>
+          <span className="h-px flex-1 bg-grafite/20" />
+        </div>
+      </div>
+
       {/* Cabeçalho e Barra de Progresso */}
       <div className="flex flex-col gap-16">
         <div className="flex items-center justify-between gap-16">
