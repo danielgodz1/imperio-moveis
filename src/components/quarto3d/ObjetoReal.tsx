@@ -24,7 +24,9 @@ interface ObjetoRealProps {
 }
 
 function Modelo({ id, position, rotationY = 0, altura }: ObjetoRealProps) {
-  const { scene } = useGLTF(OBJETOS_REAIS[id].url);
+  // Modelos sem compressão: sem Draco (viria de outro domínio) e sem Meshopt (WebAssembly,
+  // bloqueado pela CSP e só gerava erro no console).
+  const { scene } = useGLTF(OBJETOS_REAIS[id].url, false, false);
   const invalidate = useThree((s) => s.invalidate);
   const copia = useMemo(() => {
     const c = scene.clone(true);

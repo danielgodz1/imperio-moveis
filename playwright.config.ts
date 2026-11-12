@@ -14,9 +14,9 @@ export default defineConfig({
   // Capturas de referência separadas por sistema (as do CI são as que valem).
   snapshotPathTemplate: '{testDir}/__capturas__/{platform}/{testFilePath}/{arg}{ext}',
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: 'http://localhost:4174',
     trace: 'retain-on-failure',
-    reducedMotion: 'reduce',
+    contextOptions: { reducedMotion: 'reduce' },
     locale: 'pt-BR',
   },
   projects: [
@@ -24,8 +24,8 @@ export default defineConfig({
     { name: 'celular', use: { ...devices['Pixel 7'], channel: canal } },
   ],
   webServer: {
-    command: 'node scripts/servirDist.mjs 4173',
-    url: 'http://localhost:4173',
+    command: 'node scripts/servirDist.mjs 4174',
+    url: 'http://localhost:4174',
     reuseExistingServer: !process.env.CI,
   },
 });

@@ -1,0 +1,54 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "node scripts/servirDist.mjs 4175",
+      "startServerReadyPattern": "dist em",
+      "url": [
+        "http://localhost:4175/",
+        "http://localhost:4175/obras",
+        "http://localhost:4175/projetar",
+        "http://localhost:4175/cozinhas-planejadas-jau",
+        "http://localhost:4175/contato"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "preset": "perf",
+        "formFactor": "mobile",
+        "chromeFlags": "--no-sandbox --headless=new",
+        "blockedUrlPatterns": [
+          "*googletagmanager*",
+          "*google-analytics*"
+        ]
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2500,
+            "aggregationMethod": "median"
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.1,
+            "aggregationMethod": "median"
+          }
+        ],
+        "total-blocking-time": [
+          "warn",
+          {
+            "maxNumericValue": 200,
+            "aggregationMethod": "median"
+          }
+        ]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci/relatorios"
+    }
+  }
+}
