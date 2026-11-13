@@ -86,6 +86,21 @@
       "source": "/v2/obras/comercial-gocoffee-fachada",
       "destination": "/obras/comercial-gocoffee-fachada",
       "permanent": true
+    },
+    {
+      "source": "/v2/obras/cozinha-gourmet-churrasqueira",
+      "destination": "/obras/cozinha-gourmet-churrasqueira",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/cozinha-gourmet-gaveteiro",
+      "destination": "/obras/cozinha-gourmet-gaveteiro",
+      "permanent": true
+    },
+    {
+      "source": "/v2/obras/cozinha-gourmet-gaveta-talheres",
+      "destination": "/obras/cozinha-gourmet-gaveta-talheres",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -172,6 +187,18 @@
     {
       "source": "/obras/comercial-gocoffee-fachada",
       "destination": "/obras/comercial-gocoffee-fachada/index.html"
+    },
+    {
+      "source": "/obras/cozinha-gourmet-churrasqueira",
+      "destination": "/obras/cozinha-gourmet-churrasqueira/index.html"
+    },
+    {
+      "source": "/obras/cozinha-gourmet-gaveteiro",
+      "destination": "/obras/cozinha-gourmet-gaveteiro/index.html"
+    },
+    {
+      "source": "/obras/cozinha-gourmet-gaveta-talheres",
+      "destination": "/obras/cozinha-gourmet-gaveta-talheres/index.html"
     },
     {
       "source": "/v1",
