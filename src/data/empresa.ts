@@ -67,6 +67,8 @@ export interface DadosEmpresa {
   };
 }
 
+export const DOMINIO_CANONICO = 'https://www.imperiomoveisplanejadosjau.com.br' as const;
+
 /**
  * Fonte única da verdade para dados institucionais, E-E-A-T, cabeçalho, rodapé,
  * localização, páginas de contato e Super-Grafo de dados estruturados (JSON-LD).
@@ -78,11 +80,12 @@ export const EMPRESA: DadosEmpresa = {
   razaoSocial: 'Wellington Ribeiro Cabral',
   cnpj: '48.945.152/0001-93',
   dataAberturaCnpj: '2022-12-21',
-  subtitulo: 'Móveis Planejados',
-  fraseCurta: 'Fábrica de móveis planejados 100% MDF, marcenaria sob medida e arquitetura de interiores com projeto 3D em Jaú e região.',
+  subtitulo: 'Móveis Planejados e Marcenaria',
+  fraseCurta:
+    'Fábrica própria de móveis planejados 100% MDF e marcenaria sob medida em Jaú/SP com maquinário próprio, apresentação de projeto 3D e atendimento mediante visita técnica agendada.',
   fundadores: 'Wellington Ribeiro Cabral e Tatiane Cabral',
   anoInicio: 2015,
-  url: 'https://www.imperiomoveisplanejadosjau.com.br',
+  url: DOMINIO_CANONICO,
   telefone: '(14) 99849-2834',
   whatsapp: '5514998492834',
   whatsappE164: '+5514998492834',
@@ -112,7 +115,7 @@ export const EMPRESA: DadosEmpresa = {
     semana: 'Segunda a Sexta das 08h às 18h',
     sabado: 'Sábados sob agendamento',
     resumo: 'Segunda a Sexta das 08h às 18h | Sábados sob agendamento',
-    observacao: 'Atendimento e showroom sob agendamento',
+    observacao: 'Atendimento mediante visita técnica e agendamento',
     abre: '08:00',
     fecha: '18:00',
   },
@@ -167,9 +170,9 @@ export const EMPRESA: DadosEmpresa = {
   ],
   sobre: {
     acessibilidade: ['Entrada acessível para cadeira de rodas', 'Estacionamento acessível para cadeira de rodas'],
-    servicos: ['Entrega', 'Montagem própria', 'Projeto 3D', 'Medição técnica a laser'],
-    atendimento: ['Com agendamento', 'Visita técnica presencial'],
-    pagamentos: ['Cartão de crédito', 'Cartão de débito', 'PIX', 'Parcelamento direto'],
+    servicos: ['Fábrica com maquinário próprio', 'Montagem própria', 'Apresentação de Projeto 3D', 'Visita técnica e medição agendada'],
+    atendimento: ['Mediante visita técnica e agendamento', 'Prazo de entrega estipulado em contrato'],
+    pagamentos: ['PIX', 'Cartão de crédito parcelado', 'Condições combinadas em contrato'],
   },
   confirmado: {
     endereco: true,

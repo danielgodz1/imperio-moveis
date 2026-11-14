@@ -3,6 +3,39 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "imperiomoveisplanejadosjau.com.br"
+        }
+      ],
+      "destination": "https://www.imperiomoveisplanejadosjau.com.br/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "imperiomoveisjau.com.br"
+        }
+      ],
+      "destination": "https://www.imperiomoveisplanejadosjau.com.br/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.imperiomoveisjau.com.br"
+        }
+      ],
+      "destination": "https://www.imperiomoveisplanejadosjau.com.br/$1",
+      "permanent": true
+    },
+    {
       "source": "/v2",
       "destination": "/",
       "permanent": true
