@@ -301,6 +301,9 @@ export function injetarSeoNoHtml(htmlBase: string, pathname: string, versao: 'v1
   const rootHtml = versao === 'v1' ? gerarConteudoInicialRootV1(rota) : gerarConteudoInicialRoot(rota);
 
   let html = htmlBase;
+  if (rota !== '/') {
+    html = html.replace(/<link\s+rel="preload"\s+as="image"\s+href="\/videos\/notebook-poster\.jpg"[^>]*>\s*/g, '');
+  }
 
   html = html.replace(
     /<title>[\s\S]*?<\/title>/,
@@ -391,6 +394,7 @@ export function injetarSeoFoto(htmlBase: string, obra: ObraItem): string {
       ],
     });
   return htmlBase
+    .replace(/<link\s+rel="preload"\s+as="image"\s+href="\/videos\/notebook-poster\.jpg"[^>]*>\s*/g, '')
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${escaparHtml(meta.titulo)}</title>`)
     .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, `<meta name="description" content="${escaparHtml(meta.descricao)}" />`)
     .replace(/<link\s+rel="canonical"\s+href="[^"]*"[^>]*\/?>/, `<link rel="canonical" href="${escaparHtml(meta.canonico)}" />`)
@@ -434,6 +438,7 @@ export function injetarSeoProjetos3D(htmlBase: string): string {
       ],
     });
   return htmlBase
+    .replace(/<link\s+rel="preload"\s+as="image"\s+href="\/videos\/notebook-poster\.jpg"[^>]*>\s*/g, '')
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${escaparHtml(meta.titulo)}</title>`)
     .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, `<meta name="description" content="${escaparHtml(meta.descricao)}" />`)
     .replace(/<link\s+rel="canonical"\s+href="[^"]*"[^>]*\/?>/, `<link rel="canonical" href="${escaparHtml(meta.canonico)}" />`)

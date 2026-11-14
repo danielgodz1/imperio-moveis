@@ -124,10 +124,10 @@ export function htmlInicio(): string {
           <h1 class="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]"><span class="v2-olho block mb-16 lg:mb-24">${esc(TEXTO_HERO.chamada)}</span>${italico(HERO_V2.titulo)}</h1>
           <p class="aeo-resposta-direta v2-corpo mt-16 lg:mt-24 max-w-[44ch]">${esc(HERO_V2.apoio)}</p>
           <div class="flex flex-wrap items-center lg:justify-center gap-12 mt-16 lg:mt-24">
-            <a href="/contato" class="v2-botao v2-botao-claro h-[44px] px-20 text-[0.9375rem]">Solicitar Projeto 3D e Orçamento em Jaú</a>
+            <a href="/contato" class="v2-botao v2-botao-claro h-[44px] px-20 text-[0.9375rem]">Agendar Visita Técnica e Orçamento</a>
             <a href="/obras" class="v2-botao v2-botao-linha h-[44px] px-16 text-[0.9375rem]">Ver as obras</a>
           </div>
-          <p class="v2-cota mt-16">★ 4,9 no Google · Fábrica 100% MDF desde 2015 · Role para construir a cozinha em 3D</p>
+          <p class="v2-cota mt-16">★ 4,9 no Google Maps · Fábrica própria 100% MDF em Jaú · Role para construir a cozinha em 3D</p>
         </div>
       </div>
     </section>

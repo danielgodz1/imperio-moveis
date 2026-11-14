@@ -65,6 +65,7 @@ export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0
       img.alt = ALT_POSTER;
       img.width = 1280;
       img.height = 720;
+      img.setAttribute('fetchpriority', 'high');
       img.decoding = 'async';
     }
     palco.insertBefore(img, palco.firstChild);
@@ -79,8 +80,61 @@ export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0
   const cenaRef = useRef<HTMLDivElement>(null);
   const [src, setSrc] = useState<string | null>(null);
 
+  // Adia o carregamento do vídeo pesado para fora da pintura inicial (LCP < 2.5s / INP < 200ms)
+  // usando IntersectionObserver + requestIdleCallback.
   useEffect(() => {
-    if (ativo && !src) setSrc(escolherVideo());
+    if (!ativo || src) return;
+    const palco = palcoRef.current;
+    let cancelado = false;
+    let idleId: number | null = null;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
+    const agendarCarregamentoVideo = () => {
+      const w = window as Window & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+      if (typeof w.requestIdleCallback === 'function') {
+        idleId = w.requestIdleCallback(
+          () => {
+            if (!cancelado) setSrc(escolherVideo());
+          },
+          { timeout: 1200 }
+        );
+      } else {
+        timerId = setTimeout(() => {
+          if (!cancelado) setSrc(escolherVideo());
+        }, 120);
+      }
+    };
+
+    if (typeof IntersectionObserver !== 'undefined' && palco) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            io.disconnect();
+            agendarCarregamentoVideo();
+          }
+        },
+        { rootMargin: '100px' }
+      );
+      io.observe(palco);
+      return () => {
+        cancelado = true;
+        io.disconnect();
+        const w = window as Window & { cancelIdleCallback?: (id: number) => void };
+        if (idleId !== null && typeof w.cancelIdleCallback === 'function') w.cancelIdleCallback(idleId);
+        if (timerId !== null) clearTimeout(timerId);
+      };
+    }
+
+    agendarCarregamentoVideo();
+    return () => {
+      cancelado = true;
+      const w = window as Window & { cancelIdleCallback?: (id: number) => void };
+      if (idleId !== null && typeof w.cancelIdleCallback === 'function') w.cancelIdleCallback(idleId);
+      if (timerId !== null) clearTimeout(timerId);
+    };
   }, [ativo, src]);
 
   useEffect(() => {
@@ -170,7 +224,7 @@ export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0
         muted
         playsInline
         loop
-        preload="metadata"
+        preload={src ? 'metadata' : 'none'}
         disablePictureInPicture
         disableRemotePlayback
         className="absolute left-0 top-0 max-w-none origin-top-left will-change-transform object-cover"
