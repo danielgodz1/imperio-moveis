@@ -1,5 +1,6 @@
 import { EMPRESA } from './empresa';
 import { Ambiente } from './cenarios';
+import { perguntasConfirmadas } from './perguntas';
 
 export type RotaPublica =
   | '/'
@@ -20,9 +21,6 @@ export interface FotoAmbienteLocal {
   legenda: string;
 }
 
-// A confirmar com os donos antes de voltar ao texto público (estava como [CONFIRMAR] no site):
-// pedra padrão das cozinhas e marca das dobradiças/corrediças; especificação de bordas e
-// acabamento atóxico nos quartos infantis; portas em vidro refletente e perfil metálico nos closets.
 export interface PaginaAmbienteConfig {
   rota:
     | '/cozinhas-planejadas-jau'
@@ -52,10 +50,10 @@ export interface MetaRotaSeo {
 
 /** Título e texto do hero da home (usados no componente e no HTML pré-renderizado). */
 export const TEXTO_HERO = {
-  chamada: 'Móveis planejados em Jaú/SP',
-  titulo: 'Arquitetura e marcenaria na mesma mesa.',
+  chamada: 'Móveis Planejados em Jaú e Região:',
+  titulo: 'Fábrica e Marcenaria Sob Medida com Projeto 3D',
   texto:
-    'Nossa arquiteta projeta, nossa equipe fabrica e monta. Projeto de arquitetura incluso e móveis planejados para cozinhas, quartos, closets e lojas em Jaú e região, desde 2015.',
+    'Fábrica própria de móveis planejados 100% MDF em Jaú/SP com projeto de arquitetura 3D incluso. Cozinhas planejadas, dormitórios, closets, área gourmet, banheiros e ambientes corporativos com entrega no prazo em Jaú e região.',
 };
 
 export const PAGINAS_AMBIENTES_LOCAIS: Record<
@@ -99,21 +97,21 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
       {
         srcBase: '/obras/cozinha-gringa-4k',
         razao: '106 / 158',
-        alt: 'Cozinha planejada em Jaú com ilha em verde-sálvia, armários superiores até o teto e iluminação em LED quente',
+        alt: 'Cozinha planejada sob medida em Jaú SP com ilha em MDF verde-sálvia, armários até o teto e iluminação em LED - Império Móveis Planejados',
         legenda:
           'Cozinha planejada com ilha central em verde-sálvia, cristaleira iluminada e marcenaria até o teto.',
       },
       {
         srcBase: '/obras/cozinha-ilha-ripado',
         razao: '941 / 1136',
-        alt: 'Cozinha planejada em Jaú com ilha em ripado de madeira, tampo em granito preto e fita de LED sob os aéreos',
+        alt: 'Cozinha planejada em Jaú SP com ilha em MDF ripado amadeirado, bancada em granito preto e fita de LED sob os aéreos - Império Móveis Planejados',
         legenda:
           'Ilha em ripado de madeira com tampo e lateral em granito preto e fita de LED sob os aéreos.',
       },
       {
         srcBase: '/obras/cozinha-forro-ripado',
         razao: '408 / 641',
-        alt: 'Cozinha sob medida em Jaú integrada ao forro ripado de madeira com torre quente para forno e micro-ondas',
+        alt: 'Cozinha sob medida 100% MDF em Jaú SP integrada ao forro ripado de madeira com torre quente para forno e micro-ondas - Império Móveis Planejados',
         legenda:
           'Integração entre marcenaria sob medida, torre quente e forro ripado em madeira.',
       },
@@ -157,21 +155,21 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
       {
         srcBase: '/obras/quarto-infantil-casinha',
         razao: '1264 / 845',
-        alt: 'Quarto infantil planejado em Jaú com cama-casinha superior, escorregador e escada com gavetas',
+        alt: 'Quarto infantil planejado sob medida em Jaú SP com cama-casinha superior, escorregador e escada com gavetas em MDF - Império Móveis Planejados',
         legenda:
           'Quarto infantil com cama-casinha, escorregador, escada com gavetas e painel estofado.',
       },
       {
         srcBase: '/obras/quarto-bebe-nichos',
         razao: '1213 / 864',
-        alt: 'Quarto de bebê planejado em Jaú com marcenaria verde-sálvia, painel ripado e nichos redondos iluminados',
+        alt: 'Quarto de bebê planejado em Jaú SP com marcenaria 100% MDF verde-sálvia, painel ripado e nichos redondos iluminados - Império Móveis Planejados',
         legenda:
           'Quarto de bebê em verde-sálvia e madeira clara com nichos redondos iluminados em LED.',
       },
       {
         srcBase: '/obras/dormitorio-led-1',
         razao: '51 / 82',
-        alt: 'Dormitório planejado em Jaú com painel ripado de madeira, prateleira iluminada em LED e bancada integrada',
+        alt: 'Dormitório planejado em Jaú SP com painel ripado de madeira MDF, prateleira iluminada em LED e bancada integrada - Império Móveis Planejados',
         legenda:
           'Dormitório com painel ripado até o teto, iluminação linear em LED e bancada sob medida.',
       },
@@ -215,14 +213,14 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
       {
         srcBase: '/obras/dormitorio-led-2',
         razao: '800 / 1317',
-        alt: 'Armário e marcenaria de dormitório em Jaú com nichos iluminados em LED e acabamento amadeirado',
+        alt: 'Guarda-roupa e closet planejado sob medida em Jaú SP com nichos iluminados em LED e acabamento amadeirado 100% MDF - Império Móveis Planejados',
         legenda:
           'Marcenaria de dormitório e armários sob medida com iluminação embutida em LED.',
       },
       {
         srcBase: '/obras/dormitorio-led-1',
         razao: '51 / 82',
-        alt: 'Ambiente íntimo planejado em Jaú com marcenaria até o teto, ripado e bancada de apoio',
+        alt: 'Dormitório e closet planejado em Jaú SP com marcenaria até o teto, ripado em MDF e bancada de apoio - Império Móveis Planejados',
         legenda:
           'Aproveitamento vertical até o teto com painéis ripados e nichos iluminados.',
       },
@@ -266,21 +264,21 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
       {
         srcBase: '/obras/comercial-expositor',
         razao: '832 / 1259',
-        alt: 'Estante e expositor sob medida em madeira e estrutura metálica com LED executado pela Império em Jaú',
+        alt: 'Marcenaria corporativa e expositor sob medida em MDF e serralheria metálica com LED em Jaú SP - Império Móveis Planejados',
         legenda:
           'Expositor e estante sob medida em madeira, estrutura metálica preta e iluminação em LED em cada nível.',
       },
       {
         srcBase: '/obras/comercial-gocoffee-interior',
         razao: '24 / 43',
-        alt: 'Interior comercial GoCoffee em Jaú com balcão curvo em ripado de madeira e nichos iluminados',
+        alt: 'Móveis planejados comerciais GoCoffee em Jaú SP com balcão curvo em MDF ripado de madeira e nichos iluminados - Império Móveis Planejados',
         legenda:
           'Interior comercial GoCoffee: balcão curvo em ripado de madeira e nichos iluminados.',
       },
       {
         srcBase: '/obras/entrega-guindaste',
         razao: '106 / 158',
-        alt: 'Caminhão-guindaste realizando içamento de marcenaria da Império Móveis em Jaú',
+        alt: 'Entrega técnica com caminhão-guindaste realizando içamento de marcenaria sob medida em Jaú SP - Império Móveis Planejados',
         legenda:
           'Logística de entrega com içamento por guindaste coordenada pela Império em Jaú.',
       },
@@ -291,12 +289,12 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
 export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
   '/': {
     rota: '/',
-    title: 'Móveis Planejados em Jaú/SP | Império Móveis Planejados',
+    title: 'Império Móveis Planejados em Jaú SP | Fábrica de Marcenaria Sob Medida e Projeto 3D',
     description:
-      'Móveis planejados em Jaú/SP com projeto de arquitetura incluso e fabricação própria. Cozinhas, quartos e closets. Projete em 3D e peça orçamento.',
+      'Fábrica de Móveis Planejados em Jaú SP (CNPJ 48.945.152/0001-93). Cozinhas planejadas, closets, dormitórios, área gourmet e corporativo 100% MDF com projeto 3D realista, fabricação própria e entrega no prazo em Jaú e região.',
     canonical: `${EMPRESA.url}/`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
-    h1Inicial: TEXTO_HERO.titulo,
+    h1Inicial: 'Móveis Planejados em Jaú e Região: Fábrica e Marcenaria Sob Medida com Projeto 3D',
     resumoHtmlInicial: TEXTO_HERO.texto,
   },
   '/contato': {
@@ -395,33 +393,127 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
   },
 };
 
+const CATALOGO_OFERTAS_AMBIENTES = [
+  {
+    name: 'Cozinhas Planejadas Sob Medida em Jaú',
+    description:
+      'Cozinhas planejadas 100% MDF em Jaú com ilha central, torre quente para forno e micro-ondas, MDF naval (hidrófugo) nas áreas úmidas, perfis de LED embutidos e ferragens com amortecimento slow motion.',
+    url: `${EMPRESA.url}/cozinhas-planejadas-jau`,
+  },
+  {
+    name: 'Dormitórios, Guarda-Roupas e Closets Planejados',
+    description:
+      'Closets sob medida em L ou U, guarda-roupas até o teto com portas de correr ou giro, cabideiros iluminados em LED, sapateiras telescópicas, divisórias de veludo e quartos infantis sob medida em Jaú.',
+    url: `${EMPRESA.url}/closets-sob-medida-jau`,
+  },
+  {
+    name: 'Salas de Estar, Painéis Ripados de TV e Home Theater',
+    description:
+      'Painéis ripados em MDF Freijó ou Nogueira até o teto, racks suspensos com passagem oculta de cabos, cristaleiras com vidro reflecta e iluminação indireta em LED para salas em Jaú e região.',
+    url: `${EMPRESA.url}/quartos-planejados-jau`,
+  },
+  {
+    name: 'Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia',
+    description:
+      'Armários sob medida com proteção contra umidade e calor próximos à churrasqueira, balcões em MDF naval, adegas climatizadas e lavanderias planejadas funcionais em Jaú.',
+    url: `${EMPRESA.url}/cozinhas-planejadas-jau`,
+  },
+  {
+    name: 'Banheiros e Lavabos Planejados',
+    description:
+      'Gabinetes sob medida 100% MDF resistente à umidade para banheiros e lavabos, espelheiras com iluminação frontal ou indireta em LED e nichos organizadores sob medida.',
+    url: `${EMPRESA.url}/quartos-planejados-jau`,
+  },
+  {
+    name: 'Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú',
+    description:
+      'Recepções, estações de trabalho ergonômicas, salas de reunião, consultórios médicos e odontológicos, escritórios de advocacia e marcenaria comercial completa em Jaú e região.',
+    url: `${EMPRESA.url}/home-office-planejado-jau`,
+  },
+];
+
 /**
- * Gera o JSON-LD FurnitureStore a partir de EMPRESA.
- * SÓ inclui address, geo e openingHoursSpecification se confirmado.endereco / confirmado.horarios forem true.
+ * Entidade principal ["FurnitureStore", "HomeAndConstructionBusiness", "LocalBusiness"]
+ * com E-E-A-T completo (Razão Social, CNPJ, endereço Jardim Itamarati, coordenadas e 12 cidades com Wikipedia).
  */
-export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
+export function gerarEntidadeOrganizacaoSchema(): Record<string, unknown> {
   const sameAs: string[] = [EMPRESA.instagramUrl];
   if (EMPRESA.googleProfileUrl) {
     sameAs.push(EMPRESA.googleProfileUrl);
   }
 
-  const schema: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'FurnitureStore',
-    '@id': `${EMPRESA.url}/#empresa`,
+  return {
+    '@type': ['FurnitureStore', 'HomeAndConstructionBusiness', 'LocalBusiness'],
+    '@id': `${EMPRESA.url}/#organization`,
     name: EMPRESA.nome,
-    alternateName: 'Império Móveis Planejados Jaú',
+    alternateName: ['Império Móveis Planejados Jaú', EMPRESA.nomeCurto],
+    legalName: EMPRESA.razaoSocial,
+    taxID: EMPRESA.cnpj,
+    foundingDate: EMPRESA.dataAberturaCnpj,
+    url: `${EMPRESA.url}/`,
     logo: `${EMPRESA.url}/logo-imperio.png`,
-    founder: EMPRESA.fundadores.split(' e ').map((nome) => ({ '@type': 'Person', name: nome })),
-    knowsAbout: ['Móveis planejados', 'Cozinhas planejadas', 'Quartos planejados', 'Closets sob medida', 'Marcenaria', 'Arquitetura de interiores'],
-    description: EMPRESA.fraseCurta,
-    url: EMPRESA.url,
     telephone: EMPRESA.whatsappE164,
-    foundingDate: String(EMPRESA.anoInicio),
-    areaServed: EMPRESA.cidadesAtendidas.map((cidade) => ({
+    email: EMPRESA.email,
+    priceRange: '$$$',
+    description: METADADOS_ROTAS_SEO['/'].description,
+    founder: EMPRESA.fundadores.split(' e ').map((nome) => ({ '@type': 'Person', name: nome })),
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: `${EMPRESA.endereco.logradouro} - ${EMPRESA.endereco.bairro}`,
+      addressLocality: EMPRESA.endereco.cidade,
+      addressRegion: EMPRESA.endereco.uf,
+      postalCode: EMPRESA.endereco.cep,
+      addressCountry: EMPRESA.endereco.pais,
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: EMPRESA.geo.latitude,
+      longitude: EMPRESA.geo.longitude,
+    },
+    hasMap: EMPRESA.googleProfileUrl,
+    areaServed: EMPRESA.cidadesSchema.map((c) => ({
       '@type': 'City',
-      name: `${cidade}, SP`,
+      name: `${c.nome}, ${c.uf}`,
+      sameAs: c.wikipedia,
     })),
+    knowsAbout: [
+      'Móveis Planejados',
+      'Marcenaria Sob Medida',
+      'Projeto 3D de Interiores',
+      'Cozinhas Planejadas',
+      'Closets e Dormitórios',
+      'Móveis Corporativos',
+      'Painéis Ripados em MDF',
+      'Marcenaria 100% MDF em Jaú',
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Catálogo de Móveis Planejados Sob Medida 100% MDF em Jaú e Região',
+      itemListElement: CATALOGO_OFERTAS_AMBIENTES.map((item) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: item.name,
+          description: item.description,
+          url: item.url,
+          provider: { '@id': `${EMPRESA.url}/#organization` },
+        },
+      })),
+    },
+    paymentAccepted: EMPRESA.sobre.pagamentos.join(', '),
+    amenityFeature: EMPRESA.sobre.acessibilidade.map((nome) => ({
+      '@type': 'LocationFeatureSpecification',
+      name: nome,
+      value: true,
+    })),
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: EMPRESA.horarios.abre,
+        closes: EMPRESA.horarios.fecha,
+      },
+    ],
     sameAs,
     image: [
       `${EMPRESA.url}/og-hero.jpg`,
@@ -429,42 +521,115 @@ export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
       `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
     ],
   };
+}
 
-  if (EMPRESA.confirmado.endereco) {
-    schema.address = {
-      '@type': 'PostalAddress',
-      streetAddress: EMPRESA.endereco.logradouro,
-      addressLocality: EMPRESA.endereco.cidade,
-      addressRegion: EMPRESA.endereco.uf,
-      postalCode: EMPRESA.endereco.cep,
-      addressCountry: EMPRESA.endereco.pais,
-    };
-    // Coordenadas do arquivo são aproximadas: o ponto exato fica com a ficha do Google (hasMap).
-    if (EMPRESA.googleProfileUrl) schema.hasMap = EMPRESA.googleProfileUrl;
-  }
+/**
+ * Mantém compatibilidade com páginas internas que importam gerarJsonLdFurnitureStore.
+ */
+export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    ...gerarEntidadeOrganizacaoSchema(),
+  };
+}
 
-  // Aba "Sobre" do Perfil da Empresa no Google.
-  schema.paymentAccepted = EMPRESA.sobre.pagamentos.join(', ');
-  schema.amenityFeature = EMPRESA.sobre.acessibilidade.map((nome) => ({
-    '@type': 'LocationFeatureSpecification',
-    name: nome,
-    value: true,
-  }));
-  schema.makesOffer = ['Projeto e fabricação de móveis planejados', ...EMPRESA.sobre.servicos.map((s) => `${s} de móveis`)].map(
-    (nome) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: nome } })
-  );
-
-  if (EMPRESA.confirmado.horarios) {
-    // Mesmo horário do Perfil da Empresa no Google; sem sábado.
-    schema.openingHoursSpecification = [
+/**
+ * Super-Grafo Schema.org (@graph) da Home com as 5 entidades interconectadas:
+ * 1. ["FurnitureStore", "HomeAndConstructionBusiness", "LocalBusiness"] (#organization)
+ * 2. VideoObject (#video-projeto-3d)
+ * 3. WebSite (#website) & WebPage (#webpage)
+ * 4. BreadcrumbList (#breadcrumb)
+ * 5. FAQPage (#faq) com as 8 perguntas frequentes estratégicas
+ */
+export function gerarSuperGrafoJsonLd(): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      gerarEntidadeOrganizacaoSchema(),
       {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-        opens: EMPRESA.horarios.abre,
-        closes: EMPRESA.horarios.fecha,
+        '@type': 'VideoObject',
+        '@id': `${EMPRESA.url}/#video-projeto-3d`,
+        name: 'Apresentação de Projeto 3D de Móveis Planejados em Jaú - Império Móveis',
+        description:
+          'Apresentação em notebook do projeto 3D realista de cozinha planejada sob medida 100% MDF em Jaú SP, do desenho técnico à obra executada pela Império Móveis Planejados.',
+        thumbnailUrl: [
+          `${EMPRESA.url}/videos/notebook-poster.jpg`,
+          `${EMPRESA.url}/og-hero.jpg`,
+        ],
+        uploadDate: '2026-01-15T08:00:00-03:00',
+        contentUrl: `${EMPRESA.url}/videos/notebook-1080.mp4`,
+        embedUrl: `${EMPRESA.url}/`,
+        duration: 'PT10S',
+        inLanguage: 'pt-BR',
+        publisher: { '@id': `${EMPRESA.url}/#organization` },
       },
-    ];
-  }
-
-  return schema;
+      {
+        '@type': 'WebSite',
+        '@id': `${EMPRESA.url}/#website`,
+        url: `${EMPRESA.url}/`,
+        name: EMPRESA.nome,
+        alternateName: ['Império Móveis Planejados Jaú', EMPRESA.nomeCurto],
+        inLanguage: 'pt-BR',
+        publisher: { '@id': `${EMPRESA.url}/#organization` },
+      },
+      {
+        '@type': 'WebPage',
+        '@id': `${EMPRESA.url}/#webpage`,
+        url: `${EMPRESA.url}/`,
+        name: METADADOS_ROTAS_SEO['/'].title,
+        description: METADADOS_ROTAS_SEO['/'].description,
+        inLanguage: 'pt-BR',
+        isPartOf: { '@id': `${EMPRESA.url}/#website` },
+        about: { '@id': `${EMPRESA.url}/#organization` },
+        primaryImageOfPage: {
+          '@type': 'ImageObject',
+          url: `${EMPRESA.url}/og-hero.jpg`,
+        },
+        video: { '@id': `${EMPRESA.url}/#video-projeto-3d` },
+        breadcrumb: { '@id': `${EMPRESA.url}/#breadcrumb` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${EMPRESA.url}/#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Móveis Planejados em Jaú',
+            item: `${EMPRESA.url}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Cozinhas Planejadas em Jaú',
+            item: `${EMPRESA.url}/cozinhas-planejadas-jau`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: 'Closets e Dormitórios Sob Medida em Jaú',
+            item: `${EMPRESA.url}/closets-sob-medida-jau`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
+            name: 'Projetar Móveis em 3D Online',
+            item: `${EMPRESA.url}/projetar`,
+          },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': `${EMPRESA.url}/#faq`,
+        mainEntity: perguntasConfirmadas().map((p) => ({
+          '@type': 'Question',
+          name: p.pergunta,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: p.resposta,
+          },
+        })),
+      },
+    ],
+  };
 }

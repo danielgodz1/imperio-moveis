@@ -44,9 +44,9 @@ export function trackGenerateLead(ambiente: string, fase: string): void {
   });
 }
 
-export function getWhatsAppUrl(customMessage?: string): string {
+export function getWhatsAppUrl(customMessage?: string, utmCampaign = 'orcamento_jau'): string {
   const defaultMsg =
-    'Oi! Vi o site da Império e quero conversar sobre um projeto.';
+    'Olá! Vim pelo site da Império Móveis Planejados em Jaú e gostaria de solicitar um Projeto 3D e orçamento.';
   const text = encodeURIComponent(customMessage || defaultMsg);
-  return `https://wa.me/${EMPRESA.whatsapp}?text=${text}`;
+  return `https://wa.me/${EMPRESA.whatsapp}?text=${text}&utm_source=site&utm_medium=cta_whatsapp&utm_campaign=${encodeURIComponent(utmCampaign)}`;
 }

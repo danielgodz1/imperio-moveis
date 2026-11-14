@@ -4,6 +4,7 @@
  */
 
 import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { MotionConfig } from 'motion/react';
 import { useScrollytelling } from './hooks/useScrollytelling';
 import PaginaV2 from './v2/PaginaV2';
 
@@ -29,10 +30,16 @@ export default function App() {
 
   if (v1) {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-preto" />}>
-        <AppV1 headerRef={headerRef} />
-      </Suspense>
+      <MotionConfig reducedMotion="never">
+        <Suspense fallback={<div className="min-h-screen bg-preto" />}>
+          <AppV1 headerRef={headerRef} />
+        </Suspense>
+      </MotionConfig>
     );
   }
-  return <PaginaV2 />;
+  return (
+    <MotionConfig reducedMotion="never">
+      <PaginaV2 />
+    </MotionConfig>
+  );
 }

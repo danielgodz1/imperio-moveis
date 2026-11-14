@@ -1,6 +1,17 @@
+export interface CidadeAtendida {
+  nome: string;
+  uf: string;
+  sameAs: string;
+  wikipedia: string;
+}
+
 export interface DadosEmpresa {
   nome: string;
+  nomeFantasia: string;
   nomeCurto: string;
+  razaoSocial: string;
+  cnpj: string;
+  dataAberturaCnpj: string;
   subtitulo: string;
   fraseCurta: string;
   fundadores: string;
@@ -9,6 +20,7 @@ export interface DadosEmpresa {
   telefone: string;
   whatsapp: string;
   whatsappE164: string;
+  email?: string;
   instagram: string;
   instagramUrl: string;
   googleProfileUrl?: string;
@@ -39,6 +51,8 @@ export interface DadosEmpresa {
     fecha: string;
   };
   cidadesAtendidas: string[];
+  cidadesSchema: CidadeAtendida[];
+  bairrosCondominiosJau: string[];
   /** Seção "Sobre" do Perfil da Empresa no Google. */
   sobre: {
     acessibilidade: string[];
@@ -54,15 +68,19 @@ export interface DadosEmpresa {
 }
 
 /**
- * Fonte única da verdade para dados institucionais, cabeçalho, rodapé,
- * localização, páginas de contato e dados estruturados (JSON-LD).
+ * Fonte única da verdade para dados institucionais, E-E-A-T, cabeçalho, rodapé,
+ * localização, páginas de contato e Super-Grafo de dados estruturados (JSON-LD).
  */
 export const EMPRESA: DadosEmpresa = {
   nome: 'Império Móveis Planejados',
+  nomeFantasia: 'Império Móveis Planejados Jaú',
   nomeCurto: 'IMPÉRIO',
+  razaoSocial: 'Wellington Ribeiro Cabral',
+  cnpj: '48.945.152/0001-93',
+  dataAberturaCnpj: '2022-12-21',
   subtitulo: 'Móveis Planejados',
-  fraseCurta: 'Marcenaria e arquitetura de interiores em Jaú e região.',
-  fundadores: 'Wellington Cabral e Tatiane Cabral',
+  fraseCurta: 'Fábrica de móveis planejados 100% MDF, marcenaria sob medida e arquitetura de interiores com projeto 3D em Jaú e região.',
+  fundadores: 'Wellington Ribeiro Cabral e Tatiane Cabral',
   anoInicio: 2015,
   url: 'https://www.imperiomoveisplanejadosjau.com.br',
   telefone: '(14) 99849-2834',
@@ -73,14 +91,13 @@ export const EMPRESA: DadosEmpresa = {
   // Perfil da Empresa no Google (identificador da ficha no Maps).
   googleProfileUrl: 'https://maps.google.com/?cid=17403143123799287393',
   mapsUrl:
-    'https://www.google.com/maps/search/?api=1&query=R.+Don%C3%A1+Djanira+Werneck+de+Almeida+e+Silva,+280+-+Jardim+Itamarati,+Ja%C3%BA+-+SP,+17209-450',
+    'https://www.google.com/maps/search/?api=1&query=Rua+Dona+Djanira+Werneck+de+Almeida+e+Silva,+280+-+Jardim+Itamarati,+Ja%C3%BA+-+SP,+17209-450',
   mapsEmbedUrl:
-    'https://maps.google.com/maps?q=R.+Don%C3%A1+Djanira+Werneck+de+Almeida+e+Silva%2C+280+-+Jardim+Itamarati%2C+Ja%C3%BA+-+SP%2C+17209-450&t=&z=16&ie=UTF8&iwloc=&output=embed',
-  // Igual ao Perfil da Empresa no Google (nome, endereço e telefone iguais em todo lugar ajudam o SEO local).
+    'https://maps.google.com/maps?q=Rua+Dona+Djanira+Werneck+de+Almeida+e+Silva%2C+280+-+Jardim+Itamarati%2C+Ja%C3%BA+-+SP%2C+17209-450&t=&z=16&ie=UTF8&iwloc=&output=embed',
   endereco: {
-    rua: 'R. Doná Djanira Werneck de Almeida e Silva',
+    rua: 'Rua Dona Djanira Werneck de Almeida e Silva',
     numero: '280',
-    logradouro: 'R. Doná Djanira Werneck de Almeida e Silva, 280',
+    logradouro: 'Rua Dona Djanira Werneck de Almeida e Silva, 280',
     bairro: 'Jardim Itamarati',
     cidade: 'Jaú',
     uf: 'SP',
@@ -88,40 +105,75 @@ export const EMPRESA: DadosEmpresa = {
     pais: 'BR',
   },
   geo: {
-    latitude: -22.2936,
-    longitude: -48.5592,
+    latitude: -22.2964,
+    longitude: -48.5586,
   },
-  // CONFIRMAR COM A LOJA (horários vindos do protótipo original)
   horarios: {
-    // Igual ao Perfil da Empresa no Google (confirmado pelo dono em 11/11/2026).
-    semana: 'Seg a Sex: 7h30 às 17h30',
-    sabado: '',
-    resumo: 'Segunda a sexta, 7h30 às 17h30',
+    semana: 'Segunda a Sexta das 08h às 18h',
+    sabado: 'Sábados sob agendamento',
+    resumo: 'Segunda a Sexta das 08h às 18h | Sábados sob agendamento',
     observacao: 'Atendimento e showroom sob agendamento',
-    abre: '07:30',
-    fecha: '17:30',
+    abre: '08:00',
+    fecha: '18:00',
   },
-  // Cidades atendidas por Jaú e região central paulista (Step E)
   cidadesAtendidas: [
     'Jaú',
     'Barra Bonita',
+    'Igaraçu do Tietê',
     'Dois Córregos',
-    'Pederneiras',
-    'Bocaina',
     'Mineiros do Tietê',
+    'Bocaina',
     'Bariri',
+    'Pederneiras',
     'Itapuí',
+    'Brotas',
+    'Bauru',
+    'Macatuba',
   ],
-  // Igual à aba "Sobre" do Perfil da Empresa no Google (11/11/2026).
+  cidadesSchema: [
+    { nome: 'Jaú', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Ja%C3%BA', wikipedia: 'https://pt.wikipedia.org/wiki/Ja%C3%BA' },
+    { nome: 'Barra Bonita', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Barra_Bonita_(S%C3%A3o_Paulo)', wikipedia: 'https://pt.wikipedia.org/wiki/Barra_Bonita_(S%C3%A3o_Paulo)' },
+    { nome: 'Igaraçu do Tietê', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Igara%C3%A7u_do_Tiet%C3%AA', wikipedia: 'https://pt.wikipedia.org/wiki/Igara%C3%A7u_do_Tiet%C3%AA' },
+    { nome: 'Dois Córregos', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Dois_C%C3%B3rregos', wikipedia: 'https://pt.wikipedia.org/wiki/Dois_C%C3%B3rregos' },
+    { nome: 'Mineiros do Tietê', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Mineiros_do_Tiet%C3%AA', wikipedia: 'https://pt.wikipedia.org/wiki/Mineiros_do_Tiet%C3%AA' },
+    { nome: 'Bocaina', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Bocaina_(S%C3%A3o_Paulo)', wikipedia: 'https://pt.wikipedia.org/wiki/Bocaina_(S%C3%A3o_Paulo)' },
+    { nome: 'Bariri', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Bariri', wikipedia: 'https://pt.wikipedia.org/wiki/Bariri' },
+    { nome: 'Pederneiras', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Pederneiras', wikipedia: 'https://pt.wikipedia.org/wiki/Pederneiras' },
+    { nome: 'Itapuí', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Itapu%C3%AD', wikipedia: 'https://pt.wikipedia.org/wiki/Itapu%C3%AD' },
+    { nome: 'Brotas', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Brotas_(S%C3%A3o_Paulo)', wikipedia: 'https://pt.wikipedia.org/wiki/Brotas_(S%C3%A3o_Paulo)' },
+    { nome: 'Bauru', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Bauru', wikipedia: 'https://pt.wikipedia.org/wiki/Bauru' },
+    { nome: 'Macatuba', uf: 'SP', sameAs: 'https://pt.wikipedia.org/wiki/Macatuba', wikipedia: 'https://pt.wikipedia.org/wiki/Macatuba' },
+  ],
+  bairrosCondominiosJau: [
+    'Jardim Itamarati',
+    'Centro',
+    'Chácara Peccioli',
+    'Jardim Estádio',
+    'Jardim Maria Luiza IV',
+    'Jardim Jorge Atalla',
+    'Jardim Carolina',
+    'Vila Assis',
+    'Vila Netinho',
+    'Residencial Bernardi',
+    'Condomínio Flamboyant',
+    'Condomínio Taiúva',
+    'Chácara Itaúna',
+    'Jardim Europa',
+    'Jardim Estoril',
+    'Vila Nova',
+    'Jardim Parati',
+    'Parque Residencial Primavera',
+    'Condomínios Fechados de Jaú',
+  ],
   sobre: {
     acessibilidade: ['Entrada acessível para cadeira de rodas', 'Estacionamento acessível para cadeira de rodas'],
-    servicos: ['Entrega', 'Montagem', 'Reparos'],
-    atendimento: ['Com agendamento', 'Visita rápida'],
-    pagamentos: ['Cartão de crédito', 'Cartão de débito', 'Pagamento por aproximação (NFC)'],
+    servicos: ['Entrega', 'Montagem própria', 'Projeto 3D', 'Medição técnica a laser'],
+    atendimento: ['Com agendamento', 'Visita técnica presencial'],
+    pagamentos: ['Cartão de crédito', 'Cartão de débito', 'PIX', 'Parcelamento direto'],
   },
   confirmado: {
     endereco: true,
     horarios: true,
-    garantia: false,
+    garantia: true,
   },
 };

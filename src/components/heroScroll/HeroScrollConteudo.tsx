@@ -6,7 +6,7 @@ import { TEXTO_HERO } from '../../data/paginasLocais';
 import { RESUMO_GOOGLE } from '../../data/avaliacoesGoogle';
 
 export const ALT_FOTO_COZINHA =
-  'Cozinha planejada com ilha verde-sálvia, tampo de pedra clara, armários brancos e verdes, geladeira inox e fita de LED, executada pela Império em Jaú';
+  'Cozinha planejada sob medida 100% MDF em Jaú SP com ilha verde-sálvia, tampo de pedra clara, armários até o teto e fita de LED - Império Móveis Planejados';
 
 const BOTAO_PRINCIPAL =
   'inline-flex items-center justify-center gap-2 h-[52px] px-6 rounded-curto bg-dourado text-preto font-semibold transition-colors duration-200 hover:bg-preto hover:text-dourado cursor-pointer';
@@ -31,18 +31,18 @@ export const HeroScrollConteudo: React.FC<HeroScrollConteudoProps> = ({ onNaviga
     <div className="flex flex-wrap items-center gap-x-16 gap-y-8 mt-24">
       {onNavigateContact ? (
         <button type="button" onClick={onNavigateContact} className={BOTAO_PRINCIPAL}>
-          Pedir orçamento
+          Solicitar Projeto 3D e Orçamento em Jaú
         </button>
       ) : (
         <a
-          href={getWhatsAppUrl()}
+          href={getWhatsAppUrl('Olá! Vim pelo site da Império Móveis Planejados em Jaú e gostaria de solicitar um Projeto 3D e orçamento.', 'hero_cta_jau')}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => trackWhatsAppClick('hero_cta')}
           className={BOTAO_PRINCIPAL}
         >
           <MessageSquare className="w-[16px] h-[16px]" strokeWidth={1.5} />
-          Chamar no WhatsApp
+          Solicitar Projeto 3D e Orçamento em Jaú
         </a>
       )}
 

@@ -5,7 +5,21 @@ import './v2.css';
 import { globalLenis, scrollToTarget } from '../hooks/useScrollytelling';
 import { FiltroLapis } from '../components/LinhaLapis';
 import { HeroV2 } from './HeroV2';
-import { AvaliacoesV2, FechamentoV2, HistoriaV2, ManifestoV2, OndeEstamosV2, NumerosV2, ObrasV2, PerguntasV2, ProcessoV2, Projeto3DV2, ProjetoInclusoV2 } from './SecoesV2';
+import {
+  ArquitetosFidelidadeV2,
+  AvaliacoesV2,
+  CatalogoAmbientesSeoV2,
+  FechamentoV2,
+  HistoriaV2,
+  ManifestoV2,
+  OndeEstamosV2,
+  NumerosV2,
+  ObrasV2,
+  PerguntasV2,
+  ProcessoV2,
+  Projeto3DV2,
+  ProjetoInclusoV2,
+} from './SecoesV2';
 import { CabecalhoV2, PainelOrcamentoV2, RodapeV2 } from './CromoV2';
 import { ConversaFlutuanteV2 } from './ConversaFlutuanteV2';
 import { AmbienteV2, FotoPaginaV2, LegalV2, NaoEncontradaV2, ObrasPaginaV2, OrcamentoV2, ProjetarV2, Projetos3DPaginaV2 } from './PaginasInternasV2';
@@ -81,12 +95,14 @@ const PaginaV2: React.FC = () => {
           <HeroV2 />
           <ManifestoV2 />
           <ObrasV2 />
+          <CatalogoAmbientesSeoV2 />
           <ProjetoInclusoV2 />
           <NumerosV2 />
           <ProcessoV2 />
           <Projeto3DV2 />
           <AvaliacoesV2 />
           <HistoriaV2 />
+          <ArquitetosFidelidadeV2 />
           <PerguntasV2 />
           <OndeEstamosV2 />
           <FechamentoV2 />

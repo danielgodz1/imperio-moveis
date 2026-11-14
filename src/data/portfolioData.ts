@@ -7,7 +7,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Cozinha clara com ilha em verde-sálvia e LED linear',
     arquivo: '/obras/cozinha-gringa-4k',
     proporcao: '1696 / 2528',
-    alt: 'Cozinha planejada clara com ilha central em tom verde-sálvia, armários até o teto e perfil de LED linear em Jaú',
+    alt: 'Cozinha planejada sob medida em Jaú SP com ilha central em MDF verde-sálvia, armários até o teto e perfil de LED linear - Império Móveis Planejados',
     cota: 'Cozinha residencial, ilha em verde-sálvia e armários superiores brancos até o teto, Jaú/SP',
     anotacoes: [
       {
@@ -32,7 +32,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Cozinha clara com ilha em madeira ripada',
     arquivo: '/obras/cozinha-ilha-ripado',
     proporcao: '1882 / 2272',
-    alt: 'Cozinha planejada clara com ilha de ripado de madeira, tampo em granito preto e coifa em inox em Jaú',
+    alt: 'Cozinha planejada 100% MDF em Jaú SP com ilha de ripado amadeirado, bancada em granito preto e coifa em inox - Império Móveis Planejados',
     cota: 'Cozinha residencial, armários claros, ilha em madeira ripada e granito preto, Jaú/SP',
     anotacoes: [
       {
@@ -64,7 +64,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Cozinha com forro ripado e adega iluminada',
     arquivo: '/obras/cozinha-forro-ripado',
     proporcao: '1632 / 2564',
-    alt: 'Cozinha planejada com forro de madeira ripada, adega vertical iluminada por LED e bancada em granito preto',
+    alt: 'Cozinha planejada sob medida em Jaú SP com forro de madeira ripada MDF Freijó, adega vertical iluminada por LED e bancada em granito preto - Império Móveis Planejados',
     cota: 'Cozinha integrada, forro e painel ripados em madeira, granito preto e LED, Jaú/SP',
     anotacoes: [
       {
@@ -96,7 +96,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Cozinha cinza com pórtico e nicho iluminado',
     arquivo: '/obras/cozinha-cinza-pendentes',
     proporcao: '1792 / 2400',
-    alt: 'Cozinha planejada cinza com bancada em granito, dois pendentes de cobre e nicho madeirado com luz amarela',
+    alt: 'Cozinha planejada em MDF grafite em Jaú SP com bancada em granito, pendentes de cobre e nicho amadeirado com luz de LED - Império Móveis Planejados',
     cota: 'Cozinha planejada, MDF cinza, granito escuro e nicho iluminado em LED, Jaú/SP',
     anotacoes: [
       {
@@ -128,7 +128,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Área gourmet com churrasqueira embutida',
     arquivo: '/obras/cozinha-gourmet-churrasqueira',
     proporcao: '1125 / 1490',
-    alt: 'Cozinha gourmet planejada em L com churrasqueira a gás embutida, frentes brancas com moldura, puxadores pretos e bancada em pedra preta, ao lado da piscina',
+    alt: 'Móveis planejados para área gourmet em Jaú SP com churrasqueira embutida, armários em MDF naval resistente à umidade e bancada em pedra preta - Império Móveis Planejados',
     cota: 'Área gourmet, frentes brancas com moldura, puxadores pretos e bancada em pedra preta',
     anotacoes: [
       { x: 38, y: 50, ex: 16, ey: 34, texto: 'churrasqueira embutida' },
@@ -142,7 +142,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Área gourmet: gaveteiro sob a churrasqueira',
     arquivo: '/obras/cozinha-gourmet-gaveteiro',
     proporcao: '1125 / 1490',
-    alt: 'Área gourmet planejada com a gaveta sob a churrasqueira aberta, mostrando a divisória interna de talheres',
+    alt: 'Área gourmet planejada sob medida em Jaú SP com gaveteiro em MDF naval sob a churrasqueira e divisória interna de talheres - Império Móveis Planejados',
     cota: 'Área gourmet, gaveteiro sob a churrasqueira com divisória interna e bancada em pedra preta',
     anotacoes: [
       { x: 44, y: 66, ex: 64, ey: 84, texto: 'gaveta com divisória' },
@@ -155,7 +155,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Detalhe: divisória de talheres sob medida',
     arquivo: '/obras/cozinha-gourmet-gaveta-talheres',
     proporcao: '1125 / 1600',
-    alt: 'Detalhe de gaveta planejada aberta com divisória de talheres em bandeja deslizante e corrediças metálicas, sob a churrasqueira',
+    alt: 'Detalhe de gaveta planejada sob medida em Jaú SP com divisória de talheres deslizante e corrediças telescópicas reforçadas - Império Móveis Planejados',
     cota: 'Detalhe da área gourmet, bandeja de talheres deslizante e corrediças metálicas',
     anotacoes: [
       { x: 48, y: 54, ex: 30, ey: 32, texto: 'bandeja de talheres sob medida' },
@@ -169,7 +169,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Quarto infantil com cama em formato de casinha',
     arquivo: '/obras/quarto-infantil-casinha',
     proporcao: '2528 / 1690',
-    alt: 'Quarto infantil planejado com cama baixa em formato de casinha de madeira clara e bancada de estudo lateral',
+    alt: 'Quarto infantil planejado sob medida em Jaú SP com cama montessoriana em formato de casinha 100% MDF e bancada de estudo - Império Móveis Planejados',
     cota: 'Quarto infantil, cama montessoriana em madeira clara e bancada de apoio, Jaú/SP',
     anotacoes: [
       {
@@ -201,7 +201,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Quarto de bebê com nichos iluminados e guarda-roupa',
     arquivo: '/obras/quarto-bebe-nichos',
     proporcao: '2426 / 1728',
-    alt: 'Quarto de bebê com guarda-roupa planejado, três nichos laterais iluminados por LED, berço e cômoda branca',
+    alt: 'Quarto de bebê planejado em Jaú SP com guarda-roupa 100% MDF até o teto, nichos iluminados por LED e painel ripado - Império Móveis Planejados',
     cota: 'Quarto de bebê, guarda-roupa com nichos amadeirados iluminados e painel com LED, Jaú/SP',
     anotacoes: [
       {
@@ -226,7 +226,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Dormitório duplo com cabeceira iluminada em LED',
     arquivo: '/obras/dormitorio-led-1',
     proporcao: '1632 / 2624',
-    alt: 'Dormitório planejado com duas camas, cabeceira contínua amadeirada com fita de LED e bancada de estudo',
+    alt: 'Dormitório planejado sob medida em Jaú SP com cabeceira contínua amadeirada em MDF, perfil de LED quente e bancada de estudo - Império Móveis Planejados',
     cota: 'Dormitório residencial, cabeceira contínua com LED quente e mesas de cabeceira, Jaú/SP',
     anotacoes: [
       {
@@ -251,7 +251,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Bancada em L e armário aéreo no dormitório',
     arquivo: '/obras/dormitorio-led-2',
     proporcao: '1600 / 2634',
-    alt: 'Dormitório planejado mostrando armário aéreo basculante em madeira clara, prateleira superior e bancada em L',
+    alt: 'Dormitório e closet planejado em Jaú SP com armário aéreo basculante em MDF amadeirado, prateleira com LED e bancada em L - Império Móveis Planejados',
     cota: 'Dormitório residencial, armário aéreo amadeirado e bancada de estudo em L, Jaú/SP',
     anotacoes: [
       {
@@ -276,7 +276,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Marcenaria comercial — interior GoCoffee',
     arquivo: '/obras/comercial-gocoffee-interior',
     proporcao: '1536 / 2752',
-    alt: 'Interior da cafeteria GoCoffee com balcão comercial planejado, vitrine expositora, parede de tijolinho e iluminação em trilho',
+    alt: 'Móveis planejados corporativos e comerciais em Jaú SP para cafeteria GoCoffee com balcão curvo em MDF ripado e vitrine iluminada - Império Móveis Planejados',
     cota: 'Marcenaria comercial para cafeteria GoCoffee, balcão de atendimento e vitrine',
     anotacoes: [
       {
@@ -301,7 +301,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Estante expositora e gabinete para cafeteria',
     arquivo: '/obras/comercial-expositor',
     proporcao: '1664 / 2518',
-    alt: 'Estante expositora preta com prateleiras de produtos de café, plantas e gabinete inferior branco com coleta seletiva',
+    alt: 'Marcenaria corporativa e expositor sob medida em MDF preto fosco e serralheria em Jaú SP para cafeteria GoCoffee - Império Móveis Planejados',
     cota: 'Expositor comercial estruturado em preto fosco e gabinete inferior, GoCoffee',
     anotacoes: [
       {
@@ -326,7 +326,7 @@ export const OBRAS_REAIS: ObraItem[] = [
     titulo: 'Entrega comercial — fachada GoCoffee',
     arquivo: '/obras/comercial-gocoffee-fachada',
     proporcao: '1632 / 2594',
-    alt: 'Fachada da cafeteria GoCoffee no dia de inauguração com balcão interno executado pela Império Móveis Planejados',
+    alt: 'Marcenaria comercial sob medida em Jaú SP na fachada e interior da cafeteria GoCoffee - Império Móveis Planejados',
     cota: 'Projeto comercial entregue pela Império Móveis Planejados — GoCoffee',
     anotacoes: [
       {

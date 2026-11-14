@@ -1,3 +1,31 @@
+// Blindagem de animações: intercepta prefers-reduced-motion: reduce para que o palco do notebook 3D,
+// GSAP, Lenis e Motion funcionem em 100% dos PCs Windows (mesmo em modo economia de energia).
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+  const originalMatchMedia = window.matchMedia.bind(window);
+  window.matchMedia = (query: string): MediaQueryList => {
+    const mql = originalMatchMedia(query);
+    if (/prefers-reduced-motion\s*:\s*reduce/i.test(query)) {
+      return new Proxy(mql, {
+        get(target, prop) {
+          if (prop === 'matches') return false;
+          const val = Reflect.get(target, prop);
+          return typeof val === 'function' ? val.bind(target) : val;
+        },
+      });
+    }
+    if (/prefers-reduced-motion\s*:\s*no-preference/i.test(query)) {
+      return new Proxy(mql, {
+        get(target, prop) {
+          if (prop === 'matches') return true;
+          const val = Reflect.get(target, prop);
+          return typeof val === 'function' ? val.bind(target) : val;
+        },
+      });
+    }
+    return mql;
+  };
+}
+
 // O CSS principal vem primeiro: ele declara a ordem das camadas do Tailwind (base, components,
 // utilities). Se o CSS da V2 (importado pelo App) viesse antes, a camada "components" ficaria
 // abaixo da "base" e os títulos perderiam o tamanho.

@@ -9,10 +9,10 @@ interface FooterProps {
 }
 
 const AMBIENTES = [
-  { rotulo: 'Cozinhas planejadas', rota: '/cozinhas-planejadas-jau' },
-  { rotulo: 'Quartos e suítes', rota: '/quartos-planejados-jau' },
-  { rotulo: 'Closets sob medida', rota: '/closets-sob-medida-jau' },
-  { rotulo: 'Home office', rota: '/home-office-planejado-jau' },
+  { rotulo: 'Cozinhas planejadas em Jaú', rota: '/cozinhas-planejadas-jau' },
+  { rotulo: 'Quartos e suítes planejados', rota: '/quartos-planejados-jau' },
+  { rotulo: 'Closets sob medida em Jaú', rota: '/closets-sob-medida-jau' },
+  { rotulo: 'Home office e corporativo', rota: '/home-office-planejado-jau' },
 ];
 
 const SITE = [
@@ -50,36 +50,37 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
 
   return (
     <footer id="rodape" data-tema="noite" className="w-full bg-preto text-papel">
-      {/* Fecha a história do site e leva a um único próximo passo */}
       <div className="border-t border-papel/15">
         <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-64 md:py-96 flex flex-col lg:flex-row lg:items-end justify-between gap-32">
           <p className="tipo-display text-papel max-w-[11ch]">Do risco à obra.</p>
           <div className="flex flex-col items-start gap-16">
             <p className="tipo-corpo text-papel/80 max-w-[34ch]">
-              Marcenaria e arquitetura de interiores em Jaú e região, desde {EMPRESA.anoInicio}.
+              Marcenaria 100% MDF e arquitetura de interiores em Jaú e região, desde {EMPRESA.anoInicio}.
             </p>
             <button
               type="button"
               onClick={onOpenBriefing}
               className="h-[52px] px-32 rounded-curto bg-dourado text-preto font-semibold hover:bg-papel transition-colors duration-200 cursor-pointer"
             >
-              Pedir orçamento
+              Solicitar Projeto 3D e Orçamento em Jaú
             </button>
           </div>
         </div>
       </div>
 
       <div className="border-t border-papel/15">
-        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-48 grid grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1.3fr] gap-x-16 sm:gap-x-32 gap-y-48">
+        <div className="max-w-[1280px] mx-auto px-16 sm:px-32 py-48 grid grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1.4fr] gap-x-16 sm:gap-x-32 gap-y-48">
           <div className="col-span-2 lg:col-span-1 flex flex-col items-start gap-16">
             <button type="button" onClick={() => irParaSecao('#hero')} className="flex items-center gap-16 text-left cursor-pointer group" aria-label="Império Móveis Planejados, voltar ao início">
-              <img src="/logo-quadrado.jpg" alt="" className="h-48 w-48 object-cover border border-papel/25" />
+              <img src="/logo-quadrado.jpg" alt="Logo da Império Móveis Planejados em Jaú SP" width={48} height={48} loading="lazy" decoding="async" className="h-48 w-48 object-cover border border-papel/25" />
               <span className="flex flex-col gap-4">
                 <span className="tipo-logo text-[1.75rem] text-papel group-hover:text-dourado transition-colors">{EMPRESA.nomeCurto}</span>
                 <span className="tipo-cota text-papel/70">{EMPRESA.subtitulo}</span>
               </span>
             </button>
-            <p className="tipo-cota text-papel/70 max-w-[32ch]">Arquitetura de interiores e marcenaria própria, do projeto à montagem.</p>
+            <p className="tipo-cota text-papel/70 max-w-[32ch]">
+              Fábrica de marcenaria sob medida 100% MDF e arquitetura de interiores em Jaú/SP. Razão Social: {EMPRESA.razaoSocial} · CNPJ: {EMPRESA.cnpj}.
+            </p>
           </div>
 
           <nav aria-label="Ambientes" className="flex flex-col gap-16">
@@ -137,43 +138,36 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
 
           <div className="col-span-2 lg:col-span-1 flex flex-col gap-16">
             <h3 className={TITULO}>Fale com a gente</h3>
-            <address className="not-italic flex flex-col gap-16 tipo-cota text-papel/85">
+            <address className="not-italic flex flex-col gap-12 tipo-cota text-papel/85">
+              <strong>Império Móveis Planejados — Jaú / SP</strong>
+              <span>Razão Social: {EMPRESA.razaoSocial} | CNPJ: {EMPRESA.cnpj}</span>
               <a
-                href={getWhatsAppUrl()}
+                href={getWhatsAppUrl('Olá! Vim pelo rodapé do site da Império Móveis Planejados em Jaú e gostaria de solicitar um Projeto 3D e orçamento.', 'rodape_whatsapp')}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackWhatsAppClick('rodape_whatsapp')}
                 className="tipo-h3 text-papel hover:text-dourado transition-colors"
               >
-                {EMPRESA.telefone}
+                WhatsApp {EMPRESA.telefone}
+              </a>
+              <a href={`tel:${EMPRESA.whatsappE164}`} className="text-papel/85 hover:text-dourado transition-colors link-traco self-start">
+                Ligar: {EMPRESA.telefone}
               </a>
               <a href={EMPRESA.instagramUrl} target="_blank" rel="noopener noreferrer" className="py-4 text-papel/85 hover:text-dourado transition-colors link-traco decoration-papel/25 self-start">
                 {EMPRESA.instagram}
               </a>
               <span className="flex flex-col gap-4">
-                <span>{EMPRESA.endereco.logradouro}</span>
+                <span>Endereço: {EMPRESA.endereco.logradouro} - {EMPRESA.endereco.bairro}</span>
                 <span>
-                  {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
-                  {!EMPRESA.confirmado.endereco && ' [CONFIRMAR]'}
+                  {EMPRESA.endereco.cidade} - {EMPRESA.endereco.uf}, CEP: {EMPRESA.endereco.cep}
                 </span>
                 <a href={EMPRESA.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-papel hover:text-dourado transition-colors link-traco self-start">
                   Ver no mapa
                 </a>
               </span>
               <span className="flex flex-col gap-4 text-papel/70">
-                <span>{EMPRESA.horarios.semana}</span>
-                {(EMPRESA.horarios.sabado || !EMPRESA.confirmado.horarios) && (
-                  <span>
-                    {EMPRESA.horarios.sabado}
-                    {!EMPRESA.confirmado.horarios && ' [CONFIRMAR]'}
-                  </span>
-                )}
-                <span>{EMPRESA.sobre.atendimento[0]}</span>
-              </span>
-              <span className="flex flex-col gap-4 text-papel/70">
-                <span>{EMPRESA.sobre.servicos.join(', ')}</span>
-                <span>Cartão de crédito, débito e aproximação</span>
-                <span>Acessível para cadeira de rodas</span>
+                <span>Atendimento: {EMPRESA.horarios.semana}</span>
+                <span>{EMPRESA.horarios.sabado}</span>
               </span>
             </address>
           </div>
@@ -183,7 +177,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
       <div className="border-t border-papel/15">
         <div className="max-w-[1280px] mx-auto px-16 sm:px-32 pt-24 pb-96 sm:py-24 flex flex-col sm:flex-row sm:items-center justify-between gap-8 tipo-cota text-papel/60">
           <p>
-            © {anoAtual} {EMPRESA.nome}
+            © {anoAtual} {EMPRESA.nome} · {EMPRESA.razaoSocial} · CNPJ {EMPRESA.cnpj}
           </p>
           <a
             href="/privacidade"

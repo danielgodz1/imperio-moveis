@@ -26,20 +26,21 @@ const ROTAS_PRERENDER: RotaPublica[] = [
 
 const xml = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** Data do último commit (data real de alteração); sem git, o lastmod fica de fora. */
-function dataUltimoCommit(): string | null {
+/** Data do último commit (data real de alteração); sem git, usa data atual ISO YYYY-MM-DD. */
+function dataUltimoCommit(): string {
   try {
-    return execSync('git log -1 --format=%cs', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || null;
+    return execSync('git log -1 --format=%cs', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || new Date().toISOString().slice(0, 10);
   } catch {
-    return null;
+    return new Date().toISOString().slice(0, 10);
   }
 }
 
 /**
- * Sitemap gerado das mesmas rotas pré-renderizadas, com as fotos de obra de cada página
- * (extensão de imagens do Google). Sem changefreq/priority: o Google ignora esses campos.
+ * Sitemap gerado das rotas pré-renderizadas, com extensões xmlns:image e xmlns:video do Google,
+ * <lastmod>, <changefreq> e <priority>.
  */
 export function gerarSitemap(lastmod: string | null): string {
+  const data = lastmod || new Date().toISOString().slice(0, 10);
   const fotosDe = (rota: RotaPublica): string[] => {
     if (rota === '/') {
       const todas = Object.values(PAGINAS_AMBIENTES_LOCAIS).flatMap((p) => p.fotos.map((f) => `${f.srcBase}.jpg`));
@@ -52,31 +53,51 @@ export function gerarSitemap(lastmod: string | null): string {
   };
   const urls = ROTAS_PRERENDER.map((rota) => {
     const loc = rota === '/' ? `${EMPRESA.url}/` : `${EMPRESA.url}${rota}`;
+    const priority = rota === '/' ? '1.0' : rota in PAGINAS_AMBIENTES_LOCAIS ? '0.9' : '0.8';
     const imagens = fotosDe(rota)
       .map((src) => `
     <image:image><image:loc>${xml(EMPRESA.url + src)}</image:loc></image:image>`)
       .join('');
+    const videoHome =
+      rota === '/'
+        ? `
+    <video:video>
+      <video:thumbnail_loc>${xml(`${EMPRESA.url}/videos/notebook-poster.jpg`)}</video:thumbnail_loc>
+      <video:title>Apresentação de Projeto 3D de Móveis Planejados em Jaú - Império Móveis</video:title>
+      <video:description>Apresentação em notebook do projeto 3D realista de cozinha planejada sob medida 100% MDF em Jaú SP, do desenho técnico à obra executada pela Império Móveis Planejados.</video:description>
+      <video:content_loc>${xml(`${EMPRESA.url}/videos/notebook-1080.mp4`)}</video:content_loc>
+      <video:duration>10</video:duration>
+      <video:publication_date>2026-01-15T08:00:00-03:00</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>`
+        : '';
     return `  <url>
-    <loc>${xml(loc)}</loc>${lastmod ? `
-    <lastmod>${lastmod}</lastmod>` : ''}${imagens}
+    <loc>${xml(loc)}</loc>
+    <lastmod>${data}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${priority}</priority>${imagens}${videoHome}
   </url>`;
   });
   // Projetos 3D (renders de projeto), com todas as imagens.
   urls.push(`  <url>
-    <loc>${xml(EMPRESA.url + CAMINHO_PROJETOS_3D)}</loc>${lastmod ? `
-    <lastmod>${lastmod}</lastmod>` : ''}${PROJETOS_3D.map((p) => `
+    <loc>${xml(EMPRESA.url + CAMINHO_PROJETOS_3D)}</loc>
+    <lastmod>${data}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>${PROJETOS_3D.map((p) => `
     <image:image><image:loc>${xml(`${EMPRESA.url}${p.arquivo}.jpg`)}</image:loc></image:image>`).join('')}
   </url>`);
   // Uma página por foto de obra (/obras/:id), com a própria foto.
   for (const obra of OBRAS_REAIS) {
     urls.push(`  <url>
-    <loc>${xml(EMPRESA.url + caminhoFoto(obra))}</loc>${lastmod ? `
-    <lastmod>${lastmod}</lastmod>` : ''}
+    <loc>${xml(EMPRESA.url + caminhoFoto(obra))}</loc>
+    <lastmod>${data}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
     <image:image><image:loc>${xml(`${EMPRESA.url}${obra.arquivo}.jpg`)}</image:loc></image:image>
   </url>`);
   }
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 ${urls.join(String.fromCharCode(10))}
 </urlset>
 `;
@@ -86,7 +107,8 @@ function prerenderRotasLocaisPlugin(): Plugin {
   return {
     name: 'imperio-prerender-rotas-locais',
     closeBundle() {
-      const distDir = path.resolve(import.meta.dirname || process.cwd(), 'dist');
+      const rootDir = import.meta.dirname || process.cwd();
+      const distDir = path.resolve(rootDir, 'dist');
       const baseIndexPath = path.join(distDir, 'index.html');
       if (!fs.existsSync(baseIndexPath)) return;
 
@@ -137,7 +159,9 @@ function prerenderRotasLocaisPlugin(): Plugin {
         gravar(rota === '/' ? '/v1' : `/v1${rota}`, html);
       }
 
-      fs.writeFileSync(path.join(distDir, 'sitemap.xml'), gerarSitemap(dataUltimoCommit()), 'utf-8');
+      const sitemapXml = gerarSitemap(dataUltimoCommit());
+      fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml, 'utf-8');
+      fs.writeFileSync(path.join(rootDir, 'public', 'sitemap.xml'), sitemapXml, 'utf-8');
     },
   };
 }
@@ -151,10 +175,7 @@ export default defineConfig(() => {
       },
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };

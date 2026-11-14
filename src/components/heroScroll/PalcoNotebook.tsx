@@ -24,6 +24,8 @@ interface PalcoNotebookProps {
 }
 
 const POSTER = '/videos/notebook-poster.jpg';
+const ALT_POSTER =
+  'Apresentação de Projeto 3D de Cozinha Planejada Sob Medida em Jaú SP - Império Móveis Planejados';
 
 function escolherVideo(): string {
   const px = window.innerWidth * Math.min(2, window.devicePixelRatio || 1);
@@ -54,12 +56,13 @@ export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0
     let img: HTMLImageElement;
     if (inicial instanceof HTMLImageElement && inicial.classList.contains(classePoster)) {
       img = inicial;
+      if (!img.alt) img.alt = ALT_POSTER;
       global.__posterInicial = null;
     } else {
       img = document.createElement('img');
       img.className = classePoster;
       img.src = POSTER;
-      img.alt = '';
+      img.alt = ALT_POSTER;
       img.width = 1280;
       img.height = 720;
       img.decoding = 'async';
@@ -162,10 +165,12 @@ export const PalcoNotebook: React.FC<PalcoNotebookProps> = ({ ativo, deslocX = 0
       <video
         ref={videoRef}
         src={src ?? undefined}
+        poster={POSTER}
         onLoadedData={() => setTemQuadro(true)}
         muted
         playsInline
-        preload={src ? 'auto' : 'none'}
+        loop
+        preload="metadata"
         disablePictureInPicture
         disableRemotePlayback
         className="absolute left-0 top-0 max-w-none origin-top-left will-change-transform object-cover"

@@ -9,7 +9,7 @@
  */
 import { EMPRESA } from '../data/empresa';
 import { OBRAS_REAIS } from '../data/portfolioData';
-import { PAGINAS_AMBIENTES_LOCAIS } from '../data/paginasLocais';
+import { PAGINAS_AMBIENTES_LOCAIS, TEXTO_HERO } from '../data/paginasLocais';
 import { DOCUMENTOS_LEGAIS, dataPorExtenso } from '../data/legal';
 import { perguntasConfirmadas } from '../data/perguntas';
 import type { ObraItem } from '../types';
@@ -68,48 +68,81 @@ function cabecalho(transparente: boolean): string {
   const fundo = transparente ? '!bg-transparent' : '!bg-[var(--v2-noite)]/95 backdrop-blur-[2px] border-b v2-linha-fina';
   return `<header class="v2-escuro fixed top-0 inset-x-0 z-50 ${fundo}"><div class="${MARGEM} h-[68px] flex items-center justify-between gap-16"><a href="/" class="flex items-center gap-[12px] shrink-0" aria-label="${esc(
     EMPRESA.nome
-  )}, página inicial"><span class="v2-logo inline-block h-[40px]" aria-hidden="true"></span><span class="flex flex-col leading-none"><span class="v2-serif text-[1.45rem]">Império</span><span class="v2-cota text-[0.6875rem] tracking-[0.08em] uppercase">Móveis planejados</span></span></a><nav aria-label="Principal" class="hidden xl:flex items-center gap-16 2xl:gap-24 whitespace-nowrap"><a class="v2-cota" href="/obras">Obras</a><a class="v2-cota" href="/projetos-3d">Projetos 3D</a><a class="v2-cota" href="/#v2-projeto-incluso">Projeto incluso</a><a class="v2-cota" href="/#v2-processo">Como trabalhamos</a><a class="v2-cota" href="/#v2-avaliacoes">Avaliações</a><a class="v2-cota" href="/#v2-historia">Nossa história</a><a class="v2-cota" href="/#v2-onde-estamos">Onde estamos</a></nav><div class="flex items-center gap-8"><a href="/projetar" class="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem] hidden md:inline-flex">Projetar em 3D</a><a href="/contato" class="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">Orçamento</a><span class="xl:hidden w-[40px] h-[40px]" aria-hidden="true"></span></div></div></header>`;
+  )}, página inicial"><span class="v2-logo inline-block h-[40px]" aria-hidden="true"></span><span class="flex flex-col leading-none"><span class="v2-serif text-[1.45rem]">Império</span><span class="v2-cota text-[0.6875rem] tracking-[0.08em] uppercase">Móveis planejados</span></span></a><nav aria-label="Principal" class="hidden xl:flex items-center gap-16 2xl:gap-24 whitespace-nowrap"><a class="v2-cota" href="/obras">Obras</a><a class="v2-cota" href="/#ambientes">Ambientes</a><a class="v2-cota" href="/projetos-3d">Projetos 3D</a><a class="v2-cota" href="/#v2-projeto-incluso">Projeto incluso</a><a class="v2-cota" href="/#v2-processo">Como trabalhamos</a><a class="v2-cota" href="/#v2-avaliacoes">Avaliações</a><a class="v2-cota" href="/#faq">FAQ</a><a class="v2-cota" href="/#v2-onde-estamos">Onde estamos</a></nav><div class="flex items-center gap-8"><a href="/projetar" class="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem] hidden md:inline-flex">Projetar em 3D</a><a href="/contato" class="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">Orçamento</a><span class="xl:hidden w-[40px] h-[40px]" aria-hidden="true"></span></div></div></header>`;
 }
 
-/** Rodapé com os links e o contato (para o Google e para quem está sem JavaScript). */
+/** Rodapé com E-E-A-T, NAP, Razão Social, CNPJ, links de ambientes e cidades atendidas (para o Google e para quem está sem JavaScript). */
 function rodape(): string {
-  return `<footer class="v2-escuro ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-24 v2-cota"><nav aria-label="Ambientes" class="flex flex-wrap gap-x-24 gap-y-8"><a href="/cozinhas-planejadas-jau">Cozinhas planejadas</a><a href="/quartos-planejados-jau">Quartos planejados</a><a href="/closets-sob-medida-jau">Closets sob medida</a><a href="/home-office-planejado-jau">Home office e comércio</a><a href="/obras">Todas as obras</a><a href="/projetos-3d">Projetos 3D</a><a href="/projetar">Projetar em 3D</a><a href="/contato">Pedir orçamento</a><a href="/privacidade">Privacidade (LGPD)</a><a href="/termos">Termos de uso</a></nav><p>${esc(
-    EMPRESA.nome
-  )} · ${esc(EMPRESA.endereco.logradouro)}, ${esc(EMPRESA.endereco.bairro)}, ${esc(EMPRESA.endereco.cidade)}/${esc(EMPRESA.endereco.uf)} · WhatsApp ${esc(EMPRESA.telefone)} · ${esc(
-    EMPRESA.horarios.semana
-  )}</p></footer>`;
+  const cidades = EMPRESA.cidadesAtendidas.map((c) => c.replace(/,\s*SP$/, '')).join(', ');
+  const bairros = EMPRESA.bairrosCondominiosJau.join(', ');
+  return `<footer class="v2-escuro ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-24 v2-cota"><nav aria-label="Ambientes" class="flex flex-wrap gap-x-24 gap-y-8"><a href="/cozinhas-planejadas-jau">Cozinhas planejadas em Jaú</a><a href="/quartos-planejados-jau">Quartos planejados em Jaú</a><a href="/closets-sob-medida-jau">Closets sob medida em Jaú</a><a href="/home-office-planejado-jau">Home office e corporativo</a><a href="/#cozinhas">Cozinhas 100% MDF</a><a href="/#closets">Closets e dormitórios</a><a href="/#gourmet">Área gourmet</a><a href="/#corporativo">Corporativo e clínicas</a><a href="/#projetos">Projeto 3D</a><a href="/#faq">Perguntas frequentes</a><a href="/obras">Todas as obras</a><a href="/projetos-3d">Projetos 3D prontos</a><a href="/projetar">Projetar em 3D</a><a href="/contato">Solicitar Projeto 3D e Orçamento</a><a href="/privacidade">Privacidade (LGPD)</a><a href="/termos">Termos de uso</a></nav><address class="not-italic flex flex-col gap-8"><strong>Império Móveis Planejados — Jaú / SP</strong><span>Razão Social: ${esc(
+    EMPRESA.razaoSocial
+  )} | CNPJ: ${esc(EMPRESA.cnpj)}</span><span>Endereço: ${esc(EMPRESA.endereco.logradouro)} - ${esc(
+    EMPRESA.endereco.bairro
+  )}, ${esc(EMPRESA.endereco.cidade)} - ${esc(EMPRESA.endereco.uf)}, CEP: ${esc(
+    EMPRESA.endereco.cep
+  )}</span><span>Atendimento: ${esc(EMPRESA.horarios.semana)} | ${esc(
+    EMPRESA.horarios.sabado
+  )}</span><span>Telefone: <a href="tel:${esc(EMPRESA.whatsappE164)}">${esc(
+    EMPRESA.telefone
+  )}</a> · <a href="https://wa.me/${esc(
+    EMPRESA.whatsapp
+  )}?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Imp%C3%A9rio%20M%C3%B3veis%20Planejados%20em%20Ja%C3%BA%20e%20gostaria%20de%20solicitar%20um%20Projeto%203D%20e%20or%C3%A7amento.&amp;utm_source=site&amp;utm_medium=cta_whatsapp&amp;utm_campaign=rodape_jau">Solicitar Projeto 3D e Orçamento no WhatsApp</a></span></address><p><strong>Cidades atendidas com medição a laser e montagem própria:</strong> ${esc(
+    cidades
+  )} (Interior de São Paulo).</p><p><strong>Bairros e condomínios atendidos em Jaú/SP:</strong> ${esc(bairros)}.</p></footer>`;
 }
 
 const pagina = (conteudo: string, transparente = false) => `<div class="v2 min-h-screen">${cabecalho(transparente)}<main>${conteudo}</main>${rodape()}</div>`;
 
-/** Home: réplica da abertura (HeroV2 no começo da rolagem) e o texto das seções seguintes. */
+/** Home: réplica da abertura (HeroV2 no começo da rolagem) e o conteúdo semântico completo H1 -> H2 -> H3 das seções seguintes. */
 export function htmlInicio(): string {
   const obras = OBRAS_REAIS.slice(0, 3)
     .map((o) => `<li><a href="${caminhoFoto(o)}">${esc(o.titulo)}</a>: ${esc(o.cota)}</li>`)
     .join('');
   const passos = PROJETO_INCLUSO_V2.itens.map((p) => `<li><strong>${esc(p.titulo)}.</strong> ${esc(p.texto)}</li>`).join('');
   const perguntas = perguntasConfirmadas()
-    .map((p) => `<details class="py-24 border-t v2-linha-fina"><summary class="v2-serif text-[1.5rem]">${esc(p.pergunta)}</summary><p class="v2-corpo mt-16">${esc(p.resposta)}</p></details>`)
+    .map(
+      (p) =>
+        `<details class="py-24 border-t v2-linha-fina"><summary class="v2-serif text-[1.5rem]"><h3>${esc(
+          p.pergunta
+        )}</h3></summary><p class="v2-corpo mt-16">${esc(p.resposta)}</p></details>`
+    )
     .join('');
+  const cidades = EMPRESA.cidadesAtendidas.map((c) => c.replace(/,\s*SP$/, '')).join(', ');
+  const bairros = EMPRESA.bairrosCondominiosJau.join(', ');
   return pagina(
     `<section id="hero" class="v2-escuro relative w-full" style="min-height:320vh">
       <div class="sticky top-0 h-screen h-[100svh] w-full overflow-hidden">
         <div class="absolute inset-0" aria-hidden="true">
           <div class="palco-estatico absolute inset-0 overflow-x-clip bg-[#050505]">
-            <img class="poster-notebook-v2" src="/videos/notebook-poster.jpg" alt="" width="1280" height="720" fetchpriority="high" decoding="async" />
+            <img class="poster-notebook-v2" src="/videos/notebook-poster.jpg" alt="Apresentação de Projeto 3D de Cozinha Planejada Sob Medida em Jaú SP - Império Móveis Planejados" width="1280" height="720" fetchpriority="high" decoding="async" />
           </div>
         </div>
         <div class="absolute inset-x-0 top-0 pt-[12svh] lg:pt-[11vh] px-16 sm:px-32 lg:px-64 lg:text-center lg:flex lg:flex-col lg:items-center">
-          <h1 class="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]"><span class="v2-olho block mb-16 lg:mb-24">Móveis planejados em Jaú/SP</span>${italico(HERO_V2.titulo)}</h1>
+          <h1 class="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]"><span class="v2-olho block mb-16 lg:mb-24">${esc(TEXTO_HERO.chamada)}</span>${italico(HERO_V2.titulo)}</h1>
           <p class="v2-corpo mt-16 lg:mt-24 max-w-[44ch]">${esc(HERO_V2.apoio)}</p>
           <p class="v2-cota mt-16 lg:mt-24">Role a página. A cozinha vai se montar na tela.</p>
         </div>
       </div>
     </section>
     <section class="v2-claro ${MARGEM} py-96"><p class="v2-serif text-[clamp(2rem,4.6vw,4.25rem)] leading-[1.08] max-w-[22ch]">${esc(MANIFESTO_V2)}</p></section>
-    <section class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Obras que <em class="v2-italico">já moram</em> em Jaú.</h2><ul class="v2-corpo">${obras}</ul><nav aria-label="Ambientes"><a href="/obras#cozinhas">Cozinhas</a> · <a href="/obras#quartos">Quartos</a> · <a href="/obras#lojas">Lojas e comércio</a></nav><a href="/obras">Ver todas as ${OBRAS_REAIS.length} obras</a> · <a href="/projetos-3d">Ver projetos 3D</a></section>
-    <section class="v2-areia ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">O projeto de arquitetura <em class="v2-italico">já vem junto.</em></h2><ol class="v2-corpo">${passos}</ol></section>
-    <section class="v2-areia ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Perguntas <em class="v2-italico">frequentes.</em></h2>${perguntas}</section>`,
+    <section id="v2-obras" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Obras que <em class="v2-italico">já moram</em> em Jaú.</h2><ul class="v2-corpo">${obras}</ul><nav aria-label="Ambientes"><a href="/obras#cozinhas">Cozinhas</a> · <a href="/obras#quartos">Quartos</a> · <a href="/obras#lojas">Lojas e comércio</a></nav><a href="/obras">Ver todas as ${OBRAS_REAIS.length} obras</a> · <a href="/projetos-3d">Ver projetos 3D</a></section>
+    <section id="ambientes" class="v2-areia ${MARGEM} py-64">
+      <h2 class="v2-serif v2-titulo">Ambientes Planejados 100% MDF <em class="v2-italico">Sob Medida em Jaú.</em></h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-24 mt-32">
+        <article id="cozinhas"><h3 class="v2-serif text-[1.5rem]">Cozinhas Planejadas Sob Medida em Jaú</h3><p class="v2-corpo">Cozinhas planejadas 100% MDF em Jaú com ilha central em ripado ou pedra, torre quente para forno e micro-ondas, MDF naval (hidrófugo) resistente à umidade nas áreas molhadas, porta-temperos, perfis puxadores em alumínio, iluminação linear em LED quente e ferragens com amortecimento slow motion (corrediças telescópicas e ocultas).</p></article>
+        <article id="closets"><h3 class="v2-serif text-[1.5rem]">Dormitórios, Guarda-Roupas e Closets Planejados</h3><p class="v2-corpo">Guarda-roupas até o teto e closets sob medida em L, em U ou corredor com portas de correr com amortecimento, sapateiras telescópicas, cabideiros iluminados em LED, divisórias de veludo para joias e quartos de casal, solteiro e infantis em Jaú.</p></article>
+        <article id="salas"><h3 class="v2-serif text-[1.5rem]">Salas de Estar, Painéis Ripados de TV e Home Theater</h3><p class="v2-corpo">Painéis ripados em MDF Freijó ou Nogueira até o teto com passagem oculta de cabos, racks suspensos com gavetões chanfrados e cristaleiras com vidro reflecta e iluminação indireta em LED.</p></article>
+        <article id="gourmet"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia</h3><p class="v2-corpo">Armários sob medida com proteção contra umidade e calor próximos à churrasqueira, gabinetes em MDF naval, adegas climatizadas e lavanderias planejadas funcionais em Jaú e região.</p></article>
+        <article id="banheiros"><h3 class="v2-serif text-[1.5rem]">Banheiros e Lavabos Planejados</h3><p class="v2-corpo">Gabinetes sob medida 100% MDF naval com fitamento em PVC colado a quente resistente ao vapor, nichos organizadores e espelheiras com iluminação frontal ou indireta em LED.</p></article>
+        <article id="corporativo"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú</h3><p class="v2-corpo">Recepções, estações de trabalho ergonômicas, salas de reunião, consultórios médicos e odontológicos, escritórios de advocacia e marcenaria comercial completa em Jaú.</p></article>
+      </div>
+    </section>
+    <section id="v2-projeto-incluso" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">O projeto de arquitetura <em class="v2-italico">já vem junto.</em></h2><ol class="v2-corpo">${passos}</ol></section>
+    <section id="projetos" class="v2-escuro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Do Projeto 3D Realista no Notebook <em class="v2-italico">à Execução Milimétrica na Sua Casa em Jaú</em></h2><p class="v2-corpo">Antes de qualquer chapa de MDF ser cortada na nossa marcenaria no Jardim Itamarati, você visualiza no projeto 3D realista a iluminação em perfil de LED, a paginação dos veios do MDF, as divisórias internas e a abertura de portas. E também pode simular gratuitamente no configurador 3D online.</p></section>
+    <section id="arquitetos" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Execução Fiel para Arquitetos e <em class="v2-italico">Designers de Interiores em Jaú</em></h2><p class="v2-corpo">Executamos projetos de arquitetos e engenheiros com fidelidade técnica absoluta ao caderno executivo, chapas 100% MDF de 15mm, 18mm e 25mm, cumprimento rigoroso de prazo em contrato (CNPJ ${esc(EMPRESA.cnpj)}) e condições diretas de fábrica (PIX, boleto, cartão de crédito e parcelamento direto).</p></section>
+    <section id="faq" class="v2-areia ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Perguntas Frequentes sobre Móveis Planejados <em class="v2-italico">e Marcenaria em Jaú</em></h2>${perguntas}</section>
+    <section id="v2-onde-estamos" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Atendimento Presencial e Montagem Própria <em class="v2-italico">em Jaú e Toda a Região</em></h2><p class="v2-corpo">Atendemos todos os bairros e condomínios de Jaú/SP: ${esc(bairros)}.</p><p class="v2-corpo">Medição a laser e montagem própria em 12 cidades da região: ${esc(cidades)}.</p></section>`,
     true
   );
 }
@@ -200,7 +233,7 @@ export function htmlProjetar(): string {
     'Móveis planejados em 3D, grátis'
   )}${italico('Projete o seu *em 3D.*')}</h1><p class="v2-corpo max-w-[44ch]">De graça e sem instalar nada. Visualização aproximada: o projeto final é detalhado pela arquiteta depois da medição no local.</p></div><ol class="grid grid-cols-1 md:grid-cols-3 gap-x-32">${passos}</ol><div class="relative w-full h-[70svh] min-h-[420px] border v2-linha-fina overflow-hidden">${foto(
     '/projetar/cozinha-render',
-    'Exemplo de projeto 3D de cozinha planejada feito no editor',
+    'Exemplo de projeto 3D de cozinha planejada sob medida em Jaú SP feito no editor online da Império Móveis Planejados',
     '16 / 9',
     { prioridade: true, sizes: '100vw', classe: 'w-full h-full' }
   )}<div class="absolute inset-0 bg-[var(--v2-noite)]/40 flex items-center justify-center p-24"><span class="v2-botao v2-botao-claro">Abrir o editor 3D</span></div></div></section>`);
@@ -221,7 +254,7 @@ export function htmlProjetos3D(): string {
           (p) =>
             `<article class="flex flex-col gap-16"><a href="${esc(linkProjeto3D(p))}" class="group block overflow-hidden" aria-label="Abrir no editor 3D: ${esc(p.nome)}">${foto(
               p.arquivo,
-              `Projeto 3D: ${p.nome}. ${p.descricao}`,
+              `Projeto 3D em Jaú SP: ${p.nome}. ${p.descricao}`,
               p.proporcao,
               { classe: 'w-full' }
             )}</a><div class="flex flex-col gap-4"><h3 class="v2-serif text-[1.5rem] leading-tight">${esc(p.nome)}</h3><p class="v2-cota">${esc(
@@ -247,9 +280,9 @@ export function htmlContato(): string {
     'Vamos começar *pelo seu sonho.*'
   )}</h1><p class="v2-corpo max-w-[40ch]">Conte o ambiente, quando quer começar e o estilo. A gente responde pelo WhatsApp. O projeto de arquitetura vem junto com os móveis.</p><div class="flex flex-col gap-16 v2-cota text-[0.9375rem]"><a href="https://wa.me/${esc(
     EMPRESA.whatsapp
-  )}" class="v2-botao v2-botao-linha self-start" rel="noopener noreferrer" target="_blank">WhatsApp ${esc(EMPRESA.telefone)}</a><span>${esc(EMPRESA.endereco.logradouro)}, ${esc(EMPRESA.endereco.bairro)}, ${esc(EMPRESA.endereco.cidade)}/${esc(
+  )}" class="v2-botao v2-botao-linha self-start" rel="noopener noreferrer" target="_blank">WhatsApp ${esc(EMPRESA.telefone)}</a><span>${esc(EMPRESA.endereco.logradouro)} - ${esc(EMPRESA.endereco.bairro)}, ${esc(EMPRESA.endereco.cidade)} - ${esc(
     EMPRESA.endereco.uf
-  )}.</span><span>${esc(EMPRESA.horarios.semana)}. ${esc(EMPRESA.horarios.observacao)}.</span></div></div><div class="lg:col-span-7 bg-[var(--v2-marfim)] text-[#1B1915] p-24 sm:p-48 border v2-linha-fina min-h-[480px]"></div></section>`);
+  )}, CEP: ${esc(EMPRESA.endereco.cep)}.</span><span>Razão Social: ${esc(EMPRESA.razaoSocial)} · CNPJ: ${esc(EMPRESA.cnpj)}.</span><span>${esc(EMPRESA.horarios.semana)} | ${esc(EMPRESA.horarios.sabado)}.</span></div></div><div class="lg:col-span-7 bg-[var(--v2-marfim)] text-[#1B1915] p-24 sm:p-48 border v2-linha-fina min-h-[480px]"></div></section>`);
 }
 
 /** /privacidade e /termos: o texto inteiro, no visual da LegalV2. */

@@ -137,7 +137,7 @@ export const ObrasV2: React.FC = () => {
               <LinkV2 para={`/obras#${t.id}`} className="group relative block overflow-hidden aspect-[4/5] sm:aspect-[3/4]" aria-label={`Ver obras de ${t.rotulo.toLowerCase()} (${t.total})`}>
                 <Foto
                   srcBase={t.capa!.arquivo}
-                  alt=""
+                  alt={t.capa!.alt}
                   proporcao={t.capa!.proporcao}
                   sizes="(max-width: 639px) 60vw, 30vw"
                   className="absolute inset-0 w-full h-full transition-transform duration-[1.2s] group-hover:scale-[1.04]"
@@ -172,6 +172,104 @@ export const ObrasV2: React.FC = () => {
   );
 };
 
+const AMBIENTES_CATALOGO_SEO = [
+  {
+    id: 'cozinhas',
+    titulo: 'Cozinhas Planejadas Sob Medida em Jaú',
+    rota: '/cozinhas-planejadas-jau',
+    briefing: 'Cozinha',
+    texto:
+      'Projetamos e fabricamos cozinhas planejadas 100% MDF em Jaú com ilha central em ripado ou pedra, torre quente ventilada para forno e micro-ondas, armários superiores até o teto e gabinetes inferiores em MDF naval (hidrófugo) resistente à umidade. Incluímos porta-temperos, perfis puxadores em alumínio, iluminação linear em LED quente e ferragens com amortecimento slow motion (corrediças telescópicas ou ocultas).',
+  },
+  {
+    id: 'closets',
+    titulo: 'Dormitórios, Guarda-Roupas e Closets Planejados',
+    rota: '/closets-sob-medida-jau',
+    briefing: 'Closet',
+    texto:
+      'Guarda-roupas até o teto e closets sob medida em L, em U ou corredor com portas de correr com amortecimento, portas em vidro reflecta bronze/fumê, sapateiras telescópicas de extração total, cabideiros iluminados por fita de LED e gavetas com divisórias em veludo para joias e relógios. Também executamos quartos de casal com cabeceira ripada e quartos infantis/bebê sob medida.',
+  },
+  {
+    id: 'salas',
+    titulo: 'Salas de Estar, Painéis Ripados de TV e Home Theater',
+    rota: '/quartos-planejados-jau',
+    briefing: 'Sala',
+    texto:
+      'Painéis ripados autênticos em MDF amadeirado (Freijó, Nogueira, Carvalho) do piso ao forro com passagem oculta de cabos, racks suspensos com gavetões chanfrados, portas mimetizadas (invisíveis) no painel e cristaleiras iluminadas em LED com prateleiras de vidro e perfil metálico.',
+  },
+  {
+    id: 'gourmet',
+    titulo: 'Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia',
+    rota: '/cozinhas-planejadas-jau',
+    briefing: 'Área Gourmet',
+    texto:
+      'Marcenaria sob medida dimensionada para suportar calor e umidade ao redor da churrasqueira e da piscina: gabinetes em MDF naval hidrófugo, portas com respiro técnico, gaveteiros de talheres sob medida, nichos para cervejeira e adega climatizada, além de lavanderias planejadas com armários para vassouras, cesto basculante e bancada de apoio.',
+  },
+  {
+    id: 'banheiros',
+    titulo: 'Banheiros e Lavabos Planejados',
+    rota: '/quartos-planejados-jau',
+    briefing: 'Banheiro',
+    texto:
+      'Gabinetes sob medida 100% MDF naval com fitamento de borda em PVC colado a quente para máxima proteção contra vapor e água, tulhas deslizantes, nichos organizadores e espelheiras até o teto com iluminação frontal ou indireta em LED.',
+  },
+  {
+    id: 'corporativo',
+    titulo: 'Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú',
+    rota: '/home-office-planejado-jau',
+    briefing: 'Comercial',
+    texto:
+      'Marcenaria comercial e corporativa de alto padrão em Jaú e região: balcões de recepção, estações de trabalho ergonômicas com calhas ocultas de energia, salas de reunião, consultórios médicos e odontológicos dentro das normas sanitárias, escritórios de advocacia, cafeterias e expositores comerciais iluminados.',
+  },
+] as const;
+
+/**
+ * Catálogo semântico completo dos 6 ambientes 100% MDF sob medida em Jaú (H2 -> H3).
+ */
+export const CatalogoAmbientesSeoV2: React.FC = () => {
+  const { abrirOrcamento } = useNavV2();
+  return (
+    <section id="ambientes" className={`v2-areia ${MARGEM} py-[14vh] flex flex-col gap-48`}>
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24">
+        <div className="flex flex-col gap-16">
+          <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Marcenaria própria em Jaú/SP</p>
+          <Titulo texto="Ambientes Planejados 100% MDF *Sob Medida em Jaú.*" className="max-w-[20ch]" />
+        </div>
+        <p className="v2-corpo max-w-[44ch]">
+          Fabricamos com chapas 100% MDF de 15mm, 18mm e 25mm, MDF naval hidrófugo para áreas úmidas e ferragens com amortecimento slow motion.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-24 lg:gap-32">
+        {AMBIENTES_CATALOGO_SEO.map((item) => (
+          <article
+            key={item.id}
+            id={item.id}
+            className="scroll-mt-[88px] p-24 sm:p-32 bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col justify-between gap-24"
+          >
+            <div className="flex flex-col gap-16">
+              <h3 className="v2-serif text-[1.6rem] leading-tight">{item.titulo}</h3>
+              <p className="v2-corpo text-[0.95rem]">{item.texto}</p>
+            </div>
+            <div className="pt-16 border-t v2-linha-fina flex flex-wrap items-center justify-between gap-12">
+              <LinkV2 para={item.rota} className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
+                Ver fotos e detalhes
+              </LinkV2>
+              <button
+                type="button"
+                onClick={() => abrirOrcamento(item.briefing)}
+                className="v2-cota v2-acento font-[500] hover:underline underline-offset-4 cursor-pointer"
+              >
+                Orçar este ambiente →
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 /**
  * O diferencial dito com todas as letras: o projeto de arquitetura vem junto. Primeiro a
  * comparação com o jeito comum; depois, item por item, o que o projeto inclui.
@@ -179,7 +277,7 @@ export const ObrasV2: React.FC = () => {
 export const ProjetoInclusoV2: React.FC = () => {
   const { abrirOrcamento } = useNavV2();
   return (
-    <section id="v2-projeto-incluso" className={`v2-areia ${MARGEM} py-[14vh]`}>
+    <section id="v2-projeto-incluso" className={`v2-claro ${MARGEM} py-[14vh]`}>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-48">
         <div className="lg:col-span-5 flex flex-col items-start gap-24">
           <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Sem custo à parte</p>
@@ -224,7 +322,6 @@ export const ProjetoInclusoV2: React.FC = () => {
           </ul>
         </div>
       </div>
-
     </section>
   );
 };
@@ -245,7 +342,7 @@ export const NumerosV2: React.FC = () => (
 );
 
 /**
- * Como trabalhamos: os seis passos, uma lista só (antes havia duas parecidas na página).
+ * Como trabalhamos: os seis passos, uma lista só.
  * Título fixo à esquerda; à direita, numerais grandes e um fio de latão que desce com a rolagem.
  */
 export const ProcessoV2: React.FC = () => {
@@ -288,25 +385,30 @@ export const ProcessoV2: React.FC = () => {
   );
 };
 
-/** Convite forte para o 3D online: imagem grande, três passos e dois caminhos. */
+/**
+ * Diferencial do Notebook 3D e convite para o Configurador 3D online (#projetos / #v2-3d).
+ */
 export const Projeto3DV2: React.FC = () => {
   const { abrirOrcamento } = useNavV2();
   return (
-    <section id="v2-3d" className={`v2-escuro ${MARGEM} py-[14vh] flex flex-col gap-64`}>
+    <section id="projetos" className={`v2-escuro ${MARGEM} py-[14vh] flex flex-col gap-64 scroll-mt-[72px]`}>
+      <span id="v2-3d" className="sr-only" aria-hidden="true" />
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-24">
         <div className="flex flex-col gap-24">
           <p className="v2-cota uppercase tracking-[0.08em] v2-acento flex items-center gap-8">
-            <Box className="w-[14px] h-[14px]" strokeWidth={1.5} /> Grátis, aqui no site
+            <Box className="w-[14px] h-[14px]" strokeWidth={1.5} /> Apresentação 3D no notebook + Simulador online grátis
           </p>
-          <Titulo texto="Veja a sua cozinha *antes de ela existir.*" className="max-w-[16ch]" />
+          <Titulo texto="Do Projeto 3D Realista no Notebook *à Execução Milimétrica na Sua Casa em Jaú*" className="max-w-[20ch]" />
         </div>
-        <p className="v2-corpo max-w-[40ch]">Monte o ambiente em 3D no navegador, sem instalar nada. Mude medidas, móveis, cores e a luz. Depois mande a imagem para a gente orçar.</p>
+        <p className="v2-corpo max-w-[44ch]">
+          Antes de qualquer chapa de MDF ser cortada na nossa marcenaria no Jardim Itamarati, você visualiza no projeto 3D realista a iluminação em perfil de LED, a paginação contínua dos veios do MDF, as divisórias internas de gavetas e o giro de cada porta.
+        </p>
       </div>
 
       <LinkV2 para="/projetar" className="block overflow-hidden group relative" aria-label="Abrir o projeto 3D online">
         <Foto
           srcBase="/projetar/cozinha-render"
-          alt="Projeto 3D de cozinha planejada com ilha verde e armários brancos"
+          alt="Projeto 3D realista de cozinha planejada sob medida 100% MDF em Jaú SP com ilha verde-sálvia e armários até o teto - Império Móveis Planejados"
           proporcao="16 / 9"
           sizes="100vw"
           className="w-full transition-transform duration-[1.2s] group-hover:scale-[1.02]"
@@ -334,7 +436,7 @@ export const Projeto3DV2: React.FC = () => {
           Ver projetos 3D prontos <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
         </LinkV2>
         <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-linha">
-          Prefiro que a arquiteta desenhe
+          Solicitar Projeto 3D e Orçamento em Jaú
         </button>
       </div>
     </section>
@@ -367,8 +469,7 @@ const Estrelas: React.FC<{ nota: number; tamanho?: number }> = ({ nota, tamanho 
 );
 
 /**
- * Avaliações reais do Google em cartões lado a lado, com estrelas (ao vivo pela API quando a
- * chave está configurada; senão, as transcritas). No celular, os cartões deslizam de lado.
+ * Avaliações reais do Google em cartões lado a lado, com estrelas.
  */
 export const AvaliacoesV2: React.FC = () => {
   const [ao, setAo] = useState<{ nota: number; total: number; url?: string; avaliacoes: AvaliacaoV2[] } | null>(null);
@@ -430,7 +531,16 @@ export const AvaliacoesV2: React.FC = () => {
             </div>
             <div className="pt-16 border-t v2-linha-fina flex items-center gap-[12px]">
               {a.foto ? (
-                <img src={a.foto} alt="" width={36} height={36} loading="lazy" referrerPolicy="no-referrer" className="w-[36px] h-[36px] rounded-full" />
+                <img
+                  src={a.foto}
+                  alt={`Foto de ${a.autor}, cliente de móveis planejados da Império em Jaú SP`}
+                  width={36}
+                  height={36}
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                  className="w-[36px] h-[36px] rounded-full"
+                />
               ) : (
                 <span aria-hidden="true" className="w-[36px] h-[36px] rounded-full bg-[var(--v2-salvia)] text-[#f3efe6] flex items-center justify-center v2-serif text-[1.1rem]">
                   {a.autor.trim().charAt(0)}
@@ -452,11 +562,18 @@ export const AvaliacoesV2: React.FC = () => {
   );
 };
 
-/** Nossa história: aqui (e só aqui) os nomes dos donos. */
+/** Nossa história: aqui os nomes dos fundadores Wellington e Tatiane Cabral. */
 export const HistoriaV2: React.FC = () => (
   <section id="v2-historia" className={`v2-salvia ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48 items-center`}>
     <div className="lg:col-span-5">
-      <Foto srcBase="/obras/fundadores" alt="Wellington e Tatiane Cabral, fundadores da Império Móveis Planejados" proporcao="666 / 1178" sizes="(min-width: 1024px) 36vw, 100vw" className="w-full max-h-[78vh] grayscale" imgStyle={{ objectFit: 'cover' }} />
+      <Foto
+        srcBase="/obras/fundadores"
+        alt="Wellington Ribeiro Cabral e Tatiane Cabral, fundadores da fábrica Império Móveis Planejados em Jaú SP"
+        proporcao="666 / 1178"
+        sizes="(min-width: 1024px) 36vw, 100vw"
+        className="w-full max-h-[78vh] grayscale"
+        imgStyle={{ objectFit: 'cover' }}
+      />
     </div>
     <div className="lg:col-span-6 lg:col-start-7 flex flex-col gap-32">
       <Titulo texto="Feito por mãos que *medem duas vezes.*" />
@@ -470,26 +587,91 @@ export const HistoriaV2: React.FC = () => (
 );
 
 /**
- * Onde estamos: endereço, horário, as mesmas informações do Perfil da Empresa no Google e o
- * mapa incorporado (o mesmo da V1).
+ * Parceria com Arquitetos, Engenheiros e Designers de Interiores em Jaú e Fidelidade Técnica.
+ */
+export const ArquitetosFidelidadeV2: React.FC = () => {
+  const { abrirOrcamento } = useNavV2();
+  return (
+    <section id="arquitetos" className={`v2-claro ${MARGEM} py-[12vh] grid grid-cols-1 lg:grid-cols-12 gap-48 items-center border-t v2-linha-fina`}>
+      <div className="lg:col-span-6 flex flex-col gap-24">
+        <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Fidelidade executiva e parceria técnica</p>
+        <Titulo texto="Execução Fiel para Arquitetos e *Designers de Interiores em Jaú*" />
+        <p className="v2-corpo max-w-[48ch]">
+          Já possui projeto assinado por arquiteto, engenheiro ou designer de interiores? Nossa fábrica no Jardim Itamarati em Jaú executa cadernos técnicos de marcenaria fina com precisão milimétrica, compatibilização em obra com marmoraria, iluminação e serralheria, e cumprimento rigoroso do prazo em contrato (CNPJ {EMPRESA.cnpj}).
+        </p>
+        <div className="flex flex-wrap gap-[12px]">
+          <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
+            Cotar projeto executivo <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+          </button>
+          <a
+            href={getWhatsAppUrl('Olá! Sou arquiteto(a)/cliente com projeto pronto e gostaria de orçar a execução de marcenaria sob medida em Jaú.', 'parceria_arquitetos')}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClick('v2_arquitetos')}
+            className="v2-botao v2-botao-linha"
+          >
+            Enviar planta ou 3D pelo WhatsApp
+          </a>
+        </div>
+      </div>
+      <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-24">
+        <div className="p-24 bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col gap-8">
+          <h3 className="v2-serif text-[1.4rem] leading-tight">Chapas 100% MDF e MDF Naval</h3>
+          <p className="v2-corpo text-[0.9375rem]">
+            Estrutura em MDF de 15mm, 18mm e 25mm de alta densidade com fitamento em PVC colado a quente e MDF hidrófugo nas áreas molhadas.
+          </p>
+        </div>
+        <div className="p-24 bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col gap-8">
+          <h3 className="v2-serif text-[1.4rem] leading-tight">Ferragens Slow Motion</h3>
+          <p className="v2-corpo text-[0.9375rem]">
+            Corrediças telescópicas e ocultas com extração total e amortecimento, dobradiças com pistão amortecedor e perfis em alumínio.
+          </p>
+        </div>
+        <div className="p-24 bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col gap-8">
+          <h3 className="v2-serif text-[1.4rem] leading-tight">Prazo Garantido em Contrato</h3>
+          <p className="v2-corpo text-[0.9375rem]">
+            Medição a laser na obra, cronograma transparente e montagem por equipe própria especializada sem terceirização improvisada.
+          </p>
+        </div>
+        <div className="p-24 bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col gap-8">
+          <h3 className="v2-serif text-[1.4rem] leading-tight">Negociação Direto da Fábrica</h3>
+          <p className="v2-corpo text-[0.9375rem]">
+            Condições diretas sem intermediários de franquia: pagamento via PIX, transferência, boleto, cartão de crédito e parcelamento direto.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/**
+ * Cobertura Geográfica Hiper-Local em Jaú (bairros e condomínios), 12 cidades da região,
+ * NAP completo e mapa incorporado.
  */
 export const OndeEstamosV2: React.FC<{ id?: string }> = ({ id = 'v2-onde-estamos' }) => (
-  <section id={id} className={`v2-claro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48 items-start`}>
-    <div className="lg:col-span-5 flex flex-col items-start gap-32">
-      <Titulo texto="Onde estamos *em Jaú.*" />
-      <p className="v2-corpo max-w-[42ch]">
-        Atendemos residências e comércios em {EMPRESA.cidadesAtendidas.join(', ')} e região. Venha conhecer a oficina com hora marcada, ou a gente vai até a sua obra.
+  <section id={id} className={`v2-claro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48 items-start border-t v2-linha-fina`}>
+    <div className="lg:col-span-5 flex flex-col items-start gap-24">
+      <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Cobertura regional e fábrica em Jaú/SP</p>
+      <Titulo texto="Atendimento Presencial e Montagem Própria *em Jaú e Toda a Região*" />
+      <p className="v2-corpo max-w-[46ch]">
+        Realizamos medição técnica a laser, entrega própria e montagem especializada em todos os bairros e condomínios de <strong>Jaú/SP</strong> — incluindo <strong>{EMPRESA.bairrosCondominiosJau.join(', ')}</strong>.
+      </p>
+      <p className="v2-corpo max-w-[46ch]">
+        Nossa fábrica também atende com equipe própria toda a microrregião: <strong>{EMPRESA.cidadesAtendidas.map((c) => c.replace(/,\s*SP$/, '')).join(', ')}</strong>.
       </p>
       <div className="w-full flex flex-col gap-24 border-t v2-linha-fina pt-24">
         <div className="flex items-start gap-16">
           <MapPin className="w-[20px] h-[20px] shrink-0 mt-4 v2-acento" strokeWidth={1.5} aria-hidden="true" />
           <div className="flex flex-col gap-4">
-            <span className="v2-serif text-[1.5rem] leading-tight">Oficina e atendimento</span>
+            <span className="v2-serif text-[1.5rem] leading-tight">Fábrica e Atendimento — {EMPRESA.nome}</span>
             <span className="v2-corpo">
-              {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
+              {EMPRESA.endereco.logradouro} - {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade} - {EMPRESA.endereco.uf}, CEP: {EMPRESA.endereco.cep}
             </span>
             <span className="v2-cota">
-              {EMPRESA.horarios.resumo}. {EMPRESA.horarios.observacao}.
+              Razão Social: {EMPRESA.razaoSocial} · CNPJ: {EMPRESA.cnpj}
+            </span>
+            <span className="v2-cota">
+              {EMPRESA.horarios.semana} | {EMPRESA.horarios.sabado}
             </span>
           </div>
         </div>
@@ -518,7 +700,7 @@ export const OndeEstamosV2: React.FC<{ id?: string }> = ({ id = 'v2-onde-estamos
           Ver no Google Maps <ExternalLink className="w-[16px] h-[16px]" strokeWidth={1.5} />
         </a>
         <a
-          href={getWhatsAppUrl('Olá! Quero agendar uma visita técnica da Império.')}
+          href={getWhatsAppUrl('Olá! Quero agendar uma visita técnica da Império Móveis Planejados em Jaú.', 'v2_visita_tecnica')}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => trackWhatsAppClick('v2_visita_tecnica')}
@@ -535,21 +717,25 @@ export const OndeEstamosV2: React.FC<{ id?: string }> = ({ id = 'v2-onde-estamos
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
-        title={`Mapa da ${EMPRESA.nome} em Jaú`}
+        title={`Mapa da ${EMPRESA.nome} no Jardim Itamarati em Jaú SP`}
       />
     </div>
   </section>
 );
 
 /**
- * Perguntas frequentes (só as respostas confirmadas pelos donos). São as mesmas do FAQPage nos
- * dados estruturados da home: o Google exige que o texto esteja visível na página.
+ * Perguntas frequentes visíveis em acordeão HTML (<details>/<summary>), espelhando 100% o FAQPage
+ * do Super-Grafo JSON-LD.
  */
 export const PerguntasV2: React.FC = () => (
-  <section id="v2-perguntas" className={`v2-areia ${MARGEM} py-[12vh] grid grid-cols-1 lg:grid-cols-12 gap-48`}>
+  <section id="faq" className={`v2-areia ${MARGEM} py-[12vh] grid grid-cols-1 lg:grid-cols-12 gap-48 scroll-mt-[72px]`}>
+    <span id="v2-perguntas" className="sr-only" aria-hidden="true" />
     <div className="lg:col-span-4 flex flex-col gap-16">
-      <Titulo texto="Perguntas *frequentes.*" />
-      <p className="v2-corpo max-w-[34ch]">O que mais perguntam antes de começar. Ficou outra dúvida? Chame no WhatsApp.</p>
+      <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Tire suas dúvidas</p>
+      <Titulo texto="Perguntas Frequentes sobre Móveis Planejados *e Marcenaria em Jaú*" />
+      <p className="v2-corpo max-w-[34ch]">
+        Tudo sobre materiais 100% MDF, projeto 3D realista, prazos em contrato, ferragens, valores e cidades atendidas pela nossa fábrica em Jaú/SP.
+      </p>
     </div>
     <div className="lg:col-span-8 flex flex-col">
       {perguntasConfirmadas().map((p) => (
@@ -572,9 +758,9 @@ export const FechamentoV2: React.FC = () => (
       <h2 className="v2-serif v2-display">
         <ComItalico texto="Vamos construir *o seu?*" />
       </h2>
-      <p className="v2-corpo max-w-[38ch]">Conte o que você quer planejar. A gente responde pelo WhatsApp com os próximos passos.</p>
+      <p className="v2-corpo max-w-[38ch]">Conte o que você quer planejar em Jaú ou região. A gente responde pelo WhatsApp com os próximos passos.</p>
       <a
-        href={getWhatsAppUrl()}
+        href={getWhatsAppUrl('Olá! Vim pelo site da Império Móveis Planejados em Jaú e gostaria de solicitar um Projeto 3D e orçamento.', 'v2_fechamento')}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => trackWhatsAppClick('v2_fechamento')}

@@ -177,12 +177,6 @@
   line-height: 1.7;
   color: var(--v2-suave);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .v2 * {
-    transition: none !important;
-  }
-}
 }
 
 /* Atalho de conversa (ConversaFlutuanteV2): balão e cartão sobem suaves; o botão pulsa 3 vezes. */
@@ -202,11 +196,4 @@
 }
 .v2-conversa-botao {
   animation: v2-conversa-pulso 2.4s ease-out 4s 3;
-}
-@media (prefers-reduced-motion: reduce) {
-  .v2-conversa-cartao,
-  .v2-conversa-balao,
-  .v2-conversa-botao {
-    animation: none;
-  }
 }

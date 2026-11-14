@@ -4,6 +4,7 @@ import {
   RotaPublica,
   TEXTO_HERO,
   gerarJsonLdFurnitureStore,
+  gerarSuperGrafoJsonLd,
 } from '../data/paginasLocais';
 import { EMPRESA } from '../data/empresa';
 import { RESUMO_GOOGLE } from '../data/avaliacoesGoogle';
@@ -12,7 +13,6 @@ import { META_PROJETOS_3D, NOME_AMBIENTE, metaFoto } from '../v2/rotasV2';
 import { PROJETOS_3D } from '../data/projetos3d';
 import type { ObraItem } from '../types';
 import { METADADOS_FASES, PAINEL_DESKTOP } from '../components/heroScroll/useHeroScrollStore';
-import { gerarJsonLdPerguntas } from '../data/perguntas';
 import { DOCUMENTOS_LEGAIS, dataPorExtenso } from '../data/legal';
 import { OBRAS_REAIS } from '../data/portfolioData';
 
@@ -147,7 +147,6 @@ export function gerarConteudoInicialRootV1(rota: RotaPublica): string {
   }
 
   if (rota === '/contato') {
-    // Título com a mesma classe da página de verdade: pinta no tamanho final antes do JavaScript.
     return `<main class="max-w-[1280px] mx-auto px-16 py-64">
         <h1 class="tipo-h1 text-grafite">${escaparHtml(meta.h1Inicial)}</h1>
         <p>${escaparHtml(meta.resumoHtmlInicial)}</p>
@@ -157,10 +156,6 @@ export function gerarConteudoInicialRootV1(rota: RotaPublica): string {
       </main>`;
   }
 
-  // Home: réplica estática da abertura (mesma estrutura e classes do HeroScrollytelling no início
-  // da rolagem). O pôster do notebook pinta antes do JavaScript, na mesma posição em que o React o
-  // coloca (conta de calcularLayout feita em CSS, ver .poster-notebook-estatico em index.css); a troca
-  // pelo React não muda nada na tela.
   const fase = METADADOS_FASES.traco;
   const painel = `clamp(${PAINEL_DESKTOP.min}px, ${PAINEL_DESKTOP.vw * 100}vw, ${PAINEL_DESKTOP.max}px)`;
   const nota = String(RESUMO_GOOGLE.nota).replace('.', ',');
@@ -168,7 +163,7 @@ export function gerarConteudoInicialRootV1(rota: RotaPublica): string {
       <div class="sticky top-0 h-screen h-[100svh] w-full overflow-hidden flex flex-col lg:block">
         <div class="relative flex-1 min-h-0 lg:absolute lg:inset-0" aria-hidden="true">
           <div class="palco-estatico absolute inset-0 overflow-x-clip bg-[#050505]">
-            <img class="poster-notebook-estatico" src="/videos/notebook-poster.jpg" alt="" width="1280" height="720" fetchpriority="high" decoding="async" />
+            <img class="poster-notebook-estatico" src="/videos/notebook-poster.jpg" alt="Apresentação de Projeto 3D de Cozinha Planejada Sob Medida em Jaú SP - Império Móveis Planejados" width="1280" height="720" fetchpriority="high" decoding="async" />
           </div>
         </div>
         <div class="relative shrink-0 flex flex-col justify-end lg:absolute lg:inset-y-0 lg:left-0 lg:w-[var(--painel)]" style="--painel: ${painel}">
@@ -180,10 +175,10 @@ export function gerarConteudoInicialRootV1(rota: RotaPublica): string {
               <div class="relative h-[2px] mt-8 bg-papel/20"></div>
               <span class="tipo-cota text-papel/70 inline-block mt-8">Role para construir a cozinha</span>
             </div>
-            <h1 class="tipo-h1 text-papel"><span class="block tipo-cota text-dourado mb-8">${escaparHtml(TEXTO_HERO.chamada)}</span>${escaparHtml(meta.h1Inicial)}</h1>
+            <h1 class="tipo-h1 text-papel"><span class="block tipo-cota text-dourado mb-8">${escaparHtml(TEXTO_HERO.chamada)}</span>${escaparHtml(TEXTO_HERO.titulo)}</h1>
             <p class="tipo-corpo text-papel/85 mt-16 max-w-[46ch]">${escaparHtml(meta.resumoHtmlInicial)}</p>
             <div class="flex flex-wrap items-center gap-x-16 gap-y-8 mt-24">
-              <a href="/contato" class="inline-flex items-center justify-center gap-2 h-[52px] px-6 rounded-curto bg-dourado text-preto font-semibold">Pedir orçamento</a>
+              <a href="/contato" class="inline-flex items-center justify-center gap-2 h-[52px] px-6 rounded-curto bg-dourado text-preto font-semibold">Solicitar Projeto 3D e Orçamento em Jaú</a>
               <a href="/obras" class="inline-flex items-center justify-center h-[52px] px-6 rounded-curto border-[1.5px] border-papel text-papel font-semibold">Ver as obras</a>
             </div>
             <button type="button" class="inline-flex items-center gap-8 mt-16 tipo-cota text-papel underline underline-offset-4 decoration-1 cursor-pointer"><span class="flex items-center gap-[2px]" aria-hidden="true">${'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-[14px] h-[14px] fill-dourado text-dourado" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'.repeat(5)}</span>${nota} no Google, ${RESUMO_GOOGLE.total} avaliações</button>
@@ -198,24 +193,11 @@ export function gerarConteudoInicialRootV1(rota: RotaPublica): string {
 
 /** Trilha (Início > página) e serviço da página local, ligado à empresa pelo @id. */
 function jsonLdPagina(rota: RotaPublica): string {
-  // Home: perguntas frequentes (ajudam o Google e as respostas de IA a entender o serviço).
   const bloco = (d: unknown) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`;
   if (rota === '/') {
-    // WebSite: é de onde o Google tira o nome do site mostrado no resultado, ao lado do ícone.
-    const site = {
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      '@id': `${EMPRESA.url}/#site`,
-      name: EMPRESA.nome,
-      alternateName: [EMPRESA.nomeCurto, 'Império Móveis Planejados Jaú'],
-      url: `${EMPRESA.url}/`,
-      inLanguage: 'pt-BR',
-      publisher: { '@id': `${EMPRESA.url}/#empresa` },
-    };
-    return bloco(site) + bloco(gerarJsonLdPerguntas());
+    return '';
   }
   if (rota === '/obras') {
-    // Portfólio: trilha + lista das obras como imagens com autoria da empresa.
     const meta = METADADOS_ROTAS_SEO[rota];
     return (
       bloco({
@@ -238,15 +220,14 @@ function jsonLdPagina(rota: RotaPublica): string {
             contentUrl: `${EMPRESA.url}${o.arquivo}.jpg`,
             name: o.titulo,
             description: o.cota,
-            creator: { '@id': `${EMPRESA.url}/#empresa` },
-            copyrightHolder: { '@id': `${EMPRESA.url}/#empresa` },
+            creator: { '@id': `${EMPRESA.url}/#organization` },
+            copyrightHolder: { '@id': `${EMPRESA.url}/#organization` },
           },
         })),
       })
     );
   }
   if (!(rota in PAGINAS_AMBIENTES_LOCAIS)) {
-    // Demais páginas: trilha Início > página.
     const meta = METADADOS_ROTAS_SEO[rota];
     return bloco({
       '@context': 'https://schema.org',
@@ -274,8 +255,8 @@ function jsonLdPagina(rota: RotaPublica): string {
       name: cfg.h1,
       description: cfg.descricaoSeo,
       url,
-      provider: { '@id': `${EMPRESA.url}/#empresa` },
-      areaServed: EMPRESA.cidadesAtendidas.map((c) => ({ '@type': 'City', name: c })),
+      provider: { '@id': `${EMPRESA.url}/#organization` },
+      areaServed: EMPRESA.cidadesSchema.map((c) => ({ '@type': 'City', name: `${c.nome}, ${c.uf}`, sameAs: c.wikipedia })),
       image: cfg.fotos.map((f) => `${EMPRESA.url}${f.srcBase}.jpg`),
     },
   ];
@@ -295,10 +276,10 @@ export function gerarHtml404(htmlBase: string): string {
     .replace(/<title>[\s\S]*?<\/title>/, `<title>Página não encontrada | ${escaparHtml(EMPRESA.nome)}</title>`)
     .replace(/<meta\s+name="robots"[^>]*>/, '<meta name="robots" content="noindex" />')
     .replace(/<link\s+rel="canonical"[^>]*>/, '')
+    .replace(/<div id="root">[\s\S]*<\/div>(?=\s*<script|\s*<\/body>)/, `<div id="root">${corpo}</div>`)
     .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/g, '')
     .replace(/<script\s+type="module"[^>]*><\/script>/g, '')
-    .replace(/<link\s+rel="modulepreload"[^>]*>/g, '')
-    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${corpo}</div>`);
+    .replace(/<link\s+rel="modulepreload"[^>]*>/g, '');
 }
 
 /**
@@ -308,7 +289,10 @@ export function gerarHtml404(htmlBase: string): string {
 export function injetarSeoNoHtml(htmlBase: string, pathname: string, versao: 'v1' | 'v2' = 'v2'): string {
   const rota = normalizarRotaSeo(pathname);
   const meta = METADADOS_ROTAS_SEO[rota];
-  const jsonLd = JSON.stringify(gerarJsonLdFurnitureStore()).replace(/</g, '\\u003c');
+  const jsonLdBloco =
+    rota === '/'
+      ? `<script type="application/ld+json">${JSON.stringify(gerarSuperGrafoJsonLd()).replace(/</g, '\\u003c')}</script>`
+      : `<script type="application/ld+json">${JSON.stringify(gerarJsonLdFurnitureStore()).replace(/</g, '\\u003c')}</script>${jsonLdPagina(rota)}`;
   const rootHtml = versao === 'v1' ? gerarConteudoInicialRootV1(rota) : gerarConteudoInicialRoot(rota);
 
   let html = htmlBase;
@@ -349,17 +333,27 @@ export function injetarSeoNoHtml(htmlBase: string, pathname: string, versao: 'v1
   );
 
   html = html.replace(
+    /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/,
+    `<meta name="twitter:title" content="${escaparHtml(meta.title)}" />`
+  );
+
+  html = html.replace(
+    /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/,
+    `<meta name="twitter:description" content="${escaparHtml(meta.description)}" />`
+  );
+
+  html = html.replace(
     /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/,
     `<meta name="twitter:image" content="${escaparHtml(meta.ogImage)}" />`
   );
 
   html = html.replace(
-    /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json">${jsonLd}</script>${jsonLdPagina(rota)}`
+    /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>(?:\s*<script\s+type="application\/ld\+json">[\s\S]*?<\/script>)*/,
+    jsonLdBloco
   );
 
   html = html.replace(
-    /<div id="root">[\s\S]*?<\/div>/,
+    /<div id="root">[\s\S]*<\/div>(?=\s*<script|\s*<\/body>)/,
     `<div id="root">${rootHtml}</div>`
   );
 
@@ -382,8 +376,8 @@ export function injetarSeoFoto(htmlBase: string, obra: ObraItem): string {
       description: obra.alt,
       caption: obra.cota,
       creditText: EMPRESA.nome,
-      creator: { '@id': `${EMPRESA.url}/#empresa` },
-      copyrightHolder: { '@id': `${EMPRESA.url}/#empresa` },
+      creator: { '@id': `${EMPRESA.url}/#organization` },
+      copyrightHolder: { '@id': `${EMPRESA.url}/#organization` },
       copyrightNotice: EMPRESA.nome,
     }) +
     bloco({
@@ -404,8 +398,8 @@ export function injetarSeoFoto(htmlBase: string, obra: ObraItem): string {
     .replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/, `<meta property="og:url" content="${escaparHtml(meta.canonico)}" />`)
     .replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/, `<meta property="og:image" content="${escaparHtml(imagem)}" />`)
     .replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/, `<meta name="twitter:image" content="${escaparHtml(imagem)}" />`)
-    .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/, dados)
-    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${htmlFoto(obra)}</div>`);
+    .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>(?:\s*<script\s+type="application\/ld\+json">[\s\S]*?<\/script>)*/, dados)
+    .replace(/<div id="root">[\s\S]*<\/div>(?=\s*<script|\s*<\/body>)/, `<div id="root">${htmlFoto(obra)}</div>`);
 }
 
 /** Página dos projetos 3D (/projetos-3d): meta própria, galeria de imagens e trilha. */
@@ -446,6 +440,6 @@ export function injetarSeoProjetos3D(htmlBase: string): string {
     .replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/, `<meta property="og:url" content="${escaparHtml(meta.canonico)}" />`)
     .replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/, `<meta property="og:image" content="${escaparHtml(capa)}" />`)
     .replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/, `<meta name="twitter:image" content="${escaparHtml(capa)}" />`)
-    .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/, dados)
-    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${htmlProjetos3D()}</div>`);
+    .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>(?:\s*<script\s+type="application\/ld\+json">[\s\S]*?<\/script>)*/, dados)
+    .replace(/<div id="root">[\s\S]*<\/div>(?=\s*<script|\s*<\/body>)/, `<div id="root">${htmlProjetos3D()}</div>`);
 }

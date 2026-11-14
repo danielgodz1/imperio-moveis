@@ -3,8 +3,8 @@
  * Partes entre * viram itálico na serifa (uma por título).
  */
 export const HERO_V2 = {
-  titulo: 'Construímos o cenário *dos seus melhores dias.*',
-  apoio: 'Arquitetura e marcenaria sob medida em Jaú e região. Projeto de arquitetura incluso.',
+  titulo: 'Fábrica e Marcenaria *Sob Medida com Projeto 3D*',
+  apoio: 'Fábrica própria 100% MDF em Jaú e região com projeto de arquitetura 3D incluso.',
   final: 'A casa que você imaginou, *montada peça por peça.*',
 };
 

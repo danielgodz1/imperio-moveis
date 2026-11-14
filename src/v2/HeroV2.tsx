@@ -4,12 +4,12 @@ import { PalcoNotebook } from '../components/heroScroll/PalcoNotebook';
 import { FASES, RECORTE_FOTO, faseAtual, progressoNaFaixa, useHeroScrollStore } from '../components/heroScroll/useHeroScrollStore';
 import { useNarrativaScroll } from '../components/heroScroll/useNarrativaScroll';
 import { ALT_FOTO_COZINHA } from '../components/heroScroll/HeroScrollConteudo';
+import { TEXTO_HERO } from '../data/paginasLocais';
 import { scrollToTarget } from '../hooks/useScrollytelling';
 import { ComItalico } from './Serif';
 import { LinkV2, useNavV2 } from './NavegacaoV2';
 import { FASES_V2, HERO_V2 } from './textosV2';
 import { confirmar3D } from '../vitrine/nivel';
-
 
 /** Sem testar a placa de vídeo ao abrir (custa segundos sem aceleração): ver confirmar3D. */
 function podeAnimar(): boolean {
@@ -90,7 +90,7 @@ export const HeroV2: React.FC = () => {
   const botoes = (
     <div className="flex flex-wrap items-center gap-16">
       <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
-        Quero o meu projeto
+        Solicitar Projeto 3D e Orçamento em Jaú
       </button>
       <LinkV2 para="/projetar" className="v2-botao v2-botao-linha">
         Montar em 3D
@@ -110,7 +110,7 @@ export const HeroV2: React.FC = () => {
         </div>
         <div className="relative px-16 sm:px-32 lg:px-64 pb-64 pt-144 flex flex-col gap-24 max-w-[1100px]">
           <h1 className="v2-serif v2-display">
-            <span className="v2-olho block mb-16 lg:mb-24">Móveis planejados em Jaú/SP</span>
+            <span className="v2-olho block mb-16 lg:mb-24">{TEXTO_HERO.chamada}</span>
             <ComItalico texto={HERO_V2.titulo} />
           </h1>
           <p className="v2-corpo max-w-[46ch] text-[var(--v2-texto)]/85">{HERO_V2.apoio}</p>
@@ -130,7 +130,7 @@ export const HeroV2: React.FC = () => {
           <div ref={fotoRef} className="absolute inset-0 opacity-0">
             <Foto
               srcBase="/obras/cozinha-gringa-4k"
-              alt=""
+              alt={ALT_FOTO_COZINHA}
               prioridade
               sizes="100vw"
               className="w-full h-full"
@@ -142,7 +142,7 @@ export const HeroV2: React.FC = () => {
         {/* Abertura: o título fica sobre o traço escuro e se dissolve quando as paredes sobem */}
         <div ref={tituloRef} className="absolute inset-x-0 top-0 pt-[12svh] lg:pt-[11vh] px-16 sm:px-32 lg:px-64 lg:text-center lg:flex lg:flex-col lg:items-center will-change-transform">
           <h1 className="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]">
-            <span className="v2-olho block mb-16 lg:mb-24">Móveis planejados em Jaú/SP</span>
+            <span className="v2-olho block mb-16 lg:mb-24">{TEXTO_HERO.chamada}</span>
             <ComItalico texto={HERO_V2.titulo} />
           </h1>
           <p className="v2-corpo mt-16 lg:mt-24 max-w-[44ch]">{HERO_V2.apoio}</p>

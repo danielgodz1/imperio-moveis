@@ -10,11 +10,12 @@ export const MARGEM = 'px-16 sm:px-32 lg:px-64';
 
 const NAV = [
   { rotulo: 'Obras', para: '/obras' },
+  { rotulo: 'Ambientes', para: '/#ambientes' },
   { rotulo: 'Projetos 3D', para: '/projetos-3d' },
   { rotulo: 'Projeto incluso', para: '/#v2-projeto-incluso' },
   { rotulo: 'Como trabalhamos', para: '/#v2-processo' },
   { rotulo: 'Avaliações', para: '/#v2-avaliacoes' },
-  { rotulo: 'Nossa história', para: '/#v2-historia' },
+  { rotulo: 'FAQ', para: '/#faq' },
   { rotulo: 'Onde estamos', para: '/#v2-onde-estamos' },
 ];
 
@@ -107,7 +108,7 @@ export const ChamadaOrcamentoV2: React.FC<{ texto: string; ambiente?: string; cl
           Pedir orçamento <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
         </button>
         <a
-          href={getWhatsAppUrl()}
+          href={getWhatsAppUrl('Olá! Vim pelo site da Império Móveis Planejados em Jaú e gostaria de um orçamento.', 'v2_chamada')}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => trackWhatsAppClick('v2_chamada')}
@@ -158,32 +159,38 @@ export const PainelOrcamentoV2: React.FC<{ aberto: boolean; ambiente?: string; o
 };
 
 const AMBIENTES = [
-  { rotulo: 'Cozinhas planejadas', para: '/cozinhas-planejadas-jau' },
-  { rotulo: 'Quartos e suítes', para: '/quartos-planejados-jau' },
-  { rotulo: 'Closets sob medida', para: '/closets-sob-medida-jau' },
-  { rotulo: 'Home office e comércio', para: '/home-office-planejado-jau' },
+  { rotulo: 'Cozinhas planejadas em Jaú', para: '/cozinhas-planejadas-jau' },
+  { rotulo: 'Quartos e suítes planejados', para: '/quartos-planejados-jau' },
+  { rotulo: 'Closets sob medida em Jaú', para: '/closets-sob-medida-jau' },
+  { rotulo: 'Home office e corporativo', para: '/home-office-planejado-jau' },
+  { rotulo: 'Cozinhas 100% MDF', para: '/#cozinhas' },
+  { rotulo: 'Closets e dormitórios', para: '/#closets' },
+  { rotulo: 'Área gourmet e churrasqueira', para: '/#gourmet' },
+  { rotulo: 'Marcenaria corporativa', para: '/#corporativo' },
   { rotulo: 'Todas as obras', para: '/obras' },
 ];
 
 const SITE = [
+  { rotulo: 'Apresentação Projeto 3D', para: '/#projetos' },
+  { rotulo: 'Perguntas Frequentes (FAQ)', para: '/#faq' },
   { rotulo: 'Projeto de arquitetura incluso', para: '/#v2-projeto-incluso' },
   { rotulo: 'Como trabalhamos', para: '/#v2-processo' },
   { rotulo: 'Projetos 3D prontos', para: '/projetos-3d' },
-  { rotulo: 'Projetar em 3D', para: '/projetar' },
-  { rotulo: 'Avaliações', para: '/#v2-avaliacoes' },
-  { rotulo: 'Nossa história', para: '/#v2-historia' },
-  { rotulo: 'Onde estamos', para: '/#v2-onde-estamos' },
+  { rotulo: 'Projetar em 3D online', para: '/projetar' },
+  { rotulo: 'Avaliações no Google', para: '/#v2-avaliacoes' },
+  { rotulo: 'Parceria com arquitetos', para: '/#arquitetos' },
+  { rotulo: 'Onde estamos em Jaú', para: '/#v2-onde-estamos' },
 ];
 
 const LEGAL = [
   { rotulo: 'Política de privacidade (LGPD)', para: '/privacidade' },
   { rotulo: 'Termos de uso', para: '/termos' },
-  { rotulo: 'Pedir orçamento', para: '/contato' },
+  { rotulo: 'Solicitar Projeto 3D e Orçamento', para: '/contato' },
 ];
 
 const LINK = 'inline-block py-4 v2-cota text-[0.9375rem] hover:text-[var(--v2-texto)] transition-colors';
 
-/** Rodapé completo: chamada final, logo, ambientes, páginas, legal e todos os contatos. */
+/** Rodapé completo com E-E-A-T, NAP, CNPJ, Razão Social, links de ambientes e cidades atendidas. */
 export const RodapeV2: React.FC = () => {
   const { abrirOrcamento } = useNavV2();
   const coluna = (titulo: string, itens: { rotulo: string; para: string }[]) => (
@@ -208,12 +215,12 @@ export const RodapeV2: React.FC = () => {
           <ComItalico texto="Do primeiro traço *à montagem na sua casa.*" />
         </p>
         <div className="lg:col-span-5 flex flex-col gap-24 lg:items-end">
-          <p className="v2-corpo max-w-[36ch] lg:text-right">
-            Marcenaria e arquitetura de interiores em Jaú e região, desde {EMPRESA.anoInicio}. O projeto de arquitetura vem junto com os móveis.
+          <p className="v2-corpo max-w-[38ch] lg:text-right">
+            Fábrica de móveis planejados 100% MDF e arquitetura de interiores em Jaú e região, desde {EMPRESA.anoInicio}. O projeto de arquitetura 3D vem junto com os móveis.
           </p>
           <div className="flex flex-wrap gap-[12px]">
             <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
-              Pedir orçamento <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+              Solicitar Projeto 3D e Orçamento em Jaú <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
             <LinkV2 para="/projetar" className="v2-botao v2-botao-linha">
               <Box className="w-[16px] h-[16px]" strokeWidth={1.5} /> Projetar em 3D
@@ -222,58 +229,78 @@ export const RodapeV2: React.FC = () => {
         </div>
       </div>
 
-      <div className={`${MARGEM} py-64 border-t v2-linha-fina grid grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.4fr] gap-x-24 gap-y-48`}>
+      <div className={`${MARGEM} py-64 border-t v2-linha-fina grid grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.5fr] gap-x-24 gap-y-48`}>
         <div className="col-span-2 lg:col-span-1 flex flex-col items-start gap-24">
           <LinkV2 para="/" className="flex flex-col items-start gap-16" aria-label="Império Móveis Planejados, página inicial">
             <LogoImperio className="h-[96px]" />
           </LinkV2>
-          <p className="v2-cota max-w-[32ch]">Arquitetura de interiores e marcenaria própria, do primeiro traço à montagem.</p>
+          <p className="v2-cota max-w-[32ch]">
+            <strong>{EMPRESA.nomeFantasia}</strong> — Fábrica própria de marcenaria sob medida 100% MDF e arquitetura de interiores em Jaú/SP.
+          </p>
+          <p className="v2-cota text-[0.8125rem] max-w-[32ch]">
+            Razão Social: {EMPRESA.razaoSocial}<br />
+            CNPJ: {EMPRESA.cnpj}
+          </p>
         </div>
         {coluna('Ambientes', AMBIENTES)}
         {coluna('No site', SITE)}
         {coluna('Legal e contato', LEGAL)}
         <div className="col-span-2 lg:col-span-1 flex flex-col gap-16">
           <h2 className="v2-cota uppercase tracking-[0.08em] text-[0.6875rem] text-[var(--v2-acento)]">Fale com a gente</h2>
-          <address className="not-italic flex flex-col gap-16 v2-cota text-[0.9375rem]">
+          <address className="not-italic flex flex-col gap-12 v2-cota text-[0.9375rem]">
+            <strong className="text-[var(--v2-texto)]">Império Móveis Planejados — Jaú / SP</strong>
+            <span>
+              Razão Social: {EMPRESA.razaoSocial} | CNPJ: {EMPRESA.cnpj}
+            </span>
             <a
-              href={getWhatsAppUrl()}
+              href={getWhatsAppUrl('Olá! Vim pelo rodapé do site da Império Móveis Planejados em Jaú e gostaria de solicitar um Projeto 3D e orçamento.', 'rodape_whatsapp_jau')}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackWhatsAppClick('v2_rodape')}
               className="v2-serif text-[1.75rem] leading-none text-[var(--v2-texto)] hover:text-[var(--v2-acento)]"
             >
-              {EMPRESA.telefone}
+              WhatsApp {EMPRESA.telefone}
+            </a>
+            <a
+              href={`tel:${EMPRESA.whatsappE164}`}
+              className="hover:text-[var(--v2-texto)] underline underline-offset-4 self-start"
+            >
+              Ligar: {EMPRESA.telefone}
             </a>
             <a href={EMPRESA.instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--v2-texto)] self-start">
               {EMPRESA.instagram}
             </a>
             <span className="flex flex-col gap-4">
-              <span>{EMPRESA.endereco.logradouro}</span>
+              <span>Endereço: {EMPRESA.endereco.logradouro} - {EMPRESA.endereco.bairro}</span>
               <span>
-                {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
+                {EMPRESA.endereco.cidade} - {EMPRESA.endereco.uf}, CEP: {EMPRESA.endereco.cep}
               </span>
               <a href={EMPRESA.mapsUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-[var(--v2-texto)] self-start">
-                Ver no mapa
+                Ver localização no Google Maps
               </a>
             </span>
             <span className="flex flex-col gap-4">
-              <span>{EMPRESA.horarios.semana}</span>
-              <span>{EMPRESA.horarios.observacao}</span>
-            </span>
-            <span className="flex flex-col gap-4">
-              <span>{EMPRESA.sobre.servicos.join(', ')}</span>
-              <span>Cartão de crédito, débito e aproximação</span>
-              <span>Acessível para cadeira de rodas</span>
+              <span>Atendimento: {EMPRESA.horarios.semana}</span>
+              <span>{EMPRESA.horarios.sabado}</span>
             </span>
           </address>
         </div>
       </div>
 
+      <div className={`${MARGEM} py-24 border-t v2-linha-fina flex flex-col gap-8 v2-cota text-[0.8125rem]`}>
+        <p>
+          <strong>Cidades atendidas com medição a laser e montagem própria:</strong> {EMPRESA.cidadesAtendidas.map((c) => c.replace(/,\s*SP$/, '')).join(', ')} (Interior de São Paulo).
+        </p>
+        <p>
+          <strong>Bairros e condomínios atendidos em Jaú/SP:</strong> {EMPRESA.bairrosCondominiosJau.join(', ')}.
+        </p>
+      </div>
+
       <div className={`${MARGEM} py-24 border-t v2-linha-fina flex flex-col sm:flex-row sm:items-center justify-between gap-8 v2-cota`}>
         <p>
-          © {new Date().getFullYear()} {EMPRESA.nome}
+          © {new Date().getFullYear()} {EMPRESA.nome} · {EMPRESA.razaoSocial} · CNPJ {EMPRESA.cnpj}
         </p>
-        <p>Jaú/SP · Marcenaria e arquitetura de interiores</p>
+        <p>Jaú/SP · Fábrica de Móveis Planejados 100% MDF e Arquitetura de Interiores</p>
       </div>
     </footer>
   );
