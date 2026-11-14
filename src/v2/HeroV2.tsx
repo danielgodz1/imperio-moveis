@@ -131,7 +131,7 @@ export const HeroV2: React.FC = () => {
             <Foto
               srcBase="/obras/cozinha-gringa-4k"
               alt={ALT_FOTO_COZINHA}
-              prioridade
+              proporcao="106 / 158"
               sizes="100vw"
               className="w-full h-full"
               imgStyle={{ objectFit: 'cover', objectPosition: `${RECORTE_FOTO.x * 100}% ${RECORTE_FOTO.y * 100}%` }}
@@ -148,13 +148,13 @@ export const HeroV2: React.FC = () => {
           <p className="aeo-resposta-direta v2-corpo mt-16 lg:mt-24 max-w-[44ch]">{HERO_V2.apoio}</p>
           <div className="flex flex-wrap items-center lg:justify-center gap-12 mt-16 lg:mt-24">
             <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro h-[44px] px-20 text-[0.9375rem]">
-              Solicitar Projeto 3D e Orçamento em Jaú
+              Agendar Visita Técnica e Orçamento
             </button>
             <LinkV2 para="/obras" className="v2-botao v2-botao-linha h-[44px] px-16 text-[0.9375rem]">
               Ver as obras
             </LinkV2>
           </div>
-          <p className="v2-cota mt-16">★ 4,9 no Google · Fábrica 100% MDF desde 2015 · Role para construir a cozinha em 3D</p>
+          <p className="v2-cota mt-16">★ 4,9 no Google Maps · Fábrica própria 100% MDF em Jaú · Role para construir a cozinha em 3D</p>
         </div>
 
         {/* Fechamento do capítulo, sobre a foto da obra real */}

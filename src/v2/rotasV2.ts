@@ -30,7 +30,9 @@ export const ROTAS_AMBIENTE = Object.keys(PAGINAS_AMBIENTES_LOCAIS) as RotaAmbie
 
 /** Nome curto de cada página de ambiente (trilha, links e lista de outros ambientes). */
 export const NOME_AMBIENTE: Record<RotaAmbiente, string> = {
-  '/cozinhas-planejadas-jau': 'Cozinhas planejadas',
+  '/marcenaria-em-jau': 'Marcenaria sob medida',
+  '/cozinhas-planejadas-jau': 'Cozinhas e área gourmet',
+  '/quartos-e-closets-planejados-jau': 'Quartos, closets e salas',
   '/quartos-planejados-jau': 'Quartos planejados',
   '/closets-sob-medida-jau': 'Closets sob medida',
   '/home-office-planejado-jau': 'Home office e comércio',

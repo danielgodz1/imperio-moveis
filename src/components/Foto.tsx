@@ -35,6 +35,11 @@ export const Foto: React.FC<FotoProps> = ({
   const avifSrcSet = `${srcBase}-800.avif 800w, ${srcBase}-1600.avif 1600w`;
   const webpSrcSet = `${srcBase}-800.webp 800w, ${srcBase}-1600.webp 1600w`;
   const fallbackSrc = `${srcBase}.jpg`;
+  const [rawW, rawH] = (proporcao ?? '16 / 10')
+    .split('/')
+    .map((n) => Math.round(parseFloat(n)) || 1);
+  const w = rawW || 16;
+  const h = rawH || 10;
 
   return (
     <picture
@@ -46,6 +51,8 @@ export const Foto: React.FC<FotoProps> = ({
       <img
         src={fallbackSrc}
         alt={alt}
+        width={w}
+        height={h}
         loading={prioridade ? 'eager' : 'lazy'}
         fetchPriority={prioridade ? 'high' : 'auto'}
         decoding={prioridade ? 'sync' : 'async'}

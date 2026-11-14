@@ -347,13 +347,19 @@ export const OrcamentoV2: React.FC = () => (
           <MessageCircle className="w-[18px] h-[18px]" strokeWidth={1.5} /> WhatsApp {EMPRESA.telefone}
         </a>
         <span>
-          {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}.{' '}
+          Fábrica e Sede: {EMPRESA.endereco.logradouro} - {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}, CEP {EMPRESA.endereco.cep}.{' '}
           <a href={EMPRESA.mapsUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-[var(--v2-texto)]">
             Ver no mapa
           </a>
         </span>
         <span>
+          Razão Social: {EMPRESA.razaoSocial} · CNPJ: {EMPRESA.cnpj}
+        </span>
+        <span>
           {EMPRESA.horarios.semana}. {EMPRESA.horarios.observacao}.
+        </span>
+        <span>
+          Canal oficial para agendamento de visita técnica, orçamentos de marcenaria sob medida e solicitações de licença ou autorização de uso de fotografias do portfólio (<LinkV2 para="/termos" className="underline underline-offset-4 hover:text-[var(--v2-texto)]">ver Termos de Uso e Direitos Autorais</LinkV2>).
         </span>
         <LinkV2 para="/projetar" className="underline underline-offset-4 hover:text-[var(--v2-texto)] self-start">
           Quer montar antes em 3D? Abra o projeto online.
@@ -465,6 +471,34 @@ export const AmbienteV2: React.FC<{ rota: RotaAmbiente }> = ({ rota }) => {
         </dl>
       </section>
 
+      {cfg.comparativoTecnico && cfg.comparativoTecnico.length > 0 && (
+        <section className={`v2-claro ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-24`}>
+          <h2 className="v2-serif v2-h3">
+            Comparativo Técnico: Marcenaria Sob Medida 100% MDF vs. Móveis Modulados
+          </h2>
+          <div className="overflow-x-auto border v2-linha-fina bg-[var(--v2-cartao)]">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b v2-linha-forte bg-[var(--v2-linho)]">
+                  <th className="p-16 v2-cota uppercase tracking-[0.06em]">Critério Técnico</th>
+                  <th className="p-16 v2-cota uppercase tracking-[0.06em]">Móveis Modulados em Série</th>
+                  <th className="p-16 v2-cota uppercase tracking-[0.06em] v2-acento">Marcenaria Sob Medida Império (Jaú/SP)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cfg.comparativoTecnico.map((item) => (
+                  <tr key={item.criterio} className="border-b v2-linha-fina">
+                    <td className="p-16 font-medium text-[0.9375rem]">{item.criterio}</td>
+                    <td className="p-16 v2-cota text-[0.875rem]">{item.modulado}</td>
+                    <td className="p-16 v2-corpo text-[0.9375rem] font-medium">{item.sobMedida}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
       {outras.length > 0 && (
         <section className={`v2-claro ${MARGEM} py-96 flex flex-col gap-48`}>
           <h2 className="v2-serif v2-titulo">
@@ -481,6 +515,15 @@ export const AmbienteV2: React.FC<{ rota: RotaAmbiente }> = ({ rota }) => {
           <ChamadaOrcamentoV2 texto="Quer um projeto assim *na sua casa?*" ambiente={cfg.ambienteBriefing} />
         </section>
       )}
+
+      <section className={`v2-areia ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-16`}>
+        <h2 className="v2-serif text-[1.6rem] leading-tight">
+          Atendimento Regional com Visita Técnica Agendada e Montagem Própria
+        </h2>
+        <p className="v2-corpo max-w-[78ch]">
+          Com fábrica e sede na {EMPRESA.endereco.logradouro} - {EMPRESA.endereco.bairro}, Jaú/SP (Razão Social: {EMPRESA.razaoSocial} | CNPJ {EMPRESA.cnpj}), atendemos mediante visita técnica e agendamento em Jaú, Barra Bonita, Igaraçu do Tietê, Mineiros do Tietê, Dois Córregos, Bocaina, Bariri, Itapuí, Pederneiras e Bauru.
+        </p>
+      </section>
 
       <section className={`v2-areia ${MARGEM} py-64 flex flex-col gap-24`}>
         <h2 className="v2-cota uppercase tracking-[0.08em]">Outros ambientes</h2>

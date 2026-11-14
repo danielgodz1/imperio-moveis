@@ -9,7 +9,9 @@ export type RotaPublica =
   | '/obras'
   | '/privacidade'
   | '/termos'
+  | '/marcenaria-em-jau'
   | '/cozinhas-planejadas-jau'
+  | '/quartos-e-closets-planejados-jau'
   | '/quartos-planejados-jau'
   | '/closets-sob-medida-jau'
   | '/home-office-planejado-jau';
@@ -21,9 +23,17 @@ export interface FotoAmbienteLocal {
   legenda: string;
 }
 
+export interface ComparativoTecnicoItem {
+  criterio: string;
+  modulado: string;
+  sobMedida: string;
+}
+
 export interface PaginaAmbienteConfig {
   rota:
+    | '/marcenaria-em-jau'
     | '/cozinhas-planejadas-jau'
+    | '/quartos-e-closets-planejados-jau'
     | '/quartos-planejados-jau'
     | '/closets-sob-medida-jau'
     | '/home-office-planejado-jau';
@@ -35,6 +45,7 @@ export interface PaginaAmbienteConfig {
   ambiente3D: Ambiente;
   paragrafosReais: string[];
   especificacoesReais: { titulo: string; detalhe: string }[];
+  comparativoTecnico?: ComparativoTecnicoItem[];
   fotos: FotoAmbienteLocal[];
 }
 
@@ -60,37 +71,122 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
   PaginaAmbienteConfig['rota'],
   PaginaAmbienteConfig
 > = {
-  '/cozinhas-planejadas-jau': {
-    rota: '/cozinhas-planejadas-jau',
+  '/marcenaria-em-jau': {
+    rota: '/marcenaria-em-jau',
     tituloSeo:
-      'Cozinhas Planejadas em Jaú/SP | Império Móveis Planejados',
+      'Marcenaria em Jaú SP | Fábrica de Móveis Sob Medida 100% MDF — Império',
     descricaoSeo:
-      'Cozinhas sob medida em Jaú e região projetadas pela nossa arquiteta e fabricadas na nossa marcenaria. Ilha em ripado, granito preto e armários até o teto.',
-    h1: 'Cozinhas planejadas em Jaú com projeto de arquitetura e fabricação própria',
+      'Marcenaria sob medida em Jaú SP com fábrica e maquinário próprio no Jardim Itamarati (CNPJ 48.945.152/0001-93). Corte de precisão 100% MDF, fitamento em PVC e execução técnica para arquitetos e residências.',
+    h1: 'Marcenaria em Jaú SP com fábrica própria 100% MDF e execução técnica sob medida',
     subtitulo:
-      'Desenhamos o fluxo entre pia, fogão, torre quente e ilha antes do primeiro corte de chapa na oficina.',
+      'Estrutura fabril própria no Jardim Itamarati com maquinário de precisão, fitamento de borda em PVC de alta resistência e atendimento mediante visita técnica agendada.',
     ambienteBriefing: 'Cozinha',
     ambiente3D: 'cozinha',
     paragrafosReais: [
-      'Nas cozinhas executadas pela Império em Jaú, a arquiteta parte da rotina real da família: altura da bancada, posição dos pontos hidráulicos e elétricos, espaço de circulação em torno da ilha e aproveitamento até o teto ou forro amadeirado.',
-      'Na oficina, a equipe de produção executa o mobiliário com corpo da ilha em ripado de madeira, encontro limpo com a bancada de granito preto, fita de LED quente embutida em perfil de alumínio sob os aéreos e ferragens de fechamento suave.',
-      'Trabalhamos tanto com composições em verde-sálvia e freijó quanto com frentes em grafite fosco e cristaleira iluminada, integrando coifa embutida, lava-louças e torre para forno e micro-ondas sem frestas aparentes.',
+      'A Império Móveis Planejados (Razão Social: Wellington Ribeiro Cabral | CNPJ 48.945.152/0001-93) opera com fábrica e maquinário próprio em barracão localizado na Rua Dona Djanira Werneck de Almeida e Silva, 280 - Jardim Itamarati, em Jaú/SP. Essa estrutura fabril própria permite controlar cada etapa produtiva sem terceirização, do plano de corte milimétrico à pré-montagem na oficina.',
+      'Trabalhamos exclusivamente com chapas 100% MDF de 15mm, 18mm e 25mm de espessura, utilizando MDF resistente à umidade (Naval/Hidrófugo) em áreas molhadas como gabinetes de cozinha, área gourmet, lavanderia e banheiros. Todas as peças recebem fitamento de borda em PVC de alta resistência e ferragens com amortecimento (dobradiças slow motion e corrediças telescópicas ou ocultas).',
+      'Além de desenvolver o orçamento e a apresentação de projeto 3D diretamente para famílias e empresas, executamos projetos técnicos detalhados para arquitetos, engenheiros e designers de interiores em Jaú e região. O pagamento pode ser realizado via PIX, cartão de crédito parcelado e condições combinadas em contrato, sempre com prazo de entrega estipulado em contrato e montagem própria.',
     ],
     especificacoesReais: [
       {
-        titulo: 'Ilha em ripado e pedra',
+        titulo: 'Maquinário próprio no Jardim Itamarati',
         detalhe:
-          'Estrutura reforçada para receber tampo e cascata em granito preto ou quartzo, com tomadas embutidas discretas.',
+          'Corte de precisão, usinagem de encaixes e fitamento de borda em PVC de alta resistência executados internamente no nosso barracão em Jaú/SP.',
       },
       {
-        titulo: 'Armários até o forro',
+        titulo: 'Chapas 100% MDF (15mm, 18mm e 25mm) + MDF Naval',
         detalhe:
-          'Fechamento superior alinhado ao teto ou ao forro ripado de madeira, evitando acúmulo de poeira sobre os módulos.',
+          'Estrutura robusta em 100% MDF com aplicação de MDF resistente à umidade (Naval/Hidrófugo) em bancadas úmidas e ferragens com amortecimento slow motion.',
       },
       {
-        titulo: 'Iluminação técnica em LED',
+        titulo: 'Execução técnica para arquitetos e clientes',
         detalhe:
-          'Perfis embutidos na face inferior dos armários aéreos para iluminar a área de corte sem sombra.',
+          'Fidelidade às cotas de projeto executivo, compatibilização de pontos hidráulicos e elétricos em visita técnica agendada e montagem por equipe própria.',
+      },
+    ],
+    comparativoTecnico: [
+      {
+        criterio: 'Aproveitamento de vão e esquadro',
+        modulado: 'Caixas padronizadas de fábrica que deixam frestas e exigem réguas largas de fechamento',
+        sobMedida: 'Fabricação milimétrica parede a parede e do piso ao teto, respeitando recortes de vigas e pilares',
+      },
+      {
+        criterio: 'Matéria-prima estrutural',
+        modulado: 'Uso recorrente de chapas de MDP ou aglomerado convencional',
+        sobMedida: 'Chapas 100% MDF em 15mm, 18mm e 25mm + MDF resistente à umidade (Naval/Hidrófugo) em áreas molhadas',
+      },
+      {
+        criterio: 'Vedação de bordas e ferragens',
+        modulado: 'Fita de papel melamínico fina e dobradiças/corrediças básicas sem amortecimento',
+        sobMedida: 'Fitamento de borda em PVC de alta resistência e dobradiças slow motion + corrediças telescópicas/ocultas',
+      },
+      {
+        criterio: 'Atendimento e projeto 3D',
+        modulado: 'Modulação rápida de balcão sem aferição técnica detalhada na obra',
+        sobMedida: 'Visita técnica agendada na obra, apresentação de projeto 3D e detalhamento executivo',
+      },
+      {
+        criterio: 'Entrega e instalação',
+        modulado: 'Montadores terceirizados contratados por lote',
+        sobMedida: 'Prazo de entrega estipulado em contrato e montagem própria pelos marceneiros da fábrica em Jaú',
+      },
+    ],
+    fotos: [
+      {
+        srcBase: '/obras/comercial-gocoffee-fachada',
+        razao: '24 / 43',
+        alt: 'Execução de marcenaria sob medida comercial e pórtico ripado em Jaú SP pela fábrica Império Móveis Planejados',
+        legenda:
+          'Pórtico externo e marcenaria sob medida executados pela fábrica própria da Império em Jaú/SP.',
+      },
+      {
+        srcBase: '/obras/comercial-gocoffee-interior',
+        razao: '24 / 43',
+        alt: 'Marcenaria sob medida em Jaú SP com balcão curvo ripado e nichos iluminados em LED - Império Móveis Planejados',
+        legenda:
+          'Usinagem curva em ripado de madeira e iluminação técnica em LED fabricadas no barracão próprio em Jaú.',
+      },
+      {
+        srcBase: '/obras/entrega-guindaste',
+        razao: '106 / 158',
+        alt: 'Logística de entrega e montagem própria de marcenaria sob medida em Jaú SP - Império Móveis Planejados',
+        legenda:
+          'Logística e montagem própria de marcenaria sob medida com prazo de entrega estipulado em contrato.',
+      },
+    ],
+  },
+
+  '/cozinhas-planejadas-jau': {
+    rota: '/cozinhas-planejadas-jau',
+    tituloSeo:
+      'Cozinhas Planejadas e Área Gourmet em Jaú/SP | Império Móveis 100% MDF',
+    descricaoSeo:
+      'Cozinhas sob medida e áreas gourmet em Jaú e região fabricadas em 100% MDF e MDF Naval resistente à umidade. Torre quente, ilha em ripado, divisores funcionais e ferragens slow motion.',
+    h1: 'Cozinhas planejadas e área gourmet em Jaú com fabricação própria 100% MDF',
+    subtitulo:
+      'Desenhamos o fluxo entre pia, cooktop, torre quente, ilha e churrasqueira com chapas 100% MDF (15mm, 18mm e 25mm) e MDF resistente à umidade nas áreas molhadas.',
+    ambienteBriefing: 'Cozinha',
+    ambiente3D: 'cozinha',
+    paragrafosReais: [
+      'Nas cozinhas planejadas e áreas gourmet executadas pela Império em Jaú, o projeto parte de visita técnica agendada para aferir altura de bancada, pontos hidráulicos, gás, exaustão e espaço de circulação em torno da ilha antes do primeiro corte de chapa no nosso barracão no Jardim Itamarati.',
+      'Para garantir durabilidade em áreas molhadas sob a pia, lava-louças e bancadas de churrasqueira, utilizamos MDF resistente à umidade (Naval/Hidrófugo) aliado a chapas 100% MDF de 15mm, 18mm e 25mm e fitamento de borda em PVC de alta resistência.',
+      'Equipamos cada cozinha com torre quente com respiro técnico para forno e micro-ondas, gavetões com corrediças telescópicas ou ocultas, dobradiças slow motion com amortecimento, divisores funcionais de talheres e porta-temperos, além de perfis de LED embutidos sob os armários aéreos.',
+    ],
+    especificacoesReais: [
+      {
+        titulo: 'MDF resistente à umidade em áreas molhadas',
+        detalhe:
+          'Gabinetes inferiores de pia, ilha e área gourmet estruturados com MDF Naval/Hidrófugo e fitamento de borda em PVC de alta resistência.',
+      },
+      {
+        titulo: 'Torre quente, ilhas e divisores funcionais',
+        detalhe:
+          'Torre ventilada para forno e micro-ondas, ilhas em ripado ou pedra, porta-temperos, lixeiras embutidas e gavetas organizadoras com corrediças telescópicas/ocultas.',
+      },
+      {
+        titulo: 'Armários até o teto e iluminação em LED',
+        detalhe:
+          'Fechamento superior alinhado ao teto ou forro ripado e perfis de alumínio com LED embutido para iluminar a bancada de trabalho sem sombra.',
       },
     ],
     fotos: [
@@ -114,6 +210,71 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
         alt: 'Cozinha sob medida 100% MDF em Jaú SP integrada ao forro ripado de madeira com torre quente para forno e micro-ondas - Império Móveis Planejados',
         legenda:
           'Integração entre marcenaria sob medida, torre quente e forro ripado em madeira.',
+      },
+    ],
+  },
+
+  '/quartos-e-closets-planejados-jau': {
+    rota: '/quartos-e-closets-planejados-jau',
+    tituloSeo:
+      'Quartos, Closets e Salas Planejadas em Jaú SP | Império Móveis 100% MDF',
+    descricaoSeo:
+      'Dormitórios de casal, solteiro e infantis, closets sob medida, painéis ripados de sala e home office em Jaú/SP. Divisão interna personalizada, portas de correr, espelhos e iluminação em LED.',
+    h1: 'Quartos, closets, salas e home office planejados sob medida em Jaú',
+    subtitulo:
+      'Dormitórios completos, closets com divisão interna personalizada, painéis ripados de sala e bancadas de home office fabricados em 100% MDF na nossa marcenaria em Jaú.',
+    ambienteBriefing: 'Quarto',
+    ambiente3D: 'quarto',
+    paragrafosReais: [
+      'Nos projetos de dormitórios e closets sob medida em Jaú, dimensionamos a divisão interna em 100% MDF (15mm, 18mm e 25mm) de acordo com o acervo real de cada cliente: alturas específicas para vestidos longos e camisas, maleiros até o teto, sapateiras deslizantes, gavetas para acessórios e portas de correr ou de giro com amortecimento slow motion e espelhos integrados.',
+      'Para salas de estar, home theater e home office, fabricamos painéis ripados do piso ao forro com passagem oculta de fiação, racks suspensos, cristaleiras com iluminação em LED e bancadas ergonômicas de estudo e trabalho remoto com gaveteiros sob medida.',
+      'Também executamos marcenaria infantil e quartos de bebê sob medida com quinas suavizadas, camas-casinha, escadas com gavetões e nichos iluminados. Todo o atendimento é realizado mediante visita técnica agendada, com apresentação de projeto 3D, condições de pagamento via PIX, cartão de crédito parcelado e condições combinadas em contrato, e montagem própria.',
+    ],
+    especificacoesReais: [
+      {
+        titulo: 'Divisão interna de closets e guarda-roupas',
+        detalhe:
+          'Cabideiros iluminados em LED, sapateiras com corrediças telescópicas/ocultas, gavetas organizadoras e portas de correr com espelho e amortecimento.',
+      },
+      {
+        titulo: 'Painéis ripados de sala e bancadas de home office',
+        detalhe:
+          'Painéis ripados em 100% MDF com fiação embutida, nichos iluminados por fita de LED e estações de trabalho ergonômicas sob medida.',
+      },
+      {
+        titulo: 'Dormitórios de casal, solteiro e infantis',
+        detalhe:
+          'Cabeceiras ripadas com iluminação indireta, penteadeiras integradas e marcenaria infantil segura fabricada na nossa sede no Jardim Itamarati.',
+      },
+    ],
+    fotos: [
+      {
+        srcBase: '/obras/dormitorio-led-1',
+        razao: '51 / 82',
+        alt: 'Dormitório e home office planejado em Jaú SP com painel ripado 100% MDF, prateleira iluminada em LED e bancada integrada - Império Móveis Planejados',
+        legenda:
+          'Dormitório com painel ripado até o teto, iluminação linear em LED e bancada de home office sob medida.',
+      },
+      {
+        srcBase: '/obras/dormitorio-led-2',
+        razao: '800 / 1317',
+        alt: 'Guarda-roupa e closet planejado sob medida em Jaú SP com divisão interna, nichos iluminados em LED e acabamento 100% MDF - Império Móveis Planejados',
+        legenda:
+          'Closet e armários sob medida até o teto com iluminação embutida em LED e ferragens com amortecimento.',
+      },
+      {
+        srcBase: '/obras/quarto-infantil-casinha',
+        razao: '1264 / 845',
+        alt: 'Quarto infantil planejado sob medida em Jaú SP com cama-casinha superior, escorregador e escada com gavetas em MDF - Império Móveis Planejados',
+        legenda:
+          'Quarto infantil sob medida com cama-casinha, escorregador, escada com gavetas e painel estofado.',
+      },
+      {
+        srcBase: '/obras/quarto-bebe-nichos',
+        razao: '1213 / 864',
+        alt: 'Quarto de bebê planejado em Jaú SP com marcenaria 100% MDF verde-sálvia, painel ripado e nichos redondos iluminados - Império Móveis Planejados',
+        legenda:
+          'Quarto de bebê em verde-sálvia e madeira clara com nichos redondos iluminados em LED.',
       },
     ],
   },
@@ -289,13 +450,23 @@ export const PAGINAS_AMBIENTES_LOCAIS: Record<
 export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
   '/': {
     rota: '/',
-    title: 'Império Móveis Planejados em Jaú SP | Fábrica de Marcenaria Sob Medida e Projeto 3D',
+    title: 'Império Móveis Planejados e Marcenaria em Jaú SP | Fábrica Própria 100% MDF',
     description:
-      'Fábrica de Móveis Planejados em Jaú SP (CNPJ 48.945.152/0001-93). Cozinhas planejadas, closets, dormitórios, área gourmet e corporativo 100% MDF com projeto 3D realista, fabricação própria e entrega no prazo em Jaú e região.',
+      'Fábrica de Móveis Planejados e Marcenaria Sob Medida em Jaú SP (CNPJ 48.945.152/0001-93). Cozinhas planejadas, closets, dormitórios, área gourmet e corporativo 100% MDF com projeto 3D, fabricação própria no Jardim Itamarati e montagem própria.',
     canonical: `${EMPRESA.url}/`,
     ogImage: `${EMPRESA.url}/og-hero.jpg`,
     h1Inicial: 'Móveis Planejados em Jaú e Região: Fábrica e Marcenaria Sob Medida com Projeto 3D',
     resumoHtmlInicial: TEXTO_HERO.texto,
+  },
+  '/marcenaria-em-jau': {
+    rota: '/marcenaria-em-jau',
+    title: PAGINAS_AMBIENTES_LOCAIS['/marcenaria-em-jau'].tituloSeo,
+    description: PAGINAS_AMBIENTES_LOCAIS['/marcenaria-em-jau'].descricaoSeo,
+    canonical: `${EMPRESA.url}/marcenaria-em-jau`,
+    ogImage: `${EMPRESA.url}/obras/comercial-gocoffee-fachada.jpg`,
+    h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/marcenaria-em-jau'].h1,
+    resumoHtmlInicial:
+      PAGINAS_AMBIENTES_LOCAIS['/marcenaria-em-jau'].paragrafosReais.join(' '),
   },
   '/contato': {
     rota: '/contato',
@@ -361,6 +532,16 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
     resumoHtmlInicial:
       PAGINAS_AMBIENTES_LOCAIS['/cozinhas-planejadas-jau'].paragrafosReais.join(' '),
   },
+  '/quartos-e-closets-planejados-jau': {
+    rota: '/quartos-e-closets-planejados-jau',
+    title: PAGINAS_AMBIENTES_LOCAIS['/quartos-e-closets-planejados-jau'].tituloSeo,
+    description: PAGINAS_AMBIENTES_LOCAIS['/quartos-e-closets-planejados-jau'].descricaoSeo,
+    canonical: `${EMPRESA.url}/quartos-e-closets-planejados-jau`,
+    ogImage: `${EMPRESA.url}/obras/dormitorio-led-1.jpg`,
+    h1Inicial: PAGINAS_AMBIENTES_LOCAIS['/quartos-e-closets-planejados-jau'].h1,
+    resumoHtmlInicial:
+      PAGINAS_AMBIENTES_LOCAIS['/quartos-e-closets-planejados-jau'].paragrafosReais.join(' '),
+  },
   '/quartos-planejados-jau': {
     rota: '/quartos-planejados-jau',
     title: PAGINAS_AMBIENTES_LOCAIS['/quartos-planejados-jau'].tituloSeo,
@@ -395,6 +576,12 @@ export const METADADOS_ROTAS_SEO: Record<RotaPublica, MetaRotaSeo> = {
 
 const CATALOGO_OFERTAS_AMBIENTES = [
   {
+    name: 'Marcenaria Sob Medida 100% MDF em Jaú',
+    description:
+      'Fábrica própria de marcenaria sob medida no Jardim Itamarati em Jaú/SP com maquinário próprio, corte de precisão em chapas 100% MDF (15mm, 18mm e 25mm), fitamento em PVC de alta resistência e execução para arquitetos e residências.',
+    url: `${EMPRESA.url}/marcenaria-em-jau`,
+  },
+  {
     name: 'Cozinhas Planejadas Sob Medida em Jaú',
     description:
       'Cozinhas planejadas 100% MDF em Jaú com ilha central, torre quente para forno e micro-ondas, MDF naval (hidrófugo) nas áreas úmidas, perfis de LED embutidos e ferragens com amortecimento slow motion.',
@@ -404,13 +591,13 @@ const CATALOGO_OFERTAS_AMBIENTES = [
     name: 'Dormitórios, Guarda-Roupas e Closets Planejados',
     description:
       'Closets sob medida em L ou U, guarda-roupas até o teto com portas de correr ou giro, cabideiros iluminados em LED, sapateiras telescópicas, divisórias de veludo e quartos infantis sob medida em Jaú.',
-    url: `${EMPRESA.url}/closets-sob-medida-jau`,
+    url: `${EMPRESA.url}/quartos-e-closets-planejados-jau`,
   },
   {
     name: 'Salas de Estar, Painéis Ripados de TV e Home Theater',
     description:
       'Painéis ripados em MDF Freijó ou Nogueira até o teto, racks suspensos com passagem oculta de cabos, cristaleiras com vidro reflecta e iluminação indireta em LED para salas em Jaú e região.',
-    url: `${EMPRESA.url}/quartos-planejados-jau`,
+    url: `${EMPRESA.url}/quartos-e-closets-planejados-jau`,
   },
   {
     name: 'Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia',
@@ -419,18 +606,56 @@ const CATALOGO_OFERTAS_AMBIENTES = [
     url: `${EMPRESA.url}/cozinhas-planejadas-jau`,
   },
   {
-    name: 'Banheiros e Lavabos Planejados',
-    description:
-      'Gabinetes sob medida 100% MDF resistente à umidade para banheiros e lavabos, espelheiras com iluminação frontal ou indireta em LED e nichos organizadores sob medida.',
-    url: `${EMPRESA.url}/quartos-planejados-jau`,
-  },
-  {
     name: 'Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú',
     description:
       'Recepções, estações de trabalho ergonômicas, salas de reunião, consultórios médicos e odontológicos, escritórios de advocacia e marcenaria comercial completa em Jaú e região.',
-    url: `${EMPRESA.url}/home-office-planejado-jau`,
+    url: `${EMPRESA.url}/marcenaria-em-jau`,
   },
 ];
+
+export interface OpcoesImageObjectSchema {
+  url: string;
+  caption: string;
+  name?: string;
+  description?: string;
+}
+
+/**
+ * Gera um ImageObject completo conforme os 5 metadados obrigatórios do Google Imagens / Search Console,
+ * apontando license para /termos e acquireLicensePage para /contato (sem âncoras #).
+ */
+export function gerarImageObjectSchema({
+  url,
+  caption,
+  name,
+  description,
+}: OpcoesImageObjectSchema): Record<string, unknown> {
+  const urlAbsoluta = url.startsWith('http')
+    ? url
+    : `${EMPRESA.url}${url.startsWith('/') ? '' : '/'}${url}`;
+  return {
+    '@type': 'ImageObject',
+    url: urlAbsoluta,
+    contentUrl: urlAbsoluta,
+    ...(name ? { name } : {}),
+    ...(description ? { description } : {}),
+    caption,
+    creditText: 'Projeto executado por Império Móveis Planejados Jaú',
+    copyrightNotice:
+      '© 2026 Império Móveis Planejados Jaú (CNPJ 48.945.152/0001-93). Todos os direitos reservados.',
+    license: 'https://www.imperiomoveisplanejadosjau.com.br/termos',
+    acquireLicensePage: 'https://www.imperiomoveisplanejadosjau.com.br/contato',
+    creator: {
+      '@type': 'Organization',
+      '@id': 'https://www.imperiomoveisplanejadosjau.com.br/#organization',
+      name: 'Império Móveis Planejados Jaú',
+      url: 'https://www.imperiomoveisplanejadosjau.com.br/',
+    },
+    copyrightHolder: {
+      '@id': 'https://www.imperiomoveisplanejadosjau.com.br/#organization',
+    },
+  };
+}
 
 /**
  * Entidade principal ["FurnitureStore", "HomeAndConstructionBusiness", "LocalBusiness"]
@@ -516,9 +741,21 @@ export function gerarEntidadeOrganizacaoSchema(): Record<string, unknown> {
     ],
     sameAs,
     image: [
-      `${EMPRESA.url}/og-hero.jpg`,
-      `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
-      `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
+      gerarImageObjectSchema({
+        url: `${EMPRESA.url}/og-hero.jpg`,
+        name: 'Cozinha planejada sob medida 100% MDF em Jaú SP - Império Móveis Planejados',
+        caption: 'Cozinha planejada sob medida 100% MDF com ilha e iluminação em LED executada em Jaú/SP pela Império Móveis Planejados.',
+      }),
+      gerarImageObjectSchema({
+        url: `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
+        name: 'Cozinha planejada com ilha verde-sálvia em Jaú SP - Império Móveis Planejados',
+        caption: 'Cozinha planejada com ilha central em verde-sálvia, cristaleira iluminada e marcenaria até o teto em Jaú/SP.',
+      }),
+      gerarImageObjectSchema({
+        url: `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
+        name: 'Quarto infantil planejado cama-casinha em Jaú SP - Império Móveis Planejados',
+        caption: 'Quarto infantil sob medida em 100% MDF com cama-casinha, escorregador e escada com gavetas em Jaú/SP.',
+      }),
     ],
   };
 }
@@ -630,10 +867,11 @@ export function gerarSuperGrafoJsonLd(): Record<string, unknown> {
         inLanguage: 'pt-BR',
         isPartOf: { '@id': `${EMPRESA.url}/#website` },
         about: { '@id': `${EMPRESA.url}/#organization` },
-        primaryImageOfPage: {
-          '@type': 'ImageObject',
+        primaryImageOfPage: gerarImageObjectSchema({
           url: `${EMPRESA.url}/og-hero.jpg`,
-        },
+          name: 'Móveis Planejados em Jaú SP - Império Móveis Planejados',
+          caption: 'Apresentação de projeto 3D e obra real de cozinha planejada sob medida 100% MDF em Jaú/SP.',
+        }),
         video: { '@id': `${EMPRESA.url}/#video-projeto-3d` },
         breadcrumb: { '@id': `${EMPRESA.url}/#breadcrumb` },
         speakable: {
@@ -659,20 +897,26 @@ export function gerarSuperGrafoJsonLd(): Record<string, unknown> {
           {
             '@type': 'ListItem',
             position: 2,
+            name: 'Marcenaria Sob Medida em Jaú',
+            item: `${EMPRESA.url}/marcenaria-em-jau`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
             name: 'Cozinhas Planejadas em Jaú',
             item: `${EMPRESA.url}/cozinhas-planejadas-jau`,
           },
           {
             '@type': 'ListItem',
-            position: 3,
-            name: 'Closets e Dormitórios Sob Medida em Jaú',
-            item: `${EMPRESA.url}/closets-sob-medida-jau`,
+            position: 4,
+            name: 'Quartos e Closets Planejados em Jaú',
+            item: `${EMPRESA.url}/quartos-e-closets-planejados-jau`,
           },
           {
             '@type': 'ListItem',
-            position: 4,
-            name: 'Projetar Móveis em 3D Online',
-            item: `${EMPRESA.url}/projetar`,
+            position: 5,
+            name: 'Obras Reais Entregues',
+            item: `${EMPRESA.url}/obras`,
           },
         ],
       },

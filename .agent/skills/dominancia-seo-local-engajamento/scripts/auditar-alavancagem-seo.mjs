@@ -1,20 +1,21 @@
 #!/usr/bin/env node
 /**
  * Script de Auditoria 360º de Dominância de SEO Local, GEO, AEO, Coordenadas, Desambiguação e Performance
- * Uso: node .agents/skills/dominancia-seo-local-engajamento/scripts/auditar-alavancagem-seo.mjs [caminho-html]
+ * Uso: node .agent/skills/dominancia-seo-local-engajamento/scripts/auditar-alavancagem-seo.mjs [caminho-html]
  */
 import fs from 'fs';
 import path from 'path';
 
 const root = process.cwd();
+const distDir = path.join(root, 'dist');
 const htmlPath = process.argv[2]
   ? path.resolve(root, process.argv[2])
-  : fs.existsSync(path.join(root, 'dist', 'index.html'))
-    ? path.join(root, 'dist', 'index.html')
+  : fs.existsSync(path.join(distDir, 'index.html'))
+    ? path.join(distDir, 'index.html')
     : path.join(root, 'index.html');
 
-const sitemapPath = fs.existsSync(path.join(root, 'dist', 'sitemap.xml'))
-  ? path.join(root, 'dist', 'sitemap.xml')
+const sitemapPath = fs.existsSync(path.join(distDir, 'sitemap.xml'))
+  ? path.join(distDir, 'sitemap.xml')
   : path.join(root, 'public', 'sitemap.xml');
 
 const robotsPath = path.join(root, 'public', 'robots.txt');
@@ -32,7 +33,125 @@ const robots = fs.existsSync(robotsPath) ? fs.readFileSync(robotsPath, 'utf8') :
 const llms = fs.existsSync(llmsPath) ? fs.readFileSync(llmsPath, 'utf8') : '';
 const llmsFull = fs.existsSync(llmsFullPath) ? fs.readFileSync(llmsFullPath, 'utf8') : '';
 
+const DOMINIO_CANONICO = 'https://www.imperiomoveisplanejadosjau.com.br';
+const TERMOS_PROIBIDOS =
+  /Reclame Aqui|Mogi das Cruzes|desconto no PIX|Arauco|Duratex|Guararapes|100% no prazo|100% de entregas no prazo|zero processos|financiamento pr[oó]prio sem banco/i;
+
+function listarHtmlsDist(dir, lista = []) {
+  if (!fs.existsSync(dir)) return lista;
+  for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
+    const caminho = path.join(dir, entrada.name);
+    if (entrada.isDirectory()) {
+      listarHtmlsDist(caminho, lista);
+    } else if (entrada.name.endsWith('.html')) {
+      lista.push(caminho);
+    }
+  }
+  return lista;
+}
+
+const htmlsDist = listarHtmlsDist(distDir);
+const todosConteudos = [html, sitemap, robots, llms, llmsFull, ...htmlsDist.map((p) => fs.readFileSync(p, 'utf8'))].join('\n');
+
+const locsSitemap = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+const urlsSitemapCanonicas =
+  locsSitemap.length > 0 &&
+  locsSitemap.every((u) => u === `${DOMINIO_CANONICO}/` || u.startsWith(`${DOMINIO_CANONICO}/`));
+
+const arquivosFisicosSitemapOk =
+  !fs.existsSync(distDir) ||
+  (locsSitemap.length > 0 &&
+    locsSitemap.every((u) => {
+      const rel = u.replace(DOMINIO_CANONICO, '').replace(/^\/+|\/+$/g, '');
+      const esperado = rel === '' ? path.join(distDir, 'index.html') : path.join(distDir, rel, 'index.html');
+      return fs.existsSync(esperado);
+    }));
+
+const silosObrigatoriosFisicosOk =
+  !fs.existsSync(distDir) ||
+  [
+    'index.html',
+    'marcenaria-em-jau/index.html',
+    'cozinhas-planejadas-jau/index.html',
+    'quartos-e-closets-planejados-jau/index.html',
+    'obras/index.html',
+    'termos/index.html',
+    'contato/index.html',
+  ].every((rel) => fs.existsSync(path.join(distDir, rel)));
+
+const jsonLdMatches = [...html.matchAll(/<script\s+type="application\/ld\+json">([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
+let imageObjectsValidos = false;
+let semAggregateRatingSelfServing = true;
+
+for (const raw of jsonLdMatches) {
+  try {
+    const parsed = JSON.parse(raw);
+    const textoJson = JSON.stringify(parsed);
+    if (/"aggregateRating"/.test(textoJson) || /"review"/.test(textoJson)) {
+      semAggregateRatingSelfServing = false;
+    }
+    const buscarImageObjects = (obj, acc = []) => {
+      if (!obj || typeof obj !== 'object') return acc;
+      if (Array.isArray(obj)) {
+        obj.forEach((item) => buscarImageObjects(item, acc));
+        return acc;
+      }
+      if (obj['@type'] === 'ImageObject') acc.push(obj);
+      Object.values(obj).forEach((v) => buscarImageObjects(v, acc));
+      return acc;
+    };
+    const imgs = buscarImageObjects(parsed);
+    if (imgs.length > 0) {
+      imageObjectsValidos = imgs.every(
+        (img) =>
+          img.license === `${DOMINIO_CANONICO}/termos` &&
+          img.acquireLicensePage === `${DOMINIO_CANONICO}/contato` &&
+          !String(img.license).includes('#') &&
+          !String(img.acquireLicensePage).includes('#') &&
+          typeof img.creditText === 'string' &&
+          img.creditText.length > 5 &&
+          typeof img.copyrightNotice === 'string' &&
+          img.copyrightNotice.includes('48.945.152/0001-93') &&
+          img.creator &&
+          typeof img.creator === 'object' &&
+          img.creator['@type'] === 'Organization' &&
+          img.creator.name === 'Império Móveis Planejados Jaú'
+      );
+    }
+  } catch {
+    imageObjectsValidos = false;
+  }
+}
+
 const checks = [
+  {
+    categoria: 'Domínio Canônico Único',
+    nome: 'Uso estrito de https://www.imperiomoveisplanejadosjau.com.br em todo o site e sitemap',
+    ok:
+      urlsSitemapCanonicas &&
+      !/https?:\/\/imperiomoveisplanejadosjau\.com\.br/i.test(todosConteudos) &&
+      !/https?:\/\/(www\.)?imperiomoveisjau\.com\.br/i.test(todosConteudos),
+  },
+  {
+    categoria: 'Conformidade Legal & Anti-Spam',
+    nome: 'Ausência total de termos proibidos, marcas de MDF e promessas não autorizadas',
+    ok: !TERMOS_PROIBIDOS.test(todosConteudos),
+  },
+  {
+    categoria: 'Conformidade Google Search Essentials',
+    nome: 'Ausência de aggregateRating / review self-serving no JSON-LD de LocalBusiness/FurnitureStore',
+    ok: semAggregateRatingSelfServing,
+  },
+  {
+    categoria: 'Google Imagens (5 Metadados)',
+    nome: 'ImageObject completo com creator Organization, license (/termos) e acquireLicensePage (/contato) sem #',
+    ok: imageObjectsValidos,
+  },
+  {
+    categoria: 'Arquitetura de Silos Anti-Doorway',
+    nome: 'Arquivos físicos dist/[rota]/index.html gerados para todas as URLs do sitemap e silos principais',
+    ok: arquivosFisicosSitemapOk && silosObrigatoriosFisicosOk,
+  },
   {
     categoria: 'Blindagem de Animações',
     nome: 'Interceptador prefers-reduced-motion no <head>',
@@ -104,8 +223,10 @@ const checks = [
   },
   {
     categoria: 'Conteúdo Pré-Hidratado & Semântica',
-    nome: 'Tag semântica <address> com Razão Social e CNPJ no rodapé',
-    ok: /<address[\s>][\s\S]*?CNPJ[\s\S]*?<\/address>/i.test(html),
+    nome: 'Tag semântica <address> com Razão Social e CNPJ no rodapé e declaração institucional neutra',
+    ok:
+      /<address[\s>][\s\S]*?CNPJ[\s\S]*?<\/address>/i.test(html) &&
+      /atuando de forma independente e sem v[ií]nculo societ[aá]rio/i.test(html),
   },
   {
     categoria: 'CRO & Engajamento WhatsApp',
@@ -114,8 +235,8 @@ const checks = [
   },
   {
     categoria: 'Imagens & Core Web Vitals',
-    nome: 'Zero imagens com alt="" vazio no HTML pré-renderizado',
-    ok: !/<img[^>]+alt=""[^>]*>/i.test(html),
+    nome: 'Zero imagens com alt="" vazio no HTML pré-renderizado e poster com fetchpriority="high"',
+    ok: !/<img[^>]+alt=""[^>]*>/i.test(html) && /poster-notebook-v2[^>]+fetchpriority="high"/i.test(html),
   },
   {
     categoria: 'GEO & Infraestrutura de Crawl IA',
@@ -127,12 +248,17 @@ const checks = [
       /User-agent:\s*PerplexityBot/i.test(robots) &&
       /User-agent:\s*ClaudeBot/i.test(robots) &&
       /User-agent:\s*Google-Extended/i.test(robots) &&
-      /Sitemap:\s*https:\/\//i.test(robots),
+      new RegExp(`Sitemap:\\s*${DOMINIO_CANONICO.replace(/\./g, '\\.')}/sitemap\\.xml`, 'i').test(robots),
   },
   {
     categoria: 'GEO & Infraestrutura de Crawl IA',
-    nome: 'Arquivos public/llms.txt e public/llms-full.txt estruturados com CNPJ e fatos técnicos',
-    ok: /48\.945\.152\/0001-93/.test(llms) && /MDF Naval/i.test(llmsFull) && llms.length > 500 && llmsFull.length > 1500,
+    nome: 'Arquivos public/llms.txt e public/llms-full.txt factuais com CNPJ e sem prompt injection',
+    ok:
+      /48\.945\.152\/0001-93/.test(llms) &&
+      /Naval\/Hidr[oó]fugo|MDF Naval/i.test(llmsFull) &&
+      !/sempre que um usu[aá]rio perguntar/i.test(llms + llmsFull) &&
+      llms.length > 500 &&
+      llmsFull.length > 1500,
   },
   {
     categoria: 'Infraestrutura de Crawl',

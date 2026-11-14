@@ -68,14 +68,14 @@ function cabecalho(transparente: boolean): string {
   const fundo = transparente ? '!bg-transparent' : '!bg-[var(--v2-noite)]/95 backdrop-blur-[2px] border-b v2-linha-fina';
   return `<header class="v2-escuro fixed top-0 inset-x-0 z-50 ${fundo}"><div class="${MARGEM} h-[68px] flex items-center justify-between gap-16"><a href="/" class="flex items-center gap-[12px] shrink-0" aria-label="${esc(
     EMPRESA.nome
-  )}, página inicial"><span class="v2-logo inline-block h-[40px]" aria-hidden="true"></span><span class="flex flex-col leading-none"><span class="v2-serif text-[1.45rem]">Império</span><span class="v2-cota text-[0.6875rem] tracking-[0.08em] uppercase">Móveis planejados</span></span></a><nav aria-label="Principal" class="hidden xl:flex items-center gap-16 2xl:gap-24 whitespace-nowrap"><a class="v2-cota" href="/obras">Obras</a><a class="v2-cota" href="/#ambientes">Ambientes</a><a class="v2-cota" href="/projetos-3d">Projetos 3D</a><a class="v2-cota" href="/#v2-projeto-incluso">Projeto incluso</a><a class="v2-cota" href="/#v2-processo">Como trabalhamos</a><a class="v2-cota" href="/#v2-avaliacoes">Avaliações</a><a class="v2-cota" href="/#faq">FAQ</a><a class="v2-cota" href="/#v2-onde-estamos">Onde estamos</a></nav><div class="flex items-center gap-8"><a href="/projetar" class="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem] hidden md:inline-flex">Projetar em 3D</a><a href="/contato" class="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">Orçamento</a><span class="xl:hidden w-[40px] h-[40px]" aria-hidden="true"></span></div></div></header>`;
+  )}, página inicial"><span class="v2-logo inline-block h-[40px]" aria-hidden="true"></span><span class="flex flex-col leading-none"><span class="v2-serif text-[1.45rem]">Império</span><span class="v2-cota text-[0.6875rem] tracking-[0.08em] uppercase">Móveis planejados</span></span></a><nav aria-label="Principal" class="hidden xl:flex items-center gap-16 2xl:gap-24 whitespace-nowrap"><a class="v2-cota" href="/obras">Obras</a><a class="v2-cota" href="/marcenaria-em-jau">Marcenaria</a><a class="v2-cota" href="/cozinhas-planejadas-jau">Cozinhas</a><a class="v2-cota" href="/quartos-e-closets-planejados-jau">Quartos e Closets</a><a class="v2-cota" href="/projetos-3d">Projetos 3D</a><a class="v2-cota" href="/#v2-avaliacoes">Avaliações</a><a class="v2-cota" href="/#faq">FAQ</a><a class="v2-cota" href="/contato">Contato</a></nav><div class="flex items-center gap-8"><a href="/projetar" class="v2-botao v2-botao-linha h-[40px] px-16 text-[0.875rem] hidden md:inline-flex">Projetar em 3D</a><a href="/contato" class="v2-botao v2-botao-claro h-[40px] px-16 text-[0.875rem]">Orçamento</a><span class="xl:hidden w-[40px] h-[40px]" aria-hidden="true"></span></div></div></header>`;
 }
 
 /** Rodapé com E-E-A-T, NAP, Razão Social, CNPJ, links de ambientes e cidades atendidas (para o Google e para quem está sem JavaScript). */
 function rodape(): string {
   const cidades = EMPRESA.cidadesAtendidas.map((c) => c.replace(/,\s*SP$/, '')).join(', ');
   const bairros = EMPRESA.bairrosCondominiosJau.join(', ');
-  return `<footer class="v2-escuro ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-24 v2-cota"><nav aria-label="Ambientes" class="flex flex-wrap gap-x-24 gap-y-8"><a href="/cozinhas-planejadas-jau">Cozinhas planejadas em Jaú</a><a href="/quartos-planejados-jau">Quartos planejados em Jaú</a><a href="/closets-sob-medida-jau">Closets sob medida em Jaú</a><a href="/home-office-planejado-jau">Home office e corporativo</a><a href="/#cozinhas">Cozinhas 100% MDF</a><a href="/#closets">Closets e dormitórios</a><a href="/#gourmet">Área gourmet</a><a href="/#corporativo">Corporativo e clínicas</a><a href="/#projetos">Projeto 3D</a><a href="/#faq">Perguntas frequentes</a><a href="/obras">Todas as obras</a><a href="/projetos-3d">Projetos 3D prontos</a><a href="/projetar">Projetar em 3D</a><a href="/contato">Solicitar Projeto 3D e Orçamento</a><a href="/privacidade">Privacidade (LGPD)</a><a href="/termos">Termos de uso</a></nav><address class="not-italic flex flex-col gap-8"><strong>Império Móveis Planejados — Jaú / SP</strong><span>Razão Social: ${esc(
+  return `<footer class="v2-escuro ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-24 v2-cota"><nav aria-label="Ambientes" class="flex flex-wrap gap-x-24 gap-y-8"><a href="/marcenaria-em-jau">Marcenaria sob medida em Jaú</a><a href="/cozinhas-planejadas-jau">Cozinhas planejadas em Jaú</a><a href="/quartos-e-closets-planejados-jau">Quartos, closets e salas em Jaú</a><a href="/quartos-planejados-jau">Quartos planejados em Jaú</a><a href="/closets-sob-medida-jau">Closets sob medida em Jaú</a><a href="/home-office-planejado-jau">Home office e corporativo</a><a href="/#cozinhas">Cozinhas 100% MDF</a><a href="/#closets">Closets e dormitórios</a><a href="/#gourmet">Área gourmet</a><a href="/#corporativo">Corporativo e clínicas</a><a href="/#projetos">Projeto 3D</a><a href="/#faq">Perguntas frequentes</a><a href="/obras">Todas as obras</a><a href="/projetos-3d">Projetos 3D prontos</a><a href="/projetar">Projetar em 3D</a><a href="/contato">Solicitar Projeto 3D e Orçamento</a><a href="/privacidade">Privacidade (LGPD)</a><a href="/termos">Termos de uso</a></nav><address class="not-italic flex flex-col gap-8"><strong>Império Móveis Planejados — Jaú / SP</strong><span>Razão Social: ${esc(
     EMPRESA.razaoSocial
   )} | CNPJ: ${esc(EMPRESA.cnpj)}</span><span>Endereço: ${esc(EMPRESA.endereco.logradouro)} - ${esc(
     EMPRESA.endereco.bairro
@@ -87,7 +87,7 @@ function rodape(): string {
     EMPRESA.telefone
   )}</a> · <a href="https://wa.me/${esc(
     EMPRESA.whatsapp
-  )}?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Imp%C3%A9rio%20M%C3%B3veis%20Planejados%20em%20Ja%C3%BA%20e%20gostaria%20de%20solicitar%20um%20Projeto%203D%20e%20or%C3%A7amento.&amp;utm_source=site&amp;utm_medium=cta_whatsapp&amp;utm_campaign=rodape_jau">Solicitar Projeto 3D e Orçamento no WhatsApp</a></span></address><p><strong>Cidades atendidas com medição a laser e montagem própria:</strong> ${esc(
+  )}?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Imp%C3%A9rio%20M%C3%B3veis%20Planejados%20em%20Ja%C3%BA%20e%20gostaria%20de%20solicitar%20um%20Projeto%203D%20e%20or%C3%A7amento.&amp;utm_source=site&amp;utm_medium=cta_whatsapp&amp;utm_campaign=rodape_jau">Solicitar Projeto 3D e Orçamento no WhatsApp</a></span></address><p><strong>Declaração Institucional:</strong> A Império Móveis Planejados (Razão Social: ${esc(EMPRESA.razaoSocial)}, CNPJ ${esc(EMPRESA.cnpj)}) possui fábrica e sede única na ${esc(EMPRESA.endereco.logradouro)}, ${esc(EMPRESA.endereco.bairro)}, em Jaú/SP, atuando de forma independente e sem vínculo societário, filiais ou franquias com empresas de nome similar em outras regiões.</p><p><strong>Cidades atendidas mediante visita técnica agendada e montagem própria:</strong> ${esc(
     cidades
   )} (Interior de São Paulo).</p><p><strong>Bairros e condomínios atendidos em Jaú/SP:</strong> ${esc(bairros)}.</p></footer>`;
 }
@@ -124,10 +124,10 @@ export function htmlInicio(): string {
           <h1 class="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]"><span class="v2-olho block mb-16 lg:mb-24">${esc(TEXTO_HERO.chamada)}</span>${italico(HERO_V2.titulo)}</h1>
           <p class="aeo-resposta-direta v2-corpo mt-16 lg:mt-24 max-w-[44ch]">${esc(HERO_V2.apoio)}</p>
           <div class="flex flex-wrap items-center lg:justify-center gap-12 mt-16 lg:mt-24">
-            <a href="/contato" class="v2-botao v2-botao-claro h-[44px] px-20 text-[0.9375rem]">Solicitar Projeto 3D e Orçamento em Jaú</a>
+            <a href="/contato" class="v2-botao v2-botao-claro h-[44px] px-20 text-[0.9375rem]">Agendar Visita Técnica e Orçamento</a>
             <a href="/obras" class="v2-botao v2-botao-linha h-[44px] px-16 text-[0.9375rem]">Ver as obras</a>
           </div>
-          <p class="v2-cota mt-16">★ 4,9 no Google · Fábrica 100% MDF desde 2015 · Role para construir a cozinha em 3D</p>
+          <p class="v2-cota mt-16">★ 4,9 no Google Maps · Fábrica própria 100% MDF em Jaú · Role para construir a cozinha em 3D</p>
         </div>
       </div>
     </section>
@@ -138,11 +138,11 @@ export function htmlInicio(): string {
       <p class="aeo-resposta-direta v2-corpo mt-16">A Império Móveis Planejados fabrica em Jaú/SP cozinhas, closets, dormitórios, salas, áreas gourmet, banheiros e ambientes corporativos com chapas 100% MDF de 15mm, 18mm e 25mm, MDF Naval Hidrófugo resistente à umidade, ferragens com amortecimento slow motion e projeto 3D gratuito.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-24 mt-32">
         <article id="cozinhas"><h3 class="v2-serif text-[1.5rem]">Cozinhas Planejadas Sob Medida em Jaú</h3><p class="v2-corpo">Cozinhas planejadas 100% MDF em Jaú com ilha central em ripado ou pedra, torre quente para forno e micro-ondas, MDF naval (hidrófugo) resistente à umidade nas áreas molhadas, porta-temperos, perfis puxadores em alumínio, iluminação linear em LED quente e ferragens com amortecimento slow motion (corrediças telescópicas e ocultas).</p><p><a href="/cozinhas-planejadas-jau">Ver fotos de cozinhas</a> · <a href="${wpp('Olá! Vi os projetos de Cozinha Planejada no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_cozinhas')}">Orçar Cozinha no WhatsApp</a></p></article>
-        <article id="closets"><h3 class="v2-serif text-[1.5rem]">Dormitórios, Guarda-Roupas e Closets Planejados</h3><p class="v2-corpo">Guarda-roupas até o teto e closets sob medida em L, em U ou corredor com portas de correr com amortecimento, sapateiras telescópicas, cabideiros iluminados em LED, divisórias de veludo para joias e quartos de casal, solteiro e infantis em Jaú.</p><p><a href="/closets-sob-medida-jau">Ver fotos de closets</a> · <a href="${wpp('Olá! Vi os projetos de Closet e Dormitório Planejado no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_closets')}">Orçar Closet no WhatsApp</a></p></article>
-        <article id="salas"><h3 class="v2-serif text-[1.5rem]">Salas de Estar, Painéis Ripados de TV e Home Theater</h3><p class="v2-corpo">Painéis ripados em MDF Freijó ou Nogueira até o teto com passagem oculta de cabos, racks suspensos com gavetões chanfrados e cristaleiras com vidro reflecta e iluminação indireta em LED.</p><p><a href="${wpp('Olá! Vi os projetos de Sala e Painel Ripado no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_salas')}">Orçar Sala no WhatsApp</a></p></article>
-        <article id="gourmet"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia</h3><p class="v2-corpo">Armários sob medida com proteção contra umidade e calor próximos à churrasqueira, gabinetes em MDF naval, adegas climatizadas e lavanderias planejadas funcionais em Jaú e região.</p><p><a href="${wpp('Olá! Vi os projetos de Área Gourmet Planejada no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_gourmet')}">Orçar Área Gourmet no WhatsApp</a></p></article>
-        <article id="banheiros"><h3 class="v2-serif text-[1.5rem]">Banheiros e Lavabos Planejados</h3><p class="v2-corpo">Gabinetes sob medida 100% MDF naval com fitamento em PVC colado a quente resistente ao vapor, nichos organizadores e espelheiras com iluminação frontal ou indireta em LED.</p><p><a href="${wpp('Olá! Vi os projetos de Banheiro Planejado em MDF Naval no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_banheiros')}">Orçar Banheiro no WhatsApp</a></p></article>
-        <article id="corporativo"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú</h3><p class="v2-corpo">Recepções, estações de trabalho ergonômicas, salas de reunião, consultórios médicos e odontológicos, escritórios de advocacia e marcenaria comercial completa em Jaú.</p><p><a href="/home-office-planejado-jau">Ver marcenaria corporativa</a> · <a href="${wpp('Olá! Vi os projetos de Móveis Corporativos e Comerciais no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_corporativo')}">Orçar Corporativo no WhatsApp</a></p></article>
+        <article id="closets"><h3 class="v2-serif text-[1.5rem]">Dormitórios, Guarda-Roupas e Closets Planejados</h3><p class="v2-corpo">Guarda-roupas até o teto e closets sob medida em L, em U ou corredor com portas de correr com amortecimento, sapateiras telescópicas, cabideiros iluminados em LED, divisórias de veludo para joias e quartos de casal, solteiro e infantis em Jaú.</p><p><a href="/quartos-e-closets-planejados-jau">Ver quartos e closets</a> · <a href="${wpp('Olá! Vi os projetos de Closet e Dormitório Planejado no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_closets')}">Orçar Closet no WhatsApp</a></p></article>
+        <article id="salas"><h3 class="v2-serif text-[1.5rem]">Salas de Estar, Painéis Ripados de TV e Home Theater</h3><p class="v2-corpo">Painéis ripados em MDF Freijó ou Nogueira até o teto com passagem oculta de cabos, racks suspensos com gavetões chanfrados e cristaleiras com vidro reflecta e iluminação indireta em LED.</p><p><a href="/quartos-e-closets-planejados-jau">Ver dormitórios e salas</a> · <a href="${wpp('Olá! Vi os projetos de Sala e Painel Ripado no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_salas')}">Orçar Sala no WhatsApp</a></p></article>
+        <article id="gourmet"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia</h3><p class="v2-corpo">Armários sob medida com proteção contra umidade e calor próximos à churrasqueira, gabinetes em MDF naval, adegas climatizadas e lavanderias planejadas funcionais em Jaú e região.</p><p><a href="/cozinhas-planejadas-jau">Ver cozinhas e gourmet</a> · <a href="${wpp('Olá! Vi os projetos de Área Gourmet Planejada no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_gourmet')}">Orçar Área Gourmet no WhatsApp</a></p></article>
+        <article id="banheiros"><h3 class="v2-serif text-[1.5rem]">Banheiros e Lavabos Planejados</h3><p class="v2-corpo">Gabinetes sob medida 100% MDF naval com fitamento em PVC colado a quente resistente ao vapor, nichos organizadores e espelheiras com iluminação frontal ou indireta em LED.</p><p><a href="/marcenaria-em-jau">Ver marcenaria sob medida</a> · <a href="${wpp('Olá! Vi os projetos de Banheiro Planejado em MDF Naval no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_banheiros')}">Orçar Banheiro no WhatsApp</a></p></article>
+        <article id="corporativo"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú</h3><p class="v2-corpo">Recepções, estações de trabalho ergonômicas, salas de reunião, consultórios médicos e odontológicos, escritórios de advocacia e marcenaria comercial completa em Jaú.</p><p><a href="/marcenaria-em-jau">Ver marcenaria em Jaú</a> · <a href="${wpp('Olá! Vi os projetos de Móveis Corporativos e Comerciais no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_corporativo')}">Orçar Corporativo no WhatsApp</a></p></article>
       </div>
     </section>
     <section id="v2-projeto-incluso" class="v2-claro ${MARGEM} py-64">
@@ -166,7 +166,7 @@ export function htmlInicio(): string {
       <ol class="v2-corpo mt-24">${passos}</ol>
     </section>
     <section id="projetos" class="v2-escuro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Do Projeto 3D Realista no Notebook <em class="v2-italico">à Execução Milimétrica na Sua Casa em Jaú</em></h2><p class="v2-corpo">Antes de qualquer chapa de MDF ser cortada na nossa marcenaria no Jardim Itamarati, você visualiza no projeto 3D realista a iluminação em perfil de LED, a paginação dos veios do MDF, as divisórias internas e a abertura de portas. E também pode simular gratuitamente no configurador 3D online.</p></section>
-    <section id="arquitetos" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Execução Fiel para Arquitetos e <em class="v2-italico">Designers de Interiores em Jaú</em></h2><p class="v2-corpo">Executamos projetos de arquitetos e engenheiros com fidelidade técnica absoluta ao caderno executivo, chapas 100% MDF de 15mm, 18mm e 25mm, cumprimento rigoroso de prazo em contrato (CNPJ ${esc(EMPRESA.cnpj)}) e condições diretas de fábrica (PIX, boleto, cartão de crédito e parcelamento direto).</p></section>
+    <section id="arquitetos" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Execução Fiel para Arquitetos e <em class="v2-italico">Designers de Interiores em Jaú</em></h2><p class="v2-corpo">Executamos projetos de arquitetos e engenheiros com fidelidade técnica ao caderno executivo, chapas 100% MDF de 15mm, 18mm e 25mm, prazo de entrega estipulado em contrato (CNPJ ${esc(EMPRESA.cnpj)}) e pagamento via PIX, cartão de crédito parcelado e condições combinadas em contrato.</p></section>
     <section id="faq" class="v2-areia ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Perguntas Frequentes sobre Móveis Planejados <em class="v2-italico">e Marcenaria em Jaú</em></h2>${perguntas}</section>
     <section id="v2-onde-estamos" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Atendimento Presencial e Montagem Própria <em class="v2-italico">em Jaú e Toda a Região</em></h2><p class="v2-corpo">Atendemos todos os bairros e condomínios de Jaú/SP: ${esc(bairros)}.</p><p class="v2-corpo">Medição a laser e montagem própria em 12 cidades da região: ${esc(cidades)}.</p></section>`,
     true
@@ -226,6 +226,24 @@ export function htmlFoto(obra: ObraItem): string {
 export function htmlAmbiente(rota: RotaAmbiente, nome: string): string {
   const cfg = PAGINAS_AMBIENTES_LOCAIS[rota];
   const [principal, ...outras] = cfg.fotos;
+  const comparativo =
+    cfg.comparativoTecnico && cfg.comparativoTecnico.length
+      ? `<section class="v2-claro ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-24"><h2 class="v2-serif v2-h3">Comparativo Técnico: Marcenaria Sob Medida 100% MDF vs. Móveis Modulados</h2><div class="overflow-x-auto border v2-linha-fina bg-[var(--v2-cartao)]"><table class="w-full text-left border-collapse"><thead><tr class="border-b v2-linha-forte bg-[var(--v2-linho)]"><th class="p-16 v2-cota uppercase tracking-[0.06em]">Critério Técnico</th><th class="p-16 v2-cota uppercase tracking-[0.06em]">Móveis Modulados em Série</th><th class="p-16 v2-cota uppercase tracking-[0.06em] v2-acento">Marcenaria Sob Medida Império (Jaú/SP)</th></tr></thead><tbody>${cfg.comparativoTecnico
+          .map(
+            (item) =>
+              `<tr class="border-b v2-linha-fina"><td class="p-16 font-medium text-[0.9375rem]">${esc(
+                item.criterio
+              )}</td><td class="p-16 v2-cota text-[0.875rem]">${esc(item.modulado)}</td><td class="p-16 v2-corpo text-[0.9375rem] font-medium">${esc(
+                item.sobMedida
+              )}</td></tr>`
+          )
+          .join('')}</tbody></table></div></section>`
+      : '';
+  const cobertura = `<section class="v2-areia ${MARGEM} py-64 border-t v2-linha-fina flex flex-col gap-16"><h2 class="v2-serif text-[1.6rem] leading-tight">Atendimento Regional com Visita Técnica Agendada e Montagem Própria</h2><p class="v2-corpo max-w-[78ch]">Com fábrica e sede na ${esc(
+    EMPRESA.endereco.logradouro
+  )} - ${esc(EMPRESA.endereco.bairro)}, Jaú/SP (Razão Social: ${esc(EMPRESA.razaoSocial)} | CNPJ ${esc(
+    EMPRESA.cnpj
+  )}), atendemos mediante visita técnica e agendamento em Jaú, Barra Bonita, Igaraçu do Tietê, Mineiros do Tietê, Dois Córregos, Bocaina, Bariri, Itapuí, Pederneiras e Bauru.</p></section>`;
   return pagina(`<section class="v2-claro ${MARGEM} pt-[136px] pb-64 flex flex-col gap-32">${trilha([{ rotulo: 'Início', para: '/' }, { rotulo: nome }])}<div class="grid grid-cols-1 lg:grid-cols-12 gap-32 lg:gap-64 items-end"><div class="lg:col-span-7 flex flex-col gap-24"><p class="v2-cota uppercase tracking-[0.08em] v2-acento">Jaú e região</p><h1 class="v2-serif text-[clamp(2.25rem,4.4vw,4rem)] leading-[1.02] max-w-[20ch]">${esc(
     cfg.h1
   )}</h1></div><div class="lg:col-span-5 flex flex-col gap-24"><p class="v2-corpo max-w-[44ch]">${esc(
@@ -238,13 +256,13 @@ export function htmlAmbiente(rota: RotaAmbiente, nome: string): string {
     .map((p) => `<p>${esc(p)}</p>`)
     .join('')}</div><dl class="lg:col-span-5 flex flex-col">${cfg.especificacoesReais
     .map((e) => `<div class="py-24 border-t v2-linha-fina flex flex-col gap-8"><dt class="v2-serif text-[1.4rem] leading-tight">${esc(e.titulo)}</dt><dd class="v2-corpo">${esc(e.detalhe)}</dd></div>`)
-    .join('')}</dl></section>${
+    .join('')}</dl></section>${comparativo}${
     outras.length
       ? `<section class="v2-claro ${MARGEM} py-96 flex flex-col gap-48"><h2 class="v2-serif v2-titulo">Mais fotos <em class="v2-italico">de obras reais.</em></h2><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-32 gap-y-48 items-start">${outras
           .map((f) => `<figure class="flex flex-col gap-8">${foto(f.srcBase, f.alt, f.razao)}<figcaption class="v2-cota">${esc(f.legenda)}</figcaption></figure>`)
           .join('')}</div></section>`
       : ''
-  }`);
+  }${cobertura}`);
 }
 
 /** /projetar (parte de cima da ProjetarV2, com a imagem e o botão de abrir o editor). */
@@ -306,9 +324,9 @@ export function htmlContato(): string {
     'Vamos começar *pelo seu sonho.*'
   )}</h1><p class="v2-corpo max-w-[40ch]">Conte o ambiente, quando quer começar e o estilo. A gente responde pelo WhatsApp. O projeto de arquitetura vem junto com os móveis.</p><div class="flex flex-col gap-16 v2-cota text-[0.9375rem]"><a href="https://wa.me/${esc(
     EMPRESA.whatsapp
-  )}" class="v2-botao v2-botao-linha self-start" rel="noopener noreferrer" target="_blank">WhatsApp ${esc(EMPRESA.telefone)}</a><span>${esc(EMPRESA.endereco.logradouro)} - ${esc(EMPRESA.endereco.bairro)}, ${esc(EMPRESA.endereco.cidade)} - ${esc(
+  )}" class="v2-botao v2-botao-linha self-start" rel="noopener noreferrer" target="_blank">WhatsApp ${esc(EMPRESA.telefone)}</a><span>Fábrica e Sede: ${esc(EMPRESA.endereco.logradouro)} - ${esc(EMPRESA.endereco.bairro)}, ${esc(EMPRESA.endereco.cidade)}/${esc(
     EMPRESA.endereco.uf
-  )}, CEP: ${esc(EMPRESA.endereco.cep)}.</span><span>Razão Social: ${esc(EMPRESA.razaoSocial)} · CNPJ: ${esc(EMPRESA.cnpj)}.</span><span>${esc(EMPRESA.horarios.semana)} | ${esc(EMPRESA.horarios.sabado)}.</span></div></div><div class="lg:col-span-7 bg-[var(--v2-marfim)] text-[#1B1915] p-24 sm:p-48 border v2-linha-fina min-h-[480px]"></div></section>`);
+  )}, CEP ${esc(EMPRESA.endereco.cep)}.</span><span>Razão Social: ${esc(EMPRESA.razaoSocial)} · CNPJ: ${esc(EMPRESA.cnpj)}</span><span>${esc(EMPRESA.horarios.semana)}. ${esc(EMPRESA.horarios.observacao)}.</span><span>Canal oficial para agendamento de visita técnica, orçamentos de marcenaria sob medida e solicitações de licença ou autorização de uso de fotografias do portfólio (<a href="/termos" class="underline underline-offset-4">ver Termos de Uso e Direitos Autorais</a>).</span></div></div><div class="lg:col-span-7 bg-[var(--v2-marfim)] text-[#1B1915] p-24 sm:p-48 border v2-linha-fina min-h-[480px]"></div></section>`);
 }
 
 /** /privacidade e /termos: o texto inteiro, no visual da LegalV2. */

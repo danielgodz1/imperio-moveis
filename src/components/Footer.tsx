@@ -9,7 +9,9 @@ interface FooterProps {
 }
 
 const AMBIENTES = [
+  { rotulo: 'Marcenaria sob medida em Jaú', rota: '/marcenaria-em-jau' },
   { rotulo: 'Cozinhas planejadas em Jaú', rota: '/cozinhas-planejadas-jau' },
+  { rotulo: 'Quartos, closets e salas em Jaú', rota: '/quartos-e-closets-planejados-jau' },
   { rotulo: 'Quartos e suítes planejados', rota: '/quartos-planejados-jau' },
   { rotulo: 'Closets sob medida em Jaú', rota: '/closets-sob-medida-jau' },
   { rotulo: 'Home office e corporativo', rota: '/home-office-planejado-jau' },
@@ -79,7 +81,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateRoute, onOpenBriefing 
               </span>
             </button>
             <p className="tipo-cota text-papel/70 max-w-[32ch]">
-              Fábrica de marcenaria sob medida 100% MDF e arquitetura de interiores em Jaú/SP. Razão Social: {EMPRESA.razaoSocial} · CNPJ: {EMPRESA.cnpj}.
+              A Império Móveis Planejados (Razão Social: {EMPRESA.razaoSocial}, CNPJ {EMPRESA.cnpj}) possui fábrica e sede única na {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.bairro}, em Jaú/SP, atuando de forma independente e sem vínculo societário, filiais ou franquias com empresas de nome similar em outras regiões.
             </p>
           </div>
 
