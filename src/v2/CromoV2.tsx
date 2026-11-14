@@ -10,13 +10,13 @@ export const MARGEM = 'px-16 sm:px-32 lg:px-64';
 
 const NAV = [
   { rotulo: 'Obras', para: '/obras' },
-  { rotulo: 'Ambientes', para: '/#ambientes' },
+  { rotulo: 'Marcenaria', para: '/marcenaria-em-jau' },
+  { rotulo: 'Cozinhas', para: '/cozinhas-planejadas-jau' },
+  { rotulo: 'Quartos e Closets', para: '/quartos-e-closets-planejados-jau' },
   { rotulo: 'Projetos 3D', para: '/projetos-3d' },
-  { rotulo: 'Projeto incluso', para: '/#v2-projeto-incluso' },
-  { rotulo: 'Como trabalhamos', para: '/#v2-processo' },
   { rotulo: 'Avaliações', para: '/#v2-avaliacoes' },
   { rotulo: 'FAQ', para: '/#faq' },
-  { rotulo: 'Onde estamos', para: '/#v2-onde-estamos' },
+  { rotulo: 'Contato', para: '/contato' },
 ];
 
 /**
@@ -159,14 +159,14 @@ export const PainelOrcamentoV2: React.FC<{ aberto: boolean; ambiente?: string; o
 };
 
 const AMBIENTES = [
+  { rotulo: 'Marcenaria sob medida em Jaú', para: '/marcenaria-em-jau' },
   { rotulo: 'Cozinhas planejadas em Jaú', para: '/cozinhas-planejadas-jau' },
+  { rotulo: 'Quartos, closets e salas em Jaú', para: '/quartos-e-closets-planejados-jau' },
   { rotulo: 'Quartos e suítes planejados', para: '/quartos-planejados-jau' },
   { rotulo: 'Closets sob medida em Jaú', para: '/closets-sob-medida-jau' },
   { rotulo: 'Home office e corporativo', para: '/home-office-planejado-jau' },
   { rotulo: 'Cozinhas 100% MDF', para: '/#cozinhas' },
-  { rotulo: 'Closets e dormitórios', para: '/#closets' },
   { rotulo: 'Área gourmet e churrasqueira', para: '/#gourmet' },
-  { rotulo: 'Marcenaria corporativa', para: '/#corporativo' },
   { rotulo: 'Todas as obras', para: '/obras' },
 ];
 

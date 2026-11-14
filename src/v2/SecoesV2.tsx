@@ -187,7 +187,7 @@ const AMBIENTES_CATALOGO_SEO = [
   {
     id: 'closets',
     titulo: 'Dormitórios, Guarda-Roupas e Closets Planejados',
-    rota: '/closets-sob-medida-jau',
+    rota: '/quartos-e-closets-planejados-jau',
     briefing: 'Closet',
     badges: ['Piso ao Teto', 'Vidro Reflecta', 'Cabideiro LED'],
     whatsappMsg:
@@ -198,7 +198,7 @@ const AMBIENTES_CATALOGO_SEO = [
   {
     id: 'salas',
     titulo: 'Salas de Estar, Painéis Ripados de TV e Home Theater',
-    rota: '/quartos-planejados-jau',
+    rota: '/quartos-e-closets-planejados-jau',
     briefing: 'Sala',
     badges: ['Ripado Freijó/Nogueira', 'Cabos Ocultos', 'Cristaleira LED'],
     whatsappMsg:
@@ -220,7 +220,7 @@ const AMBIENTES_CATALOGO_SEO = [
   {
     id: 'banheiros',
     titulo: 'Banheiros e Lavabos Planejados',
-    rota: '/quartos-planejados-jau',
+    rota: '/marcenaria-em-jau',
     briefing: 'Banheiro',
     badges: ['100% MDF Naval', 'Borda PVC a Quente', 'Espelheira LED'],
     whatsappMsg:
@@ -231,7 +231,7 @@ const AMBIENTES_CATALOGO_SEO = [
   {
     id: 'corporativo',
     titulo: 'Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú',
-    rota: '/home-office-planejado-jau',
+    rota: '/marcenaria-em-jau',
     briefing: 'Comercial',
     badges: ['Normas Sanitárias', 'Ergonomia ABNT', 'Entrega em Contrato'],
     whatsappMsg:

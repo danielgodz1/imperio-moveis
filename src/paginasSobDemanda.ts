@@ -22,7 +22,14 @@ export const ContactQuotationPage = lazy(() => carregar.contato().then((m) => ({
 export const PaginaAmbienteLocal = lazy(() => carregar.ambiente().then((m) => ({ default: m.PaginaAmbienteLocal })));
 export const VisitBookingModal = lazy(() => carregar.visita().then((m) => ({ default: m.VisitBookingModal })));
 
-const AMBIENTES = ['/cozinhas-planejadas-jau', '/quartos-planejados-jau', '/closets-sob-medida-jau', '/home-office-planejado-jau'];
+const AMBIENTES = [
+  '/marcenaria-em-jau',
+  '/cozinhas-planejadas-jau',
+  '/quartos-e-closets-planejados-jau',
+  '/quartos-planejados-jau',
+  '/closets-sob-medida-jau',
+  '/home-office-planejado-jau',
+];
 
 /** Baixa os pedaços da página do endereço atual (só a V1, em /v1, tem pedaços próprios). */
 export function precarregarRota(pathname: string): Promise<unknown> {

@@ -9,7 +9,9 @@ interface FooterProps {
 }
 
 const AMBIENTES = [
+  { rotulo: 'Marcenaria sob medida em Jaú', rota: '/marcenaria-em-jau' },
   { rotulo: 'Cozinhas planejadas em Jaú', rota: '/cozinhas-planejadas-jau' },
+  { rotulo: 'Quartos, closets e salas em Jaú', rota: '/quartos-e-closets-planejados-jau' },
   { rotulo: 'Quartos e suítes planejados', rota: '/quartos-planejados-jau' },
   { rotulo: 'Closets sob medida em Jaú', rota: '/closets-sob-medida-jau' },
   { rotulo: 'Home office e corporativo', rota: '/home-office-planejado-jau' },

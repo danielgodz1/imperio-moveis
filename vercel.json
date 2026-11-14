@@ -162,8 +162,16 @@
       "destination": "/termos/index.html"
     },
     {
+      "source": "/marcenaria-em-jau",
+      "destination": "/marcenaria-em-jau/index.html"
+    },
+    {
       "source": "/cozinhas-planejadas-jau",
       "destination": "/cozinhas-planejadas-jau/index.html"
+    },
+    {
+      "source": "/quartos-e-closets-planejados-jau",
+      "destination": "/quartos-e-closets-planejados-jau/index.html"
     },
     {
       "source": "/quartos-planejados-jau",
@@ -258,8 +266,16 @@
       "destination": "/v1/termos/index.html"
     },
     {
+      "source": "/v1/marcenaria-em-jau",
+      "destination": "/v1/marcenaria-em-jau/index.html"
+    },
+    {
       "source": "/v1/cozinhas-planejadas-jau",
       "destination": "/v1/cozinhas-planejadas-jau/index.html"
+    },
+    {
+      "source": "/v1/quartos-e-closets-planejados-jau",
+      "destination": "/v1/quartos-e-closets-planejados-jau/index.html"
     },
     {
       "source": "/v1/quartos-planejados-jau",
