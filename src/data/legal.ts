@@ -147,9 +147,10 @@ export const TERMOS_DE_USO: DocumentoLegal = {
       ],
     },
     {
-      titulo: '4. Fotos e conteúdo',
+      titulo: '4. Direitos Autorais e Licenciamento de Fotografias de Obras Reais',
       paragrafos: [
-        'As fotos de obras, textos, marca e o configurador 3D pertencem à Império ou são usados com autorização. Não é permitido copiar ou reutilizar esse material para fins comerciais sem autorização.',
+        'Todas as fotografias de obras reais executadas (cozinhas planejadas, dormitórios, closets, ambientes gourmet e marcenaria comercial), projetos 3D, vídeos, textos e marcas publicados neste site são de titularidade exclusiva da Império Móveis Planejados Jaú (Razão Social: Wellington Ribeiro Cabral | CNPJ 48.945.152/0001-93 — © 2026 Império Móveis Planejados Jaú. Todos os direitos reservados).',
+        'Esta página (/termos) constitui a referência oficial de direitos autorais e termos de licença de uso das imagens do portfólio da Império Móveis Planejados. É vedada a reprodução, cópia, redistribuição ou utilização comercial das fotografias de obras reais sem autorização prévia e expressa por escrito. Pedidos de autorização ou licenciamento de uso de imagem devem ser formalizados diretamente pelos canais oficiais na página /contato.',
         'As avaliações exibidas vêm do Perfil da Empresa no Google e pertencem a quem as escreveu.',
       ],
     },

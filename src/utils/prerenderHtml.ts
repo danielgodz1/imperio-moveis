@@ -3,6 +3,7 @@ import {
   PAGINAS_AMBIENTES_LOCAIS,
   RotaPublica,
   TEXTO_HERO,
+  gerarImageObjectSchema,
   gerarJsonLdFurnitureStore,
   gerarSuperGrafoJsonLd,
 } from '../data/paginasLocais';
@@ -215,14 +216,12 @@ function jsonLdPagina(rota: RotaPublica): string {
         itemListElement: OBRAS_REAIS.map((o, i) => ({
           '@type': 'ListItem',
           position: i + 1,
-          item: {
-            '@type': 'ImageObject',
-            contentUrl: `${EMPRESA.url}${o.arquivo}.jpg`,
+          item: gerarImageObjectSchema({
+            url: `${EMPRESA.url}${o.arquivo}.jpg`,
             name: o.titulo,
-            description: o.cota,
-            creator: { '@id': `${EMPRESA.url}/#organization` },
-            copyrightHolder: { '@id': `${EMPRESA.url}/#organization` },
-          },
+            description: o.alt,
+            caption: o.cota,
+          }),
         })),
       })
     );
@@ -257,7 +256,13 @@ function jsonLdPagina(rota: RotaPublica): string {
       url,
       provider: { '@id': `${EMPRESA.url}/#organization` },
       areaServed: EMPRESA.cidadesSchema.map((c) => ({ '@type': 'City', name: `${c.nome}, ${c.uf}`, sameAs: c.wikipedia })),
-      image: cfg.fotos.map((f) => `${EMPRESA.url}${f.srcBase}.jpg`),
+      image: cfg.fotos.map((f) =>
+        gerarImageObjectSchema({
+          url: `${EMPRESA.url}${f.srcBase}.jpg`,
+          name: f.alt,
+          caption: f.legenda,
+        })
+      ),
     },
   ];
   return dados
@@ -369,16 +374,12 @@ export function injetarSeoFoto(htmlBase: string, obra: ObraItem): string {
     bloco(gerarJsonLdFurnitureStore()) +
     bloco({
       '@context': 'https://schema.org',
-      '@type': 'ImageObject',
-      contentUrl: imagem,
-      url: meta.canonico,
-      name: obra.titulo,
-      description: obra.alt,
-      caption: obra.cota,
-      creditText: EMPRESA.nome,
-      creator: { '@id': `${EMPRESA.url}/#organization` },
-      copyrightHolder: { '@id': `${EMPRESA.url}/#organization` },
-      copyrightNotice: EMPRESA.nome,
+      ...gerarImageObjectSchema({
+        url: imagem,
+        name: obra.titulo,
+        description: obra.alt,
+        caption: obra.cota,
+      }),
     }) +
     bloco({
       '@context': 'https://schema.org',
@@ -415,13 +416,14 @@ export function injetarSeoProjetos3D(htmlBase: string): string {
       name: meta.titulo,
       description: meta.descricao,
       url: meta.canonico,
-      hasPart: PROJETOS_3D.map((p) => ({
-        '@type': 'ImageObject',
-        contentUrl: `${EMPRESA.url}${p.arquivo}.jpg`,
-        name: p.nome,
-        description: p.descricao,
-        creditText: EMPRESA.nome,
-      })),
+      hasPart: PROJETOS_3D.map((p) =>
+        gerarImageObjectSchema({
+          url: `${EMPRESA.url}${p.arquivo}.jpg`,
+          name: p.nome,
+          description: p.descricao,
+          caption: `${p.nome} — ${p.descricao}`,
+        })
+      ),
     }) +
     bloco({
       '@context': 'https://schema.org',

@@ -347,13 +347,19 @@ export const OrcamentoV2: React.FC = () => (
           <MessageCircle className="w-[18px] h-[18px]" strokeWidth={1.5} /> WhatsApp {EMPRESA.telefone}
         </a>
         <span>
-          {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}.{' '}
+          Fábrica e Sede: {EMPRESA.endereco.logradouro} - {EMPRESA.endereco.bairro}, {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}, CEP {EMPRESA.endereco.cep}.{' '}
           <a href={EMPRESA.mapsUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-[var(--v2-texto)]">
             Ver no mapa
           </a>
         </span>
         <span>
+          Razão Social: {EMPRESA.razaoSocial} · CNPJ: {EMPRESA.cnpj}
+        </span>
+        <span>
           {EMPRESA.horarios.semana}. {EMPRESA.horarios.observacao}.
+        </span>
+        <span>
+          Canal oficial para agendamento de visita técnica, orçamentos de marcenaria sob medida e solicitações de licença ou autorização de uso de fotografias do portfólio (<LinkV2 para="/termos" className="underline underline-offset-4 hover:text-[var(--v2-texto)]">ver Termos de Uso e Direitos Autorais</LinkV2>).
         </span>
         <LinkV2 para="/projetar" className="underline underline-offset-4 hover:text-[var(--v2-texto)] self-start">
           Quer montar antes em 3D? Abra o projeto online.

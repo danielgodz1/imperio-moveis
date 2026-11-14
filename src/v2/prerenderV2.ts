@@ -306,9 +306,9 @@ export function htmlContato(): string {
     'Vamos começar *pelo seu sonho.*'
   )}</h1><p class="v2-corpo max-w-[40ch]">Conte o ambiente, quando quer começar e o estilo. A gente responde pelo WhatsApp. O projeto de arquitetura vem junto com os móveis.</p><div class="flex flex-col gap-16 v2-cota text-[0.9375rem]"><a href="https://wa.me/${esc(
     EMPRESA.whatsapp
-  )}" class="v2-botao v2-botao-linha self-start" rel="noopener noreferrer" target="_blank">WhatsApp ${esc(EMPRESA.telefone)}</a><span>${esc(EMPRESA.endereco.logradouro)} - ${esc(EMPRESA.endereco.bairro)}, ${esc(EMPRESA.endereco.cidade)} - ${esc(
+  )}" class="v2-botao v2-botao-linha self-start" rel="noopener noreferrer" target="_blank">WhatsApp ${esc(EMPRESA.telefone)}</a><span>Fábrica e Sede: ${esc(EMPRESA.endereco.logradouro)} - ${esc(EMPRESA.endereco.bairro)}, ${esc(EMPRESA.endereco.cidade)}/${esc(
     EMPRESA.endereco.uf
-  )}, CEP: ${esc(EMPRESA.endereco.cep)}.</span><span>Razão Social: ${esc(EMPRESA.razaoSocial)} · CNPJ: ${esc(EMPRESA.cnpj)}.</span><span>${esc(EMPRESA.horarios.semana)} | ${esc(EMPRESA.horarios.sabado)}.</span></div></div><div class="lg:col-span-7 bg-[var(--v2-marfim)] text-[#1B1915] p-24 sm:p-48 border v2-linha-fina min-h-[480px]"></div></section>`);
+  )}, CEP ${esc(EMPRESA.endereco.cep)}.</span><span>Razão Social: ${esc(EMPRESA.razaoSocial)} · CNPJ: ${esc(EMPRESA.cnpj)}</span><span>${esc(EMPRESA.horarios.semana)}. ${esc(EMPRESA.horarios.observacao)}.</span><span>Canal oficial para agendamento de visita técnica, orçamentos de marcenaria sob medida e solicitações de licença ou autorização de uso de fotografias do portfólio (<a href="/termos" class="underline underline-offset-4">ver Termos de Uso e Direitos Autorais</a>).</span></div></div><div class="lg:col-span-7 bg-[var(--v2-marfim)] text-[#1B1915] p-24 sm:p-48 border v2-linha-fina min-h-[480px]"></div></section>`);
 }
 
 /** /privacidade e /termos: o texto inteiro, no visual da LegalV2. */

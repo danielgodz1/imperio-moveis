@@ -432,6 +432,50 @@ const CATALOGO_OFERTAS_AMBIENTES = [
   },
 ];
 
+export interface OpcoesImageObjectSchema {
+  url: string;
+  caption: string;
+  name?: string;
+  description?: string;
+}
+
+/**
+ * Gera um ImageObject completo conforme os 5 metadados obrigatórios do Google Imagens / Search Console,
+ * apontando license para /termos e acquireLicensePage para /contato (sem âncoras #).
+ */
+export function gerarImageObjectSchema({
+  url,
+  caption,
+  name,
+  description,
+}: OpcoesImageObjectSchema): Record<string, unknown> {
+  const urlAbsoluta = url.startsWith('http')
+    ? url
+    : `${EMPRESA.url}${url.startsWith('/') ? '' : '/'}${url}`;
+  return {
+    '@type': 'ImageObject',
+    url: urlAbsoluta,
+    contentUrl: urlAbsoluta,
+    ...(name ? { name } : {}),
+    ...(description ? { description } : {}),
+    caption,
+    creditText: 'Projeto executado por Império Móveis Planejados Jaú',
+    copyrightNotice:
+      '© 2026 Império Móveis Planejados Jaú (CNPJ 48.945.152/0001-93). Todos os direitos reservados.',
+    license: 'https://www.imperiomoveisplanejadosjau.com.br/termos',
+    acquireLicensePage: 'https://www.imperiomoveisplanejadosjau.com.br/contato',
+    creator: {
+      '@type': 'Organization',
+      '@id': 'https://www.imperiomoveisplanejadosjau.com.br/#organization',
+      name: 'Império Móveis Planejados Jaú',
+      url: 'https://www.imperiomoveisplanejadosjau.com.br/',
+    },
+    copyrightHolder: {
+      '@id': 'https://www.imperiomoveisplanejadosjau.com.br/#organization',
+    },
+  };
+}
+
 /**
  * Entidade principal ["FurnitureStore", "HomeAndConstructionBusiness", "LocalBusiness"]
  * com E-E-A-T completo (Razão Social, CNPJ, endereço Jardim Itamarati, coordenadas e 12 cidades com Wikipedia).
@@ -516,9 +560,21 @@ export function gerarEntidadeOrganizacaoSchema(): Record<string, unknown> {
     ],
     sameAs,
     image: [
-      `${EMPRESA.url}/og-hero.jpg`,
-      `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
-      `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
+      gerarImageObjectSchema({
+        url: `${EMPRESA.url}/og-hero.jpg`,
+        name: 'Cozinha planejada sob medida 100% MDF em Jaú SP - Império Móveis Planejados',
+        caption: 'Cozinha planejada sob medida 100% MDF com ilha e iluminação em LED executada em Jaú/SP pela Império Móveis Planejados.',
+      }),
+      gerarImageObjectSchema({
+        url: `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
+        name: 'Cozinha planejada com ilha verde-sálvia em Jaú SP - Império Móveis Planejados',
+        caption: 'Cozinha planejada com ilha central em verde-sálvia, cristaleira iluminada e marcenaria até o teto em Jaú/SP.',
+      }),
+      gerarImageObjectSchema({
+        url: `${EMPRESA.url}/obras/quarto-infantil-casinha.jpg`,
+        name: 'Quarto infantil planejado cama-casinha em Jaú SP - Império Móveis Planejados',
+        caption: 'Quarto infantil sob medida em 100% MDF com cama-casinha, escorregador e escada com gavetas em Jaú/SP.',
+      }),
     ],
   };
 }
@@ -630,10 +686,11 @@ export function gerarSuperGrafoJsonLd(): Record<string, unknown> {
         inLanguage: 'pt-BR',
         isPartOf: { '@id': `${EMPRESA.url}/#website` },
         about: { '@id': `${EMPRESA.url}/#organization` },
-        primaryImageOfPage: {
-          '@type': 'ImageObject',
+        primaryImageOfPage: gerarImageObjectSchema({
           url: `${EMPRESA.url}/og-hero.jpg`,
-        },
+          name: 'Móveis Planejados em Jaú SP - Império Móveis Planejados',
+          caption: 'Apresentação de projeto 3D e obra real de cozinha planejada sob medida 100% MDF em Jaú/SP.',
+        }),
         video: { '@id': `${EMPRESA.url}/#video-projeto-3d` },
         breadcrumb: { '@id': `${EMPRESA.url}/#breadcrumb` },
         speakable: {
