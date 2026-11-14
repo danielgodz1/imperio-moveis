@@ -289,7 +289,10 @@ export const RodapeV2: React.FC = () => {
 
       <div className={`${MARGEM} py-24 border-t v2-linha-fina flex flex-col gap-8 v2-cota text-[0.8125rem]`}>
         <p>
-          <strong>Cidades atendidas com medição a laser e montagem própria:</strong> {EMPRESA.cidadesAtendidas.map((c) => c.replace(/,\s*SP$/, '')).join(', ')} (Interior de São Paulo).
+          <strong>Declaração Institucional:</strong> A Império Móveis Planejados (Razão Social: {EMPRESA.razaoSocial}, CNPJ {EMPRESA.cnpj}) possui fábrica e sede única na {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.bairro}, em {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}, atuando de forma independente e sem vínculo societário, filiais ou franquias com empresas de nome similar em outras regiões.
+        </p>
+        <p>
+          <strong>Cidades atendidas mediante visita técnica agendada e montagem própria:</strong> {EMPRESA.cidadesAtendidas.map((c) => c.replace(/,\s*SP$/, '')).join(', ')} (Interior de São Paulo).
         </p>
         <p>
           <strong>Bairros e condomínios atendidos em Jaú/SP:</strong> {EMPRESA.bairrosCondominiosJau.join(', ')}.

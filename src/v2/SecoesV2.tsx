@@ -660,7 +660,7 @@ export const HistoriaV2: React.FC = () => (
       <p className="v2-corpo">
         A Império nasceu em Jaú, em 2015, quando o <span className="text-[var(--v2-texto)]">Wellington Cabral</span>, marceneiro desde cedo, decidiu que não queria só seguir o padrão. A <span className="text-[var(--v2-texto)]">Tatiane Cabral</span>, arquiteta e designer de interiores, trouxe o projeto para dentro da oficina.
       </p>
-      <p className="v2-corpo">Hoje, quem desenha e quem fabrica trabalham lado a lado. É por isso que o projeto de arquitetura vem junto, sem custo à parte.</p>
+      <p className="v2-corpo">Hoje, quem desenha e quem fabrica trabalham lado a lado em barracão próprio com maquinário próprio na {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.bairro}, em Jaú/SP (Razão Social: {EMPRESA.razaoSocial}, CNPJ {EMPRESA.cnpj}), atuando de forma independente e sem vínculo societário, filiais ou franquias com empresas de nome similar em outras regiões.</p>
       <p className="v2-serif v2-italico text-[1.6rem] leading-tight">“Cada detalhe com a cara de quem vai morar ali.”</p>
     </div>
   </section>
@@ -708,15 +708,15 @@ export const ArquitetosFidelidadeV2: React.FC = () => {
           </p>
         </div>
         <div className="p-24 bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col gap-8">
-          <h3 className="v2-serif text-[1.4rem] leading-tight">Prazo Garantido em Contrato</h3>
+          <h3 className="v2-serif text-[1.4rem] leading-tight">Prazo Estipulado em Contrato</h3>
           <p className="v2-corpo text-[0.9375rem]">
-            Medição a laser na obra, cronograma transparente e montagem por equipe própria especializada sem terceirização improvisada.
+            Visita técnica e medição na obra mediante agendamento, prazo de entrega estipulado em contrato e montagem própria pela nossa equipe.
           </p>
         </div>
         <div className="p-24 bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col gap-8">
           <h3 className="v2-serif text-[1.4rem] leading-tight">Negociação Direto da Fábrica</h3>
           <p className="v2-corpo text-[0.9375rem]">
-            Condições diretas sem intermediários de franquia: pagamento via PIX, transferência, boleto, cartão de crédito e parcelamento direto.
+            Orçamento e apresentação de projeto 3D, pagamento via PIX, cartão de crédito parcelado e condições combinadas em contrato.
           </p>
         </div>
       </div>
