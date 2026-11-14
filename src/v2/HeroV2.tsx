@@ -145,8 +145,16 @@ export const HeroV2: React.FC = () => {
             <span className="v2-olho block mb-16 lg:mb-24">{TEXTO_HERO.chamada}</span>
             <ComItalico texto={HERO_V2.titulo} />
           </h1>
-          <p className="v2-corpo mt-16 lg:mt-24 max-w-[44ch]">{HERO_V2.apoio}</p>
-          <p className="v2-cota mt-16 lg:mt-24">Role a página. A cozinha vai se montar na tela.</p>
+          <p className="aeo-resposta-direta v2-corpo mt-16 lg:mt-24 max-w-[44ch]">{HERO_V2.apoio}</p>
+          <div className="flex flex-wrap items-center lg:justify-center gap-12 mt-16 lg:mt-24">
+            <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro h-[44px] px-20 text-[0.9375rem]">
+              Solicitar Projeto 3D e Orçamento em Jaú
+            </button>
+            <LinkV2 para="/obras" className="v2-botao v2-botao-linha h-[44px] px-16 text-[0.9375rem]">
+              Ver as obras
+            </LinkV2>
+          </div>
+          <p className="v2-cota mt-16">★ 4,9 no Google · Fábrica 100% MDF desde 2015 · Role para construir a cozinha em 3D</p>
         </div>
 
         {/* Fechamento do capítulo, sobre a foto da obra real */}

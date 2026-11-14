@@ -534,12 +534,13 @@ export function gerarJsonLdFurnitureStore(): Record<string, unknown> {
 }
 
 /**
- * Super-Grafo Schema.org (@graph) da Home com as 5 entidades interconectadas:
+ * Super-Grafo Schema.org (@graph) da Home com as entidades interconectadas de SEO/GEO/AEO:
  * 1. ["FurnitureStore", "HomeAndConstructionBusiness", "LocalBusiness"] (#organization)
  * 2. VideoObject (#video-projeto-3d)
- * 3. WebSite (#website) & WebPage (#webpage)
- * 4. BreadcrumbList (#breadcrumb)
- * 5. FAQPage (#faq) com as 8 perguntas frequentes estratégicas
+ * 3. HowTo (#howto-processo) com as 4 etapas da fabricação sob medida
+ * 4. WebSite (#website) & WebPage (#webpage) com SpeakableSpecification (AEO / Voz)
+ * 5. BreadcrumbList (#breadcrumb)
+ * 6. FAQPage (#faq) com as 8 perguntas frequentes estratégicas
  */
 export function gerarSuperGrafoJsonLd(): Record<string, unknown> {
   return {
@@ -562,6 +563,54 @@ export function gerarSuperGrafoJsonLd(): Record<string, unknown> {
         duration: 'PT10S',
         inLanguage: 'pt-BR',
         publisher: { '@id': `${EMPRESA.url}/#organization` },
+      },
+      {
+        '@type': 'HowTo',
+        '@id': `${EMPRESA.url}/#howto-processo`,
+        name: 'Como funciona o processo de fabricação de móveis planejados em Jaú na Império Móveis',
+        description:
+          'Passo a passo completo de como a Império Móveis Planejados projeta em 3D, fabrica em 100% MDF na sede própria no Jardim Itamarati e monta seus móveis sob medida em Jaú e região.',
+        totalTime: 'P45D',
+        estimatedCost: {
+          '@type': 'MonetaryAmount',
+          currency: 'BRL',
+          value: '0',
+          description: 'Medição técnica a laser, projeto 3D realista e orçamento gratuitos em Jaú e região.',
+        },
+        step: [
+          {
+            '@type': 'HowToStep',
+            position: 1,
+            name: '1. Briefing e Medição Técnica a Laser na Obra',
+            text: 'Visitamos sua casa, apartamento ou ponto comercial em Jaú e região para medir cada parede, esquadro, ponto hidráulico, gás e elétrica com trena a laser milimétrica.',
+            url: `${EMPRESA.url}/#v2-processo`,
+            image: `${EMPRESA.url}/obras/cozinha-forro-ripado.jpg`,
+          },
+          {
+            '@type': 'HowToStep',
+            position: 2,
+            name: '2. Apresentação do Projeto 3D Realista no Notebook',
+            text: 'Nossa arquiteta Tatiane Cabral modela seu ambiente em 3D realista e apresenta no notebook a iluminação em perfil de LED, os padrões de MDF, as pedras e as divisórias internas antes de qualquer corte.',
+            url: `${EMPRESA.url}/#projetos`,
+            image: `${EMPRESA.url}/videos/notebook-poster.jpg`,
+          },
+          {
+            '@type': 'HowToStep',
+            position: 3,
+            name: '3. Fabricação Própria 100% MDF no Jardim Itamarati',
+            text: 'Com o projeto 3D aprovado, cortamos as chapas 100% MDF (15mm, 18mm e 25mm, incluindo MDF Naval Hidrófugo em áreas úmidas) na nossa marcenaria própria em Jaú com fitamento em PVC colado a quente.',
+            url: `${EMPRESA.url}/#ambientes`,
+            image: `${EMPRESA.url}/obras/cozinha-gringa-4k.jpg`,
+          },
+          {
+            '@type': 'HowToStep',
+            position: 4,
+            name: '4. Entrega Agendada e Montagem Limpa por Equipe Própria',
+            text: 'Nossos próprios marceneiros realizam a entrega, instalação nivelada a laser, regulagem de dobradiças e corrediças slow motion e limpeza final dentro do prazo assinado em contrato.',
+            url: `${EMPRESA.url}/#v2-onde-estamos`,
+            image: `${EMPRESA.url}/obras/cozinha-ilha-verde.jpg`,
+          },
+        ],
       },
       {
         '@type': 'WebSite',
@@ -587,6 +636,15 @@ export function gerarSuperGrafoJsonLd(): Record<string, unknown> {
         },
         video: { '@id': `${EMPRESA.url}/#video-projeto-3d` },
         breadcrumb: { '@id': `${EMPRESA.url}/#breadcrumb` },
+        speakable: {
+          '@type': 'SpeakableSpecification',
+          cssSelector: [
+            '#hero h1',
+            '.aeo-resposta-direta',
+            '#faq summary h3',
+            '#faq details p',
+          ],
+        },
       },
       {
         '@type': 'BreadcrumbList',

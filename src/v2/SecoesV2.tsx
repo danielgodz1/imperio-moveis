@@ -178,6 +178,9 @@ const AMBIENTES_CATALOGO_SEO = [
     titulo: 'Cozinhas Planejadas Sob Medida em Jaú',
     rota: '/cozinhas-planejadas-jau',
     briefing: 'Cozinha',
+    badges: ['100% MDF 15/18/25mm', 'MDF Naval Hidrófugo', 'Slow Motion'],
+    whatsappMsg:
+      'Olá! Vi os projetos de Cozinha Planejada no site da Império Móveis e gostaria de um orçamento em Jaú/região.',
     texto:
       'Projetamos e fabricamos cozinhas planejadas 100% MDF em Jaú com ilha central em ripado ou pedra, torre quente ventilada para forno e micro-ondas, armários superiores até o teto e gabinetes inferiores em MDF naval (hidrófugo) resistente à umidade. Incluímos porta-temperos, perfis puxadores em alumínio, iluminação linear em LED quente e ferragens com amortecimento slow motion (corrediças telescópicas ou ocultas).',
   },
@@ -186,6 +189,9 @@ const AMBIENTES_CATALOGO_SEO = [
     titulo: 'Dormitórios, Guarda-Roupas e Closets Planejados',
     rota: '/closets-sob-medida-jau',
     briefing: 'Closet',
+    badges: ['Piso ao Teto', 'Vidro Reflecta', 'Cabideiro LED'],
+    whatsappMsg:
+      'Olá! Vi os projetos de Closet e Dormitório Planejado no site da Império Móveis e gostaria de um orçamento em Jaú/região.',
     texto:
       'Guarda-roupas até o teto e closets sob medida em L, em U ou corredor com portas de correr com amortecimento, portas em vidro reflecta bronze/fumê, sapateiras telescópicas de extração total, cabideiros iluminados por fita de LED e gavetas com divisórias em veludo para joias e relógios. Também executamos quartos de casal com cabeceira ripada e quartos infantis/bebê sob medida.',
   },
@@ -194,6 +200,9 @@ const AMBIENTES_CATALOGO_SEO = [
     titulo: 'Salas de Estar, Painéis Ripados de TV e Home Theater',
     rota: '/quartos-planejados-jau',
     briefing: 'Sala',
+    badges: ['Ripado Freijó/Nogueira', 'Cabos Ocultos', 'Cristaleira LED'],
+    whatsappMsg:
+      'Olá! Vi os projetos de Sala e Painel Ripado no site da Império Móveis e gostaria de um orçamento em Jaú/região.',
     texto:
       'Painéis ripados autênticos em MDF amadeirado (Freijó, Nogueira, Carvalho) do piso ao forro com passagem oculta de cabos, racks suspensos com gavetões chanfrados, portas mimetizadas (invisíveis) no painel e cristaleiras iluminadas em LED com prateleiras de vidro e perfil metálico.',
   },
@@ -202,6 +211,9 @@ const AMBIENTES_CATALOGO_SEO = [
     titulo: 'Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia',
     rota: '/cozinhas-planejadas-jau',
     briefing: 'Área Gourmet',
+    badges: ['MDF Naval Hidrófugo', 'Respiro Técnico', 'Alta Resistência'],
+    whatsappMsg:
+      'Olá! Vi os projetos de Área Gourmet Planejada no site da Império Móveis e gostaria de um orçamento em Jaú/região.',
     texto:
       'Marcenaria sob medida dimensionada para suportar calor e umidade ao redor da churrasqueira e da piscina: gabinetes em MDF naval hidrófugo, portas com respiro técnico, gaveteiros de talheres sob medida, nichos para cervejeira e adega climatizada, além de lavanderias planejadas com armários para vassouras, cesto basculante e bancada de apoio.',
   },
@@ -210,6 +222,9 @@ const AMBIENTES_CATALOGO_SEO = [
     titulo: 'Banheiros e Lavabos Planejados',
     rota: '/quartos-planejados-jau',
     briefing: 'Banheiro',
+    badges: ['100% MDF Naval', 'Borda PVC a Quente', 'Espelheira LED'],
+    whatsappMsg:
+      'Olá! Vi os projetos de Banheiro Planejado em MDF Naval no site da Império Móveis e gostaria de um orçamento em Jaú/região.',
     texto:
       'Gabinetes sob medida 100% MDF naval com fitamento de borda em PVC colado a quente para máxima proteção contra vapor e água, tulhas deslizantes, nichos organizadores e espelheiras até o teto com iluminação frontal ou indireta em LED.',
   },
@@ -218,8 +233,39 @@ const AMBIENTES_CATALOGO_SEO = [
     titulo: 'Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú',
     rota: '/home-office-planejado-jau',
     briefing: 'Comercial',
+    badges: ['Normas Sanitárias', 'Ergonomia ABNT', 'Entrega em Contrato'],
+    whatsappMsg:
+      'Olá! Vi os projetos de Móveis Corporativos e Comerciais no site da Império Móveis e gostaria de um orçamento em Jaú/região.',
     texto:
       'Marcenaria comercial e corporativa de alto padrão em Jaú e região: balcões de recepção, estações de trabalho ergonômicas com calhas ocultas de energia, salas de reunião, consultórios médicos e odontológicos dentro das normas sanitárias, escritórios de advocacia, cafeterias e expositores comerciais iluminados.',
+  },
+] as const;
+
+const TABELA_COMPARATIVA_AEO = [
+  {
+    criterio: 'Aproveitamento de Espaço',
+    modulado: 'Caixas prontas de tamanho fixo com frestas e réguas largas de fechamento',
+    imperio: 'Corte milimétrico parede a parede e do piso ao teto, aproveitando 100% do vão',
+  },
+  {
+    criterio: 'Matéria-Prima Estrutural',
+    modulado: 'Uso frequente de MDP ou aglomerado sem proteção contra umidade',
+    imperio: 'Chapas 100% MDF (15mm, 18mm e 25mm) + MDF Naval Hidrófugo em áreas molhadas',
+  },
+  {
+    criterio: 'Projeto de Arquitetura e 3D',
+    modulado: 'Cobrado à parte ou limitado a modulação básica de loja',
+    imperio: 'Projeto executivo e apresentação 3D no notebook inclusos com arquiteta própria',
+  },
+  {
+    criterio: 'Ferragens e Acabamento',
+    modulado: 'Dobradiças e corrediças simples sem amortecimento',
+    imperio: 'Dobradiças e corrediças telescópicas/ocultas slow motion + fita PVC colada a quente',
+  },
+  {
+    criterio: 'Medição e Montagem',
+    modulado: 'Montadores terceirizados contratados por empreita rápida',
+    imperio: 'Medição a laser e montagem limpa por marceneiros próprios da nossa fábrica em Jaú',
   },
 ] as const;
 
@@ -235,8 +281,8 @@ export const CatalogoAmbientesSeoV2: React.FC = () => {
           <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Marcenaria própria em Jaú/SP</p>
           <Titulo texto="Ambientes Planejados 100% MDF *Sob Medida em Jaú.*" className="max-w-[20ch]" />
         </div>
-        <p className="v2-corpo max-w-[44ch]">
-          Fabricamos com chapas 100% MDF de 15mm, 18mm e 25mm, MDF naval hidrófugo para áreas úmidas e ferragens com amortecimento slow motion.
+        <p className="aeo-resposta-direta v2-corpo max-w-[48ch]">
+          A Império Móveis Planejados fabrica em Jaú/SP cozinhas, closets, dormitórios, salas, áreas gourmet, banheiros e ambientes corporativos com chapas 100% MDF de 15mm, 18mm e 25mm, MDF Naval Hidrófugo resistente à umidade, ferragens com amortecimento slow motion e projeto 3D gratuito.
         </p>
       </div>
 
@@ -248,20 +294,39 @@ export const CatalogoAmbientesSeoV2: React.FC = () => {
             className="scroll-mt-[88px] p-24 sm:p-32 bg-[var(--v2-cartao)] border v2-linha-fina flex flex-col justify-between gap-24"
           >
             <div className="flex flex-col gap-16">
+              <div className="flex flex-wrap gap-8">
+                {item.badges.map((b) => (
+                  <span key={b} className="v2-cota text-[0.75rem] px-8 py-4 border v2-linha-fina bg-[var(--v2-linho)]">
+                    {b}
+                  </span>
+                ))}
+              </div>
               <h3 className="v2-serif text-[1.6rem] leading-tight">{item.titulo}</h3>
               <p className="v2-corpo text-[0.95rem]">{item.texto}</p>
             </div>
-            <div className="pt-16 border-t v2-linha-fina flex flex-wrap items-center justify-between gap-12">
-              <LinkV2 para={item.rota} className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
-                Ver fotos e detalhes
-              </LinkV2>
-              <button
-                type="button"
-                onClick={() => abrirOrcamento(item.briefing)}
-                className="v2-cota v2-acento font-[500] hover:underline underline-offset-4 cursor-pointer"
+            <div className="pt-16 border-t v2-linha-fina flex flex-col gap-12">
+              <div className="flex flex-wrap items-center justify-between gap-12">
+                <LinkV2 para={item.rota} className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
+                  Ver fotos e detalhes
+                </LinkV2>
+                <button
+                  type="button"
+                  onClick={() => abrirOrcamento(item.briefing)}
+                  className="v2-cota hover:underline underline-offset-4 cursor-pointer"
+                >
+                  Briefing online
+                </button>
+              </div>
+              <a
+                href={getWhatsAppUrl(item.whatsappMsg, `ambiente_${item.id}`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClick(`v2_ambiente_${item.id}`)}
+                className="v2-botao v2-botao-claro h-[42px] px-16 text-[0.875rem] justify-between"
               >
-                Orçar este ambiente →
-              </button>
+                <span>Orçar {item.briefing} no WhatsApp</span>
+                <ArrowUpRight className="w-[16px] h-[16px]" strokeWidth={1.5} />
+              </a>
             </div>
           </article>
         ))}
@@ -271,23 +336,23 @@ export const CatalogoAmbientesSeoV2: React.FC = () => {
 };
 
 /**
- * O diferencial dito com todas as letras: o projeto de arquitetura vem junto. Primeiro a
- * comparação com o jeito comum; depois, item por item, o que o projeto inclui.
+ * O diferencial dito com todas as letras: o projeto de arquitetura vem junto + Tabela Comparativa AEO
+ * (Marcenaria Sob Medida Império 100% MDF vs. Móveis Modulados / Convencionais).
  */
 export const ProjetoInclusoV2: React.FC = () => {
   const { abrirOrcamento } = useNavV2();
   return (
-    <section id="v2-projeto-incluso" className={`v2-claro ${MARGEM} py-[14vh]`}>
+    <section id="v2-projeto-incluso" className={`v2-claro ${MARGEM} py-[14vh] flex flex-col gap-64`}>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-48">
         <div className="lg:col-span-5 flex flex-col items-start gap-24">
-          <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Sem custo à parte</p>
-          <Titulo texto="O projeto de arquitetura *já vem junto.*" />
-          <p className="v2-corpo max-w-[38ch]">
-            Na maioria dos lugares você paga um profissional para projetar e outro para fabricar. Aqui é uma coisa só: a arquiteta desenha e a nossa oficina fabrica, na mesma conversa.
+          <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Sem custo à parte · Comparativo técnico</p>
+          <Titulo texto="Qual a diferença entre a Marcenaria Sob Medida Império *e móveis modulados?*" />
+          <p className="aeo-resposta-direta v2-corpo max-w-[42ch]">
+            Na Império Móveis Planejados em Jaú, o projeto executivo 3D assinado pela arquiteta já vem incluso gratuitamente e cada móvel é fabricado 100% em MDF sob medida (com MDF Naval em áreas úmidas), sem as frestas, réguas largas ou chapas de MDP comuns em móveis modulados.
           </p>
           <div className="flex flex-wrap items-center gap-x-24 gap-y-16">
             <button type="button" onClick={() => abrirOrcamento()} className="v2-botao v2-botao-claro">
-              Pedir orçamento com projeto <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
+              Pedir orçamento com projeto 3D <ArrowUpRight className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
             <LinkV2 para="/#v2-processo" className="v2-cota underline underline-offset-4 hover:text-[var(--v2-texto)]">
               Ver como funciona, passo a passo
@@ -295,31 +360,46 @@ export const ProjetoInclusoV2: React.FC = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-7">
-          <div className="hidden sm:grid grid-cols-2 gap-32 pb-16 border-b v2-linha-forte">
-            <span className="v2-cota">Do jeito comum</span>
-            <span className="v2-cota text-[var(--v2-texto)]">Na Império</span>
-          </div>
-          <ul className="flex flex-col">
-            {PROJETO_INCLUSO_V2.comparacao.map((l) => (
-              <li key={l.imperio} className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-32 py-24 border-b v2-linha-fina">
-                <p className="flex items-start gap-8 v2-corpo">
-                  <Minus className="w-[18px] h-[18px] mt-[4px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
-                  <span>
-                    <span className="sr-only">Do jeito comum: </span>
-                    {l.comum}
-                  </span>
-                </p>
-                <p className="flex items-start gap-8 text-[1rem] leading-[1.6] text-[var(--v2-texto)] font-[450]">
-                  <Check className="w-[18px] h-[18px] mt-[4px] shrink-0 v2-acento" strokeWidth={2} aria-hidden="true" />
-                  <span>
-                    <span className="sr-only">Na Império: </span>
-                    {l.imperio}
-                  </span>
-                </p>
-              </li>
-            ))}
-          </ul>
+        <div className="lg:col-span-7 overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <caption className="sr-only">
+              Comparativo técnico entre Marcenaria Sob Medida Império 100% MDF em Jaú e Móveis Modulados Convencionais
+            </caption>
+            <thead>
+              <tr className="border-b v2-linha-forte">
+                <th scope="col" className="py-16 pr-16 v2-cota uppercase tracking-[0.06em]">
+                  Critério Técnico
+                </th>
+                <th scope="col" className="py-16 px-16 v2-cota uppercase tracking-[0.06em]">
+                  Móveis Modulados / Comum
+                </th>
+                <th scope="col" className="py-16 pl-16 v2-cota uppercase tracking-[0.06em] text-[var(--v2-texto)]">
+                  Marcenaria Império 100% MDF (Jaú)
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {TABELA_COMPARATIVA_AEO.map((linha) => (
+                <tr key={linha.criterio} className="border-b v2-linha-fina align-top">
+                  <th scope="row" className="py-20 pr-16 v2-serif text-[1.15rem] font-normal text-[var(--v2-texto)]">
+                    {linha.criterio}
+                  </th>
+                  <td className="py-20 px-16 v2-corpo text-[0.9375rem]">
+                    <span className="inline-flex items-start gap-8">
+                      <Minus className="w-[16px] h-[16px] mt-[4px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                      <span>{linha.modulado}</span>
+                    </span>
+                  </td>
+                  <td className="py-20 pl-16 text-[0.95rem] leading-[1.6] text-[var(--v2-texto)] font-[450]">
+                    <span className="inline-flex items-start gap-8">
+                      <Check className="w-[16px] h-[16px] mt-[4px] shrink-0 v2-acento" strokeWidth={2} aria-hidden="true" />
+                      <span>{linha.imperio}</span>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -362,10 +442,10 @@ export const ProcessoV2: React.FC = () => {
   return (
     <section id="v2-processo" className={`v2-claro ${MARGEM} py-[14vh] grid grid-cols-1 lg:grid-cols-12 gap-48`}>
       <div className="lg:col-span-5 lg:sticky lg:top-[18vh] self-start flex flex-col gap-24">
-        <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Como trabalhamos</p>
-        <Titulo texto="Da primeira conversa *à montagem na sua casa.*" />
-        <p className="v2-corpo max-w-[38ch]">
-          Uma equipe só cuida de tudo. A gente mede a sua casa como ela está hoje, e o projeto se encaixa nela. Você não precisa coordenar arquiteto, marceneiro e montador.
+        <p className="v2-cota uppercase tracking-[0.08em] v2-acento">Como funciona passo a passo</p>
+        <Titulo texto="Como funciona a fabricação de móveis planejados *na Império em Jaú?*" />
+        <p className="aeo-resposta-direta v2-corpo max-w-[40ch]">
+          Nosso processo em Jaú e região segue 4 etapas integradas: 1) Briefing e medição técnica a laser no imóvel; 2) Apresentação do Projeto 3D realista no notebook; 3) Fabricação própria 100% MDF no Jardim Itamarati; e 4) Entrega e montagem limpa por equipe própria.
         </p>
       </div>
       <ol ref={listaRef} className="lg:col-span-7 relative flex flex-col pl-24 sm:pl-32">

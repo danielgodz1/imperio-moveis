@@ -1,4 +1,75 @@
-User-agent: *
+# robots.txt — Império Móveis Planejados Jaú/SP
+# Domínio oficial: https://www.imperiomoveisplanejadosjau.com.br
+# Razão Social: Wellington Ribeiro Cabral | CNPJ: 48.945.152/0001-93
+
+User-agent: Googlebot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: Bingbot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: OAI-SearchBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: GPTBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: PerplexityBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: ClaudeBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: Claude-SearchBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: Claude-User
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: Google-Extended
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: Applebot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
+
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /v1
+Disallow: /experiencias
 
 Sitemap: https://www.imperiomoveisplanejadosjau.com.br/sitemap.xml

@@ -110,6 +110,8 @@ export function htmlInicio(): string {
     .join('');
   const cidades = EMPRESA.cidadesAtendidas.map((c) => c.replace(/,\s*SP$/, '')).join(', ');
   const bairros = EMPRESA.bairrosCondominiosJau.join(', ');
+  const wpp = (msg: string, camp: string) =>
+    `https://wa.me/${esc(EMPRESA.whatsapp)}?text=${encodeURIComponent(msg)}&amp;utm_source=site&amp;utm_medium=cta_whatsapp&amp;utm_campaign=${esc(camp)}`;
   return pagina(
     `<section id="hero" class="v2-escuro relative w-full" style="min-height:320vh">
       <div class="sticky top-0 h-screen h-[100svh] w-full overflow-hidden">
@@ -120,8 +122,12 @@ export function htmlInicio(): string {
         </div>
         <div class="absolute inset-x-0 top-0 pt-[12svh] lg:pt-[11vh] px-16 sm:px-32 lg:px-64 lg:text-center lg:flex lg:flex-col lg:items-center">
           <h1 class="v2-serif v2-display text-[clamp(2.5rem,4.4vw,4.75rem)] max-w-[13ch] lg:max-w-[22ch]"><span class="v2-olho block mb-16 lg:mb-24">${esc(TEXTO_HERO.chamada)}</span>${italico(HERO_V2.titulo)}</h1>
-          <p class="v2-corpo mt-16 lg:mt-24 max-w-[44ch]">${esc(HERO_V2.apoio)}</p>
-          <p class="v2-cota mt-16 lg:mt-24">Role a página. A cozinha vai se montar na tela.</p>
+          <p class="aeo-resposta-direta v2-corpo mt-16 lg:mt-24 max-w-[44ch]">${esc(HERO_V2.apoio)}</p>
+          <div class="flex flex-wrap items-center lg:justify-center gap-12 mt-16 lg:mt-24">
+            <a href="/contato" class="v2-botao v2-botao-claro h-[44px] px-20 text-[0.9375rem]">Solicitar Projeto 3D e Orçamento em Jaú</a>
+            <a href="/obras" class="v2-botao v2-botao-linha h-[44px] px-16 text-[0.9375rem]">Ver as obras</a>
+          </div>
+          <p class="v2-cota mt-16">★ 4,9 no Google · Fábrica 100% MDF desde 2015 · Role para construir a cozinha em 3D</p>
         </div>
       </div>
     </section>
@@ -129,16 +135,36 @@ export function htmlInicio(): string {
     <section id="v2-obras" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Obras que <em class="v2-italico">já moram</em> em Jaú.</h2><ul class="v2-corpo">${obras}</ul><nav aria-label="Ambientes"><a href="/obras#cozinhas">Cozinhas</a> · <a href="/obras#quartos">Quartos</a> · <a href="/obras#lojas">Lojas e comércio</a></nav><a href="/obras">Ver todas as ${OBRAS_REAIS.length} obras</a> · <a href="/projetos-3d">Ver projetos 3D</a></section>
     <section id="ambientes" class="v2-areia ${MARGEM} py-64">
       <h2 class="v2-serif v2-titulo">Ambientes Planejados 100% MDF <em class="v2-italico">Sob Medida em Jaú.</em></h2>
+      <p class="aeo-resposta-direta v2-corpo mt-16">A Império Móveis Planejados fabrica em Jaú/SP cozinhas, closets, dormitórios, salas, áreas gourmet, banheiros e ambientes corporativos com chapas 100% MDF de 15mm, 18mm e 25mm, MDF Naval Hidrófugo resistente à umidade, ferragens com amortecimento slow motion e projeto 3D gratuito.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-24 mt-32">
-        <article id="cozinhas"><h3 class="v2-serif text-[1.5rem]">Cozinhas Planejadas Sob Medida em Jaú</h3><p class="v2-corpo">Cozinhas planejadas 100% MDF em Jaú com ilha central em ripado ou pedra, torre quente para forno e micro-ondas, MDF naval (hidrófugo) resistente à umidade nas áreas molhadas, porta-temperos, perfis puxadores em alumínio, iluminação linear em LED quente e ferragens com amortecimento slow motion (corrediças telescópicas e ocultas).</p></article>
-        <article id="closets"><h3 class="v2-serif text-[1.5rem]">Dormitórios, Guarda-Roupas e Closets Planejados</h3><p class="v2-corpo">Guarda-roupas até o teto e closets sob medida em L, em U ou corredor com portas de correr com amortecimento, sapateiras telescópicas, cabideiros iluminados em LED, divisórias de veludo para joias e quartos de casal, solteiro e infantis em Jaú.</p></article>
-        <article id="salas"><h3 class="v2-serif text-[1.5rem]">Salas de Estar, Painéis Ripados de TV e Home Theater</h3><p class="v2-corpo">Painéis ripados em MDF Freijó ou Nogueira até o teto com passagem oculta de cabos, racks suspensos com gavetões chanfrados e cristaleiras com vidro reflecta e iluminação indireta em LED.</p></article>
-        <article id="gourmet"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia</h3><p class="v2-corpo">Armários sob medida com proteção contra umidade e calor próximos à churrasqueira, gabinetes em MDF naval, adegas climatizadas e lavanderias planejadas funcionais em Jaú e região.</p></article>
-        <article id="banheiros"><h3 class="v2-serif text-[1.5rem]">Banheiros e Lavabos Planejados</h3><p class="v2-corpo">Gabinetes sob medida 100% MDF naval com fitamento em PVC colado a quente resistente ao vapor, nichos organizadores e espelheiras com iluminação frontal ou indireta em LED.</p></article>
-        <article id="corporativo"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú</h3><p class="v2-corpo">Recepções, estações de trabalho ergonômicas, salas de reunião, consultórios médicos e odontológicos, escritórios de advocacia e marcenaria comercial completa em Jaú.</p></article>
+        <article id="cozinhas"><h3 class="v2-serif text-[1.5rem]">Cozinhas Planejadas Sob Medida em Jaú</h3><p class="v2-corpo">Cozinhas planejadas 100% MDF em Jaú com ilha central em ripado ou pedra, torre quente para forno e micro-ondas, MDF naval (hidrófugo) resistente à umidade nas áreas molhadas, porta-temperos, perfis puxadores em alumínio, iluminação linear em LED quente e ferragens com amortecimento slow motion (corrediças telescópicas e ocultas).</p><p><a href="/cozinhas-planejadas-jau">Ver fotos de cozinhas</a> · <a href="${wpp('Olá! Vi os projetos de Cozinha Planejada no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_cozinhas')}">Orçar Cozinha no WhatsApp</a></p></article>
+        <article id="closets"><h3 class="v2-serif text-[1.5rem]">Dormitórios, Guarda-Roupas e Closets Planejados</h3><p class="v2-corpo">Guarda-roupas até o teto e closets sob medida em L, em U ou corredor com portas de correr com amortecimento, sapateiras telescópicas, cabideiros iluminados em LED, divisórias de veludo para joias e quartos de casal, solteiro e infantis em Jaú.</p><p><a href="/closets-sob-medida-jau">Ver fotos de closets</a> · <a href="${wpp('Olá! Vi os projetos de Closet e Dormitório Planejado no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_closets')}">Orçar Closet no WhatsApp</a></p></article>
+        <article id="salas"><h3 class="v2-serif text-[1.5rem]">Salas de Estar, Painéis Ripados de TV e Home Theater</h3><p class="v2-corpo">Painéis ripados em MDF Freijó ou Nogueira até o teto com passagem oculta de cabos, racks suspensos com gavetões chanfrados e cristaleiras com vidro reflecta e iluminação indireta em LED.</p><p><a href="${wpp('Olá! Vi os projetos de Sala e Painel Ripado no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_salas')}">Orçar Sala no WhatsApp</a></p></article>
+        <article id="gourmet"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados para Área Gourmet, Churrasqueira e Lavanderia</h3><p class="v2-corpo">Armários sob medida com proteção contra umidade e calor próximos à churrasqueira, gabinetes em MDF naval, adegas climatizadas e lavanderias planejadas funcionais em Jaú e região.</p><p><a href="${wpp('Olá! Vi os projetos de Área Gourmet Planejada no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_gourmet')}">Orçar Área Gourmet no WhatsApp</a></p></article>
+        <article id="banheiros"><h3 class="v2-serif text-[1.5rem]">Banheiros e Lavabos Planejados</h3><p class="v2-corpo">Gabinetes sob medida 100% MDF naval com fitamento em PVC colado a quente resistente ao vapor, nichos organizadores e espelheiras com iluminação frontal ou indireta em LED.</p><p><a href="${wpp('Olá! Vi os projetos de Banheiro Planejado em MDF Naval no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_banheiros')}">Orçar Banheiro no WhatsApp</a></p></article>
+        <article id="corporativo"><h3 class="v2-serif text-[1.5rem]">Móveis Planejados Corporativos, Escritórios, Clínicas e Lojas em Jaú</h3><p class="v2-corpo">Recepções, estações de trabalho ergonômicas, salas de reunião, consultórios médicos e odontológicos, escritórios de advocacia e marcenaria comercial completa em Jaú.</p><p><a href="/home-office-planejado-jau">Ver marcenaria corporativa</a> · <a href="${wpp('Olá! Vi os projetos de Móveis Corporativos e Comerciais no site da Império Móveis e gostaria de um orçamento em Jaú/região.', 'ambiente_corporativo')}">Orçar Corporativo no WhatsApp</a></p></article>
       </div>
     </section>
-    <section id="v2-projeto-incluso" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">O projeto de arquitetura <em class="v2-italico">já vem junto.</em></h2><ol class="v2-corpo">${passos}</ol></section>
+    <section id="v2-projeto-incluso" class="v2-claro ${MARGEM} py-64">
+      <h2 class="v2-serif v2-titulo">Qual a diferença entre a Marcenaria Sob Medida Império <em class="v2-italico">e móveis modulados?</em></h2>
+      <p class="aeo-resposta-direta v2-corpo mt-16">Na Império Móveis Planejados em Jaú, o projeto executivo 3D assinado pela arquiteta já vem incluso gratuitamente e cada móvel é fabricado 100% em MDF sob medida (com MDF Naval em áreas úmidas), sem as frestas, réguas largas ou chapas de MDP comuns em móveis modulados.</p>
+      <table class="w-full text-left border-collapse mt-24">
+        <caption>Comparativo técnico entre Marcenaria Sob Medida Império 100% MDF em Jaú e Móveis Modulados Convencionais</caption>
+        <thead><tr><th scope="col">Critério Técnico</th><th scope="col">Móveis Modulados / Comum</th><th scope="col">Marcenaria Império 100% MDF (Jaú)</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Aproveitamento de Espaço</th><td>Caixas prontas de tamanho fixo com frestas e réguas largas de fechamento</td><td>Corte milimétrico parede a parede e do piso ao teto, aproveitando 100% do vão</td></tr>
+          <tr><th scope="row">Matéria-Prima Estrutural</th><td>Uso frequente de MDP ou aglomerado sem proteção contra umidade</td><td>Chapas 100% MDF (15mm, 18mm e 25mm) + MDF Naval Hidrófugo em áreas molhadas</td></tr>
+          <tr><th scope="row">Projeto de Arquitetura e 3D</th><td>Cobrado à parte ou limitado a modulação básica de loja</td><td>Projeto executivo e apresentação 3D no notebook inclusos com arquiteta própria</td></tr>
+          <tr><th scope="row">Ferragens e Acabamento</th><td>Dobradiças e corrediças simples sem amortecimento</td><td>Dobradiças e corrediças telescópicas/ocultas slow motion + fita PVC colada a quente</td></tr>
+          <tr><th scope="row">Medição e Montagem</th><td>Montadores terceirizados contratados por empreita rápida</td><td>Medição a laser e montagem limpa por marceneiros próprios da nossa fábrica em Jaú</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section id="v2-processo" class="v2-claro ${MARGEM} py-64">
+      <h2 class="v2-serif v2-titulo">Como funciona a fabricação de móveis planejados <em class="v2-italico">na Império em Jaú?</em></h2>
+      <p class="aeo-resposta-direta v2-corpo mt-16">Nosso processo em Jaú e região segue 4 etapas integradas: 1) Briefing e medição técnica a laser no imóvel; 2) Apresentação do Projeto 3D realista no notebook; 3) Fabricação própria 100% MDF no Jardim Itamarati; e 4) Entrega e montagem limpa por equipe própria.</p>
+      <ol class="v2-corpo mt-24">${passos}</ol>
+    </section>
     <section id="projetos" class="v2-escuro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Do Projeto 3D Realista no Notebook <em class="v2-italico">à Execução Milimétrica na Sua Casa em Jaú</em></h2><p class="v2-corpo">Antes de qualquer chapa de MDF ser cortada na nossa marcenaria no Jardim Itamarati, você visualiza no projeto 3D realista a iluminação em perfil de LED, a paginação dos veios do MDF, as divisórias internas e a abertura de portas. E também pode simular gratuitamente no configurador 3D online.</p></section>
     <section id="arquitetos" class="v2-claro ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Execução Fiel para Arquitetos e <em class="v2-italico">Designers de Interiores em Jaú</em></h2><p class="v2-corpo">Executamos projetos de arquitetos e engenheiros com fidelidade técnica absoluta ao caderno executivo, chapas 100% MDF de 15mm, 18mm e 25mm, cumprimento rigoroso de prazo em contrato (CNPJ ${esc(EMPRESA.cnpj)}) e condições diretas de fábrica (PIX, boleto, cartão de crédito e parcelamento direto).</p></section>
     <section id="faq" class="v2-areia ${MARGEM} py-64"><h2 class="v2-serif v2-titulo">Perguntas Frequentes sobre Móveis Planejados <em class="v2-italico">e Marcenaria em Jaú</em></h2>${perguntas}</section>
