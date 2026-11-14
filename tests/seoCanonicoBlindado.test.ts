@@ -80,3 +80,4 @@ describe('Conformidade Google Search Essentials e Domínio Canônico Único', ()
     expect(new Set(h1s).size).toBe(h1s.length);
   });
 });
+

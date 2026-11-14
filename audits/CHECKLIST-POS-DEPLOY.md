@@ -61,3 +61,4 @@ Este guia prático documenta os passos operacionais no **Google Search Console**
    - Enviar a página especialista `https://www.imperiomoveisplanejadosjau.com.br/marcenaria-em-jau` para arquitetos e designers parceiros em Jaú, solicitando menção/link como fornecedor de marcenaria executiva nas páginas de portfólio ou parceiros.
 2. **Diretórios Empresariais e Associações Locais:**
    - Garantir que o cadastro do CNPJ `48.945.152/0001-93` (`Wellington Ribeiro Cabral`) em guias empresariais de Jaú, catálogos regionais e redes sociais (`Instagram @imperio.moveis.jau`) aponte sempre para `https://www.imperiomoveisplanejadosjau.com.br/`.
+
